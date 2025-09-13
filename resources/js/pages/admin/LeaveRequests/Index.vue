@@ -27,9 +27,9 @@ interface LeaveRequest {
     total_days: number;
     reason: string;
     status: 'pending' | 'approved' | 'rejected';
-    applied_at: string;
+    created_at: string;
     reviewed_at?: string;
-    reviewer_notes?: string;
+    rejection_reason?: string;
     user: User;
     leave_type: LeaveType;
     reviewer?: User;
@@ -65,7 +65,7 @@ const breadcrumbs: BreadcrumbItem[] = [
         href: '/dashboard',
     },
     {
-        title: 'Leave Requests',
+        title: 'Permintaan Cuti',
         href: '/leave-requests',
     },
 ];
@@ -180,16 +180,16 @@ const confirmReject = () => {
 </script>
 
 <template>
-    <Head title="Leave Requests" />
+    <Head title="Permintaan Cuti" />
 
     <AppLayout :breadcrumbs="breadcrumbs">
         <div class="flex h-full flex-1 flex-col gap-6 p-6">
             <!-- Header -->
             <div class="flex items-center justify-between">
                 <div>
-                    <h1 class="text-2xl font-bold text-gray-900 dark:text-white">Leave Requests</h1>
+                    <h1 class="text-2xl font-bold text-gray-900 dark:text-white">Permintaan Cuti</h1>
                     <p class="text-gray-600 dark:text-gray-300">
-                        {{ currentUser.is_admin ? 'Manage employee leave requests' : 'View and manage your leave requests' }}
+                        {{ currentUser.is_admin ? 'Kelola pengajuan cuti karyawan' : 'Lihat dan kelola permintaan cuti Anda' }}
                     </p>
                 </div>
                 <Link
@@ -197,7 +197,7 @@ const confirmReject = () => {
                     class="inline-flex items-center gap-2 rounded-lg bg-blue-600 px-4 py-2 text-sm font-medium text-white hover:bg-blue-700"
                 >
                     <Plus class="h-4 w-4" />
-                    New Leave Request
+                    Ajukan Cuti
                 </Link>
             </div>
 
@@ -209,7 +209,7 @@ const confirmReject = () => {
                             <AlertCircle class="h-5 w-5 text-orange-600 dark:text-orange-400" />
                         </div>
                         <div>
-                            <p class="text-sm text-gray-600 dark:text-gray-300">Pending</p>
+                            <p class="text-sm text-gray-600 dark:text-gray-300">Menunggu</p>
                             <p class="text-xl font-bold text-gray-900 dark:text-white">
                                 {{ currentUser.is_admin ? stats.pending_count : stats.my_pending_count }}
                             </p>
@@ -222,7 +222,7 @@ const confirmReject = () => {
                             <CheckCircle class="h-5 w-5 text-green-600 dark:text-green-400" />
                         </div>
                         <div>
-                            <p class="text-sm text-gray-600 dark:text-gray-300">Approved</p>
+                            <p class="text-sm text-gray-600 dark:text-gray-300">Disetujui</p>
                             <p class="text-xl font-bold text-gray-900 dark:text-white">{{ stats.approved_count }}</p>
                         </div>
                     </div>
@@ -233,7 +233,7 @@ const confirmReject = () => {
                             <XCircle class="h-5 w-5 text-red-600 dark:text-red-400" />
                         </div>
                         <div>
-                            <p class="text-sm text-gray-600 dark:text-gray-300">Rejected</p>
+                            <p class="text-sm text-gray-600 dark:text-gray-300">Ditolak</p>
                             <p class="text-xl font-bold text-gray-900 dark:text-white">{{ stats.rejected_count }}</p>
                         </div>
                     </div>
@@ -244,7 +244,7 @@ const confirmReject = () => {
                             <Calendar class="h-5 w-5 text-blue-600 dark:text-blue-400" />
                         </div>
                         <div>
-                            <p class="text-sm text-gray-600 dark:text-gray-300">Total Requests</p>
+                            <p class="text-sm text-gray-600 dark:text-gray-300">Total Pengajuan</p>
                             <p class="text-xl font-bold text-gray-900 dark:text-white">{{ leaveRequests?.meta?.total || 0 }}</p>
                         </div>
                     </div>
@@ -260,7 +260,7 @@ const confirmReject = () => {
                             v-model="searchQuery"
                             @input="filterRequests"
                             type="text"
-                            placeholder="Search requests..."
+                            placeholder="Cari pengajuan..."
                             class="w-full rounded-lg border border-gray-300 pl-10 pr-3 py-2 text-sm dark:border-gray-600 dark:bg-gray-800 dark:text-white"
                         />
                     </div>
@@ -269,17 +269,17 @@ const confirmReject = () => {
                         @change="filterRequests"
                         class="rounded-lg border border-gray-300 px-3 py-2 text-sm dark:border-gray-600 dark:bg-gray-800"
                     >
-                        <option value="">All Status</option>
-                        <option value="pending">Pending</option>
-                        <option value="approved">Approved</option>
-                        <option value="rejected">Rejected</option>
+                        <option value="">Semua Status</option>
+                        <option value="pending">Menunggu</option>
+                        <option value="approved">Disetujui</option>
+                        <option value="rejected">Ditolak</option>
                     </select>
                     <select
                         v-model="selectedLeaveType"
                         @change="filterRequests"
                         class="rounded-lg border border-gray-300 px-3 py-2 text-sm dark:border-gray-600 dark:bg-gray-800"
                     >
-                        <option value="">All Leave Types</option>
+                        <option value="">Semua Jenis Cuti</option>
                         <option v-for="type in leaveTypes" :key="type.id" :value="type.id">
                             {{ type.name }}
                         </option>
@@ -290,7 +290,7 @@ const confirmReject = () => {
                             class="inline-flex items-center gap-2 rounded-lg bg-gray-100 px-3 py-2 text-sm font-medium text-gray-700 hover:bg-gray-200 dark:bg-gray-800 dark:text-gray-300 dark:hover:bg-gray-700"
                         >
                             <Filter class="h-4 w-4" />
-                            Apply
+                            Terapkan
                         </button>
                     </div>
                 </div>
@@ -299,7 +299,7 @@ const confirmReject = () => {
             <!-- Leave Requests List -->
             <div class="rounded-xl border border-sidebar-border/70 bg-white dark:border-sidebar-border dark:bg-gray-950">
                 <div class="p-6">
-                    <h2 class="text-lg font-semibold text-gray-900 dark:text-white">Leave Requests</h2>
+                    <h2 class="text-lg font-semibold text-gray-900 dark:text-white">Daftar Pengajuan Cuti</h2>
                 </div>
 
                 <div class="space-y-4 p-6 pt-0">
@@ -346,23 +346,23 @@ const confirmReject = () => {
                                         <div class="flex items-center gap-2 text-sm text-gray-600 dark:text-gray-300">
                                             <Clock class="h-4 w-4" />
                                             {{ formatDate(request.start_date) }} - {{ formatDate(request.end_date) }}
-                                            ({{ request.total_days }} days)
+                                            ({{ request.total_days }} hari)
                                         </div>
                                     </div>
                                     <div class="mt-2">
                                         <p class="text-sm text-gray-600 dark:text-gray-300">
-                                            <span class="font-medium">Reason:</span> {{ request.reason }}
+                                            <span class="font-medium">Alasan:</span> {{ request.reason }}
                                         </p>
                                     </div>
                                     <div class="mt-2 text-xs text-gray-500 dark:text-gray-400">
-                                        Applied on {{ formatDateTime(request.applied_at) }}
+                                        Diajukan pada {{ formatDateTime(request.created_at) }}
                                         <span v-if="request.reviewed_at && request.reviewer">
-                                            • Reviewed by {{ request.reviewer.name }} on {{ formatDateTime(request.reviewed_at) }}
+                                            • Direview oleh {{ request.reviewer.name }} pada {{ formatDateTime(request.reviewed_at) }}
                                         </span>
                                     </div>
-                                    <div v-if="request.reviewer_notes" class="mt-2 rounded-lg bg-gray-50 p-3 dark:bg-gray-800">
+                                    <div v-if="request.rejection_reason" class="mt-2 rounded-lg bg-gray-50 p-3 dark:bg-gray-800">
                                         <p class="text-sm text-gray-600 dark:text-gray-300">
-                                            <span class="font-medium">Reviewer Notes:</span> {{ request.reviewer_notes }}
+                                            <span class="font-medium">Alasan Penolakan:</span> {{ request.rejection_reason }}
                                         </p>
                                     </div>
                                 </div>
@@ -389,7 +389,7 @@ const confirmReject = () => {
                 <div v-if="leaveRequests?.meta?.total > leaveRequests?.meta?.per_page" class="border-t border-gray-200 p-4 dark:border-gray-700">
                     <div class="flex items-center justify-between">
                         <p class="text-sm text-gray-500 dark:text-gray-400">
-                            Showing {{ leaveRequests.meta.from }} to {{ leaveRequests.meta.to }} of {{ leaveRequests.meta.total }} results
+                            Menampilkan {{ leaveRequests.meta.from }} sampai {{ leaveRequests.meta.to }} dari {{ leaveRequests.meta.total }} hasil
                         </p>
                         <div class="flex gap-2">
                             <Link
@@ -421,15 +421,15 @@ const confirmReject = () => {
                 class="w-full max-w-md rounded-xl border-0 bg-white p-6 dark:bg-gray-950"
                 @click.stop
             >
-                <h3 class="text-lg font-semibold text-gray-900 dark:text-white">Reject Leave Request</h3>
+                <h3 class="text-lg font-semibold text-gray-900 dark:text-white">Tolak Permintaan Cuti</h3>
                 <p class="mt-2 text-sm text-gray-600 dark:text-gray-300">
-                    Please provide a reason for rejecting this leave request:
+                    Silakan berikan alasan untuk menolak permintaan cuti ini:
                 </p>
                 <div class="mt-4">
                     <textarea
                         v-model="rejectNotes"
                         rows="4"
-                        placeholder="Enter rejection reason..."
+                        placeholder="Masukkan alasan penolakan..."
                         class="w-full rounded-lg border border-gray-300 px-3 py-2 text-sm dark:border-gray-600 dark:bg-gray-800 dark:text-white"
                     />
                 </div>
@@ -438,13 +438,13 @@ const confirmReject = () => {
                         @click="closeRejectModal"
                         class="rounded-lg border border-gray-300 px-4 py-2 text-sm font-medium text-gray-700 hover:bg-gray-50 dark:border-gray-600 dark:text-gray-300 dark:hover:bg-gray-800"
                     >
-                        Cancel
+                        Batal
                     </button>
                     <button
                         @click="confirmReject"
                         class="rounded-lg bg-red-600 px-4 py-2 text-sm font-medium text-white hover:bg-red-700"
                     >
-                        Reject Request
+                        Tolak Permintaan
                     </button>
                 </div>
             </div>

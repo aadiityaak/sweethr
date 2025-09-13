@@ -3,7 +3,7 @@ import AppLayout from '@/layouts/AppLayout.vue';
 import { type BreadcrumbItem } from '@/types';
 import { Head, useForm } from '@inertiajs/vue3';
 import { MapPin, Save, Navigation, Target } from 'lucide-vue-next';
-import { ref, onMounted, watch, computed } from 'vue';
+import { ref, onMounted, watch, computed, nextTick } from 'vue';
 import LeafletMap from '@/components/LeafletMap.vue';
 
 interface OfficeLocation {
@@ -89,11 +89,23 @@ const getCurrentLocation = () => {
     }
 };
 
-const onMapClick = (coordinates: {latitude: number, longitude: number}) => {
+const onMapClick = async (coordinates: {latitude: number, longitude: number}) => {
     console.log('Map clicked, new coordinates:', coordinates);
-    form.latitude = coordinates.latitude;
-    form.longitude = coordinates.longitude;
-    selectedLocation.value = coordinates;
+    // Limit to 8 decimal places for practical use
+    const lat = Number(coordinates.latitude.toFixed(8));
+    const lng = Number(coordinates.longitude.toFixed(8));
+
+    form.latitude = lat;
+    form.longitude = lng;
+
+    await nextTick();
+
+    selectedLocation.value = {
+        latitude: lat,
+        longitude: lng
+    };
+
+    console.log('Updated form coordinates:', { lat: form.latitude, lng: form.longitude });
     console.log('Updated selectedLocation:', selectedLocation.value);
 };
 
@@ -109,11 +121,11 @@ const submit = () => {
 watch([() => form.latitude, () => form.longitude], ([lat, lng]) => {
     if (lat && lng) {
         selectedLocation.value = {
-            latitude: lat,
-            longitude: lng,
+            latitude: Number(lat),
+            longitude: Number(lng),
         };
     }
-});
+}, { immediate: true });
 
 onMounted(() => {
     // Set initial coordinates from office location
@@ -183,7 +195,7 @@ onMounted(() => {
                                     id="latitude"
                                     v-model="form.latitude"
                                     type="number"
-                                    step="0.000001"
+                                    step="0.00000001"
                                     required
                                     class="w-full rounded-lg border border-gray-300 px-3 py-2 text-sm focus:border-blue-500 focus:ring-blue-500 dark:border-gray-600 dark:bg-gray-800 dark:text-white"
                                     placeholder="-6.2088"
@@ -198,7 +210,7 @@ onMounted(() => {
                                     id="longitude"
                                     v-model="form.longitude"
                                     type="number"
-                                    step="0.000001"
+                                    step="0.00000001"
                                     required
                                     class="w-full rounded-lg border border-gray-300 px-3 py-2 text-sm focus:border-blue-500 focus:ring-blue-500 dark:border-gray-600 dark:bg-gray-800 dark:text-white"
                                     placeholder="106.8456"
@@ -298,7 +310,7 @@ onMounted(() => {
                             <span class="font-medium text-gray-700 dark:text-gray-300">Koordinat Saat Ini:</span>
                         </div>
                         <div class="mt-1 text-sm text-gray-600 dark:text-gray-400">
-                            {{ form.latitude && form.longitude ? `${Number(form.latitude).toFixed(6)}, ${Number(form.longitude).toFixed(6)}` : 'No coordinates set' }}
+                            {{ form.latitude && form.longitude ? `${Number(form.latitude).toFixed(8)}, ${Number(form.longitude).toFixed(8)}` : 'Koordinat belum diatur' }}
                         </div>
                         <div class="mt-2 flex items-center gap-2 text-sm">
                             <Target class="h-4 w-4 text-green-600" />
