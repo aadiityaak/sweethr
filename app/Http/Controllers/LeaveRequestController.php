@@ -88,16 +88,29 @@ class LeaveRequestController extends Controller
             'start_date' => 'required|date|after_or_equal:today',
             'end_date' => 'required|date|after_or_equal:start_date',
             'reason' => 'required|string|max:1000',
+            'attachment' => 'nullable|file|image|max:5120', // 5MB max
         ]);
 
-        LeaveRequest::create([
+        $leaveRequestData = [
             'user_id' => auth()->id(),
             'leave_type_id' => $validated['leave_type_id'],
             'start_date' => $validated['start_date'],
             'end_date' => $validated['end_date'],
             'reason' => $validated['reason'],
             'status' => 'pending',
-        ]);
+        ];
+
+        // Handle file upload
+        if ($request->hasFile('attachment')) {
+            $file = $request->file('attachment');
+            $originalName = $file->getClientOriginalName();
+            $path = $file->store('leave-attachments', 'public');
+
+            $leaveRequestData['attachment_path'] = $path;
+            $leaveRequestData['attachment_original_name'] = $originalName;
+        }
+
+        LeaveRequest::create($leaveRequestData);
 
         return redirect()->route('leave-requests.index')
             ->with('success', 'Leave request submitted successfully.');

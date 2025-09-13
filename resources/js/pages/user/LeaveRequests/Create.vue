@@ -4,7 +4,7 @@
         <div class="sticky top-0 z-50 bg-background/95 backdrop-blur supports-[backdrop-filter]:bg-background/60 border-b border-border">
             <div class="flex items-center justify-between p-4">
                 <div class="flex items-center gap-3">
-                    <button @click="$inertia.visit(route('leave-requests.index'))" class="p-2 -ml-2 rounded-lg hover:bg-muted transition-colors">
+                    <button @click="$inertia.visit('/leave-requests')" class="p-2 -ml-2 rounded-lg hover:bg-muted transition-colors">
                         <ArrowLeft class="h-5 w-5" />
                     </button>
                     <h1 class="text-lg font-semibold">Ajukan Cuti</h1>
@@ -15,8 +15,9 @@
         <!-- Form -->
         <div class="p-4 space-y-6">
             <Form
-                :action="route('leave-requests.store')"
+                action="/leave-requests"
                 method="post"
+                enctype="multipart/form-data"
                 #default="{ errors, processing, wasSuccessful }"
             >
                 <div class="space-y-4">
@@ -85,6 +86,26 @@
                         </div>
                     </div>
 
+                    <!-- Attachment -->
+                    <div class="space-y-2">
+                        <Label for="attachment">Lampiran Foto (Opsional)</Label>
+                        <div class="space-y-2">
+                            <input
+                                id="attachment"
+                                name="attachment"
+                                type="file"
+                                accept="image/*"
+                                class="w-full px-3 py-2 border border-input rounded-md bg-background text-foreground focus:outline-none focus:ring-2 focus:ring-ring focus:border-transparent file:mr-4 file:py-1 file:px-3 file:rounded-md file:border-0 file:text-sm file:bg-muted file:text-muted-foreground hover:file:bg-muted/80"
+                            />
+                            <p class="text-xs text-muted-foreground">
+                                Upload foto surat ijin, surat dokter, atau dokumen pendukung lainnya (maks. 5MB)
+                            </p>
+                        </div>
+                        <div v-if="errors.attachment" class="text-sm text-destructive">
+                            {{ errors.attachment }}
+                        </div>
+                    </div>
+
                     <!-- Submit Button -->
                     <div class="pt-4">
                         <button
@@ -104,19 +125,19 @@
         <div class="fixed bottom-0 left-0 right-0 bg-background border-t border-border">
             <div class="mx-auto max-w-[480px]">
                 <nav class="flex items-center justify-around py-2">
-                    <button @click="$inertia.visit(route('welcome'))" class="flex flex-col items-center gap-1 p-2 text-muted-foreground hover:text-foreground transition-colors">
+                    <button @click="$inertia.visit('/home')" class="flex flex-col items-center gap-1 p-2 text-muted-foreground hover:text-foreground transition-colors">
                         <House class="h-5 w-5" />
                         <span class="text-xs">Beranda</span>
                     </button>
-                    <button @click="$inertia.visit(route('attendance.index'))" class="flex flex-col items-center gap-1 p-2 text-muted-foreground hover:text-foreground transition-colors">
+                    <button @click="$inertia.visit('/attendance')" class="flex flex-col items-center gap-1 p-2 text-muted-foreground hover:text-foreground transition-colors">
                         <Target class="h-5 w-5" />
                         <span class="text-xs">Absensi</span>
                     </button>
-                    <button @click="$inertia.visit(route('leave-requests.index'))" class="flex flex-col items-center gap-1 p-2 text-foreground">
+                    <button @click="$inertia.visit('/leave-requests')" class="flex flex-col items-center gap-1 p-2 text-foreground">
                         <CircleCheckBig class="h-5 w-5" />
                         <span class="text-xs">Cuti</span>
                     </button>
-                    <button @click="$inertia.visit(route('profile.show'))" class="flex flex-col items-center gap-1 p-2 text-muted-foreground hover:text-foreground transition-colors">
+                    <button @click="$inertia.visit('/profile')" class="flex flex-col items-center gap-1 p-2 text-muted-foreground hover:text-foreground transition-colors">
                         <Settings class="h-5 w-5" />
                         <span class="text-xs">Profil</span>
                     </button>
