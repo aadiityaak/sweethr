@@ -8,9 +8,21 @@
       "Bash(composer:*)",
       "Bash(npm install:*)",
       "WebFetch(domain:127.0.0.1)",
-      "Bash(php -l:*)"
+      "Bash(php -l:*)",
+      "mcp__laravel-boost__application-info",
+      "mcp__laravel-boost__database-schema",
+      "mcp__laravel-boost__tinker",
+      "Bash(npm run build:*)",
+      "Bash(vue-tsc --noEmit)",
+      "Bash(npx vue-tsc:*)",
+      "Bash(npm run lint)",
+      "Bash(vendor/bin/pint:*)"
     ],
     "deny": [],
     "ask": []
-  }
+  },
+  "enableAllProjectMcpServers": true,
+  "enabledMcpjsonServers": [
+    "laravel-boost"
+  ]
 }

@@ -32,6 +32,18 @@ export interface User {
     email_verified_at: string | null;
     created_at: string;
     updated_at: string;
+    employee_id?: string;
+    phone?: string;
+    date_of_birth?: string;
+    gender?: string;
+    address?: string;
+    hire_date?: string;
+    department_id?: number;
+    position_id?: number;
+    manager_id?: number;
+    employment_status?: string;
+    emergency_contact?: any;
+    is_admin: boolean;
 }
 
 export type BreadcrumbItemType = BreadcrumbItem;

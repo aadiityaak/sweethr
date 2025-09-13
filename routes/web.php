@@ -1,10 +1,15 @@
 <?php
 
 use Illuminate\Support\Facades\Route;
-use Inertia\Inertia;
 
 Route::get('/', function () {
-    return Inertia::render('user/Welcome');
+    // Jika user tidak login, redirect ke /login
+    if (! auth()->check()) {
+        return redirect()->route('login');
+    }
+
+    // Jika user sudah login (baik admin maupun karyawan), redirect ke /welcome
+    return redirect()->route('welcome');
 })->name('home');
 
 Route::middleware(['auth', 'verified'])->group(function () {
