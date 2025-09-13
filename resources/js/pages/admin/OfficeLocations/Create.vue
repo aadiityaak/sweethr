@@ -40,12 +40,13 @@ const currentLocation = ref<{latitude: number, longitude: number} | null>(null);
 const mapLocations = computed(() => {
     if (!form.latitude || !form.longitude) return [];
 
+    console.log('mapLocations computed:', { lat: form.latitude, lng: form.longitude });
     return [{
         id: 0,
         name: form.name || 'New Location',
         address: form.address || '',
-        latitude: form.latitude,
-        longitude: form.longitude,
+        latitude: Number(form.latitude),
+        longitude: Number(form.longitude),
         radius_meters: form.radius_meters,
         is_active: true
     }];
@@ -273,7 +274,7 @@ onMounted(() => {
                     <LeafletMap
                         v-if="form.latitude && form.longitude"
                         :locations="mapLocations"
-                        :selected-location="{ latitude: form.latitude, longitude: form.longitude }"
+                        :selected-location="{ latitude: Number(form.latitude), longitude: Number(form.longitude) }"
                         height="400px"
                         :show-radius="true"
                         :interactive="true"

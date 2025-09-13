@@ -194,24 +194,24 @@ onMounted(() => {
     initializeMap();
 });
 
-watch(() => props.locations, () => {
+watch(() => props.locations, async () => {
     if (map) {
-        const L = require('leaflet');
+        const L = await import('leaflet');
         addOfficeMarkers(L);
     }
 }, { deep: true });
 
-watch(() => props.userLocation, () => {
+watch(() => props.userLocation, async () => {
     if (map) {
-        const L = require('leaflet');
+        const L = await import('leaflet');
         addUserMarker(L);
     }
 }, { deep: true });
 
-watch(() => props.selectedLocation, (newLocation) => {
+watch(() => props.selectedLocation, async (newLocation) => {
     console.log('selectedLocation changed:', newLocation);
     if (map && newLocation) {
-        const L = require('leaflet');
+        const L = await import('leaflet');
         // Update map center and zoom to selected location
         map.setView([newLocation.latitude, newLocation.longitude], 16);
         // Re-add markers to update the display
