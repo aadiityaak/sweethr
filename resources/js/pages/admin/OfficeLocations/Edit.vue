@@ -2,13 +2,27 @@
 import AppLayout from '@/layouts/AppLayout.vue';
 import { type BreadcrumbItem } from '@/types';
 import { Head, useForm } from '@inertiajs/vue3';
-import { MapPin, Plus, Navigation, Target } from 'lucide-vue-next';
+import { MapPin, Save, Navigation, Target } from 'lucide-vue-next';
 import { ref, onMounted, watch, computed } from 'vue';
 import LeafletMap from '@/components/LeafletMap.vue';
 
-interface Props {
-    // No props needed for create page
+interface OfficeLocation {
+    id: number;
+    name: string;
+    address: string;
+    latitude: number;
+    longitude: number;
+    radius_meters: number;
+    is_active: boolean;
+    created_at: string;
+    updated_at: string;
 }
+
+interface Props {
+    officeLocation: OfficeLocation;
+}
+
+const { officeLocation } = defineProps<Props>();
 
 const breadcrumbs: BreadcrumbItem[] = [
     {
@@ -20,18 +34,18 @@ const breadcrumbs: BreadcrumbItem[] = [
         href: '/office-locations',
     },
     {
-        title: 'Create Location',
-        href: '/office-locations/create',
+        title: 'Edit Location',
+        href: `/office-locations/${officeLocation.id}/edit`,
     },
 ];
 
 const form = useForm({
-    name: '',
-    address: '',
-    latitude: null as number | null,
-    longitude: null as number | null,
-    radius_meters: 100,
-    is_active: true,
+    name: officeLocation.name,
+    address: officeLocation.address,
+    latitude: officeLocation.latitude,
+    longitude: officeLocation.longitude,
+    radius_meters: officeLocation.radius_meters,
+    is_active: officeLocation.is_active,
 });
 
 const selectedLocation = ref<{latitude: number, longitude: number} | null>(null);
@@ -41,13 +55,13 @@ const mapLocations = computed(() => {
     if (!form.latitude || !form.longitude) return [];
 
     return [{
-        id: 0,
-        name: form.name || 'New Location',
+        id: officeLocation.id,
+        name: form.name || 'Location',
         address: form.address || '',
         latitude: form.latitude,
         longitude: form.longitude,
         radius_meters: form.radius_meters,
-        is_active: true
+        is_active: form.is_active
     }];
 });
 
@@ -83,7 +97,7 @@ const onMapClick = (coordinates: {latitude: number, longitude: number}) => {
 };
 
 const submit = () => {
-    form.post('/office-locations', {
+    form.put(`/office-locations/${officeLocation.id}`, {
         onSuccess: () => {
             // Will redirect to index page
         },
@@ -101,27 +115,24 @@ watch([() => form.latitude, () => form.longitude], ([lat, lng]) => {
 });
 
 onMounted(() => {
-    // Set default coordinates to Jakarta, Indonesia
-    const defaultCoords = {
-        latitude: -6.2088,
-        longitude: 106.8456,
+    // Set initial coordinates from office location
+    selectedLocation.value = {
+        latitude: officeLocation.latitude,
+        longitude: officeLocation.longitude,
     };
-    selectedLocation.value = defaultCoords;
-    form.latitude = defaultCoords.latitude;
-    form.longitude = defaultCoords.longitude;
 });
 </script>
 
 <template>
-    <Head title="Create Office Location" />
+    <Head :title="`Edit Office Location - ${officeLocation.name}`" />
 
     <AppLayout :breadcrumbs="breadcrumbs">
         <div class="flex h-full flex-1 flex-col gap-6 p-6">
             <!-- Header -->
             <div class="flex items-center justify-between">
                 <div>
-                    <h1 class="text-2xl font-bold text-gray-900 dark:text-white">Create Office Location</h1>
-                    <p class="text-gray-600 dark:text-gray-300">Add a new office location for attendance tracking</p>
+                    <h1 class="text-2xl font-bold text-gray-900 dark:text-white">Edit Office Location</h1>
+                    <p class="text-gray-600 dark:text-gray-300">Update office location details and attendance zone</p>
                 </div>
             </div>
 
@@ -249,8 +260,8 @@ onMounted(() => {
                                 :disabled="form.processing"
                                 class="inline-flex items-center gap-2 rounded-lg bg-blue-600 px-6 py-2 text-sm font-medium text-white hover:bg-blue-700 disabled:opacity-50"
                             >
-                                <Plus class="h-4 w-4" />
-                                {{ form.processing ? 'Creating...' : 'Create Location' }}
+                                <Save class="h-4 w-4" />
+                                {{ form.processing ? 'Updating...' : 'Update Location' }}
                             </button>
                             <a
                                 href="/office-locations"
@@ -266,7 +277,7 @@ onMounted(() => {
                 <div class="rounded-xl border border-sidebar-border/70 bg-white p-6 dark:border-sidebar-border dark:bg-gray-950">
                     <div class="mb-4">
                         <h3 class="text-lg font-semibold text-gray-900 dark:text-white">Location Preview</h3>
-                        <p class="text-sm text-gray-600 dark:text-gray-300">Click on the map to set coordinates</p>
+                        <p class="text-sm text-gray-600 dark:text-gray-300">Click on the map to update coordinates</p>
                     </div>
 
                     <!-- Interactive Leaflet Map -->
@@ -286,7 +297,7 @@ onMounted(() => {
                             <span class="font-medium text-gray-700 dark:text-gray-300">Current Coordinates:</span>
                         </div>
                         <div class="mt-1 text-sm text-gray-600 dark:text-gray-400">
-                            {{ form.latitude && form.longitude ? `${form.latitude.toFixed(6)}, ${form.longitude.toFixed(6)}` : 'No coordinates set' }}
+                            {{ form.latitude && form.longitude ? `${Number(form.latitude).toFixed(6)}, ${Number(form.longitude).toFixed(6)}` : 'No coordinates set' }}
                         </div>
                         <div class="mt-2 flex items-center gap-2 text-sm">
                             <Target class="h-4 w-4 text-green-600" />

@@ -208,11 +208,12 @@ watch(() => props.userLocation, () => {
     }
 }, { deep: true });
 
-watch(() => props.selectedLocation, () => {
-    if (map && props.selectedLocation) {
+watch(() => props.selectedLocation, (newLocation) => {
+    console.log('selectedLocation changed:', newLocation);
+    if (map && newLocation) {
         const L = require('leaflet');
         // Update map center and zoom to selected location
-        map.setView([props.selectedLocation.latitude, props.selectedLocation.longitude], 16);
+        map.setView([newLocation.latitude, newLocation.longitude], 16);
         // Re-add markers to update the display
         addOfficeMarkers(L);
     }
