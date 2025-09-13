@@ -50,7 +50,7 @@ class EmployeeController extends Controller
         $departments = Department::orderBy('name')->get(['id', 'name']);
         $positions = Position::orderBy('title')->get(['id', 'title']);
 
-        return Inertia::render('Employees/Index', [
+        return Inertia::render('admin/Employees/Index', [
             'employees' => $employees,
             'departments' => $departments,
             'positions' => $positions,
@@ -63,7 +63,7 @@ class EmployeeController extends Controller
         $departments = Department::orderBy('name')->get(['id', 'name']);
         $positions = Position::orderBy('title')->get(['id', 'title', 'level']);
 
-        return Inertia::render('Employees/Create', [
+        return Inertia::render('admin/Employees/Create', [
             'departments' => $departments,
             'positions' => $positions,
         ]);
@@ -100,7 +100,7 @@ class EmployeeController extends Controller
             $query->with('officeLocation')->latest()->take(10);
         }]);
 
-        return Inertia::render('Employees/Show', [
+        return Inertia::render('admin/Employees/Show', [
             'employee' => $employee,
         ]);
     }
@@ -110,7 +110,7 @@ class EmployeeController extends Controller
         $departments = Department::orderBy('name')->get(['id', 'name']);
         $positions = Position::orderBy('title')->get(['id', 'title', 'level']);
 
-        return Inertia::render('Employees/Edit', [
+        return Inertia::render('admin/Employees/Edit', [
             'employee' => $employee,
             'departments' => $departments,
             'positions' => $positions,

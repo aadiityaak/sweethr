@@ -44,7 +44,7 @@ class LeaveRequestController extends Controller
         // Get leave types for filter
         $leaveTypes = LeaveType::orderBy('name')->get(['id', 'name']);
 
-        return Inertia::render('LeaveRequests/Index', [
+        return Inertia::render('admin/LeaveRequests/Index', [
             'leaveRequests' => $leaveRequests,
             'leaveTypes' => $leaveTypes,
             'currentUser' => auth()->user()->load('department', 'position'),

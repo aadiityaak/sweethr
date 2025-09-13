@@ -33,7 +33,7 @@ class AttendanceController extends Controller
                                     ->with('officeLocation')
                                     ->first();
 
-        return Inertia::render('Attendance/Index', [
+        return Inertia::render('user/Attendance/Index', [
             'attendances' => $attendances,
             'todayAttendance' => $todayAttendance,
             'filters' => $request->only(['month', 'year']),
@@ -58,7 +58,7 @@ class AttendanceController extends Controller
         // Get all office locations
         $officeLocations = OfficeLocation::active()->get();
 
-        return Inertia::render('Attendance/CheckIn', [
+        return Inertia::render('user/Attendance/CheckIn', [
             'officeLocations' => $officeLocations,
             'existingAttendance' => $existingAttendance,
         ]);

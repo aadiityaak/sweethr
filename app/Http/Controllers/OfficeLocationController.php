@@ -38,7 +38,7 @@ class OfficeLocationController extends Controller
             'today_checkins' => Attendance::whereDate('created_at', Carbon::today())->count(),
         ];
 
-        return Inertia::render('OfficeLocations/Index', [
+        return Inertia::render('admin/OfficeLocations/Index', [
             'officeLocations' => $officeLocations,
             'filters' => $request->only(['search', 'status']),
             'stats' => $stats,
@@ -47,7 +47,7 @@ class OfficeLocationController extends Controller
 
     public function create(): Response
     {
-        return Inertia::render('OfficeLocations/Create');
+        return Inertia::render('admin/OfficeLocations/Create');
     }
 
     public function store(Request $request)
@@ -78,14 +78,14 @@ class OfficeLocationController extends Controller
             }
         ]);
 
-        return Inertia::render('OfficeLocations/Show', [
+        return Inertia::render('admin/OfficeLocations/Show', [
             'officeLocation' => $officeLocation,
         ]);
     }
 
     public function edit(OfficeLocation $officeLocation): Response
     {
-        return Inertia::render('OfficeLocations/Edit', [
+        return Inertia::render('admin/OfficeLocations/Edit', [
             'officeLocation' => $officeLocation,
         ]);
     }

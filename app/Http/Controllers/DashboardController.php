@@ -36,7 +36,7 @@ class DashboardController extends Controller
         // Calculate stats
         $stats = $this->getStats($user);
 
-        return Inertia::render('Dashboard', [
+        return Inertia::render('admin/Dashboard', [
             'user' => $user->load(['department', 'position']),
             'todayAttendance' => $todayAttendance,
             'pendingLeaves' => $pendingLeaves,
@@ -78,7 +78,7 @@ class DashboardController extends Controller
             'leave_balance' => $this->calculateLeaveBalance($user->id),
         ];
 
-        return Inertia::render('Welcome', [
+        return Inertia::render('user/Welcome', [
             'user' => $user->load(['department', 'position']),
             'todayAttendance' => $todayAttendance,
             'stats' => $stats,
