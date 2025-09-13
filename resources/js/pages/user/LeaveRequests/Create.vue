@@ -43,13 +43,13 @@
                     <!-- Start Date -->
                     <div class="space-y-2">
                         <Label for="start_date">Tanggal Mulai</Label>
-                        <Input
-                            id="start_date"
-                            name="start_date"
-                            type="date"
+                        <DatePicker
+                            v-model="startDate"
+                            placeholder="Pilih tanggal mulai"
                             required
                             class="w-full"
                         />
+                        <input type="hidden" name="start_date" :value="startDate" />
                         <div v-if="errors.start_date" class="text-sm text-destructive">
                             {{ errors.start_date }}
                         </div>
@@ -58,13 +58,13 @@
                     <!-- End Date -->
                     <div class="space-y-2">
                         <Label for="end_date">Tanggal Selesai</Label>
-                        <Input
-                            id="end_date"
-                            name="end_date"
-                            type="date"
+                        <DatePicker
+                            v-model="endDate"
+                            placeholder="Pilih tanggal selesai"
                             required
                             class="w-full"
                         />
+                        <input type="hidden" name="end_date" :value="endDate" />
                         <div v-if="errors.end_date" class="text-sm text-destructive">
                             {{ errors.end_date }}
                         </div>
@@ -151,10 +151,11 @@
 </template>
 
 <script setup lang="ts">
+import { ref } from 'vue'
 import { Form } from '@inertiajs/vue3'
 import { ArrowLeft, House, Target, CircleCheckBig, Settings, LoaderCircle } from 'lucide-vue-next'
 import { Label } from '@/components/ui/label'
-import { Input } from '@/components/ui/input'
+import { DatePicker } from '@/components/ui/date-picker'
 
 interface LeaveType {
     id: number
@@ -166,4 +167,7 @@ interface Props {
 }
 
 defineProps<Props>()
+
+const startDate = ref('')
+const endDate = ref('')
 </script>
