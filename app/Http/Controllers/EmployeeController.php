@@ -14,12 +14,7 @@ class EmployeeController extends Controller
     public function __construct()
     {
         $this->middleware('auth');
-        $this->middleware(function ($request, $next) {
-            if (!auth()->user()->is_admin) {
-                abort(403, 'Access denied. Admin privileges required.');
-            }
-            return $next($request);
-        });
+        // Admin middleware is now handled at route level
     }
 
     public function index(Request $request): Response

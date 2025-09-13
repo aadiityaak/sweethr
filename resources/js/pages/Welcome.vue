@@ -30,9 +30,9 @@ interface TodayAttendance {
 }
 
 interface Props {
-    user: User;
-    todayAttendance: TodayAttendance | null;
-    stats: {
+    user?: User;
+    todayAttendance?: TodayAttendance | null;
+    stats?: {
         monthly_attendance_days: number;
         monthly_late_days: number;
         monthly_work_hours: number;
@@ -93,8 +93,8 @@ const getCurrentDate = () => {
                     </div>
                     <div class="flex items-center gap-4">
                         <div class="text-right">
-                            <p class="text-sm font-medium text-gray-900 dark:text-white">{{ user.name }}</p>
-                            <p class="text-xs text-gray-500 dark:text-gray-400">{{ user.employee_id }}</p>
+                            <p class="text-sm font-medium text-gray-900 dark:text-white">{{ user?.name || 'Guest' }}</p>
+                            <p class="text-xs text-gray-500 dark:text-gray-400">{{ user?.employee_id || '--' }}</p>
                         </div>
                         <Link
                             href="/logout"
@@ -115,10 +115,10 @@ const getCurrentDate = () => {
             <div class="mb-8 rounded-xl bg-white p-6 shadow-sm dark:bg-gray-950">
                 <div class="text-center">
                     <h2 class="text-2xl font-bold text-gray-900 dark:text-white">
-                        Selamat datang, {{ user.name }}!
+                        Selamat datang, {{ user?.name || 'Guest' }}!
                     </h2>
                     <p class="mt-1 text-gray-600 dark:text-gray-300">
-                        {{ user.department?.name }} • {{ user.position?.title }}
+                        {{ user?.department?.name || 'No Department' }} • {{ user?.position?.title || 'No Position' }}
                     </p>
                     <p class="mt-2 text-lg text-blue-600 dark:text-blue-400">
                         {{ getCurrentDate() }}
@@ -171,7 +171,7 @@ const getCurrentDate = () => {
                     </div>
                 </div>
 
-                <div v-if="todayAttendance" class="mt-4 flex items-center gap-2 rounded-lg bg-gray-50 p-3 dark:bg-gray-800">
+                <div v-if="todayAttendance?.office_location" class="mt-4 flex items-center gap-2 rounded-lg bg-gray-50 p-3 dark:bg-gray-800">
                     <MapPin class="h-4 w-4 text-gray-400" />
                     <span class="text-sm text-gray-600 dark:text-gray-300">
                         Lokasi: {{ todayAttendance.office_location.name }}
@@ -224,7 +224,7 @@ const getCurrentDate = () => {
                         <div class="mx-auto mb-2 w-fit rounded-lg bg-blue-100 p-2 dark:bg-blue-900/30">
                             <Calendar class="h-5 w-5 text-blue-600 dark:text-blue-400" />
                         </div>
-                        <p class="text-2xl font-bold text-gray-900 dark:text-white">{{ stats.monthly_attendance_days }}</p>
+                        <p class="text-2xl font-bold text-gray-900 dark:text-white">{{ stats?.monthly_attendance_days || 0 }}</p>
                         <p class="text-sm text-gray-600 dark:text-gray-300">Hari Masuk</p>
                     </div>
 
@@ -232,7 +232,7 @@ const getCurrentDate = () => {
                         <div class="mx-auto mb-2 w-fit rounded-lg bg-orange-100 p-2 dark:bg-orange-900/30">
                             <Clock class="h-5 w-5 text-orange-600 dark:text-orange-400" />
                         </div>
-                        <p class="text-2xl font-bold text-gray-900 dark:text-white">{{ stats.monthly_late_days }}</p>
+                        <p class="text-2xl font-bold text-gray-900 dark:text-white">{{ stats?.monthly_late_days || 0 }}</p>
                         <p class="text-sm text-gray-600 dark:text-gray-300">Hari Terlambat</p>
                     </div>
 
@@ -240,7 +240,7 @@ const getCurrentDate = () => {
                         <div class="mx-auto mb-2 w-fit rounded-lg bg-green-100 p-2 dark:bg-green-900/30">
                             <Clock class="h-5 w-5 text-green-600 dark:text-green-400" />
                         </div>
-                        <p class="text-2xl font-bold text-gray-900 dark:text-white">{{ stats.monthly_work_hours }}</p>
+                        <p class="text-2xl font-bold text-gray-900 dark:text-white">{{ stats?.monthly_work_hours || 0 }}</p>
                         <p class="text-sm text-gray-600 dark:text-gray-300">Total Jam Kerja</p>
                     </div>
 
@@ -248,7 +248,7 @@ const getCurrentDate = () => {
                         <div class="mx-auto mb-2 w-fit rounded-lg bg-purple-100 p-2 dark:bg-purple-900/30">
                             <Calendar class="h-5 w-5 text-purple-600 dark:text-purple-400" />
                         </div>
-                        <p class="text-2xl font-bold text-gray-900 dark:text-white">{{ stats.leave_balance }}</p>
+                        <p class="text-2xl font-bold text-gray-900 dark:text-white">{{ stats?.leave_balance || 0 }}</p>
                         <p class="text-sm text-gray-600 dark:text-gray-300">Sisa Cuti</p>
                     </div>
                 </div>

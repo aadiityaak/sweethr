@@ -16,10 +16,7 @@ class DashboardController extends Controller
     {
         $user = auth()->user();
 
-        // Redirect non-admin users to Welcome page
-        if (!$user->is_admin) {
-            return redirect()->route('welcome');
-        }
+        // Admin middleware ensures only admin users can access this method
 
         // Get today's attendance
         $todayAttendance = Attendance::where('user_id', $user->id)
@@ -96,7 +93,7 @@ class DashboardController extends Controller
         if ($user->is_admin) {
             // Admin stats - company-wide
             $stats = [
-                'total_employees' => User::where('employment_status', 'active')->count(),
+                'total_employees' => User::where('is_active', true)->count(),
                 'departments_count' => Department::active()->count(),
                 'today_present' => Attendance::whereDate('date', Carbon::today())
                                            ->where('status', 'present')
@@ -109,7 +106,7 @@ class DashboardController extends Controller
             // Department-wise attendance
             $departmentStats = Department::active()
                                         ->withCount(['employees' => function ($query) {
-                                            $query->where('employment_status', 'active');
+                                            $query->where('is_active', true);
                                         }])
                                         ->get()
                                         ->map(function ($dept) {
@@ -159,7 +156,7 @@ class DashboardController extends Controller
         $currentYear = Carbon::now()->year;
         $workingDays = Carbon::now()->startOfMonth()->diffInWeekdays(Carbon::now());
 
-        $totalEmployees = User::where('employment_status', 'active')->count();
+        $totalEmployees = User::where('is_active', true)->count();
         $totalPossibleAttendances = $totalEmployees * $workingDays;
 
         $actualAttendances = Attendance::whereMonth('date', $currentMonth)
