@@ -8,14 +8,14 @@ Route::get('/', function () {
         return redirect()->route('login');
     }
 
-    // Jika user sudah login (baik admin maupun karyawan), redirect ke /welcome
-    return redirect()->route('welcome');
+    // Jika user sudah login (baik admin maupun karyawan), redirect ke /home
+    return redirect()->route('home');
 })->name('home');
 
 Route::middleware(['auth', 'verified'])->group(function () {
     // Welcome page for all authenticated users
-    Route::get('welcome', [App\Http\Controllers\DashboardController::class, 'welcome'])
-        ->name('welcome');
+    Route::get('home', [App\Http\Controllers\DashboardController::class, 'welcome'])
+        ->name('home');
 
     // Attendance routes (accessible by all employees)
     Route::get('attendance', [App\Http\Controllers\AttendanceController::class, 'index'])

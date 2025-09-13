@@ -16,7 +16,8 @@
       "Bash(vue-tsc --noEmit)",
       "Bash(npx vue-tsc:*)",
       "Bash(npm run lint)",
-      "Bash(vendor/bin/pint:*)"
+      "Bash(vendor/bin/pint:*)",
+      "mcp__laravel-boost__list-routes"
     ],
     "deny": [],
     "ask": []
