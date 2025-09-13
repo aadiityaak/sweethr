@@ -36,7 +36,7 @@ interface LeaveRequest {
 }
 
 interface Props {
-    leaveRequests: {
+    leaveRequests?: {
         data: LeaveRequest[];
         links: any[];
         meta: any;
@@ -245,7 +245,7 @@ const confirmReject = () => {
                         </div>
                         <div>
                             <p class="text-sm text-gray-600 dark:text-gray-300">Total Requests</p>
-                            <p class="text-xl font-bold text-gray-900 dark:text-white">{{ leaveRequests.meta.total }}</p>
+                            <p class="text-xl font-bold text-gray-900 dark:text-white">{{ leaveRequests?.meta?.total || 0 }}</p>
                         </div>
                     </div>
                 </div>
@@ -304,7 +304,7 @@ const confirmReject = () => {
 
                 <div class="space-y-4 p-6 pt-0">
                     <div
-                        v-for="request in leaveRequests.data"
+                        v-for="request in leaveRequests?.data || []"
                         :key="request.id"
                         class="rounded-lg border border-gray-200 p-4 dark:border-gray-700"
                     >
@@ -386,7 +386,7 @@ const confirmReject = () => {
                 </div>
 
                 <!-- Pagination -->
-                <div v-if="leaveRequests.meta.total > leaveRequests.meta.per_page" class="border-t border-gray-200 p-4 dark:border-gray-700">
+                <div v-if="leaveRequests?.meta?.total > leaveRequests?.meta?.per_page" class="border-t border-gray-200 p-4 dark:border-gray-700">
                     <div class="flex items-center justify-between">
                         <p class="text-sm text-gray-500 dark:text-gray-400">
                             Showing {{ leaveRequests.meta.from }} to {{ leaveRequests.meta.to }} of {{ leaveRequests.meta.total }} results

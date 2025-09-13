@@ -31,7 +31,7 @@ interface Employee {
 }
 
 interface Props {
-    employees: {
+    employees?: {
         data: Employee[];
         links: any[];
         meta: any;
@@ -124,7 +124,7 @@ const formatDate = (dateString: string) => {
                         </div>
                         <div>
                             <p class="text-sm text-gray-600 dark:text-gray-300">Total Employees</p>
-                            <p class="text-xl font-bold text-gray-900 dark:text-white">{{ employees.meta.total }}</p>
+                            <p class="text-xl font-bold text-gray-900 dark:text-white">{{ employees?.meta?.total || 0 }}</p>
                         </div>
                     </div>
                 </div>
@@ -136,7 +136,7 @@ const formatDate = (dateString: string) => {
                         <div>
                             <p class="text-sm text-gray-600 dark:text-gray-300">Active</p>
                             <p class="text-xl font-bold text-gray-900 dark:text-white">
-                                {{ employees.data.filter(emp => emp.is_active).length }}
+                                {{ employees?.data?.filter(emp => emp.is_active).length || 0 }}
                             </p>
                         </div>
                     </div>
@@ -231,7 +231,7 @@ const formatDate = (dateString: string) => {
                         </thead>
                         <tbody>
                             <tr
-                                v-for="employee in employees.data"
+                                v-for="employee in employees?.data || []"
                                 :key="employee.id"
                                 class="border-b border-gray-100 hover:bg-gray-50 dark:border-gray-800 dark:hover:bg-gray-900/50"
                             >
@@ -308,7 +308,7 @@ const formatDate = (dateString: string) => {
                 </div>
 
                 <!-- Pagination -->
-                <div v-if="employees.meta.total > employees.meta.per_page" class="border-t border-gray-200 p-4 dark:border-gray-700">
+                <div v-if="employees?.meta?.total > employees?.meta?.per_page" class="border-t border-gray-200 p-4 dark:border-gray-700">
                     <div class="flex items-center justify-between">
                         <p class="text-sm text-gray-500 dark:text-gray-400">
                             Showing {{ employees.meta.from }} to {{ employees.meta.to }} of {{ employees.meta.total }} results

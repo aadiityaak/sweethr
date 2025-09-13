@@ -16,6 +16,11 @@ class DashboardController extends Controller
     {
         $user = auth()->user();
 
+        // Redirect non-admin users to Welcome page
+        if (!$user->is_admin) {
+            return redirect()->route('welcome');
+        }
+
         // Get today's attendance
         $todayAttendance = Attendance::where('user_id', $user->id)
                                     ->where('date', Carbon::today())
@@ -47,6 +52,39 @@ class DashboardController extends Controller
                     'created_at' => now()->subDays(1),
                 ]
             ],
+        ]);
+    }
+
+    public function welcome(): Response
+    {
+        $user = auth()->user();
+
+        // Get today's attendance
+        $todayAttendance = Attendance::where('user_id', $user->id)
+                                    ->where('date', Carbon::today())
+                                    ->with('officeLocation')
+                                    ->first();
+
+        // Get user's attendance this month
+        $currentMonth = Carbon::now()->month;
+        $currentYear = Carbon::now()->year;
+
+        $userAttendances = Attendance::where('user_id', $user->id)
+                                   ->whereMonth('date', $currentMonth)
+                                   ->whereYear('date', $currentYear)
+                                   ->get();
+
+        $stats = [
+            'monthly_attendance_days' => $userAttendances->where('status', 'present')->count(),
+            'monthly_late_days' => $userAttendances->where('status', 'late')->count(),
+            'monthly_work_hours' => round($userAttendances->sum('work_duration') / 60, 2),
+            'leave_balance' => $this->calculateLeaveBalance($user->id),
+        ];
+
+        return Inertia::render('Welcome', [
+            'user' => $user->load(['department', 'position']),
+            'todayAttendance' => $todayAttendance,
+            'stats' => $stats,
         ]);
     }
 

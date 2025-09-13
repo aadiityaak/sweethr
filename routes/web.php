@@ -11,6 +11,9 @@ Route::middleware(['auth', 'verified'])->group(function () {
     Route::get('dashboard', [App\Http\Controllers\DashboardController::class, 'index'])
         ->name('dashboard');
 
+    Route::get('welcome', [App\Http\Controllers\DashboardController::class, 'welcome'])
+        ->name('welcome');
+
     // Attendance routes
     Route::get('attendance', [App\Http\Controllers\AttendanceController::class, 'index'])
         ->name('attendance.index');
@@ -21,7 +24,7 @@ Route::middleware(['auth', 'verified'])->group(function () {
     Route::post('attendance/check-out', [App\Http\Controllers\AttendanceController::class, 'storeCheckOut'])
         ->name('attendance.store-check-out');
 
-    // Employee management
+    // Employee management (Admin only)
     Route::resource('employees', App\Http\Controllers\EmployeeController::class);
 });
 

@@ -30,7 +30,7 @@ interface TodayAttendance {
 }
 
 interface Props {
-    attendances: {
+    attendances?: {
         data: Attendance[];
         links: any[];
         meta: any;
@@ -231,7 +231,7 @@ const filterAttendance = (month?: string, year?: string) => {
                         </thead>
                         <tbody class="space-y-2">
                             <tr
-                                v-for="attendance in attendances.data"
+                                v-for="attendance in attendances?.data || []"
                                 :key="attendance.id"
                                 class="border-b border-gray-100 dark:border-gray-800"
                             >
@@ -270,9 +270,8 @@ const filterAttendance = (month?: string, year?: string) => {
                     </table>
                 </div>
 
-                <!-- Pagination would go here -->
-                <div v-if="attendances.meta.total > attendances.meta.per_page" class="mt-4 flex justify-center">
-                    <!-- Add pagination component -->
+                <!-- Pagination -->
+                <div v-if="attendances?.meta?.total > attendances?.meta?.per_page" class="mt-4 flex justify-center">
                     <p class="text-sm text-gray-500">
                         Showing {{ attendances.meta.from }} to {{ attendances.meta.to }} of {{ attendances.meta.total }} results
                     </p>

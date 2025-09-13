@@ -21,7 +21,7 @@ interface OfficeLocation {
 }
 
 interface Props {
-    officeLocations: {
+    officeLocations?: {
         data: OfficeLocation[];
         links: any[];
         meta: any;
@@ -220,7 +220,7 @@ const closeMapModal = () => {
 
                 <div class="grid gap-4 p-6 pt-0 md:grid-cols-2 lg:grid-cols-3">
                     <div
-                        v-for="location in officeLocations.data"
+                        v-for="location in officeLocations?.data || []"
                         :key="location.id"
                         class="rounded-lg border border-gray-200 p-6 dark:border-gray-700"
                     >
@@ -306,7 +306,7 @@ const closeMapModal = () => {
                 </div>
 
                 <!-- Pagination -->
-                <div v-if="officeLocations.meta.total > officeLocations.meta.per_page" class="border-t border-gray-200 p-4 dark:border-gray-700">
+                <div v-if="officeLocations?.meta?.total > officeLocations?.meta?.per_page" class="border-t border-gray-200 p-4 dark:border-gray-700">
                     <div class="flex items-center justify-between">
                         <p class="text-sm text-gray-500 dark:text-gray-400">
                             Showing {{ officeLocations.meta.from }} to {{ officeLocations.meta.to }} of {{ officeLocations.meta.total }} results
