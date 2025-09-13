@@ -6,7 +6,9 @@
       "Bash(php artisan:*)",
       "Bash(composer show:*)",
       "Bash(composer:*)",
-      "Bash(npm install:*)"
+      "Bash(npm install:*)",
+      "WebFetch(domain:127.0.0.1)",
+      "Bash(php -l:*)"
     ],
     "deny": [],
     "ask": []

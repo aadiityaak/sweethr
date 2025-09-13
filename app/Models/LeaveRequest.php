@@ -17,10 +17,9 @@ class LeaveRequest extends Model
         'total_days',
         'reason',
         'status',
-        'reviewer_id',
-        'reviewed_at',
-        'reviewer_notes',
-        'applied_at',
+        'approved_by',
+        'approved_at',
+        'rejection_reason',
         'attachments',
     ];
 
@@ -29,8 +28,7 @@ class LeaveRequest extends Model
         return [
             'start_date' => 'date',
             'end_date' => 'date',
-            'reviewed_at' => 'datetime',
-            'applied_at' => 'datetime',
+            'approved_at' => 'datetime',
             'attachments' => 'array',
         ];
     }
@@ -45,9 +43,9 @@ class LeaveRequest extends Model
         return $this->belongsTo(LeaveType::class);
     }
 
-    public function reviewer()
+    public function approvedBy()
     {
-        return $this->belongsTo(User::class, 'reviewer_id');
+        return $this->belongsTo(User::class, 'approved_by');
     }
 
     public function scopePending($query)

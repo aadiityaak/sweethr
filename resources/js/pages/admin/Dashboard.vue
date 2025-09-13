@@ -85,7 +85,7 @@ const { user, todayAttendance, pendingLeaves, stats, announcements } = definePro
 
 const breadcrumbs: BreadcrumbItem[] = [
     {
-        title: 'Dashboard',
+        title: 'Dasbor',
         href: dashboard().url,
     },
 ];
@@ -104,14 +104,14 @@ const formatDuration = (minutes: number | null) => {
 </script>
 
 <template>
-    <Head title="Dashboard" />
+    <Head title="Dasbor" />
 
     <AppLayout :breadcrumbs="breadcrumbs">
         <div class="flex h-full flex-1 flex-col gap-6 p-6">
             <!-- Welcome Section -->
             <div class="rounded-xl border border-sidebar-border/70 bg-gradient-to-r from-blue-50 to-indigo-50 p-6 dark:border-sidebar-border dark:from-blue-950/30 dark:to-indigo-950/30">
                 <h1 class="text-2xl font-bold text-gray-900 dark:text-white">
-                    Welcome back, {{ user.name }}!
+                    Selamat datang kembali, {{ user.name }}!
                 </h1>
                 <p class="mt-1 text-gray-600 dark:text-gray-300">
                     {{ user.employee_id }} • {{ user.department?.name }} • {{ user.position?.title }}
@@ -127,23 +127,23 @@ const formatDuration = (minutes: number | null) => {
                             <Clock class="h-5 w-5 text-green-600 dark:text-green-400" />
                         </div>
                         <div>
-                            <h3 class="font-semibold text-gray-900 dark:text-white">Today's Attendance</h3>
+                            <h3 class="font-semibold text-gray-900 dark:text-white">Kehadiran Hari Ini</h3>
                             <p class="text-sm text-gray-500 dark:text-gray-400">
-                                {{ todayAttendance ? 'Checked In' : 'Not Checked In' }}
+                                {{ todayAttendance ? 'Sudah Masuk' : 'Belum Masuk' }}
                             </p>
                         </div>
                     </div>
                     <div class="mt-4 space-y-2">
                         <div class="flex justify-between text-sm">
-                            <span class="text-gray-600 dark:text-gray-300">Check In:</span>
+                            <span class="text-gray-600 dark:text-gray-300">Masuk:</span>
                             <span class="font-medium">{{ formatTime(todayAttendance?.check_in_time) }}</span>
                         </div>
                         <div class="flex justify-between text-sm">
-                            <span class="text-gray-600 dark:text-gray-300">Check Out:</span>
+                            <span class="text-gray-600 dark:text-gray-300">Keluar:</span>
                             <span class="font-medium">{{ formatTime(todayAttendance?.check_out_time) }}</span>
                         </div>
                         <div class="flex justify-between text-sm">
-                            <span class="text-gray-600 dark:text-gray-300">Duration:</span>
+                            <span class="text-gray-600 dark:text-gray-300">Durasi:</span>
                             <span class="font-medium">{{ formatDuration(todayAttendance?.work_duration) }}</span>
                         </div>
                     </div>
@@ -153,20 +153,20 @@ const formatDuration = (minutes: number | null) => {
                             href="/attendance/check-in"
                             class="inline-flex w-full items-center justify-center rounded-lg bg-green-600 px-4 py-2 text-sm font-medium text-white hover:bg-green-700"
                         >
-                            Check In
+                            Masuk
                         </Link>
                         <Link
                             v-else-if="todayAttendance?.check_in_time && !todayAttendance?.check_out_time"
                             href="/attendance"
                             class="inline-flex w-full items-center justify-center rounded-lg bg-red-600 px-4 py-2 text-sm font-medium text-white hover:bg-red-700"
                         >
-                            Check Out
+                            Keluar
                         </Link>
                         <div
                             v-else
                             class="inline-flex w-full items-center justify-center rounded-lg bg-gray-100 px-4 py-2 text-sm font-medium text-gray-500 dark:bg-gray-800 dark:text-gray-400"
                         >
-                            Day Complete
+                            Hari Selesai
                         </div>
                     </div>
                 </div>
@@ -178,12 +178,12 @@ const formatDuration = (minutes: number | null) => {
                             <Users class="h-5 w-5 text-blue-600 dark:text-blue-400" />
                         </div>
                         <div>
-                            <h3 class="font-semibold text-gray-900 dark:text-white">Employees</h3>
+                            <h3 class="font-semibold text-gray-900 dark:text-white">Karyawan</h3>
                             <p class="text-2xl font-bold text-blue-600">{{ stats.total_employees }}</p>
                         </div>
                     </div>
                     <div class="mt-2 text-sm text-gray-500 dark:text-gray-400">
-                        {{ stats.today_present }} present today
+                        {{ stats.today_present }} hadir hari ini
                     </div>
                 </div>
 
@@ -193,12 +193,12 @@ const formatDuration = (minutes: number | null) => {
                             <Calendar class="h-5 w-5 text-blue-600 dark:text-blue-400" />
                         </div>
                         <div>
-                            <h3 class="font-semibold text-gray-900 dark:text-white">Leave Balance</h3>
+                            <h3 class="font-semibold text-gray-900 dark:text-white">Sisa Cuti</h3>
                             <p class="text-2xl font-bold text-blue-600">{{ stats.leave_balance }}</p>
                         </div>
                     </div>
                     <div class="mt-2 text-sm text-gray-500 dark:text-gray-400">
-                        Days remaining this year
+                        Hari tersisa tahun ini
                     </div>
                 </div>
 
@@ -209,14 +209,14 @@ const formatDuration = (minutes: number | null) => {
                             <CheckCircle class="h-5 w-5 text-purple-600 dark:text-purple-400" />
                         </div>
                         <div>
-                            <h3 class="font-semibold text-gray-900 dark:text-white">This Month</h3>
+                            <h3 class="font-semibold text-gray-900 dark:text-white">Bulan Ini</h3>
                             <p class="text-2xl font-bold text-purple-600">
                                 {{ user.is_admin ? stats.monthly_attendance_rate + '%' : stats.monthly_attendance_days }}
                             </p>
                         </div>
                     </div>
                     <div class="mt-2 text-sm text-gray-500 dark:text-gray-400">
-                        {{ user.is_admin ? 'Attendance rate' : 'Days attended' }}
+                        {{ user.is_admin ? 'Tingkat kehadiran' : 'Hari hadir' }}
                     </div>
                 </div>
 
@@ -227,12 +227,12 @@ const formatDuration = (minutes: number | null) => {
                             <AlertCircle class="h-5 w-5 text-orange-600 dark:text-orange-400" />
                         </div>
                         <div>
-                            <h3 class="font-semibold text-gray-900 dark:text-white">Pending</h3>
+                            <h3 class="font-semibold text-gray-900 dark:text-white">Menunggu</h3>
                             <p class="text-2xl font-bold text-orange-600">{{ stats.pending_leave_requests }}</p>
                         </div>
                     </div>
                     <div class="mt-2 text-sm text-gray-500 dark:text-gray-400">
-                        {{ user.is_admin ? 'Leave requests to review' : 'Your leave requests' }}
+                        {{ user.is_admin ? 'Pengajuan cuti untuk ditinjau' : 'Pengajuan cuti Anda' }}
                     </div>
                 </div>
             </div>
@@ -240,7 +240,7 @@ const formatDuration = (minutes: number | null) => {
             <!-- Pending Leave Requests -->
             <div v-if="pendingLeaves.length > 0" class="rounded-xl border border-sidebar-border/70 bg-white p-6 dark:border-sidebar-border dark:bg-gray-950">
                 <h2 class="mb-4 text-lg font-semibold text-gray-900 dark:text-white">
-                    {{ user.is_admin ? 'Pending Leave Requests' : 'Your Pending Requests' }}
+                    {{ user.is_admin ? 'Pengajuan Cuti Menunggu' : 'Pengajuan Anda yang Menunggu' }}
                 </h2>
                 <div class="space-y-3">
                     <div
@@ -258,10 +258,10 @@ const formatDuration = (minutes: number | null) => {
                         </div>
                         <div class="flex gap-2">
                             <button class="rounded-lg bg-green-100 px-3 py-1 text-sm font-medium text-green-700 hover:bg-green-200 dark:bg-green-900/30 dark:text-green-400 dark:hover:bg-green-900/50">
-                                Approve
+                                Setujui
                             </button>
                             <button class="rounded-lg bg-red-100 px-3 py-1 text-sm font-medium text-red-700 hover:bg-red-200 dark:bg-red-900/30 dark:text-red-400 dark:hover:bg-red-900/50">
-                                Reject
+                                Tolak
                             </button>
                         </div>
                     </div>
@@ -270,7 +270,7 @@ const formatDuration = (minutes: number | null) => {
 
             <!-- Recent Announcements -->
             <div class="rounded-xl border border-sidebar-border/70 bg-white p-6 dark:border-sidebar-border dark:bg-gray-950">
-                <h2 class="mb-4 text-lg font-semibold text-gray-900 dark:text-white">Recent Announcements</h2>
+                <h2 class="mb-4 text-lg font-semibold text-gray-900 dark:text-white">Pengumuman Terbaru</h2>
                 <div class="space-y-3">
                     <div
                         v-for="announcement in announcements"

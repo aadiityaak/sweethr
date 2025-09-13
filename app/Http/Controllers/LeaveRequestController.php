@@ -13,8 +13,8 @@ class LeaveRequestController extends Controller
 {
     public function index(Request $request): Response
     {
-        $query = LeaveRequest::with(['user:id,name,employee_id', 'leaveType:id,name', 'reviewer:id,name'])
-            ->orderByDesc('applied_at');
+        $query = LeaveRequest::with(['user:id,name,employee_id', 'leaveType:id,name', 'approvedBy:id,name'])
+            ->orderByDesc('created_at');
 
         // Apply filters
         if ($request->search) {
@@ -61,8 +61,8 @@ class LeaveRequestController extends Controller
 
         $leaveRequest->update([
             'status' => 'approved',
-            'reviewer_id' => auth()->id(),
-            'reviewed_at' => now(),
+            'approved_by' => auth()->id(),
+            'approved_at' => now(),
         ]);
 
         return back()->with('success', 'Leave request approved successfully.');
@@ -80,9 +80,9 @@ class LeaveRequestController extends Controller
 
         $leaveRequest->update([
             'status' => 'rejected',
-            'reviewer_id' => auth()->id(),
-            'reviewed_at' => now(),
-            'reviewer_notes' => $validated['notes'],
+            'approved_by' => auth()->id(),
+            'approved_at' => now(),
+            'rejection_reason' => $validated['notes'],
         ]);
 
         return back()->with('success', 'Leave request rejected.');

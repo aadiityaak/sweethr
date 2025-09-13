@@ -11,27 +11,27 @@ import AppLogo from './AppLogo.vue';
 
 const mainNavItems: NavItem[] = [
     {
-        title: 'Dashboard',
+        title: 'Dasbor',
         href: dashboard(),
         icon: LayoutGrid,
     },
     {
-        title: 'Attendance',
+        title: 'Kehadiran',
         href: '/attendance',
         icon: Clock,
     },
     {
-        title: 'Employees',
+        title: 'Karyawan',
         href: '/employees',
         icon: Users,
     },
     {
-        title: 'Leave Requests',
+        title: 'Pengajuan Cuti',
         href: '/leave-requests',
         icon: Calendar,
     },
     {
-        title: 'Office Locations',
+        title: 'Lokasi Kantor',
         href: '/office-locations',
         icon: MapPin,
     },
@@ -39,12 +39,12 @@ const mainNavItems: NavItem[] = [
 
 const footerNavItems: NavItem[] = [
     {
-        title: 'Settings',
+        title: 'Pengaturan',
         href: '/settings/profile',
         icon: Settings,
     },
     {
-        title: 'Help & Support',
+        title: 'Bantuan & Dukungan',
         href: '/help',
         icon: BookOpen,
     },

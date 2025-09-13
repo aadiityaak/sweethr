@@ -101,7 +101,7 @@ class AdminUserSeeder extends Seeder
             ],
         ];
 
-        foreach ($employees as $employee) {
+        foreach ($employees as $index => $employee) {
             User::create([
                 'name' => $employee['name'],
                 'email' => $employee['email'],
@@ -109,7 +109,7 @@ class AdminUserSeeder extends Seeder
                 'employee_id' => $employee['employee_id'],
                 'phone' => $employee['phone'],
                 'hire_date' => $employee['hire_date'],
-                'employment_status' => 'active',
+                'employment_status' => $index === 9 ? 'inactive' : 'active', // Make last employee inactive
                 'is_admin' => false,
                 'email_verified_at' => now(),
             ]);

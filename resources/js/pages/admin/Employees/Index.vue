@@ -50,11 +50,11 @@ const { employees, departments, positions, filters } = defineProps<Props>();
 
 const breadcrumbs: BreadcrumbItem[] = [
     {
-        title: 'Dashboard',
+        title: 'Dasbor',
         href: '/dashboard',
     },
     {
-        title: 'Employees',
+        title: 'Karyawan',
         href: '/employees',
     },
 ];
@@ -96,22 +96,22 @@ const formatDate = (dateString: string) => {
 </script>
 
 <template>
-    <Head title="Employees" />
+    <Head title="Karyawan" />
 
     <AppLayout :breadcrumbs="breadcrumbs">
         <div class="flex h-full flex-1 flex-col gap-6 p-6">
             <!-- Header -->
             <div class="flex items-center justify-between">
                 <div>
-                    <h1 class="text-2xl font-bold text-gray-900 dark:text-white">Employees</h1>
-                    <p class="text-gray-600 dark:text-gray-300">Manage employee information and roles</p>
+                    <h1 class="text-2xl font-bold text-gray-900 dark:text-white">Karyawan</h1>
+                    <p class="text-gray-600 dark:text-gray-300">Kelola informasi dan peran karyawan</p>
                 </div>
                 <Link
                     href="/employees/create"
                     class="inline-flex items-center gap-2 rounded-lg bg-blue-600 px-4 py-2 text-sm font-medium text-white hover:bg-blue-700"
                 >
                     <Plus class="h-4 w-4" />
-                    Add Employee
+                    Tambah Karyawan
                 </Link>
             </div>
 
@@ -123,7 +123,7 @@ const formatDate = (dateString: string) => {
                             <Users class="h-5 w-5 text-blue-600 dark:text-blue-400" />
                         </div>
                         <div>
-                            <p class="text-sm text-gray-600 dark:text-gray-300">Total Employees</p>
+                            <p class="text-sm text-gray-600 dark:text-gray-300">Total Karyawan</p>
                             <p class="text-xl font-bold text-gray-900 dark:text-white">{{ employees?.meta?.total || 0 }}</p>
                         </div>
                     </div>
@@ -134,7 +134,7 @@ const formatDate = (dateString: string) => {
                             <UserCheck class="h-5 w-5 text-green-600 dark:text-green-400" />
                         </div>
                         <div>
-                            <p class="text-sm text-gray-600 dark:text-gray-300">Active</p>
+                            <p class="text-sm text-gray-600 dark:text-gray-300">Aktif</p>
                             <p class="text-xl font-bold text-gray-900 dark:text-white">
                                 {{ employees?.data?.filter(emp => emp.is_active).length || 0 }}
                             </p>
@@ -147,7 +147,7 @@ const formatDate = (dateString: string) => {
                             <Users class="h-5 w-5 text-purple-600 dark:text-purple-400" />
                         </div>
                         <div>
-                            <p class="text-sm text-gray-600 dark:text-gray-300">Departments</p>
+                            <p class="text-sm text-gray-600 dark:text-gray-300">Departemen</p>
                             <p class="text-xl font-bold text-gray-900 dark:text-white">{{ departments.length }}</p>
                         </div>
                     </div>
@@ -158,7 +158,7 @@ const formatDate = (dateString: string) => {
                             <Users class="h-5 w-5 text-orange-600 dark:text-orange-400" />
                         </div>
                         <div>
-                            <p class="text-sm text-gray-600 dark:text-gray-300">Positions</p>
+                            <p class="text-sm text-gray-600 dark:text-gray-300">Posisi</p>
                             <p class="text-xl font-bold text-gray-900 dark:text-white">{{ positions.length }}</p>
                         </div>
                     </div>
@@ -174,7 +174,7 @@ const formatDate = (dateString: string) => {
                             v-model="searchQuery"
                             @input="filterEmployees"
                             type="text"
-                            placeholder="Search employees..."
+                            placeholder="Cari karyawan..."
                             class="w-full rounded-lg border border-gray-300 pl-10 pr-3 py-2 text-sm dark:border-gray-600 dark:bg-gray-800 dark:text-white"
                         />
                     </div>
@@ -183,7 +183,7 @@ const formatDate = (dateString: string) => {
                         @change="filterEmployees"
                         class="rounded-lg border border-gray-300 px-3 py-2 text-sm dark:border-gray-600 dark:bg-gray-800"
                     >
-                        <option value="">All Departments</option>
+                        <option value="">Semua Departemen</option>
                         <option v-for="dept in departments" :key="dept.id" :value="dept.id">
                             {{ dept.name }}
                         </option>
@@ -193,7 +193,7 @@ const formatDate = (dateString: string) => {
                         @change="filterEmployees"
                         class="rounded-lg border border-gray-300 px-3 py-2 text-sm dark:border-gray-600 dark:bg-gray-800"
                     >
-                        <option value="">All Positions</option>
+                        <option value="">Semua Posisi</option>
                         <option v-for="pos in positions" :key="pos.id" :value="pos.id">
                             {{ pos.title }}
                         </option>
@@ -203,9 +203,9 @@ const formatDate = (dateString: string) => {
                         @change="filterEmployees"
                         class="rounded-lg border border-gray-300 px-3 py-2 text-sm dark:border-gray-600 dark:bg-gray-800"
                     >
-                        <option value="">All Status</option>
-                        <option value="active">Active</option>
-                        <option value="inactive">Inactive</option>
+                        <option value="">Semua Status</option>
+                        <option value="active">Aktif</option>
+                        <option value="inactive">Tidak Aktif</option>
                     </select>
                 </div>
             </div>
@@ -213,20 +213,20 @@ const formatDate = (dateString: string) => {
             <!-- Employee List -->
             <div class="rounded-xl border border-sidebar-border/70 bg-white dark:border-sidebar-border dark:bg-gray-950">
                 <div class="p-6">
-                    <h2 class="text-lg font-semibold text-gray-900 dark:text-white">Employee Directory</h2>
+                    <h2 class="text-lg font-semibold text-gray-900 dark:text-white">Direktori Karyawan</h2>
                 </div>
 
                 <div class="overflow-x-auto">
                     <table class="w-full">
                         <thead class="border-t border-gray-200 dark:border-gray-700">
                             <tr class="border-b border-gray-200 dark:border-gray-700">
-                                <th class="px-6 py-3 text-left text-sm font-medium text-gray-500 dark:text-gray-400">Employee</th>
-                                <th class="px-6 py-3 text-left text-sm font-medium text-gray-500 dark:text-gray-400">Department</th>
-                                <th class="px-6 py-3 text-left text-sm font-medium text-gray-500 dark:text-gray-400">Position</th>
-                                <th class="px-6 py-3 text-left text-sm font-medium text-gray-500 dark:text-gray-400">Contact</th>
-                                <th class="px-6 py-3 text-left text-sm font-medium text-gray-500 dark:text-gray-400">Hire Date</th>
+                                <th class="px-6 py-3 text-left text-sm font-medium text-gray-500 dark:text-gray-400">Karyawan</th>
+                                <th class="px-6 py-3 text-left text-sm font-medium text-gray-500 dark:text-gray-400">Departemen</th>
+                                <th class="px-6 py-3 text-left text-sm font-medium text-gray-500 dark:text-gray-400">Posisi</th>
+                                <th class="px-6 py-3 text-left text-sm font-medium text-gray-500 dark:text-gray-400">Kontak</th>
+                                <th class="px-6 py-3 text-left text-sm font-medium text-gray-500 dark:text-gray-400">Tanggal Masuk</th>
                                 <th class="px-6 py-3 text-left text-sm font-medium text-gray-500 dark:text-gray-400">Status</th>
-                                <th class="px-6 py-3 text-left text-sm font-medium text-gray-500 dark:text-gray-400">Actions</th>
+                                <th class="px-6 py-3 text-left text-sm font-medium text-gray-500 dark:text-gray-400">Aksi</th>
                             </tr>
                         </thead>
                         <tbody>
@@ -282,7 +282,7 @@ const formatDate = (dateString: string) => {
                                             class="inline-flex rounded-full border px-2 py-1 text-xs font-medium"
                                             :class="getStatusBadge(employee.is_active)"
                                         >
-                                            {{ employee.is_active ? 'Active' : 'Inactive' }}
+                                            {{ employee.is_active ? 'Aktif' : 'Tidak Aktif' }}
                                         </span>
                                         <div v-if="employee.is_admin" class="text-xs text-blue-600 dark:text-blue-400">
                                             Admin
@@ -311,7 +311,7 @@ const formatDate = (dateString: string) => {
                 <div v-if="employees?.meta?.total > employees?.meta?.per_page" class="border-t border-gray-200 p-4 dark:border-gray-700">
                     <div class="flex items-center justify-between">
                         <p class="text-sm text-gray-500 dark:text-gray-400">
-                            Showing {{ employees.meta.from }} to {{ employees.meta.to }} of {{ employees.meta.total }} results
+                            Menampilkan {{ employees.meta.from }} sampai {{ employees.meta.to }} dari {{ employees.meta.total }} hasil
                         </p>
                         <div class="flex gap-2">
                             <Link
