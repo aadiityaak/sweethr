@@ -16,11 +16,11 @@ const breadcrumbs: BreadcrumbItem[] = [
         href: '/dashboard',
     },
     {
-        title: 'Office Locations',
+        title: 'Lokasi Kantor',
         href: '/office-locations',
     },
     {
-        title: 'Create Location',
+        title: 'Tambah Lokasi',
         href: '/office-locations/create',
     },
 ];
@@ -114,15 +114,15 @@ onMounted(() => {
 </script>
 
 <template>
-    <Head title="Create Office Location" />
+    <Head title="Tambah Lokasi Kantor" />
 
     <AppLayout :breadcrumbs="breadcrumbs">
         <div class="flex h-full flex-1 flex-col gap-6 p-6">
             <!-- Header -->
             <div class="flex items-center justify-between">
                 <div>
-                    <h1 class="text-2xl font-bold text-gray-900 dark:text-white">Create Office Location</h1>
-                    <p class="text-gray-600 dark:text-gray-300">Add a new office location for attendance tracking</p>
+                    <h1 class="text-2xl font-bold text-gray-900 dark:text-white">Tambah Lokasi Kantor</h1>
+                    <p class="text-gray-600 dark:text-gray-300">Tambahkan lokasi kantor baru untuk pelacakan absensi</p>
                 </div>
             </div>
 
@@ -133,7 +133,7 @@ onMounted(() => {
                         <!-- Location Name -->
                         <div>
                             <label for="name" class="block text-sm font-medium text-gray-700 dark:text-gray-300 mb-2">
-                                Location Name *
+                                Nama Lokasi *
                             </label>
                             <input
                                 id="name"
@@ -141,7 +141,7 @@ onMounted(() => {
                                 type="text"
                                 required
                                 class="w-full rounded-lg border border-gray-300 px-3 py-2 text-sm focus:border-blue-500 focus:ring-blue-500 dark:border-gray-600 dark:bg-gray-800 dark:text-white"
-                                placeholder="e.g., Head Office Jakarta"
+                                placeholder="mis., Kantor Pusat Jakarta"
                             />
                             <div v-if="form.errors.name" class="mt-1 text-sm text-red-600">{{ form.errors.name }}</div>
                         </div>
@@ -149,7 +149,7 @@ onMounted(() => {
                         <!-- Address -->
                         <div>
                             <label for="address" class="block text-sm font-medium text-gray-700 dark:text-gray-300 mb-2">
-                                Address *
+                                Alamat *
                             </label>
                             <textarea
                                 id="address"
@@ -157,7 +157,7 @@ onMounted(() => {
                                 required
                                 rows="3"
                                 class="w-full rounded-lg border border-gray-300 px-3 py-2 text-sm focus:border-blue-500 focus:ring-blue-500 dark:border-gray-600 dark:bg-gray-800 dark:text-white"
-                                placeholder="Enter the full address of the office location"
+                                placeholder="Masukkan alamat lengkap lokasi kantor"
                             ></textarea>
                             <div v-if="form.errors.address" class="mt-1 text-sm text-red-600">{{ form.errors.address }}</div>
                         </div>
@@ -203,14 +203,14 @@ onMounted(() => {
                                 class="inline-flex items-center gap-2 rounded-lg bg-green-600 px-4 py-2 text-sm font-medium text-white hover:bg-green-700"
                             >
                                 <Navigation class="h-4 w-4" />
-                                Use Current Location
+                                Gunakan Lokasi Saat Ini
                             </button>
                         </div>
 
                         <!-- Check-in Radius -->
                         <div>
                             <label for="radius_meters" class="block text-sm font-medium text-gray-700 dark:text-gray-300 mb-2">
-                                Check-in Radius (meters) *
+                                Radius Absensi (meter) *
                             </label>
                             <input
                                 id="radius_meters"
@@ -222,7 +222,7 @@ onMounted(() => {
                                 class="w-full rounded-lg border border-gray-300 px-3 py-2 text-sm focus:border-blue-500 focus:ring-blue-500 dark:border-gray-600 dark:bg-gray-800 dark:text-white"
                             />
                             <p class="mt-1 text-sm text-gray-500 dark:text-gray-400">
-                                Employees must be within this radius to check-in (10-1000 meters)
+                                Karyawan harus berada dalam radius ini untuk absensi (10-1000 meter)
                             </p>
                             <div v-if="form.errors.radius_meters" class="mt-1 text-sm text-red-600">{{ form.errors.radius_meters }}</div>
                         </div>
@@ -235,10 +235,10 @@ onMounted(() => {
                                     type="checkbox"
                                     class="rounded border-gray-300 text-blue-600 focus:ring-blue-500 dark:border-gray-600 dark:bg-gray-800"
                                 />
-                                <span class="text-sm font-medium text-gray-700 dark:text-gray-300">Active Location</span>
+                                <span class="text-sm font-medium text-gray-700 dark:text-gray-300">Lokasi Aktif</span>
                             </label>
                             <p class="mt-1 text-sm text-gray-500 dark:text-gray-400">
-                                Only active locations can be used for attendance check-in
+                                Hanya lokasi aktif yang dapat digunakan untuk absensi
                             </p>
                             <div v-if="form.errors.is_active" class="mt-1 text-sm text-red-600">{{ form.errors.is_active }}</div>
                         </div>
@@ -251,13 +251,13 @@ onMounted(() => {
                                 class="inline-flex items-center gap-2 rounded-lg bg-blue-600 px-6 py-2 text-sm font-medium text-white hover:bg-blue-700 disabled:opacity-50"
                             >
                                 <Plus class="h-4 w-4" />
-                                {{ form.processing ? 'Creating...' : 'Create Location' }}
+                                {{ form.processing ? 'Membuat...' : 'Tambah Lokasi' }}
                             </button>
                             <a
                                 href="/office-locations"
                                 class="inline-flex items-center gap-2 rounded-lg border border-gray-300 px-6 py-2 text-sm font-medium text-gray-700 hover:bg-gray-50 dark:border-gray-600 dark:text-gray-300 dark:hover:bg-gray-800"
                             >
-                                Cancel
+                                Batal
                             </a>
                         </div>
                     </form>
@@ -266,8 +266,8 @@ onMounted(() => {
                 <!-- Map Section -->
                 <div class="rounded-xl border border-sidebar-border/70 bg-white p-6 dark:border-sidebar-border dark:bg-gray-950">
                     <div class="mb-4">
-                        <h3 class="text-lg font-semibold text-gray-900 dark:text-white">Location Preview</h3>
-                        <p class="text-sm text-gray-600 dark:text-gray-300">Click on the map to set coordinates</p>
+                        <h3 class="text-lg font-semibold text-gray-900 dark:text-white">Pratinjau Lokasi</h3>
+                        <p class="text-sm text-gray-600 dark:text-gray-300">Klik di peta untuk mengatur koordinat</p>
                     </div>
 
                     <!-- Interactive Leaflet Map -->
@@ -284,14 +284,14 @@ onMounted(() => {
                     <div class="mt-4 rounded-lg bg-gray-50 p-4 dark:bg-gray-800">
                         <div class="flex items-center gap-2 text-sm">
                             <MapPin class="h-4 w-4 text-blue-600" />
-                            <span class="font-medium text-gray-700 dark:text-gray-300">Current Coordinates:</span>
+                            <span class="font-medium text-gray-700 dark:text-gray-300">Koordinat Saat Ini:</span>
                         </div>
                         <div class="mt-1 text-sm text-gray-600 dark:text-gray-400">
-                            {{ form.latitude && form.longitude ? `${form.latitude.toFixed(6)}, ${form.longitude.toFixed(6)}` : 'No coordinates set' }}
+                            {{ form.latitude && form.longitude ? `${form.latitude.toFixed(6)}, ${form.longitude.toFixed(6)}` : 'Koordinat belum diatur' }}
                         </div>
                         <div class="mt-2 flex items-center gap-2 text-sm">
                             <Target class="h-4 w-4 text-green-600" />
-                            <span class="font-medium text-gray-700 dark:text-gray-300">Check-in Radius:</span>
+                            <span class="font-medium text-gray-700 dark:text-gray-300">Radius Absensi:</span>
                             <span class="text-gray-600 dark:text-gray-400">{{ form.radius_meters }}m</span>
                         </div>
                     </div>

@@ -46,7 +46,7 @@ const breadcrumbs: BreadcrumbItem[] = [
         href: '/dashboard',
     },
     {
-        title: 'Office Locations',
+        title: 'Lokasi Kantor',
         href: '/office-locations',
     },
 ];
@@ -119,22 +119,22 @@ const closeMapModal = () => {
 </script>
 
 <template>
-    <Head title="Office Locations" />
+    <Head title="Lokasi Kantor" />
 
     <AppLayout :breadcrumbs="breadcrumbs">
         <div class="flex h-full flex-1 flex-col gap-6 p-6">
             <!-- Header -->
             <div class="flex items-center justify-between">
                 <div>
-                    <h1 class="text-2xl font-bold text-gray-900 dark:text-white">Office Locations</h1>
-                    <p class="text-gray-600 dark:text-gray-300">Manage office locations and attendance zones</p>
+                    <h1 class="text-2xl font-bold text-gray-900 dark:text-white">Lokasi Kantor</h1>
+                    <p class="text-gray-600 dark:text-gray-300">Kelola lokasi kantor dan zona absensi</p>
                 </div>
                 <Link
                     href="/office-locations/create"
                     class="inline-flex items-center gap-2 rounded-lg bg-blue-600 px-4 py-2 text-sm font-medium text-white hover:bg-blue-700"
                 >
                     <Plus class="h-4 w-4" />
-                    Add Location
+                    Tambah Lokasi
                 </Link>
             </div>
 
@@ -146,7 +146,7 @@ const closeMapModal = () => {
                             <MapPin class="h-5 w-5 text-blue-600 dark:text-blue-400" />
                         </div>
                         <div>
-                            <p class="text-sm text-gray-600 dark:text-gray-300">Total Locations</p>
+                            <p class="text-sm text-gray-600 dark:text-gray-300">Total Lokasi</p>
                             <p class="text-xl font-bold text-gray-900 dark:text-white">{{ stats.total_locations }}</p>
                         </div>
                     </div>
@@ -157,7 +157,7 @@ const closeMapModal = () => {
                             <Target class="h-5 w-5 text-green-600 dark:text-green-400" />
                         </div>
                         <div>
-                            <p class="text-sm text-gray-600 dark:text-gray-300">Active Locations</p>
+                            <p class="text-sm text-gray-600 dark:text-gray-300">Lokasi Aktif</p>
                             <p class="text-xl font-bold text-gray-900 dark:text-white">{{ stats.active_locations }}</p>
                         </div>
                     </div>
@@ -168,7 +168,7 @@ const closeMapModal = () => {
                             <Navigation class="h-5 w-5 text-purple-600 dark:text-purple-400" />
                         </div>
                         <div>
-                            <p class="text-sm text-gray-600 dark:text-gray-300">Coverage Area</p>
+                            <p class="text-sm text-gray-600 dark:text-gray-300">Area Cakupan</p>
                             <p class="text-xl font-bold text-gray-900 dark:text-white">{{ stats.total_radius_coverage }}m²</p>
                         </div>
                     </div>
@@ -179,7 +179,7 @@ const closeMapModal = () => {
                             <Clock class="h-5 w-5 text-orange-600 dark:text-orange-400" />
                         </div>
                         <div>
-                            <p class="text-sm text-gray-600 dark:text-gray-300">Today's Check-ins</p>
+                            <p class="text-sm text-gray-600 dark:text-gray-300">Absensi Hari Ini</p>
                             <p class="text-xl font-bold text-gray-900 dark:text-white">{{ stats.today_checkins }}</p>
                         </div>
                     </div>
@@ -195,7 +195,7 @@ const closeMapModal = () => {
                             v-model="searchQuery"
                             @input="filterLocations"
                             type="text"
-                            placeholder="Search locations..."
+                            placeholder="Cari lokasi..."
                             class="w-full rounded-lg border border-gray-300 pl-10 pr-3 py-2 text-sm dark:border-gray-600 dark:bg-gray-800 dark:text-white"
                         />
                     </div>
@@ -204,17 +204,47 @@ const closeMapModal = () => {
                         @change="filterLocations"
                         class="rounded-lg border border-gray-300 px-3 py-2 text-sm dark:border-gray-600 dark:bg-gray-800"
                     >
-                        <option value="">All Status</option>
-                        <option value="active">Active</option>
-                        <option value="inactive">Inactive</option>
+                        <option value="">Semua Status</option>
+                        <option value="active">Aktif</option>
+                        <option value="inactive">Tidak Aktif</option>
                     </select>
                     <div class="flex gap-2">
                         <button
                             @click="filterLocations"
                             class="inline-flex items-center gap-2 rounded-lg bg-gray-100 px-3 py-2 text-sm font-medium text-gray-700 hover:bg-gray-200 dark:bg-gray-800 dark:text-gray-300 dark:hover:bg-gray-700"
                         >
-                            Apply
+                            Terapkan
                         </button>
+                    </div>
+                </div>
+            </div>
+
+            <!-- Map Overview -->
+            <div class="rounded-xl border border-sidebar-border/70 bg-white dark:border-sidebar-border dark:bg-gray-950">
+                <div class="p-6">
+                    <h2 class="text-lg font-semibold text-gray-900 dark:text-white">Peta Lokasi Kantor</h2>
+                    <p class="text-sm text-gray-600 dark:text-gray-300 mb-4">Ringkasan semua lokasi kantor</p>
+
+                    <!-- Map showing all locations -->
+                    <LeafletMap
+                        v-if="officeLocations?.data && officeLocations.data.length > 0"
+                        :locations="officeLocations.data"
+                        height="300px"
+                        :show-radius="true"
+                        :interactive="true"
+                    />
+                    <div v-else class="flex items-center justify-center h-64 bg-gray-50 dark:bg-gray-800 rounded-lg border-2 border-dashed border-gray-300 dark:border-gray-600">
+                        <div class="text-center">
+                            <MapPin class="h-12 w-12 text-gray-400 mx-auto mb-4" />
+                            <p class="text-gray-500 dark:text-gray-400">Tidak ada lokasi kantor ditemukan</p>
+                            <Link
+                                href="/office-locations/create"
+                                class="mt-2 inline-flex items-center gap-2 rounded-lg bg-blue-600 px-4 py-2 text-sm font-medium text-white hover:bg-blue-700"
+                            >
+                                <Plus class="h-4 w-4" />
+                                Tambah Lokasi Pertama
+                            </Link>
+                        </div>
                     </div>
                 </div>
             </div>
@@ -222,7 +252,7 @@ const closeMapModal = () => {
             <!-- Office Locations List -->
             <div class="rounded-xl border border-sidebar-border/70 bg-white dark:border-sidebar-border dark:bg-gray-950">
                 <div class="p-6">
-                    <h2 class="text-lg font-semibold text-gray-900 dark:text-white">Locations</h2>
+                    <h2 class="text-lg font-semibold text-gray-900 dark:text-white">Daftar Lokasi</h2>
                 </div>
 
                 <div class="grid gap-4 p-6 pt-0 md:grid-cols-2 lg:grid-cols-3">
@@ -242,7 +272,7 @@ const closeMapModal = () => {
                                         class="inline-flex rounded-full border px-2 py-1 text-xs font-medium"
                                         :class="getStatusBadge(location.is_active)"
                                     >
-                                        {{ location.is_active ? 'Active' : 'Inactive' }}
+                                        {{ location.is_active ? 'Aktif' : 'Tidak Aktif' }}
                                     </span>
                                 </div>
                             </div>
@@ -250,7 +280,7 @@ const closeMapModal = () => {
                                 <button
                                     @click="viewOnMap(location)"
                                     class="rounded-lg bg-green-100 p-2 text-green-600 hover:bg-green-200 dark:bg-green-900/30 dark:text-green-400 dark:hover:bg-green-900/50"
-                                    title="View on Map"
+                                    title="Lihat di Peta"
                                 >
                                     <Map class="h-4 w-4" />
                                 </button>
@@ -277,13 +307,13 @@ const closeMapModal = () => {
                             <div class="rounded-lg bg-gray-50 p-3 dark:bg-gray-800">
                                 <div class="space-y-2">
                                     <div class="flex items-center justify-between">
-                                        <span class="text-sm font-medium text-gray-700 dark:text-gray-300">Coordinates:</span>
+                                        <span class="text-sm font-medium text-gray-700 dark:text-gray-300">Koordinat:</span>
                                         <span class="text-sm text-gray-600 dark:text-gray-400">
                                             {{ formatCoordinates(location.latitude, location.longitude) }}
                                         </span>
                                     </div>
                                     <div class="flex items-center justify-between">
-                                        <span class="text-sm font-medium text-gray-700 dark:text-gray-300">Check-in Radius:</span>
+                                        <span class="text-sm font-medium text-gray-700 dark:text-gray-300">Radius Absensi:</span>
                                         <span class="text-sm text-gray-600 dark:text-gray-400">{{ location.radius_meters }}m</span>
                                     </div>
                                 </div>
@@ -293,11 +323,11 @@ const closeMapModal = () => {
                                 <div class="flex items-center gap-4">
                                     <div class="text-center">
                                         <p class="text-lg font-bold text-gray-900 dark:text-white">{{ location.employees_count || 0 }}</p>
-                                        <p class="text-xs text-gray-500 dark:text-gray-400">Employees</p>
+                                        <p class="text-xs text-gray-500 dark:text-gray-400">Karyawan</p>
                                     </div>
                                     <div class="text-center">
                                         <p class="text-lg font-bold text-gray-900 dark:text-white">{{ location.today_checkins_count || 0 }}</p>
-                                        <p class="text-xs text-gray-500 dark:text-gray-400">Today's Check-ins</p>
+                                        <p class="text-xs text-gray-500 dark:text-gray-400">Absensi Hari Ini</p>
                                     </div>
                                 </div>
                                 <button
@@ -305,7 +335,7 @@ const closeMapModal = () => {
                                     class="rounded-lg bg-gray-100 px-3 py-2 text-sm font-medium text-gray-700 hover:bg-gray-200 dark:bg-gray-800 dark:text-gray-300 dark:hover:bg-gray-700"
                                 >
                                     <Navigation class="inline h-4 w-4 mr-1" />
-                                    Directions
+                                    Petunjuk Arah
                                 </button>
                             </div>
                         </div>
@@ -316,7 +346,7 @@ const closeMapModal = () => {
                 <div v-if="officeLocations?.meta?.total > officeLocations?.meta?.per_page" class="border-t border-gray-200 p-4 dark:border-gray-700">
                     <div class="flex items-center justify-between">
                         <p class="text-sm text-gray-500 dark:text-gray-400">
-                            Showing {{ officeLocations.meta.from }} to {{ officeLocations.meta.to }} of {{ officeLocations.meta.total }} results
+                            Menampilkan {{ officeLocations.meta.from }} sampai {{ officeLocations.meta.to }} dari {{ officeLocations.meta.total }} hasil
                         </p>
                         <div class="flex gap-2">
                             <Link
@@ -377,14 +407,14 @@ const closeMapModal = () => {
                             class="inline-flex items-center gap-2 rounded-lg bg-blue-600 px-4 py-2 text-sm font-medium text-white hover:bg-blue-700"
                         >
                             <Navigation class="h-4 w-4" />
-                            Open in Google Maps
+                            Buka di Google Maps
                         </button>
                     </div>
                     <button
                         @click="closeMapModal"
                         class="rounded-lg border border-gray-300 px-4 py-2 text-sm font-medium text-gray-700 hover:bg-gray-50 dark:border-gray-600 dark:text-gray-300 dark:hover:bg-gray-800"
                     >
-                        Close
+                        Tutup
                     </button>
                 </div>
             </div>
