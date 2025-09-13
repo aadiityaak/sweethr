@@ -72,6 +72,107 @@ class LeaveRequestController extends Controller
         ]);
     }
 
+    public function create(): Response
+    {
+        $leaveTypes = LeaveType::orderBy('name')->get(['id', 'name']);
+
+        return Inertia::render('user/LeaveRequests/Create', [
+            'leaveTypes' => $leaveTypes,
+        ]);
+    }
+
+    public function store(Request $request)
+    {
+        $validated = $request->validate([
+            'leave_type_id' => 'required|exists:leave_types,id',
+            'start_date' => 'required|date|after_or_equal:today',
+            'end_date' => 'required|date|after_or_equal:start_date',
+            'reason' => 'required|string|max:1000',
+        ]);
+
+        LeaveRequest::create([
+            'user_id' => auth()->id(),
+            'leave_type_id' => $validated['leave_type_id'],
+            'start_date' => $validated['start_date'],
+            'end_date' => $validated['end_date'],
+            'reason' => $validated['reason'],
+            'status' => 'pending',
+        ]);
+
+        return redirect()->route('leave-requests.index')
+            ->with('success', 'Leave request submitted successfully.');
+    }
+
+    public function show(LeaveRequest $leaveRequest): Response
+    {
+        $user = auth()->user();
+        $isAdmin = $user->is_admin ?? false;
+
+        // Non-admin users can only view their own requests
+        if (! $isAdmin && $leaveRequest->user_id !== $user->id) {
+            abort(403);
+        }
+
+        $leaveRequest->load(['user:id,name,employee_id', 'leaveType:id,name', 'approvedBy:id,name']);
+
+        return Inertia::render('user/LeaveRequests/Show', [
+            'leaveRequest' => $leaveRequest,
+        ]);
+    }
+
+    public function edit(LeaveRequest $leaveRequest): Response
+    {
+        $user = auth()->user();
+
+        // Only allow editing own requests and only if pending
+        if ($leaveRequest->user_id !== $user->id || $leaveRequest->status !== 'pending') {
+            abort(403);
+        }
+
+        $leaveTypes = LeaveType::orderBy('name')->get(['id', 'name']);
+
+        return Inertia::render('user/LeaveRequests/Edit', [
+            'leaveRequest' => $leaveRequest,
+            'leaveTypes' => $leaveTypes,
+        ]);
+    }
+
+    public function update(Request $request, LeaveRequest $leaveRequest)
+    {
+        $user = auth()->user();
+
+        // Only allow updating own requests and only if pending
+        if ($leaveRequest->user_id !== $user->id || $leaveRequest->status !== 'pending') {
+            abort(403);
+        }
+
+        $validated = $request->validate([
+            'leave_type_id' => 'required|exists:leave_types,id',
+            'start_date' => 'required|date|after_or_equal:today',
+            'end_date' => 'required|date|after_or_equal:start_date',
+            'reason' => 'required|string|max:1000',
+        ]);
+
+        $leaveRequest->update($validated);
+
+        return redirect()->route('leave-requests.index')
+            ->with('success', 'Leave request updated successfully.');
+    }
+
+    public function destroy(LeaveRequest $leaveRequest)
+    {
+        $user = auth()->user();
+
+        // Only allow deleting own requests and only if pending
+        if ($leaveRequest->user_id !== $user->id || $leaveRequest->status !== 'pending') {
+            abort(403);
+        }
+
+        $leaveRequest->delete();
+
+        return back()->with('success', 'Leave request deleted successfully.');
+    }
+
     public function approve(LeaveRequest $leaveRequest)
     {
         if ($leaveRequest->status !== 'pending') {
