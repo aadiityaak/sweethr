@@ -40,8 +40,7 @@ class EmployeeController extends Controller
         }
 
         if ($request->status) {
-            $isActive = $request->status === 'active';
-            $query->where('is_active', $isActive);
+            $query->where('employment_status', $request->status);
         }
 
         $employees = $query->paginate(15);
@@ -81,12 +80,12 @@ class EmployeeController extends Controller
             'hire_date' => 'required|date',
             'password' => 'required|string|min:8|confirmed',
             'is_admin' => 'boolean',
-            'is_active' => 'boolean',
+            'employment_status' => 'in:active,inactive,terminated',
         ]);
 
         $validated['password'] = bcrypt($validated['password']);
         $validated['is_admin'] = $request->boolean('is_admin');
-        $validated['is_active'] = $request->boolean('is_active', true);
+        $validated['employment_status'] = $validated['employment_status'] ?? 'active';
 
         User::create($validated);
 
@@ -129,7 +128,7 @@ class EmployeeController extends Controller
             'hire_date' => 'required|date',
             'password' => 'nullable|string|min:8|confirmed',
             'is_admin' => 'boolean',
-            'is_active' => 'boolean',
+            'employment_status' => 'in:active,inactive,terminated',
         ]);
 
         if ($request->filled('password')) {
@@ -139,7 +138,7 @@ class EmployeeController extends Controller
         }
 
         $validated['is_admin'] = $request->boolean('is_admin');
-        $validated['is_active'] = $request->boolean('is_active');
+        $validated['employment_status'] = $validated['employment_status'] ?? $employee->employment_status;
 
         $employee->update($validated);
 

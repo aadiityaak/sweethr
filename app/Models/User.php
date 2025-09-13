@@ -108,4 +108,14 @@ class User extends Authenticatable
     {
         return $this->hasMany(ShiftSwap::class, 'target_user_id');
     }
+
+    public function scopeActive($query)
+    {
+        return $query->where('employment_status', 'active');
+    }
+
+    public function getIsActiveAttribute()
+    {
+        return $this->employment_status === 'active';
+    }
 }

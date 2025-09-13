@@ -93,7 +93,7 @@ class DashboardController extends Controller
         if ($user->is_admin) {
             // Admin stats - company-wide
             $stats = [
-                'total_employees' => User::where('is_active', true)->count(),
+                'total_employees' => User::where('employment_status', 'active')->count(),
                 'departments_count' => Department::active()->count(),
                 'today_present' => Attendance::whereDate('date', Carbon::today())
                                            ->where('status', 'present')
@@ -106,7 +106,7 @@ class DashboardController extends Controller
             // Department-wise attendance
             $departmentStats = Department::active()
                                         ->withCount(['employees' => function ($query) {
-                                            $query->where('is_active', true);
+                                            $query->where('employment_status', 'active');
                                         }])
                                         ->get()
                                         ->map(function ($dept) {
@@ -156,7 +156,7 @@ class DashboardController extends Controller
         $currentYear = Carbon::now()->year;
         $workingDays = Carbon::now()->startOfMonth()->diffInWeekdays(Carbon::now());
 
-        $totalEmployees = User::where('is_active', true)->count();
+        $totalEmployees = User::where('employment_status', 'active')->count();
         $totalPossibleAttendances = $totalEmployees * $workingDays;
 
         $actualAttendances = Attendance::whereMonth('date', $currentMonth)

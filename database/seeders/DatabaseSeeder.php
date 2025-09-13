@@ -23,7 +23,7 @@ class DatabaseSeeder extends Seeder
         // Create admin user
         User::factory()->create([
             'name' => 'HR Admin',
-            'email' => 'admin@sweethr.com',
+            'email' => 'admin@example.com',
             'employee_id' => 'EMP001',
             'is_admin' => true,
             'employment_status' => 'active',
@@ -33,7 +33,7 @@ class DatabaseSeeder extends Seeder
         // Create test user
         User::factory()->create([
             'name' => 'John Doe',
-            'email' => 'john@sweethr.com',
+            'email' => 'john@example.com',
             'employee_id' => 'EMP002',
             'phone' => '+62812345678',
             'gender' => 'male',
