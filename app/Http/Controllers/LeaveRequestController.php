@@ -13,14 +13,22 @@ class LeaveRequestController extends Controller
 {
     public function index(Request $request): Response
     {
+        $user = auth()->user();
+        $isAdmin = $user->is_admin ?? false;
+
         $query = LeaveRequest::with(['user:id,name,employee_id', 'leaveType:id,name', 'approvedBy:id,name'])
             ->orderByDesc('created_at');
 
+        // If not admin, only show user's own requests
+        if (! $isAdmin) {
+            $query->where('user_id', $user->id);
+        }
+
         // Apply filters
-        if ($request->search) {
+        if ($request->search && $isAdmin) {
             $query->whereHas('user', function ($q) use ($request) {
-                $q->where('name', 'like', '%' . $request->search . '%')
-                  ->orWhere('employee_id', 'like', '%' . $request->search . '%');
+                $q->where('name', 'like', '%'.$request->search.'%')
+                    ->orWhere('employee_id', 'like', '%'.$request->search.'%');
             });
         }
 
@@ -35,19 +43,30 @@ class LeaveRequestController extends Controller
         $leaveRequests = $query->paginate(15);
 
         // Get stats
-        $stats = [
-            'pending_count' => LeaveRequest::where('status', 'pending')->count(),
-            'approved_count' => LeaveRequest::where('status', 'approved')->count(),
-            'rejected_count' => LeaveRequest::where('status', 'rejected')->count(),
-        ];
+        if ($isAdmin) {
+            $stats = [
+                'pending_count' => LeaveRequest::where('status', 'pending')->count(),
+                'approved_count' => LeaveRequest::where('status', 'approved')->count(),
+                'rejected_count' => LeaveRequest::where('status', 'rejected')->count(),
+            ];
+        } else {
+            $stats = [
+                'pending_count' => LeaveRequest::where('user_id', $user->id)->where('status', 'pending')->count(),
+                'approved_count' => LeaveRequest::where('user_id', $user->id)->where('status', 'approved')->count(),
+                'rejected_count' => LeaveRequest::where('user_id', $user->id)->where('status', 'rejected')->count(),
+                'leave_balance' => 12, // You might want to calculate this from user's data
+            ];
+        }
 
         // Get leave types for filter
         $leaveTypes = LeaveType::orderBy('name')->get(['id', 'name']);
 
-        return Inertia::render('admin/LeaveRequests/Index', [
+        // Choose the right view based on user role
+        $view = $isAdmin ? 'admin/LeaveRequests/Index' : 'user/LeaveRequests/Index';
+
+        return Inertia::render($view, [
             'leaveRequests' => $leaveRequests,
             'leaveTypes' => $leaveTypes,
-            'currentUser' => auth()->user()->load('department', 'position'),
             'filters' => $request->only(['search', 'status', 'leave_type']),
             'stats' => $stats,
         ]);

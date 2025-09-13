@@ -9,13 +9,13 @@ Route::get('/', function () {
     }
 
     // Jika user sudah login (baik admin maupun karyawan), redirect ke /home
-    return redirect()->route('home');
+    return redirect()->route('welcome');
 })->name('home');
 
 Route::middleware(['auth', 'verified'])->group(function () {
     // Welcome page for all authenticated users
     Route::get('home', [App\Http\Controllers\DashboardController::class, 'welcome'])
-        ->name('home');
+        ->name('welcome');
 
     // Attendance routes (accessible by all employees)
     Route::get('attendance', [App\Http\Controllers\AttendanceController::class, 'index'])
@@ -26,6 +26,22 @@ Route::middleware(['auth', 'verified'])->group(function () {
         ->name('attendance.store-check-in');
     Route::post('attendance/check-out', [App\Http\Controllers\AttendanceController::class, 'storeCheckOut'])
         ->name('attendance.store-check-out');
+
+    // Leave Requests (accessible by all employees)
+    Route::get('leave-requests', [App\Http\Controllers\LeaveRequestController::class, 'index'])
+        ->name('leave-requests.index');
+    Route::get('leave-requests/create', [App\Http\Controllers\LeaveRequestController::class, 'create'])
+        ->name('leave-requests.create');
+    Route::post('leave-requests', [App\Http\Controllers\LeaveRequestController::class, 'store'])
+        ->name('leave-requests.store');
+    Route::get('leave-requests/{leave_request}', [App\Http\Controllers\LeaveRequestController::class, 'show'])
+        ->name('leave-requests.show');
+    Route::get('leave-requests/{leave_request}/edit', [App\Http\Controllers\LeaveRequestController::class, 'edit'])
+        ->name('leave-requests.edit');
+    Route::put('leave-requests/{leave_request}', [App\Http\Controllers\LeaveRequestController::class, 'update'])
+        ->name('leave-requests.update');
+    Route::delete('leave-requests/{leave_request}', [App\Http\Controllers\LeaveRequestController::class, 'destroy'])
+        ->name('leave-requests.destroy');
 });
 
 // Admin-only routes
@@ -36,8 +52,7 @@ Route::middleware(['auth', 'verified', 'admin'])->group(function () {
     // Employee management (Admin only)
     Route::resource('employees', App\Http\Controllers\EmployeeController::class);
 
-    // Leave Requests management (Admin only)
-    Route::resource('leave-requests', App\Http\Controllers\LeaveRequestController::class);
+    // Leave Requests approval/rejection (Admin only)
     Route::patch('leave-requests/{leaveRequest}/approve', [App\Http\Controllers\LeaveRequestController::class, 'approve'])
         ->name('leave-requests.approve');
     Route::patch('leave-requests/{leaveRequest}/reject', [App\Http\Controllers\LeaveRequestController::class, 'reject'])
