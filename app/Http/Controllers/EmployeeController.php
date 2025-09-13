@@ -11,11 +11,6 @@ use Inertia\Response;
 
 class EmployeeController extends Controller
 {
-    public function __construct()
-    {
-        $this->middleware('auth');
-        // Admin middleware is now handled at route level
-    }
 
     public function index(Request $request): Response
     {

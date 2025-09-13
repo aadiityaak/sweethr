@@ -70,8 +70,15 @@ const getStatusBadge = (isActive: boolean) => {
         : 'bg-red-100 text-red-800 border-red-200 dark:bg-red-900/30 dark:text-red-400 dark:border-red-600';
 };
 
-const formatCoordinates = (lat: number, lng: number) => {
-    return `${lat.toFixed(6)}, ${lng.toFixed(6)}`;
+const formatCoordinates = (lat: number | string | null, lng: number | string | null) => {
+    const latNum = typeof lat === 'string' ? parseFloat(lat) : lat;
+    const lngNum = typeof lng === 'string' ? parseFloat(lng) : lng;
+
+    if (!latNum || !lngNum || isNaN(latNum) || isNaN(lngNum)) {
+        return 'Invalid coordinates';
+    }
+
+    return `${latNum.toFixed(6)}, ${lngNum.toFixed(6)}`;
 };
 
 const openInGoogleMaps = (location: OfficeLocation) => {

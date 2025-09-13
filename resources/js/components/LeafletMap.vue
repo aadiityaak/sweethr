@@ -14,7 +14,10 @@ interface OfficeLocation {
 
 interface Props {
     locations: OfficeLocation[];
-    selectedLocation?: OfficeLocation;
+    selectedLocation?: OfficeLocation | {
+        latitude: number;
+        longitude: number;
+    };
     userLocation?: {
         latitude: number;
         longitude: number;
@@ -29,6 +32,10 @@ const props = withDefaults(defineProps<Props>(), {
     showRadius: true,
     interactive: true,
 });
+
+const emit = defineEmits<{
+    'map-click': [coordinates: { latitude: number; longitude: number }];
+}>();
 
 const mapContainer = ref<HTMLDivElement>();
 let map: LeafletMap | null = null;
@@ -72,6 +79,16 @@ const initializeMap = async () => {
     L.tileLayer('https://{s}.tile.openstreetmap.org/{z}/{x}/{y}.png', {
         attribution: '© <a href="https://www.openstreetmap.org/copyright">OpenStreetMap</a> contributors'
     }).addTo(map);
+
+    // Add map click event listener if interactive
+    if (props.interactive) {
+        map.on('click', (e: any) => {
+            emit('map-click', {
+                latitude: e.latlng.lat,
+                longitude: e.latlng.lng
+            });
+        });
+    }
 
     // Add office location markers
     addOfficeMarkers(L);
@@ -188,6 +205,16 @@ watch(() => props.userLocation, () => {
     if (map) {
         const L = require('leaflet');
         addUserMarker(L);
+    }
+}, { deep: true });
+
+watch(() => props.selectedLocation, () => {
+    if (map && props.selectedLocation) {
+        const L = require('leaflet');
+        // Update map center and zoom to selected location
+        map.setView([props.selectedLocation.latitude, props.selectedLocation.longitude], 16);
+        // Re-add markers to update the display
+        addOfficeMarkers(L);
     }
 }, { deep: true });
 
