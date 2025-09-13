@@ -13,11 +13,32 @@ class DatabaseSeeder extends Seeder
      */
     public function run(): void
     {
-        // User::factory(10)->create();
+        $this->call([
+            DepartmentSeeder::class,
+            WorkShiftSeeder::class,
+            LeaveTypeSeeder::class,
+            OfficeLocationSeeder::class,
+        ]);
 
+        // Create admin user
         User::factory()->create([
-            'name' => 'Test User',
-            'email' => 'test@example.com',
+            'name' => 'HR Admin',
+            'email' => 'admin@sweethr.com',
+            'employee_id' => 'EMP001',
+            'is_admin' => true,
+            'employment_status' => 'active',
+            'hire_date' => now()->subYears(2),
+        ]);
+
+        // Create test user
+        User::factory()->create([
+            'name' => 'John Doe',
+            'email' => 'john@sweethr.com',
+            'employee_id' => 'EMP002',
+            'phone' => '+62812345678',
+            'gender' => 'male',
+            'employment_status' => 'active',
+            'hire_date' => now()->subMonths(6),
         ]);
     }
 }
