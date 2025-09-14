@@ -1,0 +1,94 @@
+<?php
+
+namespace App\Http\Controllers\Admin;
+
+use App\Http\Controllers\Controller;
+use App\Models\Attendance;
+use App\Models\User;
+use App\Models\Department;
+use App\Models\OfficeLocation;
+use Carbon\Carbon;
+use Illuminate\Http\Request;
+use Inertia\Inertia;
+use Inertia\Response;
+
+class AttendanceController extends Controller
+{
+    public function index(Request $request): Response
+    {
+        // Get filters
+        $filters = $request->only(['date', 'status', 'department', 'search']);
+        $date = $filters['date'] ?? Carbon::today()->format('Y-m-d');
+
+        // Query attendance records with filters
+        $attendanceQuery = Attendance::with([
+                'user' => function($query) {
+                    $query->with(['department:id,name', 'position:id,title']);
+                },
+                'officeLocation:id,name,address'
+            ])
+            ->where('date', $date)
+            ->when($filters['status'] ?? false, function ($query, $status) {
+                $query->where('status', $status);
+            })
+            ->when($filters['department'] ?? false, function ($query, $department) {
+                $query->whereHas('user', function($q) use ($department) {
+                    $q->where('department_id', $department);
+                });
+            })
+            ->when($filters['search'] ?? false, function ($query, $search) {
+                $query->whereHas('user', function($q) use ($search) {
+                    $q->where('name', 'like', "%{$search}%")
+                      ->orWhere('employee_id', 'like', "%{$search}%");
+                });
+            });
+
+        $attendanceRecords = $attendanceQuery->orderBy('created_at', 'desc')->get();
+
+        // Calculate attendance statistics for the selected date
+        $totalEmployees = User::where('is_admin', false)->count();
+        $presentToday = Attendance::where('date', $date)
+            ->whereIn('status', ['present', 'late'])
+            ->count();
+        $lateToday = Attendance::where('date', $date)
+            ->where('status', 'late')
+            ->count();
+        $absentToday = $totalEmployees - $presentToday;
+        $onLeaveToday = 0; // This would need leave request integration
+
+        $attendanceRate = $totalEmployees > 0 ? round(($presentToday / $totalEmployees) * 100) : 0;
+
+        // Calculate average work hours and overtime for the date
+        $avgWorkHours = Attendance::where('date', $date)
+            ->whereNotNull('work_duration')
+            ->avg('work_duration') ?? 0;
+        $avgWorkHours = round($avgWorkHours / 60, 1); // Convert to hours
+
+        $totalOvertimeHours = Attendance::where('date', $date)
+            ->sum('overtime_duration') ?? 0;
+        $totalOvertimeHours = round($totalOvertimeHours / 60, 1); // Convert to hours
+
+        $stats = [
+            'total_employees' => $totalEmployees,
+            'present_today' => $presentToday,
+            'late_today' => $lateToday,
+            'absent_today' => $absentToday,
+            'on_leave_today' => $onLeaveToday,
+            'attendance_rate' => $attendanceRate,
+            'average_work_hours' => $avgWorkHours,
+            'total_overtime_hours' => $totalOvertimeHours,
+        ];
+
+        // Get departments for filter dropdown
+        $departments = Department::select('id', 'name')
+            ->orderBy('name')
+            ->get();
+
+        return Inertia::render('admin/Attendance/Index', [
+            'attendanceRecords' => $attendanceRecords,
+            'stats' => $stats,
+            'filters' => $filters,
+            'departments' => $departments,
+        ]);
+    }
+}

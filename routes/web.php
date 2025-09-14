@@ -60,6 +60,10 @@ Route::middleware(['auth', 'verified', 'admin'])->group(function () {
 
     // Office Locations management (Admin only)
     Route::resource('office-locations', App\Http\Controllers\OfficeLocationController::class);
+
+    // Admin Attendance Management
+    Route::get('admin/attendance', [App\Http\Controllers\Admin\AttendanceController::class, 'index'])
+        ->name('admin.attendance.index');
 });
 
 require __DIR__.'/settings.php';

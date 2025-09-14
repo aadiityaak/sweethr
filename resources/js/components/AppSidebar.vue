@@ -40,8 +40,8 @@ const adminNavItems: NavItem[] = [
         icon: LayoutGrid,
     },
     {
-        title: 'Kehadiran',
-        href: '/attendance',
+        title: 'Kelola Kehadiran',
+        href: '/admin/attendance',
         icon: Clock,
     },
     {
