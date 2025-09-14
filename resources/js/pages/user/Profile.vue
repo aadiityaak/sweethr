@@ -2,30 +2,31 @@
     <Head title="Profil Saya" />
 
     <div class="min-h-screen bg-background">
-        <!-- Mobile Container -->
-        <div class="mx-auto max-w-[480px] bg-background min-h-screen">
-            <!-- Mobile Header -->
-            <div class="bg-background/95 backdrop-blur-sm border-b sticky top-0 z-40">
-                <div class="px-4 py-4">
-                    <div class="flex items-center justify-between">
-                        <div class="flex items-center gap-3">
-                            <div class="rounded-lg bg-primary p-2">
-                                <User class="h-4 w-4 text-primary-foreground" />
-                            </div>
-                            <div>
-                                <h1 class="text-lg font-semibold">Profil Saya</h1>
-                                <p class="text-sm text-muted-foreground">Pengaturan Akun</p>
-                            </div>
+        <!-- Mobile Header -->
+        <div class="bg-background/95 backdrop-blur-sm border-b sticky top-0 z-40 w-full">
+            <div class="mx-auto max-w-[480px] px-4 py-4">
+                <div class="flex items-center justify-between">
+                    <div class="flex items-center gap-3">
+                        <div class="rounded-lg bg-primary p-2">
+                            <User class="h-4 w-4 text-primary-foreground" />
                         </div>
-                        <Link
-                            href="/user/welcome"
-                            class="rounded-md bg-secondary p-2 text-secondary-foreground hover:bg-secondary/80 transition-colors"
-                        >
-                            <ArrowLeft class="h-4 w-4" />
-                        </Link>
+                        <div>
+                            <h1 class="text-lg font-semibold">Profil Saya</h1>
+                            <p class="text-sm text-muted-foreground">Pengaturan Akun</p>
+                        </div>
                     </div>
+                    <Link
+                        href="/user/welcome"
+                        class="rounded-md bg-secondary p-2 text-secondary-foreground hover:bg-secondary/80 transition-colors"
+                    >
+                        <ArrowLeft class="h-4 w-4" />
+                    </Link>
                 </div>
             </div>
+        </div>
+
+        <!-- Mobile Container -->
+        <div class="mx-auto max-w-[480px] bg-background min-h-screen">
 
             <!-- Main Content -->
             <div class="px-4 py-6 pb-24">
@@ -249,8 +250,9 @@
             </div>
             </div>
 
-            <!-- Bottom Navigation -->
-            <div class="fixed bottom-0 left-1/2 z-50 w-full max-w-[480px] -translate-x-1/2 border-t bg-background/95 backdrop-blur-sm">
+        <!-- Bottom Navigation -->
+        <div class="fixed bottom-0 z-50 w-full border-t bg-background/95 backdrop-blur-sm">
+            <div class="mx-auto max-w-[480px]">
                 <div class="grid grid-cols-4 divide-x">
                     <Link href="/user/welcome" class="flex flex-col items-center py-3 px-2 text-muted-foreground hover:text-foreground">
                         <div class="rounded-md p-2 mb-1">
@@ -281,6 +283,7 @@
                     </Link>
                 </div>
             </div>
+        </div>
         </div>
     </div>
 </template>
