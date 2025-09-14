@@ -308,7 +308,7 @@
 
 <script setup lang="ts">
 import { Head, Link, router, useForm } from '@inertiajs/vue3';
-import { computed } from 'vue';
+import { computed, watch } from 'vue';
 import AppLayout from '@/layouts/AppLayout.vue';
 import { type BreadcrumbItem } from '@/types';
 import { Input } from '@/components/ui/input';
@@ -375,6 +375,14 @@ const form = useForm({
 const filteredPositions = computed(() => {
     if (!form.department_id) return props.positions;
     return props.positions.filter(pos => pos.department_id == form.department_id);
+});
+
+// Watch for department changes and reset position when department changes
+watch(() => form.department_id, (newDepartmentId, oldDepartmentId) => {
+    if (newDepartmentId !== oldDepartmentId && form.position_id) {
+        // Reset position when department changes
+        form.position_id = '';
+    }
 });
 
 const selectedDepartmentName = computed(() => {
