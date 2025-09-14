@@ -1,7 +1,7 @@
 <template>
     <Head :title="`Departemen ${department.name}`" />
 
-    <AppLayout>
+    <AppLayout :breadcrumbs="breadcrumbs">
         <div class="space-y-6">
             <!-- Header -->
             <div class="flex flex-col gap-4 sm:flex-row sm:items-center sm:justify-between">
@@ -185,6 +185,7 @@
 <script setup lang="ts">
 import { Head, Link, router } from '@inertiajs/vue3';
 import AppLayout from '@/layouts/AppLayout.vue';
+import { type BreadcrumbItem } from '@/types';
 import {
     Edit,
     ArrowLeft,
@@ -241,6 +242,21 @@ interface Props {
 }
 
 const props = defineProps<Props>();
+
+const breadcrumbs: BreadcrumbItem[] = [
+    {
+        title: 'Dasbor',
+        href: '/dashboard',
+    },
+    {
+        title: 'Departemen',
+        href: '/admin/departments',
+    },
+    {
+        title: props.department.name,
+        href: `/admin/departments/${props.department.id}`,
+    },
+];
 
 // Methods
 const formatDate = (dateString: string) => {

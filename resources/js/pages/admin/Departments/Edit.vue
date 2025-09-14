@@ -1,7 +1,7 @@
 <template>
     <Head :title="`Edit Departemen - ${department.name}`" />
 
-    <AppLayout>
+    <AppLayout :breadcrumbs="breadcrumbs">
         <div class="space-y-6">
             <!-- Header -->
             <div class="flex flex-col gap-4 sm:flex-row sm:items-center sm:justify-between">
@@ -166,6 +166,7 @@
 import { Head, Link, router, useForm } from '@inertiajs/vue3';
 import { computed } from 'vue';
 import AppLayout from '@/layouts/AppLayout.vue';
+import { type BreadcrumbItem } from '@/types';
 import { Input } from '@/components/ui/input';
 import { Textarea } from '@/components/ui/textarea';
 import { Button } from '@/components/ui/button';
@@ -194,6 +195,21 @@ interface Props {
 }
 
 const props = defineProps<Props>();
+
+const breadcrumbs: BreadcrumbItem[] = [
+    {
+        title: 'Dasbor',
+        href: '/dashboard',
+    },
+    {
+        title: 'Departemen',
+        href: '/admin/departments',
+    },
+    {
+        title: 'Edit Departemen',
+        href: `/admin/departments/${props.department.id}/edit`,
+    },
+];
 
 const form = useForm({
     name: props.department.name,
