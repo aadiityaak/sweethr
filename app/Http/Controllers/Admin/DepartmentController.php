@@ -4,8 +4,10 @@ namespace App\Http\Controllers\Admin;
 
 use App\Http\Controllers\Controller;
 use App\Models\Department;
+use App\Models\Position;
 use App\Models\User;
 use Illuminate\Http\Request;
+use Illuminate\Support\Facades\DB;
 use Inertia\Inertia;
 
 class DepartmentController extends Controller
@@ -72,12 +74,36 @@ class DepartmentController extends Controller
             'description' => 'nullable|string',
             'manager_id' => 'nullable|exists:users,id',
             'is_active' => 'boolean',
+            'positions' => 'array',
+            'positions.*.title' => 'required|string|max:255',
+            'positions.*.code' => 'required|string|max:20',
+            'positions.*.level' => 'required|integer|between:1,6',
+            'positions.*.base_salary' => 'nullable|numeric|min:0',
+            'positions.*.description' => 'nullable|string',
         ]);
 
-        Department::create($validated);
+        return DB::transaction(function () use ($validated) {
+            $positions = $validated['positions'] ?? [];
+            unset($validated['positions']);
 
-        return redirect('/admin/departments')
-            ->with('success', 'Department created successfully.');
+            $department = Department::create($validated);
+
+            // Create positions if provided
+            foreach ($positions as $positionData) {
+                Position::create([
+                    'title' => $positionData['title'],
+                    'code' => $positionData['code'],
+                    'description' => $positionData['description'] ?? null,
+                    'level' => (int) $positionData['level'],
+                    'base_salary' => $positionData['base_salary'] ? (float) $positionData['base_salary'] : null,
+                    'department_id' => $department->id,
+                    'is_active' => true,
+                ]);
+            }
+
+            return redirect('/admin/departments')
+                ->with('success', 'Department and positions created successfully.');
+        });
     }
 
     public function show(Department $department)
@@ -112,6 +138,9 @@ class DepartmentController extends Controller
 
     public function edit(Department $department)
     {
+        // Load department with positions
+        $department->load('positions');
+
         // Get potential managers (active employees, excluding current manager)
         $managers = User::where('employment_status', 'active')
             ->where('is_admin', false)
@@ -133,12 +162,38 @@ class DepartmentController extends Controller
             'description' => 'nullable|string',
             'manager_id' => 'nullable|exists:users,id',
             'is_active' => 'boolean',
+            'positions' => 'array',
+            'positions.*.title' => 'required|string|max:255',
+            'positions.*.code' => 'required|string|max:20',
+            'positions.*.level' => 'required|integer|between:1,6',
+            'positions.*.base_salary' => 'nullable|numeric|min:0',
+            'positions.*.description' => 'nullable|string',
         ]);
 
-        $department->update($validated);
+        return DB::transaction(function () use ($validated, $department) {
+            $positions = $validated['positions'] ?? [];
+            unset($validated['positions']);
 
-        return redirect('/admin/departments')
-            ->with('success', 'Department updated successfully.');
+            $department->update($validated);
+
+            // Remove existing positions and create new ones
+            $department->positions()->delete();
+
+            foreach ($positions as $positionData) {
+                Position::create([
+                    'title' => $positionData['title'],
+                    'code' => $positionData['code'],
+                    'description' => $positionData['description'] ?? null,
+                    'level' => (int) $positionData['level'],
+                    'base_salary' => $positionData['base_salary'] ? (float) $positionData['base_salary'] : null,
+                    'department_id' => $department->id,
+                    'is_active' => true,
+                ]);
+            }
+
+            return redirect('/admin/departments')
+                ->with('success', 'Department and positions updated successfully.');
+        });
     }
 
     public function destroy(Department $department)

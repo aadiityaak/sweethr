@@ -26,9 +26,9 @@
                     <div class="rounded-lg border bg-card p-6">
                         <h3 class="text-lg font-semibold mb-4">Informasi Personal</h3>
 
-                        <form @submit.prevent="submit" class="space-y-4">
-                            <div class="grid gap-4 md:grid-cols-2">
-                                <div>
+                        <form @submit.prevent="submit" class="space-y-6">
+                            <div class="grid gap-6 md:grid-cols-2">
+                                <div class="space-y-2">
                                     <Label for="name">Nama Lengkap *</Label>
                                     <Input
                                         id="name"
@@ -40,7 +40,7 @@
                                         {{ form.errors.name }}
                                     </p>
                                 </div>
-                                <div>
+                                <div class="space-y-2">
                                     <Label for="employee_id">ID Karyawan *</Label>
                                     <Input
                                         id="employee_id"
@@ -54,8 +54,8 @@
                                 </div>
                             </div>
 
-                            <div class="grid gap-4 md:grid-cols-2">
-                                <div>
+                            <div class="grid gap-6 md:grid-cols-2">
+                                <div class="space-y-2">
                                     <Label for="email">Email *</Label>
                                     <Input
                                         id="email"
@@ -68,7 +68,7 @@
                                         {{ form.errors.email }}
                                     </p>
                                 </div>
-                                <div>
+                                <div class="space-y-2">
                                     <Label for="phone">Nomor Telepon</Label>
                                     <Input
                                         id="phone"
@@ -82,8 +82,8 @@
                                 </div>
                             </div>
 
-                            <div class="grid gap-4 md:grid-cols-2">
-                                <div>
+                            <div class="grid gap-6 md:grid-cols-2">
+                                <div class="space-y-2">
                                     <Label for="date_of_birth">Tanggal Lahir</Label>
                                     <DatePicker
                                         v-model="form.date_of_birth"
@@ -93,7 +93,7 @@
                                         {{ form.errors.date_of_birth }}
                                     </p>
                                 </div>
-                                <div>
+                                <div class="space-y-2">
                                     <Label for="gender">Jenis Kelamin</Label>
                                     <select
                                         id="gender"
@@ -110,7 +110,7 @@
                                 </div>
                             </div>
 
-                            <div>
+                            <div class="space-y-2">
                                 <Label for="address">Alamat</Label>
                                 <Textarea
                                     id="address"
@@ -128,8 +128,8 @@
                             <div class="pt-6 border-t">
                                 <h4 class="text-md font-semibold mb-4">Informasi Pekerjaan</h4>
 
-                                <div class="grid gap-4 md:grid-cols-2">
-                                    <div>
+                                <div class="grid gap-6 md:grid-cols-2">
+                                    <div class="space-y-2">
                                         <Label for="hire_date">Tanggal Masuk *</Label>
                                         <DatePicker
                                             v-model="form.hire_date"
@@ -139,7 +139,7 @@
                                             {{ form.errors.hire_date }}
                                         </p>
                                     </div>
-                                    <div>
+                                    <div class="space-y-2">
                                         <Label for="employment_status">Status Karyawan</Label>
                                         <select
                                             id="employment_status"
@@ -155,8 +155,8 @@
                                     </div>
                                 </div>
 
-                                <div class="grid gap-4 md:grid-cols-2">
-                                    <div>
+                                <div class="grid gap-6 md:grid-cols-2">
+                                    <div class="space-y-2">
                                         <Label for="department_id">Departemen</Label>
                                         <select
                                             id="department_id"
@@ -172,7 +172,7 @@
                                             {{ form.errors.department_id }}
                                         </p>
                                     </div>
-                                    <div>
+                                    <div class="space-y-2">
                                         <Label for="position_id">Posisi</Label>
                                         <select
                                             id="position_id"
@@ -195,8 +195,8 @@
                             <div class="pt-6 border-t">
                                 <h4 class="text-md font-semibold mb-4">Kontak Darurat</h4>
 
-                                <div class="grid gap-4 md:grid-cols-3">
-                                    <div>
+                                <div class="grid gap-6 md:grid-cols-3">
+                                    <div class="space-y-2">
                                         <Label for="emergency_name">Nama Kontak</Label>
                                         <Input
                                             id="emergency_name"
@@ -204,7 +204,7 @@
                                             placeholder="Nama kontak darurat"
                                         />
                                     </div>
-                                    <div>
+                                    <div class="space-y-2">
                                         <Label for="emergency_phone">Nomor Telepon</Label>
                                         <Input
                                             id="emergency_phone"
@@ -212,7 +212,7 @@
                                             placeholder="08123456789"
                                         />
                                     </div>
-                                    <div>
+                                    <div class="space-y-2">
                                         <Label for="emergency_relationship">Hubungan</Label>
                                         <select
                                             id="emergency_relationship"

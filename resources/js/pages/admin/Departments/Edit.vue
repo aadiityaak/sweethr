@@ -86,7 +86,106 @@
                                 </p>
                             </div>
 
-                            <div class="flex items-center space-x-2">
+                            <!-- Positions Management -->
+                            <div class="pt-6 border-t">
+                                <div class="flex items-center justify-between mb-4">
+                                    <h4 class="text-md font-semibold">Posisi dalam Departemen</h4>
+                                    <Button
+                                        type="button"
+                                        variant="outline"
+                                        size="sm"
+                                        @click="addPosition"
+                                    >
+                                        <Plus class="h-4 w-4 mr-2" />
+                                        Tambah Posisi
+                                    </Button>
+                                </div>
+
+                                <div v-if="form.positions.length === 0" class="text-center py-8 text-muted-foreground">
+                                    <Briefcase class="h-8 w-8 mx-auto mb-2 opacity-50" />
+                                    <p>Belum ada posisi yang ditambahkan</p>
+                                    <p class="text-sm">Klik "Tambah Posisi" untuk menambah posisi baru</p>
+                                </div>
+
+                                <div v-else class="space-y-4">
+                                    <div
+                                        v-for="(position, index) in form.positions"
+                                        :key="index"
+                                        class="p-4 border rounded-lg bg-muted/20"
+                                    >
+                                        <div class="grid gap-4 md:grid-cols-2">
+                                            <div class="space-y-2">
+                                                <Label :for="`position_title_${index}`">Nama Posisi *</Label>
+                                                <Input
+                                                    :id="`position_title_${index}`"
+                                                    v-model="position.title"
+                                                    placeholder="e.g. HR Manager"
+                                                />
+                                            </div>
+                                            <div class="space-y-2">
+                                                <Label :for="`position_code_${index}`">Kode Posisi *</Label>
+                                                <Input
+                                                    :id="`position_code_${index}`"
+                                                    v-model="position.code"
+                                                    placeholder="e.g. HRM001"
+                                                />
+                                            </div>
+                                        </div>
+
+                                        <div class="grid gap-4 md:grid-cols-3 mt-4">
+                                            <div class="space-y-2">
+                                                <Label :for="`position_level_${index}`">Level *</Label>
+                                                <select
+                                                    :id="`position_level_${index}`"
+                                                    v-model="position.level"
+                                                    class="w-full rounded-md border border-input bg-background px-3 py-2 text-sm"
+                                                >
+                                                    <option value="">Pilih level</option>
+                                                    <option value="1">1 - Junior</option>
+                                                    <option value="2">2 - Staff</option>
+                                                    <option value="3">3 - Senior</option>
+                                                    <option value="4">4 - Lead</option>
+                                                    <option value="5">5 - Manager</option>
+                                                    <option value="6">6 - Director</option>
+                                                </select>
+                                            </div>
+                                            <div class="space-y-2">
+                                                <Label :for="`position_salary_${index}`">Gaji Pokok</Label>
+                                                <Input
+                                                    :id="`position_salary_${index}`"
+                                                    v-model="position.base_salary"
+                                                    type="number"
+                                                    placeholder="5000000"
+                                                />
+                                            </div>
+                                            <div class="flex items-end">
+                                                <Button
+                                                    type="button"
+                                                    variant="outline"
+                                                    size="sm"
+                                                    @click="removePosition(index)"
+                                                    class="text-red-600 hover:text-red-700 hover:bg-red-50"
+                                                >
+                                                    <Trash class="h-4 w-4 mr-2" />
+                                                    Hapus
+                                                </Button>
+                                            </div>
+                                        </div>
+
+                                        <div class="mt-4 space-y-2">
+                                            <Label :for="`position_description_${index}`">Deskripsi</Label>
+                                            <Textarea
+                                                :id="`position_description_${index}`"
+                                                v-model="position.description"
+                                                placeholder="Jelaskan tanggung jawab dan tugas posisi ini..."
+                                                rows="2"
+                                            />
+                                        </div>
+                                    </div>
+                                </div>
+                            </div>
+
+                            <div class="flex items-center space-x-2 pt-6 border-t">
                                 <input
                                     id="is_active"
                                     v-model="form.is_active"
@@ -171,7 +270,7 @@ import { Input } from '@/components/ui/input';
 import { Textarea } from '@/components/ui/textarea';
 import { Button } from '@/components/ui/button';
 import { Label } from '@/components/ui/label';
-import { ArrowLeft, AlertTriangle } from 'lucide-vue-next';
+import { ArrowLeft, AlertTriangle, Plus, Trash, Briefcase } from 'lucide-vue-next';
 
 interface Department {
     id: number;
@@ -181,6 +280,16 @@ interface Department {
     manager_id?: number;
     is_active: boolean;
     employees_count: number;
+    positions: Position[];
+}
+
+interface Position {
+    id: number;
+    title: string;
+    code: string;
+    level: number;
+    base_salary: number;
+    description?: string;
 }
 
 interface Manager {
@@ -217,6 +326,13 @@ const form = useForm({
     description: props.department.description || '',
     manager_id: props.department.manager_id || '',
     is_active: props.department.is_active,
+    positions: props.department.positions.map(pos => ({
+        title: pos.title,
+        code: pos.code,
+        level: pos.level.toString(),
+        base_salary: pos.base_salary?.toString() || '',
+        description: pos.description || '',
+    })),
 });
 
 const selectedManagerName = computed(() => {
@@ -224,6 +340,20 @@ const selectedManagerName = computed(() => {
     const manager = props.managers.find(m => m.id == form.manager_id);
     return manager ? `${manager.name} (${manager.employee_id})` : null;
 });
+
+const addPosition = () => {
+    form.positions.push({
+        title: '',
+        code: '',
+        level: '',
+        base_salary: '',
+        description: '',
+    });
+};
+
+const removePosition = (index: number) => {
+    form.positions.splice(index, 1);
+};
 
 const submit = () => {
     form.put(`/admin/departments/${props.department.id}`);
