@@ -348,14 +348,14 @@
                     <Button variant="outline" @click="showDetailsModal = false">Tutup</Button>
                     <div v-if="selectedRequest?.status === 'pending'" class="flex gap-2">
                         <Button
-                            @click="approveRequest(selectedRequest)"
+                            @click="approveRequest(selectedRequest); showDetailsModal = false"
                             class="bg-green-600 hover:bg-green-700"
                         >
                             <Check class="mr-2 h-4 w-4" />
                             Setujui
                         </Button>
                         <Button
-                            @click="openRejectModal(selectedRequest)"
+                            @click="openRejectModal(selectedRequest); showDetailsModal = false"
                             class="bg-red-600 hover:bg-red-700"
                         >
                             <X class="mr-2 h-4 w-4" />
@@ -365,6 +365,16 @@
                 </DialogFooter>
             </DialogContent>
         </Dialog>
+
+        <!-- Approve Confirmation Modal -->
+        <ConfirmationModal
+            v-model:open="showApproveModal"
+            :title="`Setujui Pengajuan Cuti`"
+            :description="`Yakin ingin menyetujui pengajuan cuti ${selectedRequest?.user.name}?`"
+            confirm-text="Setujui"
+            variant="success"
+            @confirm="confirmApprove"
+        />
 
         <!-- Reject Modal -->
         <Dialog v-model:open="showRejectModal">
@@ -410,6 +420,8 @@ import { Input } from '@/components/ui/input';
 import { Button } from '@/components/ui/button';
 import { Textarea } from '@/components/ui/textarea';
 import { Dialog, DialogContent, DialogHeader, DialogTitle, DialogDescription, DialogFooter } from '@/components/ui/dialog';
+import ConfirmationModal from '@/components/ConfirmationModal.vue';
+import { useToast } from '@/components/ui/toast/use-toast';
 import {
     Calendar,
     Clock,
@@ -496,7 +508,11 @@ const selectedDepartment = ref(props.filters.department || '');
 // Modal states
 const showRejectModal = ref(false);
 const showDetailsModal = ref(false);
+const showApproveModal = ref(false);
 const selectedRequest = ref<LeaveRequest | null>(null);
+
+// Toast
+const { toast } = useToast();
 
 // Forms
 const rejectForm = useForm({
@@ -580,9 +596,31 @@ const clearFilters = () => {
 };
 
 const approveRequest = (request: LeaveRequest) => {
-    if (confirm(`Setujui pengajuan cuti ${request.user.name}?`)) {
-        router.patch(`/admin/leave-requests/${request.id}/approve`, {});
-    }
+    selectedRequest.value = request;
+    showApproveModal.value = true;
+};
+
+const confirmApprove = () => {
+    if (!selectedRequest.value) return;
+
+    router.patch(`/admin/leave-requests/${selectedRequest.value.id}/approve`, {}, {
+        onSuccess: () => {
+            toast({
+                title: 'Berhasil!',
+                description: `Pengajuan cuti ${selectedRequest.value?.user.name} telah disetujui.`,
+                variant: 'success',
+            });
+            showApproveModal.value = false;
+            selectedRequest.value = null;
+        },
+        onError: () => {
+            toast({
+                title: 'Gagal!',
+                description: 'Terjadi kesalahan saat menyetujui pengajuan.',
+                variant: 'destructive',
+            });
+        },
+    });
 };
 
 const openRejectModal = (request: LeaveRequest) => {
@@ -596,8 +634,20 @@ const submitReject = () => {
 
     rejectForm.patch(`/admin/leave-requests/${selectedRequest.value.id}/reject`, {
         onSuccess: () => {
+            toast({
+                title: 'Berhasil!',
+                description: `Pengajuan cuti ${selectedRequest.value?.user.name} telah ditolak.`,
+                variant: 'warning',
+            });
             showRejectModal.value = false;
             selectedRequest.value = null;
+        },
+        onError: () => {
+            toast({
+                title: 'Gagal!',
+                description: 'Terjadi kesalahan saat menolak pengajuan.',
+                variant: 'destructive',
+            });
         },
     });
 };

@@ -210,6 +210,16 @@
                 </div>
             </div>
         </div>
+
+        <!-- Delete Confirmation Modal -->
+        <ConfirmationModal
+            v-model:open="showDeleteModal"
+            title="Hapus Departemen"
+            :description="`Yakin ingin menghapus departemen '${selectedDepartment?.name}'? Aksi ini tidak dapat dibatalkan.`"
+            confirm-text="Hapus"
+            variant="destructive"
+            @confirm="confirmDelete"
+        />
     </AppLayout>
 </template>
 
@@ -220,6 +230,8 @@ import AppLayout from '@/layouts/AppLayout.vue';
 import { type BreadcrumbItem } from '@/types';
 import { Input } from '@/components/ui/input';
 import { Button } from '@/components/ui/button';
+import ConfirmationModal from '@/components/ConfirmationModal.vue';
+import { useToast } from '@/components/ui/toast/use-toast';
 import {
     Building,
     CheckCircle,
@@ -286,6 +298,13 @@ const breadcrumbs: BreadcrumbItem[] = [
 const search = ref(props.filters.search || '');
 const selectedStatus = ref(props.filters.status || '');
 
+// Modal states
+const showDeleteModal = ref(false);
+const selectedDepartment = ref<Department | null>(null);
+
+// Toast
+const { toast } = useToast();
+
 // Methods
 const debouncedSearch = debounce(() => {
     applyFilters();
@@ -309,13 +328,39 @@ const clearFilters = () => {
 
 const deleteDepartment = (department: Department) => {
     if (department.employees_count > 0) {
-        alert('Tidak dapat menghapus departemen yang memiliki karyawan aktif.');
+        toast({
+            title: 'Tidak dapat menghapus!',
+            description: 'Tidak dapat menghapus departemen yang memiliki karyawan aktif.',
+            variant: 'destructive',
+        });
         return;
     }
 
-    if (confirm(`Hapus departemen "${department.name}"? Aksi ini tidak dapat dibatalkan.`)) {
-        router.delete(`/admin/departments/${department.id}`);
-    }
+    selectedDepartment.value = department;
+    showDeleteModal.value = true;
+};
+
+const confirmDelete = () => {
+    if (!selectedDepartment.value) return;
+
+    router.delete(`/admin/departments/${selectedDepartment.value.id}`, {
+        onSuccess: () => {
+            toast({
+                title: 'Berhasil!',
+                description: `Departemen "${selectedDepartment.value?.name}" berhasil dihapus.`,
+                variant: 'success',
+            });
+            showDeleteModal.value = false;
+            selectedDepartment.value = null;
+        },
+        onError: () => {
+            toast({
+                title: 'Gagal!',
+                description: 'Terjadi kesalahan saat menghapus departemen.',
+                variant: 'destructive',
+            });
+        },
+    });
 };
 </script>
 

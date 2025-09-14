@@ -233,6 +233,16 @@
                 </div>
             </div>
         </div>
+
+        <!-- Delete Confirmation Modal -->
+        <ConfirmationModal
+            v-model:open="showDeleteModal"
+            title="Hapus Shift"
+            :description="`Yakin ingin menghapus shift '${selectedShift?.name}'? Aksi ini tidak dapat dibatalkan.`"
+            confirm-text="Hapus"
+            variant="destructive"
+            @confirm="confirmDelete"
+        />
     </AppLayout>
 </template>
 
@@ -243,6 +253,8 @@ import AppLayout from '@/layouts/AppLayout.vue';
 import { type BreadcrumbItem } from '@/types';
 import { Input } from '@/components/ui/input';
 import { Button } from '@/components/ui/button';
+import ConfirmationModal from '@/components/ConfirmationModal.vue';
+import { useToast } from '@/components/ui/toast/use-toast';
 import {
     Clock,
     CheckCircle,
@@ -311,6 +323,13 @@ const breadcrumbs: BreadcrumbItem[] = [
 const search = ref(props.filters.search || '');
 const selectedStatus = ref(props.filters.status || '');
 
+// Modal states
+const showDeleteModal = ref(false);
+const selectedShift = ref<WorkShift | null>(null);
+
+// Toast
+const { toast } = useToast();
+
 // Methods
 const formatTime = (time: string) => {
     return time.substring(0, 5); // HH:MM format
@@ -349,13 +368,39 @@ const clearFilters = () => {
 
 const deleteShift = (shift: WorkShift) => {
     if (shift.employee_shifts_count > 0) {
-        alert('Tidak dapat menghapus shift yang memiliki penugasan aktif.');
+        toast({
+            title: 'Tidak dapat menghapus!',
+            description: 'Tidak dapat menghapus shift yang memiliki penugasan aktif.',
+            variant: 'destructive',
+        });
         return;
     }
 
-    if (confirm(`Hapus shift "${shift.name}"?`)) {
-        router.delete(`/admin/work-shifts/${shift.id}`);
-    }
+    selectedShift.value = shift;
+    showDeleteModal.value = true;
+};
+
+const confirmDelete = () => {
+    if (!selectedShift.value) return;
+
+    router.delete(`/admin/work-shifts/${selectedShift.value.id}`, {
+        onSuccess: () => {
+            toast({
+                title: 'Berhasil!',
+                description: `Shift "${selectedShift.value?.name}" berhasil dihapus.`,
+                variant: 'success',
+            });
+            showDeleteModal.value = false;
+            selectedShift.value = null;
+        },
+        onError: () => {
+            toast({
+                title: 'Gagal!',
+                description: 'Terjadi kesalahan saat menghapus shift.',
+                variant: 'destructive',
+            });
+        },
+    });
 };
 </script>
 
