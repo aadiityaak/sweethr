@@ -1,7 +1,7 @@
 <template>
     <Head title="Admin - Kelola Cuti" />
 
-    <AppLayout>
+    <AppLayout :breadcrumbs="breadcrumbs">
         <div class="flex h-full flex-1 flex-col gap-6 p-6">
             <!-- Header -->
             <div class="flex flex-col gap-4 sm:flex-row sm:items-center sm:justify-between">
@@ -305,6 +305,7 @@
 import { Head, router } from '@inertiajs/vue3';
 import { ref, computed } from 'vue';
 import AppLayout from '@/layouts/AppLayout.vue';
+import { type BreadcrumbItem } from '@/types';
 import AttendanceChart from '@/components/AttendanceChart.vue';
 import { Input } from '@/components/ui/input';
 import { Button } from '@/components/ui/button';
@@ -375,6 +376,17 @@ interface Props {
 }
 
 const props = defineProps<Props>();
+
+const breadcrumbs: BreadcrumbItem[] = [
+    {
+        title: 'Dasbor',
+        href: '/dashboard',
+    },
+    {
+        title: 'Kelola Cuti',
+        href: '/admin/leave-requests',
+    },
+];
 
 // Filter states
 const search = ref(props.filters.search || '');
