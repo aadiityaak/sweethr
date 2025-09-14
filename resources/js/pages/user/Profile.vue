@@ -251,40 +251,7 @@
             </div>
             </div>
 
-        <!-- Bottom Navigation -->
-        <div class="fixed bottom-0 z-50 w-full border-t bg-background/95 backdrop-blur-sm">
-            <div class="mx-auto max-w-[480px]">
-                <div class="grid grid-cols-4 divide-x">
-                    <Link href="/user/welcome" class="flex flex-col items-center py-3 px-2 text-muted-foreground hover:text-foreground">
-                        <div class="rounded-md p-2 mb-1">
-                            <Home class="h-4 w-4" />
-                        </div>
-                        <span class="text-xs font-medium">Beranda</span>
-                    </Link>
-
-                    <Link href="/user/attendance" class="flex flex-col items-center py-3 px-2 text-muted-foreground hover:text-foreground">
-                        <div class="rounded-md p-2 mb-1">
-                            <Clock class="h-4 w-4" />
-                        </div>
-                        <span class="text-xs font-medium">Absensi</span>
-                    </Link>
-
-                    <Link href="/user/leave-requests" class="flex flex-col items-center py-3 px-2 text-muted-foreground hover:text-foreground">
-                        <div class="rounded-md p-2 mb-1">
-                            <Calendar class="h-4 w-4" />
-                        </div>
-                        <span class="text-xs font-medium">Cuti</span>
-                    </Link>
-
-                    <Link href="/user/profile" class="flex flex-col items-center py-3 px-2 text-foreground">
-                        <div class="rounded-md bg-primary/10 p-2 mb-1">
-                            <Settings class="h-4 w-4 text-primary" />
-                        </div>
-                        <span class="text-xs font-medium text-primary">Profil</span>
-                    </Link>
-                </div>
-            </div>
-        </div>
+        <BottomNavigation current-route="/user/profile" />
         </div>
     </div>
 </template>
@@ -292,6 +259,7 @@
 <script setup lang="ts">
 import { Head, Link, useForm } from '@inertiajs/vue3';
 import DatePicker from '@/components/ui/date-picker/DatePicker.vue';
+import BottomNavigation from '@/components/BottomNavigation.vue';
 import {
     User,
     Mail,
@@ -305,11 +273,8 @@ import {
     X,
     Camera,
     Shield,
-    Clock,
     Key,
-    ArrowLeft,
-    Home,
-    Settings
+    ArrowLeft
 } from 'lucide-vue-next';
 import { ref, computed } from 'vue';
 

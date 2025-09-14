@@ -1,7 +1,8 @@
 <script setup lang="ts">
 import { Head, Link, router } from '@inertiajs/vue3';
-import { Calendar, Clock, CheckCircle, XCircle, AlertCircle, Home, Settings, ArrowLeft, Plus } from 'lucide-vue-next';
+import { Calendar, Clock, CheckCircle, XCircle, AlertCircle, ArrowLeft, Plus } from 'lucide-vue-next';
 import { ref } from 'vue';
+import BottomNavigation from '@/components/BottomNavigation.vue';
 
 interface User {
     id: number;
@@ -295,38 +296,8 @@ const formatDateTime = (dateString: string) => {
                 </div>
             </div>
 
-            <!-- Fixed Bottom Navigation -->
-            <div class="fixed bottom-0 left-1/2 transform -translate-x-1/2 w-full max-w-[480px] bg-background border-t z-50">
-                <div class="grid grid-cols-4 py-2">
-                    <Link href="/home" class="flex flex-col items-center py-3 px-2 text-muted-foreground hover:text-foreground">
-                        <div class="rounded-md p-2 mb-1">
-                            <Home class="h-4 w-4" />
-                        </div>
-                        <span class="text-xs font-medium">Beranda</span>
-                    </Link>
-
-                    <Link href="/attendance" class="flex flex-col items-center py-3 px-2 text-muted-foreground hover:text-foreground">
-                        <div class="rounded-md p-2 mb-1">
-                            <Clock class="h-4 w-4" />
-                        </div>
-                        <span class="text-xs font-medium">Absensi</span>
-                    </Link>
-
-                    <Link href="/leave-requests" class="flex flex-col items-center py-3 px-2 text-primary">
-                        <div class="rounded-md bg-primary/10 p-2 mb-1">
-                            <Calendar class="h-4 w-4" />
-                        </div>
-                        <span class="text-xs font-medium">Cuti</span>
-                    </Link>
-
-                    <Link href="/user/profile" class="flex flex-col items-center py-3 px-2 text-muted-foreground hover:text-foreground">
-                        <div class="rounded-md p-2 mb-1">
-                            <Settings class="h-4 w-4" />
-                        </div>
-                        <span class="text-xs font-medium">Profil</span>
-                    </Link>
-                </div>
-            </div>
         </div>
+
+        <BottomNavigation current-route="/leave-requests" />
     </div>
 </template>

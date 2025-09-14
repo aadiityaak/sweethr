@@ -1,7 +1,9 @@
 <script setup lang="ts">
 import { Head, Link } from '@inertiajs/vue3';
-import { Clock, Calendar, CheckCircle, User, MapPin, LogOut, Home, UserCircle, Settings, BarChart3 } from 'lucide-vue-next';
+import { ref, onMounted, onUnmounted } from 'vue';
+import { Clock, Calendar, CheckCircle, User, MapPin, LogOut, UserCircle, BarChart3 } from 'lucide-vue-next';
 import { useCompanySettings } from '@/composables/useCompanySettings';
+import BottomNavigation from '@/components/BottomNavigation.vue';
 
 interface User {
     id: number;
@@ -57,82 +59,120 @@ const formatDuration = (minutes: number | null) => {
     return `${hours}h ${mins}m`;
 };
 
-const getCurrentTime = () => {
-    return new Date().toLocaleTimeString('id-ID', {
+const currentTime = ref('');
+const currentDate = ref('');
+let timeInterval: number | null = null;
+
+const updateTime = () => {
+    currentTime.value = new Date().toLocaleTimeString('id-ID', {
         hour: '2-digit',
         minute: '2-digit',
         second: '2-digit'
     });
-};
-
-const getCurrentDate = () => {
-    return new Date().toLocaleDateString('id-ID', {
+    currentDate.value = new Date().toLocaleDateString('id-ID', {
         weekday: 'long',
         year: 'numeric',
         month: 'long',
         day: 'numeric'
     });
 };
+
+onMounted(() => {
+    updateTime();
+    timeInterval = window.setInterval(updateTime, 1000);
+});
+
+onUnmounted(() => {
+    if (timeInterval) {
+        clearInterval(timeInterval);
+    }
+});
 </script>
 
 <template>
     <Head title="SweetHR - Employee Portal" />
 
     <div class="min-h-screen bg-background">
-        <!-- Mobile Container -->
-        <div class="mx-auto max-w-[480px] bg-background min-h-screen">
-            <!-- Mobile Header -->
-            <div class="bg-background/95 backdrop-blur-sm border-b sticky top-0 z-40">
-                <div class="px-4 py-4">
-                    <div class="flex items-center justify-between">
-                        <div class="flex items-center gap-3">
-                            <div class="rounded-lg bg-primary p-2 overflow-hidden">
-                                <img
-                                    v-if="companyLogo"
-                                    :src="companyLogo"
-                                    :alt="companyName"
-                                    class="h-4 w-4 object-contain"
-                                />
-                                <User v-else class="h-4 w-4 text-primary-foreground" />
-                            </div>
-                            <div>
-                                <h1 class="text-lg font-semibold">{{ companyName }}</h1>
-                                <p class="text-sm text-muted-foreground">{{ user?.name || 'Guest' }}</p>
-                            </div>
+        <!-- Mobile Header - Full Width -->
+        <div class="bg-background/95 backdrop-blur-sm border-b sticky top-0 z-40">
+            <div class="mx-auto max-w-[480px] px-4 py-4">
+                <div class="flex items-center justify-between">
+                    <div class="flex items-center gap-3">
+                        <div class="rounded-lg bg-primary p-2 overflow-hidden">
+                            <img
+                                v-if="companyLogo"
+                                :src="companyLogo"
+                                :alt="companyName"
+                                class="h-4 w-4 object-contain"
+                            />
+                            <User v-else class="h-4 w-4 text-primary-foreground" />
                         </div>
-                        <Link
-                            href="/logout"
-                            method="post"
-                            as="button"
-                            class="rounded-md bg-secondary p-2 text-secondary-foreground hover:bg-secondary/80 transition-colors"
-                        >
-                            <LogOut class="h-4 w-4" />
-                        </Link>
+                        <div>
+                            <h1 class="text-lg font-semibold">{{ companyName }}</h1>
+                            <p class="text-sm text-muted-foreground">{{ user?.name || 'Guest' }}</p>
+                        </div>
                     </div>
+                    <Link
+                        href="/logout"
+                        method="post"
+                        as="button"
+                        class="rounded-md bg-secondary p-2 text-secondary-foreground hover:bg-secondary/80 transition-colors"
+                    >
+                        <LogOut class="h-4 w-4" />
+                    </Link>
                 </div>
             </div>
+        </div>
+
+        <!-- Mobile Container for Content -->
+        <div class="mx-auto max-w-[480px] bg-background min-h-screen relative">
 
             <!-- Main Content -->
-            <div class="px-4 py-6 pb-24">
+            <div class="px-4 py-6 pb-20">
                 <!-- Welcome Section -->
-                <div class="mb-6 rounded-lg border bg-card p-6">
-                    <div class="text-center">
-                        <div class="mx-auto mb-4 w-12 h-12 rounded-full bg-muted flex items-center justify-center">
-                            <UserCircle class="h-6 w-6 text-muted-foreground" />
+                <div class="mb-6 rounded-xl border bg-gradient-to-br from-card via-card to-card/80 p-6 shadow-sm">
+                    <div class="text-center space-y-4">
+                        <!-- Avatar Section -->
+                        <div class="relative mx-auto">
+                            <div class="mx-auto w-16 h-16 rounded-full bg-gradient-to-br from-primary/20 to-primary/10 flex items-center justify-center ring-4 ring-primary/5">
+                                <UserCircle class="h-8 w-8 text-primary" />
+                            </div>
+                            <div class="absolute -bottom-1 -right-1 w-6 h-6 bg-green-500 rounded-full border-2 border-background flex items-center justify-center">
+                                <div class="w-2 h-2 bg-white rounded-full animate-pulse"></div>
+                            </div>
                         </div>
-                        <h2 class="text-xl font-semibold">
-                            Halo, {{ user?.name?.split(' ')[0] || 'Guest' }}
-                        </h2>
-                        <p class="mt-1 text-sm text-muted-foreground">
-                            {{ user?.department?.name || 'No Department' }} • {{ user?.position?.title || 'No Position' }}
-                        </p>
-                        <div class="mt-4 rounded-md bg-muted p-3">
-                            <p class="text-sm font-medium">
-                                {{ getCurrentDate() }}
-                            </p>
-                            <p class="text-xs text-muted-foreground">
-                                {{ getCurrentTime() }}
-                            </p>
+
+                        <!-- Greeting -->
+                        <div class="space-y-2">
+                            <h2 class="text-2xl font-bold bg-gradient-to-r from-foreground to-foreground/80 bg-clip-text">
+                                Halo, {{ user?.name?.split(' ')[0] || 'Guest' }}! 👋
+                            </h2>
+                            <div class="flex items-center justify-center gap-2 text-muted-foreground">
+                                <div class="w-1.5 h-1.5 rounded-full bg-primary"></div>
+                                <p class="text-sm font-medium">
+                                    {{ user?.department?.name || 'No Department' }}
+                                </p>
+                                <div class="w-1 h-1 rounded-full bg-muted-foreground/50"></div>
+                                <p class="text-sm">
+                                    {{ user?.position?.title || 'No Position' }}
+                                </p>
+                            </div>
+                        </div>
+
+                        <!-- Date & Time Display -->
+                        <div class="bg-gradient-to-r from-muted/50 to-muted/30 rounded-lg p-4 border border-border/50">
+                            <div class="flex items-center justify-center gap-3 mb-2">
+                                <Calendar class="h-4 w-4 text-primary" />
+                                <p class="text-sm font-semibold text-foreground">
+                                    {{ currentDate }}
+                                </p>
+                            </div>
+                            <div class="flex items-center justify-center gap-2">
+                                <Clock class="h-4 w-4 text-muted-foreground" />
+                                <p class="text-lg font-mono font-bold text-primary tracking-wider">
+                                    {{ currentTime }}
+                                </p>
+                            </div>
                         </div>
                     </div>
                 </div>
@@ -287,39 +327,8 @@ const getCurrentDate = () => {
                     </div>
                 </div>
             </div>
-
-            <!-- Fixed Bottom Navigation -->
-            <div class="fixed bottom-0 left-1/2 transform -translate-x-1/2 w-full max-w-[480px] bg-background border-t z-50">
-                <div class="grid grid-cols-4 py-2">
-                    <Link href="/home" class="flex flex-col items-center py-3 px-2 text-primary">
-                        <div class="rounded-md bg-primary/10 p-2 mb-1">
-                            <Home class="h-4 w-4" />
-                        </div>
-                        <span class="text-xs font-medium">Beranda</span>
-                    </Link>
-
-                    <Link href="/attendance" class="flex flex-col items-center py-3 px-2 text-muted-foreground hover:text-foreground">
-                        <div class="rounded-md p-2 mb-1">
-                            <Clock class="h-4 w-4" />
-                        </div>
-                        <span class="text-xs font-medium">Absensi</span>
-                    </Link>
-
-                    <Link href="/leave-requests" class="flex flex-col items-center py-3 px-2 text-muted-foreground hover:text-foreground">
-                        <div class="rounded-md p-2 mb-1">
-                            <Calendar class="h-4 w-4" />
-                        </div>
-                        <span class="text-xs font-medium">Cuti</span>
-                    </Link>
-
-                    <Link href="/user/profile" class="flex flex-col items-center py-3 px-2 text-muted-foreground hover:text-foreground">
-                        <div class="rounded-md p-2 mb-1">
-                            <Settings class="h-4 w-4" />
-                        </div>
-                        <span class="text-xs font-medium">Profil</span>
-                    </Link>
-                </div>
-            </div>
         </div>
+
+        <BottomNavigation current-route="/home" />
     </div>
 </template>

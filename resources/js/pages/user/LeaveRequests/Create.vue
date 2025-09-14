@@ -121,41 +121,20 @@
             </Form>
         </div>
 
-        <!-- Fixed Bottom Navigation -->
-        <div class="fixed bottom-0 left-0 right-0 bg-background border-t border-border">
-            <div class="mx-auto max-w-[480px]">
-                <nav class="flex items-center justify-around py-2">
-                    <button @click="$inertia.visit('/home')" class="flex flex-col items-center gap-1 p-2 text-muted-foreground hover:text-foreground transition-colors">
-                        <House class="h-5 w-5" />
-                        <span class="text-xs">Beranda</span>
-                    </button>
-                    <button @click="$inertia.visit('/attendance')" class="flex flex-col items-center gap-1 p-2 text-muted-foreground hover:text-foreground transition-colors">
-                        <Target class="h-5 w-5" />
-                        <span class="text-xs">Absensi</span>
-                    </button>
-                    <button @click="$inertia.visit('/leave-requests')" class="flex flex-col items-center gap-1 p-2 text-foreground">
-                        <CircleCheckBig class="h-5 w-5" />
-                        <span class="text-xs">Cuti</span>
-                    </button>
-                    <button @click="$inertia.visit('/profile')" class="flex flex-col items-center gap-1 p-2 text-muted-foreground hover:text-foreground transition-colors">
-                        <Settings class="h-5 w-5" />
-                        <span class="text-xs">Profil</span>
-                    </button>
-                </nav>
-            </div>
-        </div>
+        <BottomNavigation current-route="/leave-requests" />
 
         <!-- Bottom padding to prevent content hiding behind fixed nav -->
-        <div class="h-20"></div>
+        <div class="h-16"></div>
     </div>
 </template>
 
 <script setup lang="ts">
 import { ref } from 'vue'
 import { Form } from '@inertiajs/vue3'
-import { ArrowLeft, House, Target, CircleCheckBig, Settings, LoaderCircle } from 'lucide-vue-next'
+import { ArrowLeft, LoaderCircle } from 'lucide-vue-next'
 import { Label } from '@/components/ui/label'
 import { DatePicker } from '@/components/ui/date-picker'
+import BottomNavigation from '@/components/BottomNavigation.vue'
 
 interface LeaveType {
     id: number
