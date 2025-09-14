@@ -74,7 +74,7 @@
                         <p class="text-sm text-muted-foreground">Statistik pengajuan cuti bulanan</p>
                     </div>
                     <div class="h-80">
-                        <AttendanceChart
+                        <Chart
                             :data="monthlyChartData"
                             type="line"
                             :options="{ responsive: true, maintainAspectRatio: false }"
@@ -89,7 +89,7 @@
                         <p class="text-sm text-muted-foreground">Perbandingan status pengajuan</p>
                     </div>
                     <div class="h-80">
-                        <AttendanceChart
+                        <Chart
                             :data="statusChartData"
                             type="doughnut"
                             :options="{ responsive: true, maintainAspectRatio: false }"
@@ -306,7 +306,7 @@ import { Head, router } from '@inertiajs/vue3';
 import { ref, computed } from 'vue';
 import AppLayout from '@/layouts/AppLayout.vue';
 import { type BreadcrumbItem } from '@/types';
-import AttendanceChart from '@/components/AttendanceChart.vue';
+import Chart from '@/components/ui/Chart.vue';
 import { Input } from '@/components/ui/input';
 import { Button } from '@/components/ui/button';
 import { Textarea } from '@/components/ui/textarea';
