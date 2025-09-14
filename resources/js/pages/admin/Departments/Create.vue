@@ -2,7 +2,7 @@
     <Head title="Tambah Departemen" />
 
     <AppLayout :breadcrumbs="breadcrumbs">
-        <div class="space-y-6">
+        <div class="flex h-full flex-1 flex-col gap-6 p-6">
             <!-- Header -->
             <div class="flex flex-col gap-4 sm:flex-row sm:items-center sm:justify-between">
                 <div>
