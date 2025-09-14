@@ -19,6 +19,7 @@ class DatabaseSeeder extends Seeder
             LeaveTypeSeeder::class,
             OfficeLocationSeeder::class,
             AdminUserSeeder::class,
+            DepartmentManagerSeeder::class,
             EmployeeShiftSeeder::class,
             LeaveRequestSeeder::class,
         ]);

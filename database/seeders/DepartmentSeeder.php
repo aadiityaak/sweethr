@@ -51,5 +51,8 @@ class DepartmentSeeder extends Seeder
         foreach ($departments as $department) {
             Department::create($department);
         }
+
+        // Assign managers to departments after users are created
+        // This will be done in a separate seeder or updated after AdminUserSeeder
     }
 }

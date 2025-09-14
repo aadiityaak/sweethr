@@ -18,7 +18,9 @@ class LeaveRequestSeeder extends Seeder
     {
         // Get leave types and users
         $leaveTypes = LeaveType::all();
-        $employees = User::where('is_admin', false)->get();
+        $employees = User::where('is_admin', false)
+            ->where('employment_status', 'active')
+            ->get();
         $admin = User::where('is_admin', true)->first();
 
         if ($leaveTypes->isEmpty() || $employees->isEmpty()) {
