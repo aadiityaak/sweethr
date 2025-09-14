@@ -267,6 +267,105 @@
             </div>
         </div>
 
+        <!-- Details Modal -->
+        <Dialog v-model:open="showDetailsModal">
+            <DialogContent class="sm:max-w-2xl max-h-[90vh] flex flex-col">
+                <DialogHeader class="shrink-0">
+                    <DialogTitle>Detail Pengajuan Cuti</DialogTitle>
+                    <DialogDescription>
+                        Informasi lengkap pengajuan cuti {{ selectedRequest?.user.name }}
+                    </DialogDescription>
+                </DialogHeader>
+                <div v-if="selectedRequest" class="space-y-6 overflow-y-auto flex-1 pr-2">
+                    <!-- Employee Info -->
+                    <div class="rounded-lg border p-4">
+                        <h4 class="font-semibold mb-3">Informasi Karyawan</h4>
+                        <div class="grid gap-3 md:grid-cols-2">
+                            <div>
+                                <label class="text-sm font-medium text-muted-foreground">Nama</label>
+                                <p class="text-sm">{{ selectedRequest.user.name }}</p>
+                            </div>
+                            <div>
+                                <label class="text-sm font-medium text-muted-foreground">ID Karyawan</label>
+                                <p class="text-sm">{{ selectedRequest.user.employee_id }}</p>
+                            </div>
+                        </div>
+                    </div>
+
+                    <!-- Leave Details -->
+                    <div class="rounded-lg border p-4">
+                        <h4 class="font-semibold mb-3">Detail Cuti</h4>
+                        <div class="grid gap-3 md:grid-cols-2">
+                            <div>
+                                <label class="text-sm font-medium text-muted-foreground">Tipe Cuti</label>
+                                <p class="text-sm">{{ selectedRequest.leave_type.name }}</p>
+                            </div>
+                            <div>
+                                <label class="text-sm font-medium text-muted-foreground">Status</label>
+                                <span
+                                    :class="{
+                                        'bg-yellow-100 text-yellow-800 dark:bg-yellow-900/20 dark:text-yellow-400': selectedRequest.status === 'pending',
+                                        'bg-green-100 text-green-800 dark:bg-green-900/20 dark:text-green-400': selectedRequest.status === 'approved',
+                                        'bg-red-100 text-red-800 dark:bg-red-900/20 dark:text-red-400': selectedRequest.status === 'rejected'
+                                    }"
+                                    class="inline-flex items-center rounded-full px-2.5 py-0.5 text-xs font-medium"
+                                >
+                                    {{ getStatusLabel(selectedRequest.status) }}
+                                </span>
+                            </div>
+                            <div>
+                                <label class="text-sm font-medium text-muted-foreground">Tanggal Mulai</label>
+                                <p class="text-sm">{{ formatDate(selectedRequest.start_date) }}</p>
+                            </div>
+                            <div>
+                                <label class="text-sm font-medium text-muted-foreground">Tanggal Selesai</label>
+                                <p class="text-sm">{{ formatDate(selectedRequest.end_date) }}</p>
+                            </div>
+                            <div>
+                                <label class="text-sm font-medium text-muted-foreground">Durasi</label>
+                                <p class="text-sm">{{ selectedRequest.duration }} hari</p>
+                            </div>
+                            <div>
+                                <label class="text-sm font-medium text-muted-foreground">Tanggal Pengajuan</label>
+                                <p class="text-sm">{{ formatDate(selectedRequest.created_at) }}</p>
+                            </div>
+                        </div>
+                    </div>
+
+                    <!-- Reason -->
+                    <div class="rounded-lg border p-4">
+                        <h4 class="font-semibold mb-3">Alasan Cuti</h4>
+                        <p class="text-sm whitespace-pre-wrap">{{ selectedRequest.reason || 'Tidak ada alasan yang diberikan' }}</p>
+                    </div>
+
+                    <!-- Admin Notes (if exists) -->
+                    <div v-if="selectedRequest.admin_notes" class="rounded-lg border p-4">
+                        <h4 class="font-semibold mb-3">Catatan Admin</h4>
+                        <p class="text-sm whitespace-pre-wrap">{{ selectedRequest.admin_notes }}</p>
+                    </div>
+                </div>
+                <DialogFooter class="shrink-0 border-t pt-4 mt-4">
+                    <Button variant="outline" @click="showDetailsModal = false">Tutup</Button>
+                    <div v-if="selectedRequest?.status === 'pending'" class="flex gap-2">
+                        <Button
+                            @click="approveRequest(selectedRequest)"
+                            class="bg-green-600 hover:bg-green-700"
+                        >
+                            <Check class="mr-2 h-4 w-4" />
+                            Setujui
+                        </Button>
+                        <Button
+                            @click="openRejectModal(selectedRequest)"
+                            class="bg-red-600 hover:bg-red-700"
+                        >
+                            <X class="mr-2 h-4 w-4" />
+                            Tolak
+                        </Button>
+                    </div>
+                </DialogFooter>
+            </DialogContent>
+        </Dialog>
+
         <!-- Reject Modal -->
         <Dialog v-model:open="showRejectModal">
             <DialogContent class="sm:max-w-md">
@@ -396,6 +495,7 @@ const selectedDepartment = ref(props.filters.department || '');
 
 // Modal states
 const showRejectModal = ref(false);
+const showDetailsModal = ref(false);
 const selectedRequest = ref<LeaveRequest | null>(null);
 
 // Forms
@@ -503,8 +603,8 @@ const submitReject = () => {
 };
 
 const viewDetails = (request: LeaveRequest) => {
-    // Implementation for viewing details - could open a modal or navigate to detail page
-    console.log('View details:', request);
+    selectedRequest.value = request;
+    showDetailsModal.value = true;
 };
 </script>
 
