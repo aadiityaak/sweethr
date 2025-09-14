@@ -99,6 +99,19 @@ Route::middleware(['auth', 'verified', 'admin'])->group(function () {
         ->name('admin.work-shifts.unassign');
     Route::get('admin/work-shifts-employees', [App\Http\Controllers\Admin\WorkShiftController::class, 'employees'])
         ->name('admin.work-shifts.employees');
+
+    // Admin Department Management
+    Route::resource('admin/departments', App\Http\Controllers\Admin\DepartmentController::class, [
+        'names' => [
+            'index' => 'admin.departments.index',
+            'create' => 'admin.departments.create',
+            'store' => 'admin.departments.store',
+            'show' => 'admin.departments.show',
+            'edit' => 'admin.departments.edit',
+            'update' => 'admin.departments.update',
+            'destroy' => 'admin.departments.destroy',
+        ],
+    ]);
 });
 
 require __DIR__.'/settings.php';

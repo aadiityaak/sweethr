@@ -66,7 +66,7 @@ const adminNavItems: NavItem[] = [
     },
     {
         title: 'Departemen',
-        href: '/departments',
+        href: '/admin/departments',
         icon: Building,
     },
 ];
