@@ -112,6 +112,14 @@ Route::middleware(['auth', 'verified', 'admin'])->group(function () {
             'destroy' => 'admin.departments.destroy',
         ],
     ]);
+
+    // Admin Company Settings
+    Route::get('admin/settings', [App\Http\Controllers\Admin\CompanySettingController::class, 'index'])
+        ->name('admin.settings.index');
+    Route::put('admin/settings', [App\Http\Controllers\Admin\CompanySettingController::class, 'update'])
+        ->name('admin.settings.update');
+    Route::delete('admin/settings/file/{key}', [App\Http\Controllers\Admin\CompanySettingController::class, 'deleteFile'])
+        ->name('admin.settings.delete-file');
 });
 
 require __DIR__.'/settings.php';

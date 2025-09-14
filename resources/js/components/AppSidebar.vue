@@ -69,6 +69,11 @@ const adminNavItems: NavItem[] = [
         href: '/admin/departments',
         icon: Building,
     },
+    {
+        title: 'Pengaturan',
+        href: '/admin/settings',
+        icon: Settings,
+    },
 ];
 
 // Computed property to get the appropriate menu items based on user role
