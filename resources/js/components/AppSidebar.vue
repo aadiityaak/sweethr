@@ -79,8 +79,8 @@ const mainNavItems = computed<NavItem[]>(() => {
 // Footer menu items for regular users
 const userFooterNavItems: NavItem[] = [
     {
-        title: 'Pengaturan',
-        href: '/settings/profile',
+        title: 'Profil Saya',
+        href: '/user/profile',
         icon: Settings,
     },
     {
@@ -93,8 +93,8 @@ const userFooterNavItems: NavItem[] = [
 // Footer menu items for admins
 const adminFooterNavItems: NavItem[] = [
     {
-        title: 'Pengaturan',
-        href: '/settings/profile',
+        title: 'Profil Saya',
+        href: '/user/profile',
         icon: Settings,
     },
     {

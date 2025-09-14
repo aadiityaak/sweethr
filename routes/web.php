@@ -42,6 +42,14 @@ Route::middleware(['auth', 'verified'])->group(function () {
         ->name('leave-requests.update');
     Route::delete('leave-requests/{leave_request}', [App\Http\Controllers\LeaveRequestController::class, 'destroy'])
         ->name('leave-requests.destroy');
+
+    // User Profile Settings
+    Route::get('user/profile', [App\Http\Controllers\User\ProfileController::class, 'show'])
+        ->name('user.profile.show');
+    Route::put('user/profile/basic', [App\Http\Controllers\User\ProfileController::class, 'updateBasic'])
+        ->name('user.profile.update-basic');
+    Route::put('user/profile/password', [App\Http\Controllers\User\ProfileController::class, 'updatePassword'])
+        ->name('user.profile.update-password');
 });
 
 // Admin-only routes

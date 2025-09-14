@@ -319,7 +319,7 @@ const formatDateTime = (dateString: string) => {
                         <span class="text-xs font-medium">Cuti</span>
                     </Link>
 
-                    <Link href="/settings/profile" class="flex flex-col items-center py-3 px-2 text-muted-foreground hover:text-foreground">
+                    <Link href="/user/profile" class="flex flex-col items-center py-3 px-2 text-muted-foreground hover:text-foreground">
                         <div class="rounded-md p-2 mb-1">
                             <Settings class="h-4 w-4" />
                         </div>
