@@ -23,7 +23,7 @@ interface Employee {
     employee_id: string;
     phone?: string;
     hire_date: string;
-    is_active: boolean;
+    employment_status: string;
     is_admin: boolean;
     department?: Department;
     position?: Position;
@@ -76,8 +76,8 @@ const filterEmployees = () => {
     });
 };
 
-const getStatusBadge = (isActive: boolean) => {
-    return isActive
+const getStatusBadge = (employmentStatus: string) => {
+    return employmentStatus === 'active'
         ? 'bg-green-100 text-green-800 border-green-200 dark:bg-green-900/30 dark:text-green-400 dark:border-green-600'
         : 'bg-red-100 text-red-800 border-red-200 dark:bg-red-900/30 dark:text-red-400 dark:border-red-600';
 };
@@ -136,7 +136,7 @@ const formatDate = (dateString: string) => {
                         <div>
                             <p class="text-sm text-gray-600 dark:text-gray-300">Aktif</p>
                             <p class="text-xl font-bold text-gray-900 dark:text-white">
-                                {{ employees?.data?.filter(emp => emp.is_active).length || 0 }}
+                                {{ employees?.data?.filter(emp => emp.employment_status === 'active').length || 0 }}
                             </p>
                         </div>
                     </div>
@@ -280,9 +280,9 @@ const formatDate = (dateString: string) => {
                                     <div class="space-y-1">
                                         <span
                                             class="inline-flex rounded-full border px-2 py-1 text-xs font-medium"
-                                            :class="getStatusBadge(employee.is_active)"
+                                            :class="getStatusBadge(employee.employment_status)"
                                         >
-                                            {{ employee.is_active ? 'Aktif' : 'Tidak Aktif' }}
+                                            {{ employee.employment_status === 'active' ? 'Aktif' : 'Tidak Aktif' }}
                                         </span>
                                         <div v-if="employee.is_admin" class="text-xs text-blue-600 dark:text-blue-400">
                                             Admin

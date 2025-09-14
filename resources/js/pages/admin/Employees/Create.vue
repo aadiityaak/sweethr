@@ -173,13 +173,13 @@
                                         </p>
                                     </div>
                                     <div class="space-y-2">
-                                        <Label for="position_id">Posisi</Label>
+                                        <Label for="position_id">Posisi (Opsional)</Label>
                                         <select
                                             id="position_id"
                                             v-model="form.position_id"
                                             class="w-full rounded-md border border-input bg-background px-3 py-2 text-sm"
                                         >
-                                            <option value="">Pilih posisi</option>
+                                            <option value="">Pilih posisi (opsional)</option>
                                             <option v-for="pos in filteredPositions" :key="pos.id" :value="pos.id">
                                                 {{ pos.title }}
                                             </option>

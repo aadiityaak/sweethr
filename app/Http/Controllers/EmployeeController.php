@@ -11,7 +11,6 @@ use Inertia\Response;
 
 class EmployeeController extends Controller
 {
-
     public function index(Request $request): Response
     {
         $query = User::with(['department', 'position'])
@@ -20,9 +19,9 @@ class EmployeeController extends Controller
         // Apply filters
         if ($request->search) {
             $query->where(function ($q) use ($request) {
-                $q->where('name', 'like', '%' . $request->search . '%')
-                  ->orWhere('email', 'like', '%' . $request->search . '%')
-                  ->orWhere('employee_id', 'like', '%' . $request->search . '%');
+                $q->where('name', 'like', '%'.$request->search.'%')
+                    ->orWhere('email', 'like', '%'.$request->search.'%')
+                    ->orWhere('employee_id', 'like', '%'.$request->search.'%');
             });
         }
 
@@ -71,7 +70,7 @@ class EmployeeController extends Controller
             'employee_id' => 'required|string|unique:users,employee_id',
             'phone' => 'nullable|string|max:20',
             'department_id' => 'required|exists:departments,id',
-            'position_id' => 'required|exists:positions,id',
+            'position_id' => 'nullable|exists:positions,id',
             'hire_date' => 'required|date',
             'password' => 'required|string|min:8|confirmed',
             'is_admin' => 'boolean',
@@ -115,11 +114,11 @@ class EmployeeController extends Controller
     {
         $validated = $request->validate([
             'name' => 'required|string|max:255',
-            'email' => 'required|email|unique:users,email,' . $employee->id,
-            'employee_id' => 'required|string|unique:users,employee_id,' . $employee->id,
+            'email' => 'required|email|unique:users,email,'.$employee->id,
+            'employee_id' => 'required|string|unique:users,employee_id,'.$employee->id,
             'phone' => 'nullable|string|max:20',
             'department_id' => 'required|exists:departments,id',
-            'position_id' => 'required|exists:positions,id',
+            'position_id' => 'nullable|exists:positions,id',
             'hire_date' => 'required|date',
             'password' => 'nullable|string|min:8|confirmed',
             'is_admin' => 'boolean',
