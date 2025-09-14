@@ -106,7 +106,7 @@ const getStatusIcon = (status: string) => {
 const formatDate = (dateString: string) => {
     return new Date(dateString).toLocaleDateString('id-ID', {
         day: 'numeric',
-        month: 'long',
+        month: 'short',
         year: 'numeric'
     });
 };

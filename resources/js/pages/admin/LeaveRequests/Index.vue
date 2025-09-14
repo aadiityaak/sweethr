@@ -145,7 +145,7 @@ const getInitials = (name: string) => {
 const formatDate = (dateString: string) => {
     return new Date(dateString).toLocaleDateString('id-ID', {
         year: 'numeric',
-        month: 'long',
+        month: 'short',
         day: 'numeric'
     });
 };
@@ -347,8 +347,7 @@ const confirmReject = () => {
                                         </div>
                                         <div class="flex items-center gap-2 text-sm text-gray-600 dark:text-gray-300">
                                             <Clock class="h-4 w-4" />
-                                            {{ formatDate(request.start_date) }} - {{ formatDate(request.end_date) }}
-                                            ({{ request.total_days }} hari)
+                                            {{ formatDate(request.start_date) }} to {{ formatDate(request.end_date) }} ({{ request.total_days }} hari)
                                         </div>
                                     </div>
                                     <div class="mt-2">

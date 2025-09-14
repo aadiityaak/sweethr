@@ -5,6 +5,7 @@ namespace App\Http\Controllers;
 use App\Models\LeaveRequest;
 use App\Models\LeaveType;
 use App\Models\User;
+use Carbon\Carbon;
 use Illuminate\Http\Request;
 use Inertia\Inertia;
 use Inertia\Response;
@@ -91,11 +92,17 @@ class LeaveRequestController extends Controller
             'attachment' => 'nullable|file|image|max:5120', // 5MB max
         ]);
 
+        // Calculate total days
+        $startDate = Carbon::parse($validated['start_date']);
+        $endDate = Carbon::parse($validated['end_date']);
+        $totalDays = $startDate->diffInDays($endDate) + 1; // +1 to include both start and end date
+
         $leaveRequestData = [
             'user_id' => auth()->id(),
             'leave_type_id' => $validated['leave_type_id'],
             'start_date' => $validated['start_date'],
             'end_date' => $validated['end_date'],
+            'total_days' => $totalDays,
             'reason' => $validated['reason'],
             'status' => 'pending',
         ];
@@ -165,6 +172,13 @@ class LeaveRequestController extends Controller
             'end_date' => 'required|date|after_or_equal:start_date',
             'reason' => 'required|string|max:1000',
         ]);
+
+        // Calculate total days
+        $startDate = Carbon::parse($validated['start_date']);
+        $endDate = Carbon::parse($validated['end_date']);
+        $totalDays = $startDate->diffInDays($endDate) + 1; // +1 to include both start and end date
+
+        $validated['total_days'] = $totalDays;
 
         $leaveRequest->update($validated);
 
