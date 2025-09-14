@@ -194,21 +194,17 @@
                     <div class="grid gap-4 md:grid-cols-2">
                         <div>
                             <Label for="effective_date">Tanggal Efektif *</Label>
-                            <Input
-                                id="effective_date"
+                            <DatePicker
                                 v-model="assignForm.effective_date"
-                                type="date"
-                                :min="new Date().toISOString().split('T')[0]"
+                                placeholder="Pilih tanggal efektif"
                                 required
                             />
                         </div>
                         <div>
                             <Label for="end_date">Tanggal Berakhir</Label>
-                            <Input
-                                id="end_date"
+                            <DatePicker
                                 v-model="assignForm.end_date"
-                                type="date"
-                                :min="assignForm.effective_date"
+                                placeholder="Pilih tanggal berakhir (opsional)"
                             />
                         </div>
                     </div>
@@ -247,6 +243,7 @@ import { Head, Link, router, useForm } from '@inertiajs/vue3';
 import { ref } from 'vue';
 import AppLayout from '@/layouts/AppLayout.vue';
 import { Input } from '@/components/ui/input';
+import DatePicker from '@/components/ui/date-picker/DatePicker.vue';
 import { Button } from '@/components/ui/button';
 import { Label } from '@/components/ui/label';
 import { Dialog, DialogContent, DialogHeader, DialogTitle, DialogDescription, DialogFooter } from '@/components/ui/dialog';

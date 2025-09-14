@@ -120,11 +120,12 @@
 
                         <div>
                             <label class="block text-sm font-medium text-gray-700 dark:text-gray-300">Tanggal Lahir</label>
-                            <input
-                                v-model="basicInfoForm.date_of_birth"
-                                type="date"
-                                class="mt-1 block w-full rounded-lg border border-gray-300 bg-white px-3 py-2 text-sm focus:border-blue-500 focus:outline-none focus:ring-1 focus:ring-blue-500 dark:border-gray-600 dark:bg-gray-800 dark:text-gray-300"
-                            />
+                            <div class="mt-1">
+                                <DatePicker
+                                    v-model="basicInfoForm.date_of_birth"
+                                    placeholder="Pilih tanggal lahir"
+                                />
+                            </div>
                         </div>
 
                         <div>
@@ -290,6 +291,7 @@
 
 <script setup lang="ts">
 import { Head, Link, useForm } from '@inertiajs/vue3';
+import DatePicker from '@/components/ui/date-picker/DatePicker.vue';
 import {
     User,
     Mail,
