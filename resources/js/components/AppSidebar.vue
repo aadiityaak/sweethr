@@ -50,8 +50,8 @@ const adminNavItems: NavItem[] = [
         icon: Users,
     },
     {
-        title: 'Pengajuan Cuti',
-        href: '/leave-requests',
+        title: 'Kelola Cuti',
+        href: '/admin/leave-requests',
         icon: Calendar,
     },
     {

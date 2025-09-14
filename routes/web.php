@@ -72,6 +72,14 @@ Route::middleware(['auth', 'verified', 'admin'])->group(function () {
     // Admin Attendance Management
     Route::get('admin/attendance', [App\Http\Controllers\Admin\AttendanceController::class, 'index'])
         ->name('admin.attendance.index');
+
+    // Admin Leave Requests Management
+    Route::get('admin/leave-requests', [App\Http\Controllers\Admin\LeaveRequestController::class, 'index'])
+        ->name('admin.leave-requests.index');
+    Route::patch('admin/leave-requests/{leaveRequest}/approve', [App\Http\Controllers\Admin\LeaveRequestController::class, 'approve'])
+        ->name('admin.leave-requests.approve');
+    Route::patch('admin/leave-requests/{leaveRequest}/reject', [App\Http\Controllers\Admin\LeaveRequestController::class, 'reject'])
+        ->name('admin.leave-requests.reject');
 });
 
 require __DIR__.'/settings.php';
