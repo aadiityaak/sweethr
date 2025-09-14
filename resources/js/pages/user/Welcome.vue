@@ -1,6 +1,7 @@
 <script setup lang="ts">
 import { Head, Link } from '@inertiajs/vue3';
 import { Clock, Calendar, CheckCircle, User, MapPin, LogOut, Home, UserCircle, Settings, BarChart3 } from 'lucide-vue-next';
+import { useCompanySettings } from '@/composables/useCompanySettings';
 
 interface User {
     id: number;
@@ -41,6 +42,8 @@ interface Props {
 }
 
 const { user, todayAttendance, stats } = defineProps<Props>();
+
+const { companyName, companyLogo } = useCompanySettings();
 
 const formatTime = (time: string | null) => {
     if (!time) return '--:--';
@@ -83,11 +86,17 @@ const getCurrentDate = () => {
                 <div class="px-4 py-4">
                     <div class="flex items-center justify-between">
                         <div class="flex items-center gap-3">
-                            <div class="rounded-lg bg-primary p-2">
-                                <User class="h-4 w-4 text-primary-foreground" />
+                            <div class="rounded-lg bg-primary p-2 overflow-hidden">
+                                <img
+                                    v-if="companyLogo"
+                                    :src="companyLogo"
+                                    :alt="companyName"
+                                    class="h-4 w-4 object-contain"
+                                />
+                                <User v-else class="h-4 w-4 text-primary-foreground" />
                             </div>
                             <div>
-                                <h1 class="text-lg font-semibold">SweetHR</h1>
+                                <h1 class="text-lg font-semibold">{{ companyName }}</h1>
                                 <p class="text-sm text-muted-foreground">{{ user?.name || 'Guest' }}</p>
                             </div>
                         </div>
@@ -135,47 +144,41 @@ const getCurrentDate = () => {
                         Absensi Hari Ini
                     </h3>
 
-                    <div class="space-y-3">
+                    <div class="grid gap-3 grid-cols-2">
                         <div class="rounded-md border bg-card p-4">
-                            <div class="flex items-center gap-3">
-                                <div class="rounded-md bg-muted p-2">
-                                    <Clock class="h-4 w-4 text-muted-foreground" />
+                            <div class="text-center">
+                                <div class="mx-auto mb-2 w-10 h-10 rounded-md bg-green-100 dark:bg-green-900/20 flex items-center justify-center">
+                                    <Clock class="h-5 w-5 text-green-600 dark:text-green-400" />
                                 </div>
-                                <div>
-                                    <p class="text-xs font-medium text-muted-foreground">MASUK</p>
-                                    <p class="font-semibold">
-                                        {{ formatTime(todayAttendance?.check_in_time) }}
-                                    </p>
-                                </div>
+                                <p class="text-xs font-medium text-muted-foreground">MASUK</p>
+                                <p class="text-lg font-bold">
+                                    {{ formatTime(todayAttendance?.check_in_time) }}
+                                </p>
                             </div>
                         </div>
 
                         <div class="rounded-md border bg-card p-4">
-                            <div class="flex items-center gap-3">
-                                <div class="rounded-md bg-muted p-2">
-                                    <Clock class="h-4 w-4 text-muted-foreground" />
+                            <div class="text-center">
+                                <div class="mx-auto mb-2 w-10 h-10 rounded-md bg-red-100 dark:bg-red-900/20 flex items-center justify-center">
+                                    <Clock class="h-5 w-5 text-red-600 dark:text-red-400" />
                                 </div>
-                                <div>
-                                    <p class="text-xs font-medium text-muted-foreground">KELUAR</p>
-                                    <p class="font-semibold">
-                                        {{ formatTime(todayAttendance?.check_out_time) }}
-                                    </p>
-                                </div>
+                                <p class="text-xs font-medium text-muted-foreground">KELUAR</p>
+                                <p class="text-lg font-bold">
+                                    {{ formatTime(todayAttendance?.check_out_time) }}
+                                </p>
                             </div>
                         </div>
+                    </div>
 
-                        <div class="rounded-md border bg-card p-4">
-                            <div class="flex items-center gap-3">
-                                <div class="rounded-md bg-muted p-2">
-                                    <Calendar class="h-4 w-4 text-muted-foreground" />
-                                </div>
-                                <div>
-                                    <p class="text-xs font-medium text-muted-foreground">DURASI</p>
-                                    <p class="font-semibold">
-                                        {{ formatDuration(todayAttendance?.work_duration) }}
-                                    </p>
-                                </div>
+                    <div class="mt-3 rounded-md border bg-card p-4">
+                        <div class="text-center">
+                            <div class="mx-auto mb-2 w-10 h-10 rounded-md bg-blue-100 dark:bg-blue-900/20 flex items-center justify-center">
+                                <Calendar class="h-5 w-5 text-blue-600 dark:text-blue-400" />
                             </div>
+                            <p class="text-xs font-medium text-muted-foreground">DURASI KERJA</p>
+                            <p class="text-lg font-bold">
+                                {{ formatDuration(todayAttendance?.work_duration) }}
+                            </p>
                         </div>
                     </div>
 
@@ -187,39 +190,57 @@ const getCurrentDate = () => {
                     </div>
 
                     <!-- Attendance Actions -->
-                    <div class="mt-6 space-y-2">
+                    <div class="mt-6 grid gap-3 grid-cols-2">
+                        <!-- Check In Button -->
                         <Link
                             v-if="!todayAttendance?.check_in_time"
                             href="/attendance/check-in"
-                            class="flex w-full items-center justify-center gap-2 rounded-md bg-primary px-4 py-3 text-primary-foreground font-medium hover:bg-primary/90 transition-colors"
+                            class="flex items-center justify-center gap-2 rounded-md bg-green-600 px-4 py-4 text-white font-medium hover:bg-green-700 transition-colors shadow-sm"
                         >
-                            <Clock class="h-4 w-4" />
-                            Check In Sekarang
+                            <Clock class="h-5 w-5" />
+                            <span class="text-sm">Check In</span>
                         </Link>
-
-                        <Link
-                            v-else-if="todayAttendance?.check_in_time && !todayAttendance?.check_out_time"
-                            href="/attendance"
-                            class="flex w-full items-center justify-center gap-2 rounded-md bg-destructive px-4 py-3 text-destructive-foreground font-medium hover:bg-destructive/90 transition-colors"
-                        >
-                            <Clock class="h-4 w-4" />
-                            Check Out Sekarang
-                        </Link>
-
                         <div
                             v-else
-                            class="flex w-full items-center justify-center gap-2 rounded-md bg-muted px-4 py-3 text-muted-foreground font-medium"
+                            class="flex items-center justify-center gap-2 rounded-md bg-green-100 dark:bg-green-900/20 px-4 py-4 text-green-800 dark:text-green-200 font-medium"
                         >
-                            <CheckCircle class="h-4 w-4" />
-                            Absensi Selesai
+                            <CheckCircle class="h-5 w-5" />
+                            <span class="text-sm">Sudah Masuk</span>
                         </div>
 
+                        <!-- Check Out Button -->
+                        <Link
+                            v-if="todayAttendance?.check_in_time && !todayAttendance?.check_out_time"
+                            href="/attendance"
+                            class="flex items-center justify-center gap-2 rounded-md bg-red-600 px-4 py-4 text-white font-medium hover:bg-red-700 transition-colors shadow-sm"
+                        >
+                            <Clock class="h-5 w-5" />
+                            <span class="text-sm">Check Out</span>
+                        </Link>
+                        <div
+                            v-else-if="todayAttendance?.check_out_time"
+                            class="flex items-center justify-center gap-2 rounded-md bg-red-100 dark:bg-red-900/20 px-4 py-4 text-red-800 dark:text-red-200 font-medium"
+                        >
+                            <CheckCircle class="h-5 w-5" />
+                            <span class="text-sm">Sudah Keluar</span>
+                        </div>
+                        <div
+                            v-else
+                            class="flex items-center justify-center gap-2 rounded-md bg-muted px-4 py-4 text-muted-foreground font-medium"
+                        >
+                            <Clock class="h-5 w-5" />
+                            <span class="text-sm">Belum Waktunya</span>
+                        </div>
+                    </div>
+
+                    <!-- History Button -->
+                    <div class="mt-3">
                         <Link
                             href="/attendance"
-                            class="flex w-full items-center justify-center gap-2 rounded-md border bg-background px-4 py-3 font-medium hover:bg-accent hover:text-accent-foreground transition-colors"
+                            class="flex w-full items-center justify-center gap-2 rounded-md border-2 border-dashed border-muted-foreground/20 bg-background px-4 py-3 font-medium hover:bg-accent hover:text-accent-foreground hover:border-muted-foreground/40 transition-all"
                         >
                             <Calendar class="h-4 w-4" />
-                            Lihat Riwayat
+                            Lihat Riwayat Absensi
                         </Link>
                     </div>
                 </div>
