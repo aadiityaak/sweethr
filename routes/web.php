@@ -80,6 +80,25 @@ Route::middleware(['auth', 'verified', 'admin'])->group(function () {
         ->name('admin.leave-requests.approve');
     Route::patch('admin/leave-requests/{leaveRequest}/reject', [App\Http\Controllers\Admin\LeaveRequestController::class, 'reject'])
         ->name('admin.leave-requests.reject');
+
+    // Admin Work Shifts Management
+    Route::resource('admin/work-shifts', App\Http\Controllers\Admin\WorkShiftController::class, [
+        'names' => [
+            'index' => 'admin.work-shifts.index',
+            'create' => 'admin.work-shifts.create',
+            'store' => 'admin.work-shifts.store',
+            'show' => 'admin.work-shifts.show',
+            'edit' => 'admin.work-shifts.edit',
+            'update' => 'admin.work-shifts.update',
+            'destroy' => 'admin.work-shifts.destroy',
+        ],
+    ]);
+    Route::post('admin/work-shifts/{workShift}/assign', [App\Http\Controllers\Admin\WorkShiftController::class, 'assign'])
+        ->name('admin.work-shifts.assign');
+    Route::post('admin/work-shifts/{workShift}/unassign', [App\Http\Controllers\Admin\WorkShiftController::class, 'unassign'])
+        ->name('admin.work-shifts.unassign');
+    Route::get('admin/work-shifts-employees', [App\Http\Controllers\Admin\WorkShiftController::class, 'employees'])
+        ->name('admin.work-shifts.employees');
 });
 
 require __DIR__.'/settings.php';

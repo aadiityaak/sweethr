@@ -61,7 +61,7 @@ const adminNavItems: NavItem[] = [
     },
     {
         title: 'Manajemen Shift',
-        href: '/work-shifts',
+        href: '/admin/work-shifts',
         icon: UserCheck,
     },
     {

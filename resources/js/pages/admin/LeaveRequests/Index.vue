@@ -448,7 +448,7 @@ const debouncedSearch = debounce(() => {
 }, 300);
 
 const applyFilters = () => {
-    router.get(route('admin.leave-requests.index'), {
+    router.get('/admin/leave-requests', {
         search: search.value,
         status: selectedStatus.value,
         leave_type: selectedLeaveType.value,
@@ -464,12 +464,12 @@ const clearFilters = () => {
     selectedStatus.value = '';
     selectedLeaveType.value = '';
     selectedDepartment.value = '';
-    router.get(route('admin.leave-requests.index'));
+    router.get('/admin/leave-requests');
 };
 
 const approveRequest = (request: LeaveRequest) => {
     if (confirm(`Setujui pengajuan cuti ${request.user.name}?`)) {
-        router.patch(route('admin.leave-requests.approve', request.id), {});
+        router.patch(`/admin/leave-requests/${request.id}/approve`, {});
     }
 };
 
@@ -482,7 +482,7 @@ const openRejectModal = (request: LeaveRequest) => {
 const submitReject = () => {
     if (!selectedRequest.value) return;
 
-    rejectForm.patch(route('admin.leave-requests.reject', selectedRequest.value.id), {
+    rejectForm.patch(`/admin/leave-requests/${selectedRequest.value.id}/reject`, {
         onSuccess: () => {
             showRejectModal.value = false;
             selectedRequest.value = null;
