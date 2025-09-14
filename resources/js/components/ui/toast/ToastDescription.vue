@@ -6,7 +6,9 @@ interface Props {
   class?: string
 }
 
-defineProps<Props>()
+const props = withDefaults(defineProps<Props>(), {
+  class: undefined
+})
 </script>
 
 <template>

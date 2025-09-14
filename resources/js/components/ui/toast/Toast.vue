@@ -3,8 +3,12 @@ import { cn } from '@/lib/utils'
 import { ToastRoot } from 'reka-ui'
 import { toastVariants, type ToastVariants } from '.'
 
-interface Props extends ToastVariants {
+interface Props {
   class?: string
+  /**
+   * Toast variant style
+   */
+  variant?: 'default' | 'destructive' | 'success' | 'warning'
   /**
    * A unique value that associates the toast with a form control.
    */
@@ -23,7 +27,7 @@ interface Props extends ToastVariants {
   type?: 'foreground' | 'background'
 }
 
-defineProps<Props>()
+const props = defineProps<Props>()
 
 defineEmits<{
   escapeKeyDown: [event: KeyboardEvent]
@@ -39,10 +43,10 @@ defineEmits<{
 <template>
   <ToastRoot
     v-bind="$attrs"
-    :class="cn(toastVariants({ variant }), props.class)"
-    :alt-text="altText"
-    :duration="duration"
-    :type="type"
+    :class="cn(toastVariants({ variant: props.variant }), props.class)"
+    :alt-text="props.altText"
+    :duration="props.duration"
+    :type="props.type"
     @escape-key-down="$emit('escapeKeyDown', $event)"
     @pause="$emit('pause')"
     @resume="$emit('resume')"

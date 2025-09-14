@@ -19,7 +19,7 @@ class LeaveRequest extends Model
         'status',
         'approved_by',
         'approved_at',
-        'rejection_reason',
+        'admin_notes',
         'attachment_path',
         'attachment_original_name',
     ];

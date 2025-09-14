@@ -11,7 +11,7 @@ interface Props {
   altText: string
 }
 
-defineProps<Props>()
+const props = defineProps<Props>()
 </script>
 
 <template>
@@ -21,7 +21,7 @@ defineProps<Props>()
       'h-8 shrink-0 border-muted bg-transparent px-3 text-xs',
       props.class,
     )"
-    :alt-text="altText"
+    :alt-text="props.altText"
   >
     <slot />
   </ToastAction>
