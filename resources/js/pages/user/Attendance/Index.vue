@@ -1,7 +1,9 @@
 <script setup lang="ts">
 import { Head, Link, router } from '@inertiajs/vue3';
-import { Clock, MapPin, CheckCircle, XCircle, AlertTriangle, ArrowLeft } from 'lucide-vue-next';
+import { Clock, MapPin, CheckCircle, XCircle, AlertTriangle, ArrowLeft, Calendar } from 'lucide-vue-next';
 import BottomNavigation from '@/components/BottomNavigation.vue';
+import AttendanceCalendar from '@/components/AttendanceCalendar.vue';
+import { ref, computed } from 'vue';
 
 interface OfficeLocation {
     id: number;
@@ -43,6 +45,38 @@ interface Props {
 
 const { attendances, todayAttendance, filters } = defineProps<Props>();
 
+// State for calendar
+const showCalendarView = ref(true);
+const selectedMonth = ref(new Date());
+
+// Transform attendance data for calendar
+const calendarAttendanceData = computed(() => {
+    if (!attendances?.data) return [];
+
+    return attendances.data.map(attendance => ({
+        date: attendance.date,
+        status: attendance.status === 'present' ? 'present' :
+                attendance.status === 'late' ? 'late' :
+                attendance.status === 'absent' ? 'absent' : 'absent',
+        check_in_time: attendance.check_in_time,
+        check_out_time: attendance.check_out_time,
+        notes: `Durasi: ${formatDuration(attendance.work_duration)}`
+    }));
+});
+
+// Handle calendar day click
+const handleDayClick = (date: string, record?: any) => {
+    console.log('Day clicked:', date, record);
+    // You can add navigation to detail view here
+};
+
+// Handle month change
+const handleMonthChange = (newMonth: Date) => {
+    selectedMonth.value = newMonth;
+    const month = (newMonth.getMonth() + 1).toString();
+    const year = newMonth.getFullYear().toString();
+    filterAttendance(month, year);
+};
 
 const formatTime = (time: string | null) => {
     if (!time) return '--:--';
@@ -191,9 +225,37 @@ const filterAttendance = (month?: string, year?: string) => {
                     </div>
                 </div>
 
-                <!-- Filters -->
+                <!-- View Toggle -->
                 <div class="mb-6 rounded-lg border bg-card p-4">
-                    <div class="grid gap-3 grid-cols-2">
+                    <div class="flex items-center justify-between mb-4">
+                        <h3 class="text-sm font-medium">Tampilan Riwayat</h3>
+                        <div class="flex rounded-lg border bg-background">
+                            <button
+                                @click="showCalendarView = true"
+                                :class="[
+                                    'px-3 py-1.5 text-xs font-medium rounded-l-md transition-colors',
+                                    showCalendarView
+                                        ? 'bg-primary text-primary-foreground'
+                                        : 'hover:bg-muted'
+                                ]"
+                            >
+                                📅 Kalender
+                            </button>
+                            <button
+                                @click="showCalendarView = false"
+                                :class="[
+                                    'px-3 py-1.5 text-xs font-medium rounded-r-md transition-colors border-l',
+                                    !showCalendarView
+                                        ? 'bg-primary text-primary-foreground'
+                                        : 'hover:bg-muted'
+                                ]"
+                            >
+                                📋 Daftar
+                            </button>
+                        </div>
+                    </div>
+
+                    <div v-if="!showCalendarView" class="grid gap-3 grid-cols-2">
                         <select
                             :value="filters.month"
                             @change="filterAttendance($event.target.value, filters.year)"
@@ -234,63 +296,76 @@ const filterAttendance = (month?: string, year?: string) => {
                         </h2>
                     </div>
 
-                    <div class="divide-y">
-                        <div
-                            v-for="attendance in attendances?.data || []"
-                            :key="attendance.id"
-                            class="p-4 hover:bg-muted/50 transition-colors"
-                        >
-                            <div class="flex items-center justify-between mb-2">
-                                <div class="flex items-center gap-2">
-                                    <component
-                                        :is="getStatusIcon(attendance.status)"
-                                        class="h-4 w-4"
-                                        :class="getStatusColor(attendance.status)"
-                                    />
-                                    <span class="text-sm font-medium">
-                                        {{ new Date(attendance.date).toLocaleDateString('id-ID', { weekday: 'long', day: 'numeric', month: 'long' }) }}
-                                    </span>
-                                </div>
-                                <span
-                                    class="rounded-full border px-2 py-1 text-xs font-medium capitalize"
-                                    :class="getStatusBadgeColor(attendance.status)"
-                                >
-                                    {{ attendance.status === 'present' ? 'Hadir' : attendance.status === 'late' ? 'Terlambat' : 'Tidak Hadir' }}
-                                </span>
-                            </div>
-
-                            <div class="grid grid-cols-3 gap-4 text-sm">
-                                <div>
-                                    <p class="text-xs text-muted-foreground">Masuk</p>
-                                    <p class="font-medium">{{ formatTime(attendance.check_in_time) }}</p>
-                                </div>
-                                <div>
-                                    <p class="text-xs text-muted-foreground">Keluar</p>
-                                    <p class="font-medium">{{ formatTime(attendance.check_out_time) }}</p>
-                                </div>
-                                <div>
-                                    <p class="text-xs text-muted-foreground">Durasi</p>
-                                    <p class="font-medium">{{ formatDuration(attendance.work_duration) }}</p>
-                                </div>
-                            </div>
-
-                            <div v-if="attendance.office_location" class="mt-2 flex items-center gap-1">
-                                <MapPin class="h-3 w-3 text-muted-foreground" />
-                                <span class="text-xs text-muted-foreground">{{ attendance.office_location.name }}</span>
-                            </div>
-                        </div>
-
-                        <div v-if="!attendances?.data?.length" class="p-8 text-center">
-                            <Calendar class="h-12 w-12 mx-auto mb-4 text-muted-foreground" />
-                            <p class="text-muted-foreground">Belum ada data absensi</p>
-                        </div>
+                    <!-- Calendar View -->
+                    <div v-if="showCalendarView" class="p-4">
+                        <AttendanceCalendar
+                            :attendance-data="calendarAttendanceData"
+                            :selected-month="selectedMonth"
+                            @update:selected-month="handleMonthChange"
+                            @day-click="handleDayClick"
+                        />
                     </div>
 
-                    <!-- Pagination -->
-                    <div v-if="attendances?.meta?.total > attendances?.meta?.per_page" class="p-4 border-t">
-                        <p class="text-sm text-muted-foreground text-center">
-                            Menampilkan {{ attendances.meta.from }} - {{ attendances.meta.to }} dari {{ attendances.meta.total }} data
-                        </p>
+                    <!-- List View -->
+                    <div v-else>
+                        <div class="divide-y">
+                            <div
+                                v-for="attendance in attendances?.data || []"
+                                :key="attendance.id"
+                                class="p-4 hover:bg-muted/50 transition-colors"
+                            >
+                                <div class="flex items-center justify-between mb-2">
+                                    <div class="flex items-center gap-2">
+                                        <component
+                                            :is="getStatusIcon(attendance.status)"
+                                            class="h-4 w-4"
+                                            :class="getStatusColor(attendance.status)"
+                                        />
+                                        <span class="text-sm font-medium">
+                                            {{ new Date(attendance.date).toLocaleDateString('id-ID', { weekday: 'long', day: 'numeric', month: 'long' }) }}
+                                        </span>
+                                    </div>
+                                    <span
+                                        class="rounded-full border px-2 py-1 text-xs font-medium capitalize"
+                                        :class="getStatusBadgeColor(attendance.status)"
+                                    >
+                                        {{ attendance.status === 'present' ? 'Hadir' : attendance.status === 'late' ? 'Terlambat' : 'Tidak Hadir' }}
+                                    </span>
+                                </div>
+
+                                <div class="grid grid-cols-3 gap-4 text-sm">
+                                    <div>
+                                        <p class="text-xs text-muted-foreground">Masuk</p>
+                                        <p class="font-medium">{{ formatTime(attendance.check_in_time) }}</p>
+                                    </div>
+                                    <div>
+                                        <p class="text-xs text-muted-foreground">Keluar</p>
+                                        <p class="font-medium">{{ formatTime(attendance.check_out_time) }}</p>
+                                    </div>
+                                    <div>
+                                        <p class="text-xs text-muted-foreground">Durasi</p>
+                                        <p class="font-medium">{{ formatDuration(attendance.work_duration) }}</p>
+                                    </div>
+                                </div>
+
+                                <div v-if="attendance.office_location" class="mt-2 flex items-center gap-1">
+                                    <MapPin class="h-3 w-3 text-muted-foreground" />
+                                    <span class="text-xs text-muted-foreground">{{ attendance.office_location.name }}</span>
+                                </div>
+                            </div>
+
+                            <div v-if="!attendances?.data?.length" class="p-8 text-center">
+                                <Calendar class="h-12 w-12 mx-auto mb-4 text-muted-foreground" />
+                                <p class="text-muted-foreground">Belum ada data absensi</p>
+                            </div>
+                        </div>
+
+                        <!-- Pagination -->
+                        <div v-if="attendances?.meta?.total > attendances?.meta?.per_page" class="p-4 border-t">
+                            <p class="text-sm text-muted-foreground text-center">
+                                Menampilkan {{ attendances.meta.from }} - {{ attendances.meta.to }} dari {{ attendances.meta.total }} data
+                            </p>
+                        </div>
                     </div>
                 </div>
             </div>
