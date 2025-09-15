@@ -16,7 +16,7 @@
                         </div>
                     </div>
                     <Link
-                        href="/user/welcome"
+                        href="/home"
                         class="rounded-md bg-secondary p-2 text-secondary-foreground hover:bg-secondary/80 transition-colors"
                     >
                         <ArrowLeft class="h-4 w-4" />
@@ -248,6 +248,63 @@
                         </div>
                     </form>
                 </div>
+
+                <!-- Theme/Dark Mode Settings -->
+                <div class="mb-6 rounded-lg border bg-card p-6">
+                    <div class="mb-4 flex items-center gap-3">
+                        <div class="rounded-lg bg-purple-100 p-2 dark:bg-purple-900/50">
+                            <Monitor class="h-4 w-4 text-purple-600 dark:text-purple-400" />
+                        </div>
+                        <div>
+                            <h2 class="text-lg font-semibold">Tampilan</h2>
+                            <p class="text-sm text-muted-foreground">Pengaturan tema dan dark mode</p>
+                        </div>
+                    </div>
+
+                    <div class="space-y-4">
+                        <div>
+                            <label class="block text-sm font-medium mb-3">Tema</label>
+                            <div class="grid grid-cols-3 gap-3">
+                                <button
+                                    v-for="theme in themes"
+                                    :key="theme.value"
+                                    @click="setTheme(theme.value)"
+                                    :class="[
+                                        'flex flex-col items-center gap-2 p-4 rounded-lg border-2 transition-all hover:bg-accent',
+                                        currentTheme === theme.value
+                                            ? 'border-primary bg-primary/5 text-primary'
+                                            : 'border-border bg-background hover:border-border/60'
+                                    ]"
+                                >
+                                    <component :is="theme.icon" class="h-5 w-5" />
+                                    <span class="text-xs font-medium">{{ theme.label }}</span>
+                                </button>
+                            </div>
+                        </div>
+
+                        <div class="flex items-center justify-between p-3 rounded-lg bg-muted/50">
+                            <div class="flex items-center gap-3">
+                                <component
+                                    :is="isDark ? Moon : Sun"
+                                    class="h-4 w-4 text-muted-foreground"
+                                />
+                                <div>
+                                    <p class="text-sm font-medium">Mode Saat Ini</p>
+                                    <p class="text-xs text-muted-foreground">
+                                        {{ isDark ? 'Dark Mode' : 'Light Mode' }}
+                                        {{ currentTheme === 'system' ? ' (Mengikuti sistem)' : '' }}
+                                    </p>
+                                </div>
+                            </div>
+                            <div class="flex h-6 w-11 items-center rounded-full transition-colors"
+                                 :class="isDark ? 'bg-primary' : 'bg-muted'">
+                                <div class="h-4 w-4 rounded-full bg-white transition-transform"
+                                     :class="isDark ? 'translate-x-6' : 'translate-x-1'">
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+                </div>
             </div>
             </div>
 
@@ -274,9 +331,12 @@ import {
     Camera,
     Shield,
     Key,
-    ArrowLeft
+    ArrowLeft,
+    Moon,
+    Sun,
+    Monitor
 } from 'lucide-vue-next';
-import { ref, computed } from 'vue';
+import { ref, computed, onMounted } from 'vue';
 
 interface UserProfile {
     id: number;
@@ -367,4 +427,53 @@ const cancelBasicEdit = () => {
 const getInitials = (name: string) => {
     return name.split(' ').map(n => n[0]).join('').toUpperCase();
 };
+
+// Dark mode functionality
+type Theme = 'light' | 'dark' | 'system';
+
+const currentTheme = ref<Theme>('system');
+const isDark = ref(false);
+
+const themes = [
+    { value: 'light', label: 'Light', icon: Sun },
+    { value: 'dark', label: 'Dark', icon: Moon },
+    { value: 'system', label: 'System', icon: Monitor }
+] as const;
+
+const applyTheme = (theme: Theme) => {
+    if (theme === 'system') {
+        const systemPrefersDark = window.matchMedia('(prefers-color-scheme: dark)').matches;
+        isDark.value = systemPrefersDark;
+        if (systemPrefersDark) {
+            document.documentElement.classList.add('dark');
+        } else {
+            document.documentElement.classList.remove('dark');
+        }
+    } else if (theme === 'dark') {
+        isDark.value = true;
+        document.documentElement.classList.add('dark');
+    } else {
+        isDark.value = false;
+        document.documentElement.classList.remove('dark');
+    }
+};
+
+const setTheme = (theme: Theme) => {
+    currentTheme.value = theme;
+    localStorage.setItem('theme', theme);
+    applyTheme(theme);
+};
+
+onMounted(() => {
+    const savedTheme = localStorage.getItem('theme') as Theme || 'system';
+    currentTheme.value = savedTheme;
+    applyTheme(savedTheme);
+
+    // Listen for system theme changes
+    window.matchMedia('(prefers-color-scheme: dark)').addEventListener('change', () => {
+        if (currentTheme.value === 'system') {
+            applyTheme('system');
+        }
+    });
+});
 </script>

@@ -252,93 +252,123 @@ const closeMapModal = () => {
             <!-- Office Locations List -->
             <div class="rounded-xl border border-sidebar-border/70 bg-white dark:border-sidebar-border dark:bg-gray-950">
                 <div class="p-6">
-                    <h2 class="text-lg font-semibold text-gray-900 dark:text-white">Daftar Lokasi</h2>
+                    <h2 class="text-lg font-semibold text-gray-900 dark:text-white">Daftar Lokasi Kantor</h2>
                 </div>
 
-                <div class="grid gap-4 p-6 pt-0 md:grid-cols-2 lg:grid-cols-3">
-                    <div
-                        v-for="location in officeLocations?.data || []"
-                        :key="location.id"
-                        class="rounded-lg border border-gray-200 p-6 dark:border-gray-700"
-                    >
-                        <div class="flex items-start justify-between">
-                            <div class="flex items-center gap-3">
-                                <div class="rounded-lg bg-blue-100 p-2 dark:bg-blue-900/30">
-                                    <MapPin class="h-6 w-6 text-blue-600 dark:text-blue-400" />
-                                </div>
-                                <div>
-                                    <h3 class="font-semibold text-gray-900 dark:text-white">{{ location.name }}</h3>
+                <div class="overflow-x-auto">
+                    <table class="w-full">
+                        <thead class="border-t border-gray-200 dark:border-gray-700">
+                            <tr class="border-b border-gray-200 dark:border-gray-700">
+                                <th class="px-6 py-3 text-left text-sm font-medium text-gray-500 dark:text-gray-400">Lokasi</th>
+                                <th class="px-6 py-3 text-left text-sm font-medium text-gray-500 dark:text-gray-400">Alamat</th>
+                                <th class="px-6 py-3 text-left text-sm font-medium text-gray-500 dark:text-gray-400">Koordinat</th>
+                                <th class="px-6 py-3 text-left text-sm font-medium text-gray-500 dark:text-gray-400">Radius</th>
+                                <th class="px-6 py-3 text-left text-sm font-medium text-gray-500 dark:text-gray-400">Statistik</th>
+                                <th class="px-6 py-3 text-left text-sm font-medium text-gray-500 dark:text-gray-400">Status</th>
+                                <th class="px-6 py-3 text-left text-sm font-medium text-gray-500 dark:text-gray-400">Aksi</th>
+                            </tr>
+                        </thead>
+                        <tbody>
+                            <tr
+                                v-for="location in officeLocations?.data || []"
+                                :key="location.id"
+                                class="border-b border-gray-100 hover:bg-gray-50 dark:border-gray-800 dark:hover:bg-gray-900/50"
+                            >
+                                <td class="px-6 py-4">
+                                    <div class="flex items-center gap-3">
+                                        <div class="rounded-lg bg-blue-100 p-2 dark:bg-blue-900/30">
+                                            <MapPin class="h-5 w-5 text-blue-600 dark:text-blue-400" />
+                                        </div>
+                                        <div>
+                                            <p class="font-medium text-gray-900 dark:text-white">{{ location.name }}</p>
+                                            <p class="text-sm text-gray-500 dark:text-gray-400">ID: {{ location.id }}</p>
+                                        </div>
+                                    </div>
+                                </td>
+                                <td class="px-6 py-4">
+                                    <div class="max-w-xs">
+                                        <p class="text-sm text-gray-600 dark:text-gray-300 line-clamp-2">
+                                            {{ location.address }}
+                                        </p>
+                                    </div>
+                                </td>
+                                <td class="px-6 py-4">
+                                    <div class="text-sm text-gray-600 dark:text-gray-300">
+                                        <p>{{ formatCoordinates(location.latitude, location.longitude) }}</p>
+                                        <button
+                                            @click="openInGoogleMaps(location)"
+                                            class="mt-1 text-xs text-blue-600 hover:text-blue-800 dark:text-blue-400 dark:hover:text-blue-300"
+                                        >
+                                            Buka di Maps
+                                        </button>
+                                    </div>
+                                </td>
+                                <td class="px-6 py-4 text-sm text-gray-600 dark:text-gray-300">
+                                    <span class="inline-flex items-center rounded-full bg-gray-100 px-2 py-1 text-xs font-medium text-gray-700 dark:bg-gray-800 dark:text-gray-300">
+                                        {{ location.radius_meters }}m
+                                    </span>
+                                </td>
+                                <td class="px-6 py-4">
+                                    <div class="space-y-1">
+                                        <div class="flex items-center gap-2 text-sm">
+                                            <Users class="h-3 w-3 text-gray-400" />
+                                            <span class="text-gray-600 dark:text-gray-300">
+                                                {{ location.employees_count || 0 }} karyawan
+                                            </span>
+                                        </div>
+                                        <div class="flex items-center gap-2 text-sm">
+                                            <Clock class="h-3 w-3 text-gray-400" />
+                                            <span class="text-gray-600 dark:text-gray-300">
+                                                {{ location.today_checkins_count || 0 }} absensi hari ini
+                                            </span>
+                                        </div>
+                                    </div>
+                                </td>
+                                <td class="px-6 py-4">
                                     <span
                                         class="inline-flex rounded-full border px-2 py-1 text-xs font-medium"
                                         :class="getStatusBadge(location.is_active)"
                                     >
                                         {{ location.is_active ? 'Aktif' : 'Tidak Aktif' }}
                                     </span>
-                                </div>
-                            </div>
-                            <div class="flex gap-1">
-                                <button
-                                    @click="viewOnMap(location)"
-                                    class="rounded-lg bg-green-100 p-2 text-green-600 hover:bg-green-200 dark:bg-green-900/30 dark:text-green-400 dark:hover:bg-green-900/50"
-                                    title="Lihat di Peta"
-                                >
-                                    <Map class="h-4 w-4" />
-                                </button>
-                                <Link
-                                    :href="`/office-locations/${location.id}/edit`"
-                                    class="rounded-lg bg-blue-100 p-2 text-blue-600 hover:bg-blue-200 dark:bg-blue-900/30 dark:text-blue-400 dark:hover:bg-blue-900/50"
-                                >
-                                    <Edit class="h-4 w-4" />
-                                </Link>
-                                <button class="rounded-lg bg-red-100 p-2 text-red-600 hover:bg-red-200 dark:bg-red-900/30 dark:text-red-400 dark:hover:bg-red-900/50">
-                                    <Trash2 class="h-4 w-4" />
-                                </button>
-                            </div>
-                        </div>
+                                </td>
+                                <td class="px-6 py-4">
+                                    <div class="flex items-center gap-2">
+                                        <button
+                                            @click="viewOnMap(location)"
+                                            class="rounded-lg bg-green-100 p-2 text-green-600 hover:bg-green-200 dark:bg-green-900/30 dark:text-green-400 dark:hover:bg-green-900/50"
+                                            title="Lihat di Peta"
+                                        >
+                                            <Map class="h-4 w-4" />
+                                        </button>
+                                        <Link
+                                            :href="`/office-locations/${location.id}/edit`"
+                                            class="rounded-lg bg-blue-100 p-2 text-blue-600 hover:bg-blue-200 dark:bg-blue-900/30 dark:text-blue-400 dark:hover:bg-blue-900/50"
+                                        >
+                                            <Edit class="h-4 w-4" />
+                                        </Link>
+                                        <button class="rounded-lg bg-red-100 p-2 text-red-600 hover:bg-red-200 dark:bg-red-900/30 dark:text-red-400 dark:hover:bg-red-900/50">
+                                            <Trash2 class="h-4 w-4" />
+                                        </button>
+                                    </div>
+                                </td>
+                            </tr>
+                        </tbody>
+                    </table>
+                </div>
 
-                        <div class="mt-4 space-y-3">
-                            <div>
-                                <p class="text-sm text-gray-600 dark:text-gray-300">
-                                    <MapPin class="inline h-4 w-4" />
-                                    {{ location.address }}
-                                </p>
-                            </div>
-
-                            <div class="rounded-lg bg-gray-50 p-3 dark:bg-gray-800">
-                                <div class="space-y-2">
-                                    <div class="flex items-center justify-between">
-                                        <span class="text-sm font-medium text-gray-700 dark:text-gray-300">Koordinat:</span>
-                                        <span class="text-sm text-gray-600 dark:text-gray-400">
-                                            {{ formatCoordinates(location.latitude, location.longitude) }}
-                                        </span>
-                                    </div>
-                                    <div class="flex items-center justify-between">
-                                        <span class="text-sm font-medium text-gray-700 dark:text-gray-300">Radius Absensi:</span>
-                                        <span class="text-sm text-gray-600 dark:text-gray-400">{{ location.radius_meters }}m</span>
-                                    </div>
-                                </div>
-                            </div>
-
-                            <div class="flex items-center justify-between pt-2">
-                                <div class="flex items-center gap-4">
-                                    <div class="text-center">
-                                        <p class="text-lg font-bold text-gray-900 dark:text-white">{{ location.employees_count || 0 }}</p>
-                                        <p class="text-xs text-gray-500 dark:text-gray-400">Karyawan</p>
-                                    </div>
-                                    <div class="text-center">
-                                        <p class="text-lg font-bold text-gray-900 dark:text-white">{{ location.today_checkins_count || 0 }}</p>
-                                        <p class="text-xs text-gray-500 dark:text-gray-400">Absensi Hari Ini</p>
-                                    </div>
-                                </div>
-                                <button
-                                    @click="openInGoogleMaps(location)"
-                                    class="rounded-lg bg-gray-100 px-3 py-2 text-sm font-medium text-gray-700 hover:bg-gray-200 dark:bg-gray-800 dark:text-gray-300 dark:hover:bg-gray-700"
-                                >
-                                    <Navigation class="inline h-4 w-4 mr-1" />
-                                    Petunjuk Arah
-                                </button>
-                            </div>
-                        </div>
+                <!-- Empty State -->
+                <div v-if="!officeLocations?.data?.length" class="flex items-center justify-center h-64 bg-gray-50 dark:bg-gray-800/50">
+                    <div class="text-center">
+                        <MapPin class="h-12 w-12 text-gray-400 mx-auto mb-4" />
+                        <p class="text-gray-500 dark:text-gray-400 mb-2">Tidak ada lokasi kantor ditemukan</p>
+                        <Link
+                            href="/office-locations/create"
+                            class="inline-flex items-center gap-2 rounded-lg bg-blue-600 px-4 py-2 text-sm font-medium text-white hover:bg-blue-700"
+                        >
+                            <Plus class="h-4 w-4" />
+                            Tambah Lokasi Pertama
+                        </Link>
                     </div>
                 </div>
 
