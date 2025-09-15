@@ -63,14 +63,11 @@ const calendarAttendanceData = computed(() => {
         notes: `Durasi: ${formatDuration(attendance.work_duration)}`
     }));
 
-    console.log('Calendar attendance data:', transformedData);
-    console.log('Raw attendances data:', attendances?.data);
     return transformedData;
 });
 
 // Handle calendar day click
 const handleDayClick = (date: string, record?: any) => {
-    console.log('Day clicked:', date, record);
     // You can add navigation to detail view here
 };
 

@@ -40,7 +40,6 @@ const calendarDays = computed(() => {
     const year = currentMonth.value.getFullYear();
     const month = currentMonth.value.getMonth();
 
-    console.log('Calendar: Generating for', year, month, 'with attendance data:', props.attendanceData);
 
     // Get first day of month and how many days in month
     const firstDay = new Date(year, month, 1);
@@ -64,13 +63,7 @@ const calendarDays = computed(() => {
             const recordDate = typeof record.date === 'string'
                 ? record.date.split('T')[0]
                 : record.date;
-            const isMatch = recordDate === dateString;
-
-            if (isMatch) {
-                console.log(`✓ MATCH found for Day ${day} (${dateString}): ${record.status}`);
-            }
-
-            return isMatch;
+            return recordDate === dateString;
         });
 
         days.push({
