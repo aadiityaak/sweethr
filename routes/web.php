@@ -72,6 +72,8 @@ Route::middleware(['auth', 'verified', 'admin'])->group(function () {
     // Admin Attendance Management
     Route::get('admin/attendance', [App\Http\Controllers\Admin\AttendanceController::class, 'index'])
         ->name('admin.attendance.index');
+    Route::get('admin/attendance/{attendance}', [App\Http\Controllers\Admin\AttendanceController::class, 'show'])
+        ->name('admin.attendance.show');
 
     // Admin Leave Requests Management
     Route::get('admin/leave-requests', [App\Http\Controllers\Admin\LeaveRequestController::class, 'index'])

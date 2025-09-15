@@ -63,7 +63,7 @@
                 </div>
 
             <!-- Profile Content Grid -->
-            <div class="grid gap-6 lg:grid-cols-2">
+            <div class="grid gap-6">
                 <!-- Basic Information Card -->
                 <div class="rounded-xl border border-gray-200/50 bg-white p-6 shadow-sm dark:border-gray-800/50 dark:bg-gray-950">
                     <div class="mb-6 flex items-center justify-between">

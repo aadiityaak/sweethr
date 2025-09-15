@@ -27,8 +27,10 @@ const modelValue = useVModel(props, 'modelValue', emits, {
 
 const isOpen = ref(false)
 const pickerRef = ref<HTMLElement>()
+const calendarRef = ref<HTMLElement>()
 const currentDate = ref(new Date())
 const selectedDate = ref<Date | null>(null)
+const popupPosition = ref<'bottom-left' | 'bottom-right' | 'top-left' | 'top-right'>('bottom-left')
 
 // Initialize selected date from modelValue
 onMounted(() => {
@@ -122,10 +124,52 @@ const isToday = (date: Date) => {
   return date.toDateString() === today.toDateString()
 }
 
+// Calculate optimal position for popup
+const calculatePosition = () => {
+  if (!pickerRef.value) return
+
+  nextTick(() => {
+    const rect = pickerRef.value!.getBoundingClientRect()
+    const viewportWidth = window.innerWidth
+    const viewportHeight = window.innerHeight
+    const popupWidth = 288 // w-72 = 18rem = 288px
+    const popupHeight = 320 // approximate height of calendar popup
+
+    // Determine horizontal position
+    const hasSpaceRight = rect.right + popupWidth <= viewportWidth
+    const hasSpaceLeft = rect.left - popupWidth >= 0
+
+    // Determine vertical position
+    const hasSpaceBelow = rect.bottom + popupHeight <= viewportHeight
+    const hasSpaceAbove = rect.top - popupHeight >= 0
+
+    // Choose position based on available space
+    if (hasSpaceBelow) {
+      if (hasSpaceRight || rect.left + popupWidth <= viewportWidth) {
+        popupPosition.value = 'bottom-left'
+      } else {
+        popupPosition.value = 'bottom-right'
+      }
+    } else if (hasSpaceAbove) {
+      if (hasSpaceRight || rect.left + popupWidth <= viewportWidth) {
+        popupPosition.value = 'top-left'
+      } else {
+        popupPosition.value = 'top-right'
+      }
+    } else {
+      // Default to bottom-left if no ideal position
+      popupPosition.value = 'bottom-left'
+    }
+  })
+}
+
 // Toggle picker
 const togglePicker = () => {
   if (props.disabled) return
   isOpen.value = !isOpen.value
+  if (isOpen.value) {
+    calculatePosition()
+  }
 }
 
 // Close picker when clicking outside
@@ -135,12 +179,23 @@ const handleClickOutside = (event: Event) => {
   }
 }
 
+// Handle window resize to recalculate position
+const handleResize = () => {
+  if (isOpen.value) {
+    calculatePosition()
+  }
+}
+
 onMounted(() => {
   document.addEventListener('click', handleClickOutside)
+  window.addEventListener('resize', handleResize)
+  window.addEventListener('scroll', handleResize)
 })
 
 onUnmounted(() => {
   document.removeEventListener('click', handleClickOutside)
+  window.removeEventListener('resize', handleResize)
+  window.removeEventListener('scroll', handleResize)
 })
 </script>
 
@@ -170,7 +225,16 @@ onUnmounted(() => {
     <!-- Calendar Popup -->
     <div
       v-if="isOpen"
-      class="absolute top-full left-0 z-50 mt-1 w-72 rounded-md border border-border bg-background p-3 shadow-lg"
+      ref="calendarRef"
+      :class="cn(
+        'absolute z-50 w-72 rounded-md border border-border bg-background p-3 shadow-lg',
+        {
+          'top-full left-0 mt-1': popupPosition === 'bottom-left',
+          'top-full right-0 mt-1': popupPosition === 'bottom-right',
+          'bottom-full left-0 mb-1': popupPosition === 'top-left',
+          'bottom-full right-0 mb-1': popupPosition === 'top-right'
+        }
+      )"
     >
       <!-- Month/Year Header -->
       <div class="flex items-center justify-between mb-4">

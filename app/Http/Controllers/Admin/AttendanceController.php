@@ -91,4 +91,19 @@ class AttendanceController extends Controller
             'departments' => $departments,
         ]);
     }
+
+    public function show(Attendance $attendance): Response
+    {
+        // Load the attendance record with all related data
+        $attendance->load([
+            'user' => function($query) {
+                $query->with(['department:id,name', 'position:id,title']);
+            },
+            'officeLocation'
+        ]);
+
+        return Inertia::render('admin/Attendance/Show', [
+            'attendance' => $attendance,
+        ]);
+    }
 }

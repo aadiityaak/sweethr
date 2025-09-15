@@ -3,7 +3,8 @@ import AppLayout from '@/layouts/AppLayout.vue';
 import AttendanceChart from '@/components/AttendanceChart.vue';
 import { type BreadcrumbItem } from '@/types';
 import DatePicker from '@/components/ui/date-picker/DatePicker.vue';
-import { Head, Link } from '@inertiajs/vue3';
+import { Head, Link, router } from '@inertiajs/vue3';
+import { ref, watch } from 'vue';
 import {
     Clock,
     Users,
@@ -83,6 +84,65 @@ const breadcrumbs: BreadcrumbItem[] = [
     { title: 'Dasbor', href: '/dashboard' },
     { title: 'Kelola Kehadiran', href: '/admin/attendance' }
 ];
+
+// Reactive filter state
+const searchQuery = ref(filters.search || '');
+const selectedStatus = ref(filters.status || '');
+const selectedDepartment = ref(filters.department || '');
+const selectedDate = ref(filters.date || '');
+
+// Debounce search
+let searchTimeout: NodeJS.Timeout;
+
+// Filter functions
+const updateFilters = () => {
+    const newFilters = {
+        search: searchQuery.value || undefined,
+        status: selectedStatus.value || undefined,
+        department: selectedDepartment.value || undefined,
+        date: selectedDate.value || undefined,
+    };
+
+    // Remove empty values
+    Object.keys(newFilters).forEach(key => {
+        if (!newFilters[key as keyof typeof newFilters]) {
+            delete newFilters[key as keyof typeof newFilters];
+        }
+    });
+
+    router.get('/admin/attendance', newFilters, {
+        preserveState: true,
+        preserveScroll: true,
+        replace: true
+    });
+};
+
+const handleSearchInput = (event: Event) => {
+    const target = event.target as HTMLInputElement;
+    searchQuery.value = target.value;
+
+    clearTimeout(searchTimeout);
+    searchTimeout = setTimeout(() => {
+        updateFilters();
+    }, 500); // 500ms debounce
+};
+
+const handleStatusChange = (event: Event) => {
+    const target = event.target as HTMLSelectElement;
+    selectedStatus.value = target.value;
+    updateFilters();
+};
+
+const handleDepartmentChange = (event: Event) => {
+    const target = event.target as HTMLSelectElement;
+    selectedDepartment.value = target.value;
+    updateFilters();
+};
+
+const handleDateChange = (date: string | undefined) => {
+    selectedDate.value = date || '';
+    updateFilters();
+};
 
 const formatTime = (time: string | null) => {
     if (!time) return '--:--';
@@ -311,25 +371,38 @@ const generateAttendanceBreakdown = () => {
                             type="text"
                             placeholder="Cari karyawan..."
                             class="w-full rounded-lg border border-gray-300 bg-white pl-10 pr-4 py-2 text-sm focus:border-blue-500 focus:outline-none focus:ring-1 focus:ring-blue-500 dark:border-gray-600 dark:bg-gray-800 dark:text-gray-300 dark:focus:border-blue-400"
-                            :value="filters.search"
+                            :value="searchQuery"
+                            @input="handleSearchInput"
                         />
                     </div>
                     <div class="flex gap-3">
-                        <select class="rounded-lg border border-gray-300 bg-white px-3 py-2 text-sm focus:border-blue-500 focus:outline-none focus:ring-1 focus:ring-blue-500 dark:border-gray-600 dark:bg-gray-800 dark:text-gray-300">
+                        <select
+                            class="rounded-lg border border-gray-300 bg-white px-3 py-2 text-sm focus:border-blue-500 focus:outline-none focus:ring-1 focus:ring-blue-500 dark:border-gray-600 dark:bg-gray-800 dark:text-gray-300"
+                            :value="selectedStatus"
+                            @change="handleStatusChange"
+                        >
                             <option value="">Semua Status</option>
                             <option value="present">Hadir</option>
                             <option value="late">Terlambat</option>
                             <option value="absent">Tidak Hadir</option>
                             <option value="half_day">Setengah Hari</option>
                         </select>
-                        <select class="rounded-lg border border-gray-300 bg-white px-3 py-2 text-sm focus:border-blue-500 focus:outline-none focus:ring-1 focus:ring-blue-500 dark:border-gray-600 dark:bg-gray-800 dark:text-gray-300">
+                        <select
+                            class="rounded-lg border border-gray-300 bg-white px-3 py-2 text-sm focus:border-blue-500 focus:outline-none focus:ring-1 focus:ring-blue-500 dark:border-gray-600 dark:bg-gray-800 dark:text-gray-300"
+                            :value="selectedDepartment"
+                            @change="handleDepartmentChange"
+                        >
                             <option value="">Semua Departemen</option>
                             <option v-for="dept in departments" :key="dept.id" :value="dept.id">{{ dept.name }}</option>
                         </select>
-                        <DatePicker
-                            :model-value="filters.date"
-                            placeholder="Pilih tanggal"
-                        />
+                        <div class="relative">
+                            <DatePicker
+                                :model-value="selectedDate"
+                                @update:model-value="handleDateChange"
+                                placeholder="Pilih tanggal"
+                                class="w-auto"
+                            />
+                        </div>
                     </div>
                 </div>
             </div>
@@ -434,10 +507,13 @@ const generateAttendanceBreakdown = () => {
                                     </div>
                                 </td>
                                 <td class="px-6 py-4">
-                                    <button class="inline-flex items-center rounded-md bg-gray-50 px-2.5 py-1.5 text-xs font-medium text-gray-700 ring-1 ring-gray-200 hover:bg-gray-100 dark:bg-gray-800 dark:text-gray-300 dark:ring-gray-700 dark:hover:bg-gray-700">
+                                    <Link
+                                        :href="`/admin/attendance/${record.id}`"
+                                        class="inline-flex items-center rounded-md bg-gray-50 px-2.5 py-1.5 text-xs font-medium text-gray-700 ring-1 ring-gray-200 hover:bg-gray-100 dark:bg-gray-800 dark:text-gray-300 dark:ring-gray-700 dark:hover:bg-gray-700 transition-colors"
+                                    >
                                         <Eye class="mr-1 h-3 w-3" />
                                         Detail
-                                    </button>
+                                    </Link>
                                 </td>
                             </tr>
                         </tbody>
