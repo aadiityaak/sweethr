@@ -1,6 +1,6 @@
 <script setup lang="ts">
 import { ref, computed, watch } from 'vue';
-import { ChevronLeft, ChevronRight, Calendar } from 'lucide-vue-next';
+import { ChevronLeft, ChevronRight, Calendar as CalendarIcon } from 'lucide-vue-next';
 
 interface AttendanceRecord {
     date: string;
@@ -40,6 +40,8 @@ const calendarDays = computed(() => {
     const year = currentMonth.value.getFullYear();
     const month = currentMonth.value.getMonth();
 
+    console.log('Calendar: Generating for', year, month, 'with attendance data:', props.attendanceData);
+
     // Get first day of month and how many days in month
     const firstDay = new Date(year, month, 1);
     const lastDay = new Date(year, month + 1, 0);
@@ -57,7 +59,19 @@ const calendarDays = computed(() => {
     for (let day = 1; day <= daysInMonth; day++) {
         const date = new Date(year, month, day);
         const dateString = date.toISOString().split('T')[0];
-        const attendanceRecord = props.attendanceData.find(record => record.date === dateString);
+        const attendanceRecord = props.attendanceData.find(record => {
+            // Handle both ISO string and plain date formats
+            const recordDate = typeof record.date === 'string'
+                ? record.date.split('T')[0]
+                : record.date;
+            const isMatch = recordDate === dateString;
+
+            if (isMatch) {
+                console.log(`✓ MATCH found for Day ${day} (${dateString}): ${record.status}`);
+            }
+
+            return isMatch;
+        });
 
         days.push({
             date,
@@ -95,43 +109,43 @@ const nextMonth = () => {
 const getStatusClasses = (day: any) => {
     if (!day) return '';
 
-    const baseClasses = 'relative w-full h-12 flex items-center justify-center text-sm font-medium rounded-lg transition-all hover:scale-105 cursor-pointer';
+    const baseClasses = 'relative w-full h-10 sm:h-12 flex items-center justify-center text-xs sm:text-sm font-medium rounded-md transition-all hover:scale-105 cursor-pointer';
 
     // Weekend styling
     if (day.isWeekend && !day.attendanceRecord) {
-        return `${baseClasses} bg-gray-100 text-gray-400 dark:bg-gray-800 dark:text-gray-500`;
+        return `${baseClasses} bg-muted/30 text-muted-foreground`;
     }
 
     // Today styling
-    const todayClasses = day.isToday ? 'ring-2 ring-blue-500 ring-offset-2 dark:ring-offset-gray-900' : '';
+    const todayClasses = day.isToday ? 'ring-2 ring-primary ring-offset-1 ring-offset-background' : '';
 
     if (day.attendanceRecord) {
         switch (day.attendanceRecord.status) {
             case 'present':
-                return `${baseClasses} ${todayClasses} bg-emerald-100 text-emerald-800 border-2 border-emerald-200 hover:bg-emerald-200 dark:bg-emerald-950 dark:text-emerald-300 dark:border-emerald-800`;
+                return `${baseClasses} ${todayClasses} bg-green-500 text-white border-2 border-green-600 hover:bg-green-600 shadow-sm`;
             case 'late':
-                return `${baseClasses} ${todayClasses} bg-amber-100 text-amber-800 border-2 border-amber-200 hover:bg-amber-200 dark:bg-amber-950 dark:text-amber-300 dark:border-amber-800`;
+                return `${baseClasses} ${todayClasses} bg-yellow-500 text-white border-2 border-yellow-600 hover:bg-yellow-600 shadow-sm`;
             case 'leave':
             case 'absent':
-                return `${baseClasses} ${todayClasses} bg-red-100 text-red-800 border-2 border-red-200 hover:bg-red-200 dark:bg-red-950 dark:text-red-300 dark:border-red-800`;
+                return `${baseClasses} ${todayClasses} bg-red-500 text-white border-2 border-red-600 hover:bg-red-600 shadow-sm`;
             case 'holiday':
-                return `${baseClasses} ${todayClasses} bg-purple-100 text-purple-800 border-2 border-purple-200 hover:bg-purple-200 dark:bg-purple-950 dark:text-purple-300 dark:border-purple-800`;
+                return `${baseClasses} ${todayClasses} bg-purple-500 text-white border-2 border-purple-600 hover:bg-purple-600 shadow-sm`;
         }
     }
 
     // Default (no attendance record)
-    return `${baseClasses} ${todayClasses} bg-white text-gray-700 border border-gray-200 hover:bg-gray-50 dark:bg-gray-900 dark:text-gray-300 dark:border-gray-700 dark:hover:bg-gray-800`;
+    return `${baseClasses} ${todayClasses} bg-background text-foreground border border-border hover:bg-accent hover:text-accent-foreground`;
 };
 
 // Get status indicator dot
 const getStatusDot = (status: string) => {
-    const baseClasses = 'absolute top-1 right-1 w-2 h-2 rounded-full';
+    const baseClasses = 'absolute top-0.5 right-0.5 w-2 h-2 rounded-full border border-white shadow-sm';
     switch (status) {
-        case 'present': return `${baseClasses} bg-emerald-500`;
-        case 'late': return `${baseClasses} bg-amber-500`;
+        case 'present': return `${baseClasses} bg-green-600`;
+        case 'late': return `${baseClasses} bg-yellow-600`;
         case 'leave':
-        case 'absent': return `${baseClasses} bg-red-500`;
-        case 'holiday': return `${baseClasses} bg-purple-500`;
+        case 'absent': return `${baseClasses} bg-red-600`;
+        case 'holiday': return `${baseClasses} bg-purple-600`;
         default: return '';
     }
 };
@@ -172,44 +186,44 @@ watch(() => props.selectedMonth, (newMonth) => {
 <template>
     <div class="w-full">
         <!-- Calendar Header -->
-        <div class="mb-6 flex items-center justify-between">
-            <div class="flex items-center gap-3">
-                <div class="flex h-8 w-8 items-center justify-center rounded-lg bg-blue-500/10 ring-1 ring-blue-500/20">
-                    <Calendar class="h-4 w-4 text-blue-600 dark:text-blue-400" />
+        <div class="mb-4 sm:mb-6 flex items-center justify-between">
+            <div class="flex items-center gap-2 sm:gap-3">
+                <div class="flex h-6 w-6 sm:h-8 sm:w-8 items-center justify-center rounded-lg bg-primary/10 ring-1 ring-primary/20">
+                    <CalendarIcon class="h-3 w-3 sm:h-4 sm:w-4 text-primary" />
                 </div>
                 <div>
-                    <h2 class="text-xl font-semibold text-gray-900 dark:text-white">
+                    <h2 class="text-lg sm:text-xl font-semibold text-foreground">
                         {{ monthNames[currentMonth.getMonth()] }} {{ currentMonth.getFullYear() }}
                     </h2>
-                    <p class="text-sm text-gray-600 dark:text-gray-400">Riwayat kehadiran bulanan</p>
+                    <p class="text-xs sm:text-sm text-muted-foreground">Riwayat kehadiran bulanan</p>
                 </div>
             </div>
-            <div class="flex items-center gap-2">
+            <div class="flex items-center gap-1 sm:gap-2">
                 <button
                     @click="previousMonth"
-                    class="inline-flex items-center justify-center rounded-lg border border-gray-300 bg-white p-2 text-gray-700 hover:bg-gray-50 focus:outline-none focus:ring-2 focus:ring-blue-500 dark:border-gray-600 dark:bg-gray-800 dark:text-gray-300 dark:hover:bg-gray-700"
+                    class="inline-flex items-center justify-center rounded-lg border bg-background p-1.5 sm:p-2 text-foreground hover:bg-accent hover:text-accent-foreground focus:outline-none focus:ring-2 focus:ring-ring transition-colors"
                     type="button"
                 >
-                    <ChevronLeft class="h-4 w-4" />
+                    <ChevronLeft class="h-3 w-3 sm:h-4 sm:w-4" />
                 </button>
                 <button
                     @click="nextMonth"
-                    class="inline-flex items-center justify-center rounded-lg border border-gray-300 bg-white p-2 text-gray-700 hover:bg-gray-50 focus:outline-none focus:ring-2 focus:ring-blue-500 dark:border-gray-600 dark:bg-gray-800 dark:text-gray-300 dark:hover:bg-gray-700"
+                    class="inline-flex items-center justify-center rounded-lg border bg-background p-1.5 sm:p-2 text-foreground hover:bg-accent hover:text-accent-foreground focus:outline-none focus:ring-2 focus:ring-ring transition-colors"
                     type="button"
                 >
-                    <ChevronRight class="h-4 w-4" />
+                    <ChevronRight class="h-3 w-3 sm:h-4 sm:w-4" />
                 </button>
             </div>
         </div>
 
         <!-- Calendar Grid -->
-        <div class="overflow-hidden rounded-xl border border-gray-200 bg-white shadow-sm dark:border-gray-800 dark:bg-gray-950">
+        <div class="overflow-hidden rounded-xl border bg-card shadow-sm">
             <!-- Day Headers -->
-            <div class="grid grid-cols-7 border-b border-gray-200 bg-gray-50 dark:border-gray-800 dark:bg-gray-900">
+            <div class="grid grid-cols-7 border-b bg-muted/50">
                 <div
                     v-for="day in dayNames"
                     :key="day"
-                    class="flex items-center justify-center py-3 text-xs font-semibold uppercase tracking-wide text-gray-500 dark:text-gray-400"
+                    class="flex items-center justify-center py-2 sm:py-3 text-xs font-semibold uppercase tracking-wide text-muted-foreground"
                 >
                     {{ day }}
                 </div>
@@ -220,13 +234,13 @@ watch(() => props.selectedMonth, (newMonth) => {
                 <div
                     v-for="(day, index) in calendarDays"
                     :key="index"
-                    class="relative border-r border-b border-gray-100 p-2 dark:border-gray-800 last:border-r-0"
+                    class="relative border-r border-b border-border p-1 sm:p-2 last:border-r-0"
                     :class="[
                         (index + 1) % 7 === 0 ? 'border-r-0' : '',
                         index >= calendarDays.length - 7 ? 'border-b-0' : ''
                     ]"
                 >
-                    <div v-if="!day" class="h-12"></div>
+                    <div v-if="!day" class="h-10 sm:h-12"></div>
                     <div
                         v-else
                         @click="handleDayClick(day)"
@@ -235,44 +249,55 @@ watch(() => props.selectedMonth, (newMonth) => {
                             `${getStatusText(day.attendanceRecord.status)} - Check-in: ${formatTime(day.attendanceRecord.check_in_time)} | Check-out: ${formatTime(day.attendanceRecord.check_out_time)}` :
                             'Tidak ada data kehadiran'"
                     >
-                        {{ day.dayNumber }}
+                        <span class="relative z-10">{{ day.dayNumber }}</span>
                         <div
                             v-if="day.attendanceRecord"
                             :class="getStatusDot(day.attendanceRecord.status)"
                         ></div>
+                        <!-- Status icon overlay -->
+                        <div
+                            v-if="day.attendanceRecord"
+                            class="absolute bottom-0 left-0 right-0 text-center text-white text-xs font-bold opacity-90"
+                        >
+                            <span v-if="day.attendanceRecord.status === 'present'">✓</span>
+                            <span v-if="day.attendanceRecord.status === 'late'">⚠</span>
+                            <span v-if="day.attendanceRecord.status === 'absent'">✗</span>
+                            <span v-if="day.attendanceRecord.status === 'leave'">📅</span>
+                            <span v-if="day.attendanceRecord.status === 'holiday'">🏖</span>
+                        </div>
                     </div>
                 </div>
             </div>
         </div>
 
         <!-- Legend -->
-        <div class="mt-6 rounded-lg border border-gray-200 bg-gray-50 p-4 dark:border-gray-800 dark:bg-gray-900/50">
-            <h3 class="mb-3 text-sm font-semibold text-gray-900 dark:text-white">Keterangan Status:</h3>
-            <div class="grid grid-cols-2 gap-3 sm:grid-cols-5">
+        <div class="mt-4 sm:mt-6 rounded-lg border bg-muted/50 p-3 sm:p-4">
+            <h3 class="mb-2 sm:mb-3 text-sm font-semibold text-foreground">Keterangan Status:</h3>
+            <div class="grid grid-cols-2 gap-2 sm:gap-3 sm:grid-cols-5">
                 <!-- Present -->
-                <div class="flex items-center gap-2">
-                    <div class="h-4 w-4 rounded-full bg-emerald-500"></div>
-                    <span class="text-xs text-gray-700 dark:text-gray-300">Hadir</span>
+                <div class="flex items-center gap-1.5 sm:gap-2">
+                    <div class="h-3 w-3 sm:h-4 sm:w-4 rounded-full bg-green-500"></div>
+                    <span class="text-xs text-foreground">Hadir</span>
                 </div>
                 <!-- Late -->
-                <div class="flex items-center gap-2">
-                    <div class="h-4 w-4 rounded-full bg-amber-500"></div>
-                    <span class="text-xs text-gray-700 dark:text-gray-300">Terlambat</span>
+                <div class="flex items-center gap-1.5 sm:gap-2">
+                    <div class="h-3 w-3 sm:h-4 sm:w-4 rounded-full bg-yellow-500"></div>
+                    <span class="text-xs text-foreground">Terlambat</span>
                 </div>
                 <!-- Leave/Absent -->
-                <div class="flex items-center gap-2">
-                    <div class="h-4 w-4 rounded-full bg-red-500"></div>
-                    <span class="text-xs text-gray-700 dark:text-gray-300">Cuti/Ijin</span>
+                <div class="flex items-center gap-1.5 sm:gap-2">
+                    <div class="h-3 w-3 sm:h-4 sm:w-4 rounded-full bg-red-500"></div>
+                    <span class="text-xs text-foreground">Cuti/Ijin</span>
                 </div>
                 <!-- Holiday -->
-                <div class="flex items-center gap-2">
-                    <div class="h-4 w-4 rounded-full bg-purple-500"></div>
-                    <span class="text-xs text-gray-700 dark:text-gray-300">Libur</span>
+                <div class="flex items-center gap-1.5 sm:gap-2">
+                    <div class="h-3 w-3 sm:h-4 sm:w-4 rounded-full bg-purple-500"></div>
+                    <span class="text-xs text-foreground">Libur</span>
                 </div>
                 <!-- No Data -->
-                <div class="flex items-center gap-2">
-                    <div class="h-4 w-4 rounded-full bg-gray-300 dark:bg-gray-600"></div>
-                    <span class="text-xs text-gray-700 dark:text-gray-300">Tidak ada data</span>
+                <div class="flex items-center gap-1.5 sm:gap-2">
+                    <div class="h-3 w-3 sm:h-4 sm:w-4 rounded-full bg-muted-foreground"></div>
+                    <span class="text-xs text-foreground">Tidak ada data</span>
                 </div>
             </div>
         </div>

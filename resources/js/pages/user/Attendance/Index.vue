@@ -53,7 +53,7 @@ const selectedMonth = ref(new Date());
 const calendarAttendanceData = computed(() => {
     if (!attendances?.data) return [];
 
-    return attendances.data.map(attendance => ({
+    const transformedData = attendances.data.map(attendance => ({
         date: attendance.date,
         status: attendance.status === 'present' ? 'present' :
                 attendance.status === 'late' ? 'late' :
@@ -62,6 +62,10 @@ const calendarAttendanceData = computed(() => {
         check_out_time: attendance.check_out_time,
         notes: `Durasi: ${formatDuration(attendance.work_duration)}`
     }));
+
+    console.log('Calendar attendance data:', transformedData);
+    console.log('Raw attendances data:', attendances?.data);
+    return transformedData;
 });
 
 // Handle calendar day click
