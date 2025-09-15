@@ -129,7 +129,7 @@ class BudiAttendanceSeeder extends Seeder
     {
         $checkIn = Carbon::createFromFormat('H:i:s', $checkInTime);
         $checkOut = Carbon::createFromFormat('H:i:s', $checkOutTime);
-        return $checkOut->diffInMinutes($checkIn);
+        return $checkIn->diffInMinutes($checkOut);
     }
 
     private function getRandomNotes(): ?string
