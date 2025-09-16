@@ -148,6 +148,93 @@ vue-tsc --noEmit
 
 **Key Lesson**: When using mass assignment methods like `updateOrCreate()`, all fields must be explicitly listed in the model's `$fillable` array, even if the database column exists and data is being passed correctly.
 
+## Admin UI Standards
+
+### Standard Admin Layout Pattern
+All admin pages should follow this standardized layout for consistency and better UX:
+
+#### Container Structure
+```vue
+<AppLayout :breadcrumbs="breadcrumbs">
+    <div class="mx-auto max-w-7xl px-4 py-6 sm:px-6 lg:px-8">
+        <!-- Content goes here -->
+    </div>
+</AppLayout>
+```
+
+#### Header Section
+```vue
+<!-- Header -->
+<div class="mb-8">
+    <div class="flex items-center justify-between">
+        <div>
+            <h1 class="text-3xl font-bold text-gray-900 dark:text-white">
+                Page Title
+            </h1>
+            <p class="mt-1 text-gray-600 dark:text-gray-400">
+                Page description or subtitle
+            </p>
+        </div>
+        <div class="flex gap-3">
+            <!-- Action buttons if needed -->
+        </div>
+    </div>
+</div>
+```
+
+#### Overview Cards
+```vue
+<!-- Overview Cards -->
+<div class="mb-8 grid grid-cols-1 gap-6 sm:grid-cols-2 lg:grid-cols-4">
+    <div class="overflow-hidden rounded-xl bg-white shadow-sm ring-1 ring-gray-900/5 dark:bg-gray-900 dark:ring-white/10">
+        <div class="p-6">
+            <div class="flex items-center">
+                <div class="flex h-12 w-12 shrink-0 items-center justify-center rounded-full bg-[color]-500/10">
+                    <Icon class="h-6 w-6 text-[color]-600 dark:text-[color]-400" />
+                </div>
+                <div class="ml-4 flex-1">
+                    <p class="text-sm font-medium text-gray-600 dark:text-gray-400">Label</p>
+                    <p class="text-2xl font-bold text-gray-900 dark:text-white">Value</p>
+                    <p class="text-sm text-gray-500 dark:text-gray-500">Subtitle</p>
+                </div>
+            </div>
+        </div>
+    </div>
+</div>
+```
+
+#### Main Content Cards
+```vue
+<!-- Main Content -->
+<div class="overflow-hidden rounded-xl bg-white shadow-sm ring-1 ring-gray-900/5 dark:bg-gray-900 dark:ring-white/10">
+    <div class="px-6 py-4 border-b border-gray-200 dark:border-gray-700">
+        <h3 class="text-lg font-semibold text-gray-900 dark:text-white flex items-center">
+            <Icon class="mr-2 h-5 w-5 text-[color]-600 dark:text-[color]-400" />
+            Section Title
+        </h3>
+    </div>
+    <div class="p-6">
+        <!-- Section content -->
+    </div>
+</div>
+```
+
+### Design System Guidelines
+- **Max Width**: `max-w-7xl` for consistent content width
+- **Spacing**: Consistent `mb-8` for major sections, `gap-6` for grids
+- **Cards**: Use `shadow-sm ring-1 ring-gray-900/5` for subtle shadows
+- **Colors**: Semantic color coding (green=success, red=error, blue=info, orange=warning)
+- **Typography**: `text-3xl font-bold` for page titles, proper hierarchy
+- **Dark Mode**: Always include dark mode variants
+- **Icons**: Use Lucide icons consistently, sized `h-6 w-6` for main icons
+- **Responsive**: Mobile-first approach with `sm:` and `lg:` breakpoints
+
+### Applied To Pages
+- ✅ `admin/Attendance/Show.vue` - Complete redesign with maps
+- ✅ `admin/Attendance/Index.vue` - Updated layout and cards
+- ✅ `admin/Dashboard.vue` - Updated container structure
+- 🔄 Other admin pages - To be standardized
+
 ===
 
 <laravel-boost-guidelines>

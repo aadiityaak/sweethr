@@ -277,101 +277,100 @@ onUnmounted(() => {
     <Head title="Kelola Kehadiran" />
 
     <AppLayout :breadcrumbs="breadcrumbs">
-        <div class="flex h-full flex-1 flex-col gap-6 p-6">
-            <!-- Header Section -->
-            <div class="flex flex-col gap-4 sm:flex-row sm:items-center sm:justify-between">
-                <div>
-                    <h1 class="text-2xl font-bold tracking-tight text-gray-900 dark:text-white">
-                        Kelola Kehadiran
-                    </h1>
-                    <p class="text-sm text-gray-600 dark:text-gray-400">
-                        Pantau dan kelola kehadiran seluruh karyawan
-                    </p>
-                </div>
-                <div class="flex gap-3">
-                    <button
-                        @click="exportData"
-                        class="inline-flex items-center rounded-lg bg-green-600 px-4 py-2 text-sm font-medium text-white shadow-sm hover:bg-green-700 focus:outline-none focus:ring-2 focus:ring-green-500 focus:ring-offset-2 transition-colors"
-                    >
-                        <Download class="mr-2 h-4 w-4" />
-                        Export Excel
-                    </button>
+        <div class="mx-auto max-w-7xl px-4 py-6 sm:px-6 lg:px-8">
+            <!-- Header -->
+            <div class="mb-8">
+                <div class="flex items-center justify-between">
+                    <div>
+                        <h1 class="text-3xl font-bold text-gray-900 dark:text-white">
+                            Kelola Kehadiran
+                        </h1>
+                        <p class="mt-1 text-gray-600 dark:text-gray-400">
+                            Pantau dan kelola kehadiran seluruh karyawan
+                        </p>
+                    </div>
+                    <div class="flex gap-3">
+                        <button
+                            @click="exportData"
+                            class="inline-flex items-center rounded-lg bg-green-600 px-4 py-2 text-sm font-medium text-white shadow-sm hover:bg-green-700 focus:outline-none focus:ring-2 focus:ring-green-500 focus:ring-offset-2 transition-colors"
+                        >
+                            <Download class="mr-2 h-4 w-4" />
+                            Export Excel
+                        </button>
+                    </div>
                 </div>
             </div>
 
-            <!-- Stats Cards -->
-            <div class="grid gap-4 md:grid-cols-2 lg:grid-cols-4">
+            <!-- Overview Cards -->
+            <div class="mb-8 grid grid-cols-1 gap-6 sm:grid-cols-2 lg:grid-cols-4">
                 <!-- Present Today -->
-                <div class="group relative overflow-hidden rounded-xl border border-gray-200/50 bg-gradient-to-br from-white to-emerald-50/30 p-6 shadow-sm transition-all hover:shadow-md dark:border-gray-800/50 dark:from-gray-950 dark:to-emerald-950/30">
-                    <div class="flex items-center justify-between">
-                        <div class="flex h-10 w-10 items-center justify-center rounded-full bg-emerald-500/10 ring-1 ring-emerald-500/20">
-                            <CheckCircle class="h-5 w-5 text-emerald-600 dark:text-emerald-400" />
-                        </div>
-                        <div class="text-right">
-                            <div class="text-2xl font-bold text-emerald-600 dark:text-emerald-400">{{ stats.present_today }}</div>
-                            <div class="text-sm font-medium text-gray-600 dark:text-gray-400">Hadir Hari Ini</div>
-                        </div>
-                    </div>
-                    <div class="mt-4 rounded-lg bg-emerald-50/50 p-3 dark:bg-emerald-950/30">
-                        <div class="text-xs font-medium text-emerald-700 dark:text-emerald-300">
-                            {{ Math.round((stats.present_today / stats.total_employees) * 100) }}% dari total karyawan
+                <div class="overflow-hidden rounded-xl bg-white shadow-sm ring-1 ring-gray-900/5 dark:bg-gray-900 dark:ring-white/10">
+                    <div class="p-6">
+                        <div class="flex items-center">
+                            <div class="flex h-12 w-12 shrink-0 items-center justify-center rounded-full bg-green-500/10">
+                                <CheckCircle class="h-6 w-6 text-green-600 dark:text-green-400" />
+                            </div>
+                            <div class="ml-4 flex-1">
+                                <p class="text-sm font-medium text-gray-600 dark:text-gray-400">Hadir Hari Ini</p>
+                                <p class="text-2xl font-bold text-gray-900 dark:text-white">{{ stats.present_today }}</p>
+                                <p class="text-sm text-gray-500 dark:text-gray-500">
+                                    {{ Math.round((stats.present_today / stats.total_employees) * 100) }}% dari total
+                                </p>
+                            </div>
                         </div>
                     </div>
                 </div>
 
                 <!-- Late Today -->
-                <div class="group relative overflow-hidden rounded-xl border border-gray-200/50 bg-gradient-to-br from-white to-amber-50/30 p-6 shadow-sm transition-all hover:shadow-md dark:border-gray-800/50 dark:from-gray-950 dark:to-amber-950/30">
-                    <div class="flex items-center justify-between">
-                        <div class="flex h-10 w-10 items-center justify-center rounded-full bg-amber-500/10 ring-1 ring-amber-500/20">
-                            <AlertCircle class="h-5 w-5 text-amber-600 dark:text-amber-400" />
-                        </div>
-                        <div class="text-right">
-                            <div class="text-2xl font-bold text-amber-600 dark:text-amber-400">{{ stats.late_today }}</div>
-                            <div class="text-sm font-medium text-gray-600 dark:text-gray-400">Terlambat</div>
-                        </div>
-                    </div>
-                    <div class="mt-4 rounded-lg bg-amber-50/50 p-3 dark:bg-amber-950/30">
-                        <div class="text-xs font-medium text-amber-700 dark:text-amber-300">
-                            {{ Math.round((stats.late_today / stats.total_employees) * 100) }}% dari total karyawan
+                <div class="overflow-hidden rounded-xl bg-white shadow-sm ring-1 ring-gray-900/5 dark:bg-gray-900 dark:ring-white/10">
+                    <div class="p-6">
+                        <div class="flex items-center">
+                            <div class="flex h-12 w-12 shrink-0 items-center justify-center rounded-full bg-orange-500/10">
+                                <AlertCircle class="h-6 w-6 text-orange-600 dark:text-orange-400" />
+                            </div>
+                            <div class="ml-4 flex-1">
+                                <p class="text-sm font-medium text-gray-600 dark:text-gray-400">Terlambat</p>
+                                <p class="text-2xl font-bold text-gray-900 dark:text-white">{{ stats.late_today }}</p>
+                                <p class="text-sm text-gray-500 dark:text-gray-500">
+                                    {{ Math.round((stats.late_today / stats.total_employees) * 100) }}% dari total
+                                </p>
+                            </div>
                         </div>
                     </div>
                 </div>
 
                 <!-- Absent Today -->
-                <div class="group relative overflow-hidden rounded-xl border border-gray-200/50 bg-gradient-to-br from-white to-red-50/30 p-6 shadow-sm transition-all hover:shadow-md dark:border-gray-800/50 dark:from-gray-950 dark:to-red-950/30">
-                    <div class="flex items-center justify-between">
-                        <div class="flex h-10 w-10 items-center justify-center rounded-full bg-red-500/10 ring-1 ring-red-500/20">
-                            <XCircle class="h-5 w-5 text-red-600 dark:text-red-400" />
-                        </div>
-                        <div class="text-right">
-                            <div class="text-2xl font-bold text-red-600 dark:text-red-400">{{ stats.absent_today }}</div>
-                            <div class="text-sm font-medium text-gray-600 dark:text-gray-400">Tidak Hadir</div>
-                        </div>
-                    </div>
-                    <div class="mt-4 rounded-lg bg-red-50/50 p-3 dark:bg-red-950/30">
-                        <div class="text-xs font-medium text-red-700 dark:text-red-300">
-                            {{ Math.round((stats.absent_today / stats.total_employees) * 100) }}% dari total karyawan
+                <div class="overflow-hidden rounded-xl bg-white shadow-sm ring-1 ring-gray-900/5 dark:bg-gray-900 dark:ring-white/10">
+                    <div class="p-6">
+                        <div class="flex items-center">
+                            <div class="flex h-12 w-12 shrink-0 items-center justify-center rounded-full bg-red-500/10">
+                                <XCircle class="h-6 w-6 text-red-600 dark:text-red-400" />
+                            </div>
+                            <div class="ml-4 flex-1">
+                                <p class="text-sm font-medium text-gray-600 dark:text-gray-400">Tidak Hadir</p>
+                                <p class="text-2xl font-bold text-gray-900 dark:text-white">{{ stats.absent_today }}</p>
+                                <p class="text-sm text-gray-500 dark:text-gray-500">
+                                    {{ Math.round((stats.absent_today / stats.total_employees) * 100) }}% dari total
+                                </p>
+                            </div>
                         </div>
                     </div>
                 </div>
 
-                <!-- Attendance Rate -->
-                <div class="group relative overflow-hidden rounded-xl border border-gray-200/50 bg-gradient-to-br from-white to-blue-50/30 p-6 shadow-sm transition-all hover:shadow-md dark:border-gray-800/50 dark:from-gray-950 dark:to-blue-950/30">
-                    <div class="flex items-center justify-between">
-                        <div class="flex h-10 w-10 items-center justify-center rounded-full bg-blue-500/10 ring-1 ring-blue-500/20">
-                            <Users class="h-5 w-5 text-blue-600 dark:text-blue-400" />
-                        </div>
-                        <div class="text-right">
-                            <div class="text-2xl font-bold text-blue-600 dark:text-blue-400">{{ stats.attendance_rate }}%</div>
-                            <div class="text-sm font-medium text-gray-600 dark:text-gray-400">Tingkat Kehadiran</div>
-                        </div>
-                    </div>
-                    <div class="mt-4">
-                        <div class="flex items-center justify-between text-sm mb-2">
-                            <span class="font-medium text-gray-700 dark:text-gray-300">Progress</span>
-                        </div>
-                        <div class="h-2 overflow-hidden rounded-full bg-gray-100 dark:bg-gray-800">
-                            <div class="h-full rounded-full bg-gradient-to-r from-blue-500 to-blue-600 transition-all" :style="`width: ${stats.attendance_rate}%`"></div>
+                <!-- Total Employees -->
+                <div class="overflow-hidden rounded-xl bg-white shadow-sm ring-1 ring-gray-900/5 dark:bg-gray-900 dark:ring-white/10">
+                    <div class="p-6">
+                        <div class="flex items-center">
+                            <div class="flex h-12 w-12 shrink-0 items-center justify-center rounded-full bg-blue-500/10">
+                                <Users class="h-6 w-6 text-blue-600 dark:text-blue-400" />
+                            </div>
+                            <div class="ml-4 flex-1">
+                                <p class="text-sm font-medium text-gray-600 dark:text-gray-400">Total Karyawan</p>
+                                <p class="text-2xl font-bold text-gray-900 dark:text-white">{{ stats.total_employees }}</p>
+                                <p class="text-sm text-gray-500 dark:text-gray-500">
+                                    {{ stats.attendance_rate }}% tingkat kehadiran
+                                </p>
+                            </div>
                         </div>
                     </div>
                 </div>

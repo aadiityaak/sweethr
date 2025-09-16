@@ -159,7 +159,7 @@ const generateMockAttendanceData = () => {
     <Head title="Dasbor" />
 
     <AppLayout :breadcrumbs="breadcrumbs">
-        <div class="flex h-full flex-1 flex-col gap-6 p-6">
+        <div class="mx-auto max-w-7xl px-4 py-6 sm:px-6 lg:px-8">
             <!-- Welcome Hero Section -->
             <div class="relative overflow-hidden rounded-xl border border-gray-200/50 bg-gradient-to-br from-blue-50 via-indigo-50/80 to-purple-50/60 p-8 shadow-sm dark:border-gray-800/50 dark:from-blue-950/20 dark:via-indigo-950/20 dark:to-purple-950/20">
                 <div class="relative z-10">

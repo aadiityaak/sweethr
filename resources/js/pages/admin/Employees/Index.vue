@@ -99,74 +99,98 @@ const formatDate = (dateString: string) => {
     <Head title="Karyawan" />
 
     <AppLayout :breadcrumbs="breadcrumbs">
-        <div class="flex h-full flex-1 flex-col gap-6 p-6">
+        <div class="mx-auto max-w-7xl px-4 py-6 sm:px-6 lg:px-8">
             <!-- Header -->
-            <div class="flex items-center justify-between">
-                <div>
-                    <h1 class="text-2xl font-bold text-gray-900 dark:text-white">Karyawan</h1>
-                    <p class="text-gray-600 dark:text-gray-300">Kelola informasi dan peran karyawan</p>
+            <div class="mb-8">
+                <div class="flex items-center justify-between">
+                    <div>
+                        <h1 class="text-3xl font-bold text-gray-900 dark:text-white">
+                            Karyawan
+                        </h1>
+                        <p class="mt-1 text-gray-600 dark:text-gray-400">
+                            Kelola informasi dan peran karyawan
+                        </p>
+                    </div>
+                    <div class="flex gap-3">
+                        <Link
+                            href="/employees/create"
+                            class="inline-flex items-center gap-2 rounded-lg bg-blue-600 px-4 py-2 text-sm font-medium text-white shadow-sm hover:bg-blue-700 focus:outline-none focus:ring-2 focus:ring-blue-500 focus:ring-offset-2 transition-colors"
+                        >
+                            <Plus class="h-4 w-4" />
+                            Tambah Karyawan
+                        </Link>
+                    </div>
                 </div>
-                <Link
-                    href="/employees/create"
-                    class="inline-flex items-center gap-2 rounded-lg bg-blue-600 px-4 py-2 text-sm font-medium text-white hover:bg-blue-700"
-                >
-                    <Plus class="h-4 w-4" />
-                    Tambah Karyawan
-                </Link>
             </div>
 
-            <!-- Stats Cards -->
-            <div class="grid gap-4 md:grid-cols-4">
-                <div class="rounded-xl border border-sidebar-border/70 bg-white p-4 dark:border-sidebar-border dark:bg-gray-950">
-                    <div class="flex items-center gap-3">
-                        <div class="rounded-lg bg-blue-100 p-2 dark:bg-blue-900/30">
-                            <Users class="h-5 w-5 text-blue-600 dark:text-blue-400" />
-                        </div>
-                        <div>
-                            <p class="text-sm text-gray-600 dark:text-gray-300">Total Karyawan</p>
-                            <p class="text-xl font-bold text-gray-900 dark:text-white">{{ employees?.meta?.total || 0 }}</p>
-                        </div>
-                    </div>
-                </div>
-                <div class="rounded-xl border border-sidebar-border/70 bg-white p-4 dark:border-sidebar-border dark:bg-gray-950">
-                    <div class="flex items-center gap-3">
-                        <div class="rounded-lg bg-green-100 p-2 dark:bg-green-900/30">
-                            <UserCheck class="h-5 w-5 text-green-600 dark:text-green-400" />
-                        </div>
-                        <div>
-                            <p class="text-sm text-gray-600 dark:text-gray-300">Aktif</p>
-                            <p class="text-xl font-bold text-gray-900 dark:text-white">
-                                {{ employees?.data?.filter(emp => emp.employment_status === 'active').length || 0 }}
-                            </p>
+            <!-- Overview Cards -->
+            <div class="mb-8 grid grid-cols-1 gap-6 sm:grid-cols-2 lg:grid-cols-4">
+                <!-- Total Employees -->
+                <div class="overflow-hidden rounded-xl bg-white shadow-sm ring-1 ring-gray-900/5 dark:bg-gray-900 dark:ring-white/10">
+                    <div class="p-6">
+                        <div class="flex items-center">
+                            <div class="flex h-12 w-12 shrink-0 items-center justify-center rounded-full bg-blue-500/10">
+                                <Users class="h-6 w-6 text-blue-600 dark:text-blue-400" />
+                            </div>
+                            <div class="ml-4 flex-1">
+                                <p class="text-sm font-medium text-gray-600 dark:text-gray-400">Total Karyawan</p>
+                                <p class="text-2xl font-bold text-gray-900 dark:text-white">{{ employees?.meta?.total || 0 }}</p>
+                            </div>
                         </div>
                     </div>
                 </div>
-                <div class="rounded-xl border border-sidebar-border/70 bg-white p-4 dark:border-sidebar-border dark:bg-gray-950">
-                    <div class="flex items-center gap-3">
-                        <div class="rounded-lg bg-purple-100 p-2 dark:bg-purple-900/30">
-                            <Users class="h-5 w-5 text-purple-600 dark:text-purple-400" />
-                        </div>
-                        <div>
-                            <p class="text-sm text-gray-600 dark:text-gray-300">Departemen</p>
-                            <p class="text-xl font-bold text-gray-900 dark:text-white">{{ departments.length }}</p>
+
+                <!-- Active Employees -->
+                <div class="overflow-hidden rounded-xl bg-white shadow-sm ring-1 ring-gray-900/5 dark:bg-gray-900 dark:ring-white/10">
+                    <div class="p-6">
+                        <div class="flex items-center">
+                            <div class="flex h-12 w-12 shrink-0 items-center justify-center rounded-full bg-green-500/10">
+                                <UserCheck class="h-6 w-6 text-green-600 dark:text-green-400" />
+                            </div>
+                            <div class="ml-4 flex-1">
+                                <p class="text-sm font-medium text-gray-600 dark:text-gray-400">Karyawan Aktif</p>
+                                <p class="text-2xl font-bold text-gray-900 dark:text-white">
+                                    {{ employees?.data?.filter(emp => emp.employment_status === 'active').length || 0 }}
+                                </p>
+                            </div>
                         </div>
                     </div>
                 </div>
-                <div class="rounded-xl border border-sidebar-border/70 bg-white p-4 dark:border-sidebar-border dark:bg-gray-950">
-                    <div class="flex items-center gap-3">
-                        <div class="rounded-lg bg-orange-100 p-2 dark:bg-orange-900/30">
-                            <Users class="h-5 w-5 text-orange-600 dark:text-orange-400" />
+
+                <!-- Departments -->
+                <div class="overflow-hidden rounded-xl bg-white shadow-sm ring-1 ring-gray-900/5 dark:bg-gray-900 dark:ring-white/10">
+                    <div class="p-6">
+                        <div class="flex items-center">
+                            <div class="flex h-12 w-12 shrink-0 items-center justify-center rounded-full bg-purple-500/10">
+                                <Users class="h-6 w-6 text-purple-600 dark:text-purple-400" />
+                            </div>
+                            <div class="ml-4 flex-1">
+                                <p class="text-sm font-medium text-gray-600 dark:text-gray-400">Departemen</p>
+                                <p class="text-2xl font-bold text-gray-900 dark:text-white">{{ departments.length }}</p>
+                            </div>
                         </div>
-                        <div>
-                            <p class="text-sm text-gray-600 dark:text-gray-300">Posisi</p>
-                            <p class="text-xl font-bold text-gray-900 dark:text-white">{{ positions.length }}</p>
+                    </div>
+                </div>
+
+                <!-- Positions -->
+                <div class="overflow-hidden rounded-xl bg-white shadow-sm ring-1 ring-gray-900/5 dark:bg-gray-900 dark:ring-white/10">
+                    <div class="p-6">
+                        <div class="flex items-center">
+                            <div class="flex h-12 w-12 shrink-0 items-center justify-center rounded-full bg-orange-500/10">
+                                <Users class="h-6 w-6 text-orange-600 dark:text-orange-400" />
+                            </div>
+                            <div class="ml-4 flex-1">
+                                <p class="text-sm font-medium text-gray-600 dark:text-gray-400">Posisi</p>
+                                <p class="text-2xl font-bold text-gray-900 dark:text-white">{{ positions.length }}</p>
+                            </div>
                         </div>
                     </div>
                 </div>
             </div>
 
             <!-- Filters -->
-            <div class="rounded-xl border border-sidebar-border/70 bg-white p-4 dark:border-sidebar-border dark:bg-gray-950">
+            <div class="overflow-hidden rounded-xl bg-white shadow-sm ring-1 ring-gray-900/5 dark:bg-gray-900 dark:ring-white/10">
+                <div class="p-6">
                 <div class="grid gap-4 md:grid-cols-4">
                     <div class="relative">
                         <Search class="absolute left-3 top-1/2 h-4 w-4 -translate-y-1/2 text-gray-400" />
@@ -211,9 +235,12 @@ const formatDate = (dateString: string) => {
             </div>
 
             <!-- Employee List -->
-            <div class="rounded-xl border border-sidebar-border/70 bg-white dark:border-sidebar-border dark:bg-gray-950">
-                <div class="p-6">
-                    <h2 class="text-lg font-semibold text-gray-900 dark:text-white">Direktori Karyawan</h2>
+            <div class="overflow-hidden rounded-xl bg-white shadow-sm ring-1 ring-gray-900/5 dark:bg-gray-900 dark:ring-white/10">
+                <div class="px-6 py-4 border-b border-gray-200 dark:border-gray-700">
+                    <h3 class="text-lg font-semibold text-gray-900 dark:text-white flex items-center">
+                        <Users class="mr-2 h-5 w-5 text-blue-600 dark:text-blue-400" />
+                        Direktori Karyawan
+                    </h3>
                 </div>
 
                 <div class="overflow-x-auto">
