@@ -6,6 +6,8 @@ import { useCompanySettings } from '@/composables/useCompanySettings';
 import { useToast } from '@/components/ui/toast/use-toast';
 import BottomNavigation from '@/components/BottomNavigation.vue';
 import * as faceapi from 'face-api.js';
+import { Dialog, DialogContent, DialogDescription, DialogHeader, DialogTitle } from '@/components/ui/dialog';
+import { Button } from '@/components/ui/button';
 
 interface User {
     id: number;
@@ -62,6 +64,16 @@ const { user, todayAttendance, officeLocations, stats, faceRecognitionEnabled, f
 const { companyName, companyLogo } = useCompanySettings();
 const { toast } = useToast();
 
+// Alert modal function
+const showAlert = (title: string, message: string, variant: 'success' | 'destructive' | 'warning' | 'default' = 'destructive') => {
+    alertModal.value = {
+        isOpen: true,
+        title,
+        message,
+        variant
+    };
+};
+
 // Check-in form and location state
 const form = useForm({
     office_location_id: '',
@@ -72,6 +84,14 @@ const form = useForm({
 });
 
 const locationStatus = ref<'idle' | 'loading' | 'success' | 'error'>('idle');
+
+// Modal state for alerts
+const alertModal = ref({
+    isOpen: false,
+    title: '',
+    message: '',
+    variant: 'destructive' as 'success' | 'destructive' | 'warning' | 'default'
+});
 const locationError = ref('');
 const selectedOffice = ref<OfficeLocation | null>(null);
 const isInRange = ref(false);
@@ -152,6 +172,12 @@ const getCurrentLocation = (autoAction = false) => {
     if (!navigator.geolocation) {
         locationStatus.value = 'error';
         locationError.value = 'Geolocation is not supported by this browser.';
+        toast({
+            title: '❌ Geolocation Error',
+            description: 'Browser ini tidak mendukung geolocation. Mohon gunakan browser yang mendukung GPS.',
+            variant: 'destructive',
+            duration: 5000,
+        });
         return;
     }
 
@@ -172,20 +198,31 @@ const getCurrentLocation = (autoAction = false) => {
         },
         (error) => {
             locationStatus.value = 'error';
+            let errorMessage = '';
             switch (error.code) {
                 case error.PERMISSION_DENIED:
                     locationError.value = 'Akses lokasi ditolak. Mohon izinkan akses lokasi.';
+                    errorMessage = 'Akses lokasi ditolak. Mohon izinkan akses lokasi di browser dan coba lagi.';
                     break;
                 case error.POSITION_UNAVAILABLE:
                     locationError.value = 'Informasi lokasi tidak tersedia.';
+                    errorMessage = 'Informasi lokasi tidak tersedia. Pastikan GPS aktif dan koneksi internet stabil.';
                     break;
                 case error.TIMEOUT:
                     locationError.value = 'Permintaan lokasi timeout.';
+                    errorMessage = 'Permintaan lokasi timeout. Coba lagi dalam beberapa saat.';
                     break;
                 default:
                     locationError.value = 'Terjadi kesalahan saat mengambil lokasi.';
+                    errorMessage = 'Terjadi kesalahan saat mengambil lokasi. Mohon coba lagi.';
                     break;
             }
+            toast({
+                title: '❌ Gagal Mengambil Lokasi',
+                description: errorMessage,
+                variant: 'destructive',
+                duration: 5000,
+            });
         },
         {
             enableHighAccuracy: true,
@@ -227,21 +264,24 @@ const checkOfficeProximity = () => {
 };
 
 const performCheckIn = () => {
+    console.log('performCheckIn called - isInRange:', isInRange.value, 'faceRecognitionEnabled:', faceRecognitionEnabled, 'faceDescriptors:', faceDescriptors?.length, 'isFaceCaptured:', isFaceCaptured.value);
+
     if (!isInRange.value) {
+        console.log('Not in range - distanceToOffice:', distanceToOffice.value, 'selectedOffice:', selectedOffice.value);
         if (selectedOffice.value) {
             const distanceNeeded = Math.round(distanceToOffice.value - selectedOffice.value.radius_meters);
-            toast({
-                title: '❌ Tidak Dapat Check In',
-                description: `Anda masih berada di luar radius ${selectedOffice.value.radius_meters}m. Mohon mendekat ${distanceNeeded}m lagi ke ${selectedOffice.value.name}.`,
-                variant: 'destructive',
-                duration: 6000,
-            });
+            console.log('Distance needed:', distanceNeeded, 'radius:', selectedOffice.value.radius_meters);
+            showAlert(
+                '❌ Tidak Dapat Check In',
+                `Anda masih berada di luar radius ${selectedOffice.value.radius_meters}m. Mohon mendekat ${distanceNeeded}m lagi ke ${selectedOffice.value.name}.`,
+                'destructive'
+            );
         } else {
-            toast({
-                title: '❌ Tidak Dapat Check In',
-                description: 'Anda tidak berada dalam jangkauan lokasi kantor manapun. Mohon mendekat ke lokasi kantor.',
-                variant: 'destructive',
-            });
+            showAlert(
+                '❌ Tidak Dapat Check In',
+                'Anda tidak berada dalam jangkauan lokasi kantor manapun. Mohon mendekat ke lokasi kantor.',
+                'destructive'
+            );
         }
         locationStatus.value = 'idle'; // Reset status so user can try again
         return;
@@ -250,12 +290,11 @@ const performCheckIn = () => {
     // Check if face recognition is required and captured
     if (faceRecognitionEnabled && faceDescriptors && faceDescriptors.length > 0) {
         if (!isFaceCaptured.value) {
-            toast({
-                title: '❌ Verifikasi Wajah Diperlukan',
-                description: 'Posisikan wajah Anda di depan kamera untuk verifikasi terlebih dahulu.',
-                variant: 'destructive',
-                duration: 4000,
-            });
+            showAlert(
+                '❌ Verifikasi Wajah Diperlukan',
+                'Posisikan wajah Anda di depan kamera untuk verifikasi terlebih dahulu.',
+                'destructive'
+            );
             return;
         }
     }
@@ -265,6 +304,7 @@ const performCheckIn = () => {
 };
 
 const executeCheckIn = () => {
+    console.log('executeCheckIn called - starting check-in process');
     isCheckingIn.value = true;
 
     // Set face confidence and photo if face recognition is enabled and captured
@@ -315,10 +355,44 @@ const executeCheckIn = () => {
 };
 
 const handleCheckInClick = () => {
+    console.log('Check-in clicked - locationStatus:', locationStatus.value, 'isInRange:', isInRange.value, 'faceRecognitionEnabled:', faceRecognitionEnabled, 'faceDescriptors:', faceDescriptors?.length, 'isFaceCaptured:', isFaceCaptured.value);
+
     if (locationStatus.value === 'idle' || locationStatus.value === 'error') {
+        console.log('Getting current location...');
         getCurrentLocation('checkin');
     } else if (locationStatus.value === 'success' && isInRange.value) {
+        console.log('Performing check-in...');
         performCheckIn();
+    } else {
+        console.log('Check-in conditions not met:', {
+            locationStatus: locationStatus.value,
+            isInRange: isInRange.value,
+            buttonDisabled: isCheckingIn.value || (locationStatus.value === 'success' && !isInRange.value) || (faceRecognitionEnabled && faceDescriptors && !isFaceCaptured.value)
+        });
+
+        // Provide specific error message
+        if (locationStatus.value === 'success' && !isInRange.value) {
+            toast({
+                title: '❌ Di Luar Area Kantor',
+                description: 'Anda berada di luar radius kantor. Mohon mendekat ke area kantor untuk check-in.',
+                variant: 'destructive',
+                duration: 4000,
+            });
+        } else if (faceRecognitionEnabled && faceDescriptors && !isFaceCaptured.value) {
+            toast({
+                title: '❌ Verifikasi Wajah Diperlukan',
+                description: 'Posisikan wajah Anda di depan kamera untuk verifikasi sebelum check-in.',
+                variant: 'destructive',
+                duration: 4000,
+            });
+        } else if (isCheckingIn.value) {
+            toast({
+                title: '⏳ Sedang Proses Check-in',
+                description: 'Check-in sedang dalam proses. Mohon tunggu sebentar.',
+                variant: 'default',
+                duration: 3000,
+            });
+        }
     }
 };
 
@@ -335,6 +409,12 @@ const loadFaceApiModels = async () => {
         return true;
     } catch (error) {
         console.error('Failed to load face-api models:', error);
+        toast({
+            title: '❌ Face Recognition Error',
+            description: 'Gagal memuat model face recognition. Pastikan koneksi internet stabil dan refresh halaman.',
+            variant: 'destructive',
+            duration: 5000,
+        });
         return false;
     }
 };
@@ -349,6 +429,12 @@ const startFaceDetection = async () => {
         const modelsLoaded = await loadFaceApiModels();
         if (!modelsLoaded) {
             console.error('Cannot start face detection: models not loaded');
+            toast({
+                title: '❌ Face Recognition Tidak Tersedia',
+                description: 'Model face recognition gagal dimuat. Face recognition tidak dapat digunakan.',
+                variant: 'destructive',
+                duration: 5000,
+            });
             return;
         }
 
@@ -419,13 +505,15 @@ const detectFace = async () => {
 
             // Draw detection on canvas
             const canvas = canvasElement.value;
-            const displaySize = { width: 320, height: 320 };
-            faceapi.matchDimensions(canvas, displaySize);
+            if (canvas) {
+                const displaySize = { width: 320, height: 320 };
+                faceapi.matchDimensions(canvas, displaySize);
 
-            // Clear canvas without drawing detection box
-            const ctx = canvas.getContext('2d');
-            if (ctx) {
-                ctx.clearRect(0, 0, canvas.width, canvas.height);
+                // Clear canvas without drawing detection box
+                const ctx = canvas.getContext('2d');
+                if (ctx) {
+                    ctx.clearRect(0, 0, canvas.width, canvas.height);
+                }
             }
         } else {
             isFaceMatched.value = false;
@@ -987,6 +1075,26 @@ onUnmounted(() => {
         </div>
 
         <BottomNavigation current-route="/home" />
+
+        <!-- Alert Modal -->
+        <Dialog v-model:open="alertModal.isOpen">
+            <DialogContent class="sm:max-w-md">
+                <DialogHeader>
+                    <DialogTitle>{{ alertModal.title }}</DialogTitle>
+                    <DialogDescription>
+                        {{ alertModal.message }}
+                    </DialogDescription>
+                </DialogHeader>
+                <div class="flex justify-end">
+                    <Button
+                        @click="alertModal.isOpen = false"
+                        :variant="alertModal.variant === 'destructive' ? 'destructive' : 'default'"
+                    >
+                        OK
+                    </Button>
+                </div>
+            </DialogContent>
+        </Dialog>
     </div>
 </template>
 
