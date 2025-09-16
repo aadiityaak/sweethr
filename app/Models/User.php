@@ -35,6 +35,12 @@ class User extends Authenticatable
         'employment_status',
         'emergency_contact',
         'is_admin',
+        'face_descriptors',
+        'face_recognition_enabled',
+        'face_setup_at',
+        'face_recognition_attempts',
+        'face_attempts_date',
+        'face_recognition_mandatory',
     ];
 
     /**
@@ -61,6 +67,11 @@ class User extends Authenticatable
             'hire_date' => 'date',
             'emergency_contact' => 'array',
             'is_admin' => 'boolean',
+            'face_descriptors' => 'encrypted:array',
+            'face_recognition_enabled' => 'boolean',
+            'face_setup_at' => 'datetime',
+            'face_attempts_date' => 'date',
+            'face_recognition_mandatory' => 'boolean',
         ];
     }
 

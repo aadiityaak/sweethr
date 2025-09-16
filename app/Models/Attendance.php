@@ -25,6 +25,10 @@ class Attendance extends Model
         'overtime_duration',
         'status',
         'notes',
+        'face_match_confidence',
+        'face_verification_passed',
+        'face_verification_skipped',
+        'face_verification_notes',
     ];
 
     protected function casts(): array
@@ -37,6 +41,9 @@ class Attendance extends Model
             'check_in_longitude' => 'decimal:8',
             'check_out_latitude' => 'decimal:8',
             'check_out_longitude' => 'decimal:8',
+            'face_match_confidence' => 'decimal:2',
+            'face_verification_passed' => 'boolean',
+            'face_verification_skipped' => 'boolean',
         ];
     }
 

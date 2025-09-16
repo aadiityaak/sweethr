@@ -23,7 +23,8 @@
       "mcp__laravel-boost__last-error",
       "Bash(npm run dev:*)",
       "mcp__laravel-boost__get-absolute-url",
-      "Read(//d/**)"
+      "Read(//d/**)",
+      "Bash(node:*)"
     ],
     "deny": [],
     "ask": []
