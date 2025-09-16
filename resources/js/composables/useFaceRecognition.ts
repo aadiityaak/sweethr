@@ -28,50 +28,48 @@ export function useFaceRecognition() {
         isLoading.value = true;
 
         try {
+            // Debug: Check if user is authenticated by checking if we're on a protected page
+            console.log('Current URL:', window.location.href);
+            console.log('CSRF Token:', document.querySelector('meta[name="csrf-token"]')?.getAttribute('content'));
+
             // Ensure CSRF cookie is available before making the request
-            await fetch('/sanctum/csrf-cookie', {
+            const csrfResponse = await fetch('/sanctum/csrf-cookie', {
                 credentials: 'include',
             });
+            console.log('CSRF cookie response status:', csrfResponse.status);
 
-            const response = await fetch('/api/face-recognition/setup', {
-                method: 'POST',
-                headers: {
-                    'Content-Type': 'application/json',
-                    'X-CSRF-TOKEN': document.querySelector('meta[name="csrf-token"]')?.getAttribute('content') || '',
-                    'Accept': 'application/json',
-                    'X-Requested-With': 'XMLHttpRequest',
-                },
-                body: JSON.stringify({ descriptors }),
-                credentials: 'include', // Include cookies for session authentication
+            // Try using Inertia's built-in method instead of raw fetch
+            const { router } = await import('@inertiajs/vue3');
+
+            return new Promise((resolve, reject) => {
+                router.post('/api/face-recognition/setup',
+                    { descriptors },
+                    {
+                        onSuccess: (page) => {
+                            console.log('Inertia success:', page);
+                            faceDescriptors.value = descriptors;
+                            showFaceCapture.value = false;
+
+                            toast({
+                                title: '✅ Setup Berhasil!',
+                                description: 'Pengenalan wajah telah berhasil diaktifkan.',
+                                variant: 'success',
+                            });
+
+                            resolve(true);
+                        },
+                        onError: (errors) => {
+                            console.log('Inertia error:', errors);
+                            reject(new Error('Setup gagal: ' + JSON.stringify(errors)));
+                        },
+                        onFinish: () => {
+                            isLoading.value = false;
+                        }
+                    }
+                );
             });
-
-            if (!response.ok) {
-                if (response.status === 401) {
-                    throw new Error('Session expired. Please login again.');
-                } else if (response.status === 403) {
-                    throw new Error('Access denied.');
-                } else {
-                    throw new Error(`Server error: ${response.status}`);
-                }
-            }
-
-            const data = await response.json();
-
-            if (data.success) {
-                faceDescriptors.value = descriptors;
-                showFaceCapture.value = false;
-
-                toast({
-                    title: '✅ Setup Berhasil!',
-                    description: 'Pengenalan wajah telah berhasil diaktifkan.',
-                    variant: 'success',
-                });
-
-                return true;
-            } else {
-                throw new Error(data.message || 'Setup gagal');
-            }
         } catch (error) {
+            isLoading.value = false;
             console.error('Face recognition setup error:', error);
             toast({
                 title: '❌ Setup Gagal',
@@ -79,8 +77,6 @@ export function useFaceRecognition() {
                 variant: 'destructive',
             });
             return false;
-        } finally {
-            isLoading.value = false;
         }
     };
 
