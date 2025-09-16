@@ -135,9 +135,17 @@ const startCamera = async () => {
 
             // Wait for video to be ready
             videoRef.value.addEventListener('loadedmetadata', () => {
-                console.log('Video metadata loaded, starting face detection');
-                isLoading.value = false;
-                startFaceDetection();
+                console.log('Video metadata loaded, video ready');
+                // Note: Don't set isLoading = false here yet, wait for models
+            });
+
+            // Also set video visibility when playing
+            videoRef.value.addEventListener('playing', () => {
+                console.log('Video is playing');
+                if (modelsLoaded.value) {
+                    isLoading.value = false;
+                    startFaceDetection();
+                }
             });
         }
     } catch (error) {
@@ -151,6 +159,24 @@ const startCamera = async () => {
 
 const startFaceDetection = () => {
     if (!videoRef.value || !modelsLoaded.value) return;
+
+    const video = videoRef.value;
+    const canvas = canvasRef.value;
+
+    console.log('Starting face detection, video dimensions:', {
+        videoWidth: video.videoWidth,
+        videoHeight: video.videoHeight,
+        clientWidth: video.clientWidth,
+        clientHeight: video.clientHeight,
+        canvasExists: !!canvas
+    });
+
+    // Set canvas dimensions to match video
+    if (canvas && video.videoWidth > 0 && video.videoHeight > 0) {
+        const displaySize = { width: video.videoWidth, height: video.videoHeight };
+        faceapi.matchDimensions(canvas, displaySize);
+        console.log('Canvas dimensions set to:', displaySize);
+    }
 
     detectionInterval.value = window.setInterval(async () => {
         if (!videoRef.value || isProcessing.value) return;
@@ -281,6 +307,7 @@ onMounted(async () => {
         if (modelsLoaded.value) {
             console.log('Models loaded successfully, restarting face detection...');
             loadingStatus.value = 'Siap untuk deteksi wajah';
+            isLoading.value = false; // Show video now
             startFaceDetection();
         } else {
             console.error('Models failed to load');
@@ -341,15 +368,17 @@ onUnmounted(() => {
                         autoplay
                         muted
                         playsinline
-                        class="h-full w-full object-cover"
-                        :class="{ 'opacity-0': isLoading }"
+                        class="h-full w-full object-cover bg-gray-900"
+                        :class="{ 'opacity-0': isLoading, 'opacity-100': !isLoading }"
+                        style="min-height: 300px;"
                     ></video>
 
                     <!-- Detection Overlay -->
                     <canvas
                         ref="canvasRef"
-                        class="absolute inset-0 h-full w-full"
-                        :class="{ 'opacity-0': isLoading }"
+                        class="absolute inset-0 h-full w-full pointer-events-none"
+                        :class="{ 'opacity-0': isLoading, 'opacity-100': !isLoading }"
+                        style="min-height: 300px;"
                     ></canvas>
 
                     <!-- Face Detection Indicator -->
