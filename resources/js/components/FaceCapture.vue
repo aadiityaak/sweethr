@@ -42,25 +42,78 @@ const detectionInterval = ref<number | null>(null);
 
 const loadModels = async () => {
     try {
-        const MODEL_URL = '/models';
+        console.log('Starting to load face-api.js models...');
 
-        await Promise.all([
-            faceapi.nets.tinyFaceDetector.loadFromUri(MODEL_URL),
-            faceapi.nets.faceLandmark68Net.loadFromUri(MODEL_URL),
-            faceapi.nets.faceRecognitionNet.loadFromUri(MODEL_URL),
-        ]);
+        // Try local models first
+        let MODEL_URL = '/models';
+
+        try {
+            // Test if local models are accessible with cache busting
+            const testUrl = `${MODEL_URL}/tiny_face_detector_model-weights_manifest.json?t=${Date.now()}`;
+            console.log('Testing model access:', testUrl);
+
+            const testResponse = await fetch(testUrl);
+            console.log('Response status:', testResponse.status);
+            console.log('Response headers:', Object.fromEntries(testResponse.headers));
+
+            if (!testResponse.ok) {
+                throw new Error(`Local models not accessible: ${testResponse.status} ${testResponse.statusText}`);
+            }
+
+            const testContent = await testResponse.text();
+            console.log('Model manifest preview:', testContent.substring(0, 200));
+            console.log('Local model files are accessible');
+        } catch (localError) {
+            console.warn('Local models failed, trying CDN fallback:', localError);
+            // Fallback to CDN
+            MODEL_URL = 'https://raw.githubusercontent.com/justadudewhohacks/face-api.js/master/weights';
+        }
+
+        // Load models one by one with better error handling and timeout
+        const loadWithTimeout = async (loadFunction: () => Promise<void>, name: string, timeoutMs = 30000) => {
+            console.log(`Loading ${name}...`);
+            return Promise.race([
+                loadFunction(),
+                new Promise((_, reject) =>
+                    setTimeout(() => reject(new Error(`${name} loading timeout after ${timeoutMs}ms`)), timeoutMs)
+                )
+            ]);
+        };
+
+        await loadWithTimeout(
+            () => faceapi.nets.tinyFaceDetector.loadFromUri(MODEL_URL),
+            'tiny face detector'
+        );
+
+        await loadWithTimeout(
+            () => faceapi.nets.faceLandmark68Net.loadFromUri(MODEL_URL),
+            'face landmarks'
+        );
+
+        await loadWithTimeout(
+            () => faceapi.nets.faceRecognitionNet.loadFromUri(MODEL_URL),
+            'face recognition'
+        );
 
         modelsLoaded.value = true;
-        console.log('Face-api.js models loaded successfully');
+        console.log('All Face-api.js models loaded successfully from:', MODEL_URL);
     } catch (error) {
-        console.error('Error loading face-api.js models:', error);
-        errorMessage.value = 'Gagal memuat model AI. Silakan refresh halaman.';
+        console.error('Detailed error loading face-api.js models:', error);
+        const errorMsg = error instanceof Error ? error.message : 'Unknown error';
+        errorMessage.value = `Gagal memuat model AI: ${errorMsg}. Coba refresh halaman atau periksa koneksi internet.`;
         emit('error', errorMessage.value);
     }
 };
 
 const startCamera = async () => {
     try {
+        console.log('Starting camera...');
+
+        // Check if getUserMedia is supported
+        if (!navigator.mediaDevices || !navigator.mediaDevices.getUserMedia) {
+            throw new Error('getUserMedia tidak didukung di browser ini');
+        }
+
         const constraints = {
             video: {
                 width: { ideal: 640 },
@@ -69,21 +122,26 @@ const startCamera = async () => {
             }
         };
 
+        console.log('Requesting camera access...');
         stream.value = await navigator.mediaDevices.getUserMedia(constraints);
+        console.log('Camera access granted');
 
         if (videoRef.value) {
             videoRef.value.srcObject = stream.value;
             await videoRef.value.play();
+            console.log('Video playing');
 
             // Wait for video to be ready
             videoRef.value.addEventListener('loadedmetadata', () => {
+                console.log('Video metadata loaded, starting face detection');
                 isLoading.value = false;
                 startFaceDetection();
             });
         }
     } catch (error) {
         console.error('Camera access error:', error);
-        errorMessage.value = 'Tidak dapat mengakses kamera. Pastikan izin kamera telah diberikan.';
+        const errorMsg = error instanceof Error ? error.message : 'Unknown camera error';
+        errorMessage.value = `Tidak dapat mengakses kamera: ${errorMsg}. Pastikan izin kamera telah diberikan.`;
         emit('error', errorMessage.value);
         isLoading.value = false;
     }
@@ -194,9 +252,36 @@ const closeCapture = () => {
 };
 
 onMounted(async () => {
-    await loadModels();
-    if (modelsLoaded.value) {
+    console.log('FaceCapture component mounted');
+
+    // Check if face-api.js is available
+    if (typeof faceapi === 'undefined') {
+        console.error('face-api.js is not loaded!');
+        errorMessage.value = 'Library AI tidak dimuat. Silakan refresh halaman.';
+        emit('error', errorMessage.value);
+        return;
+    }
+
+    console.log('face-api.js is available');
+
+    // For testing - start camera first to check permissions
+    console.log('Testing camera access first...');
+
+    try {
         await startCamera();
+        console.log('Camera started successfully, now loading models...');
+
+        // Load models after camera is working
+        await loadModels();
+
+        if (modelsLoaded.value) {
+            console.log('Models loaded successfully, restarting face detection...');
+            startFaceDetection();
+        } else {
+            console.error('Models failed to load');
+        }
+    } catch (error) {
+        console.error('Error in component mounting:', error);
     }
 });
 
