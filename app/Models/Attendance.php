@@ -29,6 +29,7 @@ class Attendance extends Model
         'face_verification_passed',
         'face_verification_skipped',
         'face_verification_notes',
+        'face_photo_path',
     ];
 
     protected function casts(): array

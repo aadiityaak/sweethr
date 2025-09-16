@@ -103,6 +103,11 @@ class AttendanceController extends Controller
             'officeLocation',
         ]);
 
+        // Convert face photo path to URL if exists
+        if ($attendance->face_photo_path) {
+            $attendance->face_photo_url = asset('storage/' . $attendance->face_photo_path);
+        }
+
         return Inertia::render('admin/Attendance/Show', [
             'attendance' => $attendance,
         ]);

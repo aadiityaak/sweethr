@@ -29,7 +29,8 @@
       "Bash(grep:*)",
       "mcp__laravel-boost__get-config",
       "mcp__laravel-boost__search-docs",
-      "Bash(dir D:devsweethrpublic)"
+      "Bash(dir D:devsweethrpublic)",
+      "mcp__laravel-boost__read-log-entries"
     ],
     "deny": [],
     "ask": []

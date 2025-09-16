@@ -75,6 +75,14 @@ class AttendanceController extends Controller
 
     public function storeCheckIn(Request $request)
     {
+        \Log::info('Check-in request received', [
+            'user_id' => auth()->id(),
+            'has_face_photo' => $request->has('face_photo'),
+            'has_face_confidence' => $request->has('face_confidence'),
+            'face_photo_length' => $request->has('face_photo') ? strlen($request->face_photo) : 0,
+            'all_keys' => array_keys($request->all())
+        ]);
+
         try {
             $validationRules = [
                 'office_location_id' => 'required|exists:office_locations,id',
@@ -137,7 +145,20 @@ class AttendanceController extends Controller
 
                 // Save face photo if provided
                 if ($request->has('face_photo')) {
+                    \Log::info('Face photo received for user', [
+                        'user_id' => $user->id,
+                        'photo_length' => strlen($request->face_photo)
+                    ]);
                     $facePhotoPath = $this->saveFacePhoto($request->face_photo, $user->id, $today);
+                    \Log::info('Face photo saved result', [
+                        'user_id' => $user->id,
+                        'photo_path' => $facePhotoPath
+                    ]);
+                } else {
+                    \Log::warning('Face photo not provided in request', [
+                        'user_id' => $user->id,
+                        'has_face_confidence' => $request->has('face_confidence')
+                    ]);
                 }
             } else {
                 return back()->withErrors(['message' => 'Verifikasi wajah diperlukan untuk check in.']);
@@ -158,6 +179,13 @@ class AttendanceController extends Controller
                 $status = 'late';
             }
         }
+
+        \Log::info('About to save attendance record', [
+            'user_id' => $user->id,
+            'face_photo_path_value' => $facePhotoPath,
+            'face_match_confidence' => $faceMatchConfidence,
+            'face_verification_passed' => $faceVerificationPassed
+        ]);
 
         $attendance = Attendance::updateOrCreate(
             [

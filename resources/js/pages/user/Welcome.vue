@@ -309,8 +309,19 @@ const executeCheckIn = () => {
 
     // Set face confidence and photo if face recognition is enabled and captured
     if (faceRecognitionEnabled && faceDescriptors && faceDescriptors.length > 0 && capturedFaceData.value) {
+        console.log('Setting face data:', {
+            confidence: capturedFaceData.value.confidence,
+            hasImage: !!capturedFaceData.value.imageDataUrl,
+            imageLength: capturedFaceData.value.imageDataUrl?.length
+        });
         form.face_confidence = capturedFaceData.value.confidence;
         form.face_photo = capturedFaceData.value.imageDataUrl;
+    } else {
+        console.log('Face data not available:', {
+            faceRecognitionEnabled,
+            hasDescriptors: faceDescriptors?.length > 0,
+            hasCapturedData: !!capturedFaceData.value
+        });
     }
 
     toast({
@@ -554,6 +565,12 @@ const autoCaptureFace = (confidence: number, descriptor: Float32Array) => {
             };
             isFaceCaptured.value = true;
             isCapturing.value = false;
+
+            console.log('Face captured successfully:', {
+                confidence: Math.round(confidence),
+                imageLength: imageDataUrl.length,
+                timestamp: new Date()
+            });
 
             toast({
                 title: '✅ Wajah Tertangkap!',

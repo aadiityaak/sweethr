@@ -31,6 +31,11 @@ Laravel-based HR management system with Vue.js frontend and Inertia.js for seaml
 - **GPS Integration**: Uses device GPS to validate employee location
 - **Map Integration**: Leaflet.js for interactive maps showing office locations and attendance radius
 - **Multi-location Support**: Support for multiple office locations with different radius settings
+- **Face Recognition Integration**: Real-time face verification during check-in using face-api.js
+  - Face photo capture and storage for attendance verification
+  - Confidence-based matching with stored face descriptors
+  - Admin interface for viewing captured face photos in attendance records
+  - Fallback mechanisms for mandatory vs optional face verification
 
 ### Working Hours & Shift Management
 - **Flexible Work Schedules**: Support for different working hour patterns
@@ -58,6 +63,7 @@ Laravel-based HR management system with Vue.js frontend and Inertia.js for seaml
 - **Icons**: Lucide Vue Next
 - **Utilities**: VueUse, Class Variance Authority
 - **Maps**: Leaflet.js for interactive maps and geolocation
+- **Face Recognition**: face-api.js for browser-based face detection and verification
 
 ## Development Commands
 ```bash
@@ -126,6 +132,21 @@ vue-tsc --noEmit
 - Prettier for formatting with Tailwind plugin
 - ESLint with Vue and TypeScript rules
 - Import organization with prettier-plugin-organize-imports
+
+## Known Issues & Solutions
+
+### Face Photo Storage Issue (RESOLVED)
+**Issue**: Face photos were being captured and saved to file system but not recorded in database (face_photo_path remained null).
+
+**Root Cause**: The `face_photo_path` field was missing from the `$fillable` array in the `Attendance` model, preventing Laravel from saving this field during mass assignment operations.
+
+**Solution**: Added `'face_photo_path'` to the `$fillable` array in `app/Models/Attendance.php`.
+
+**Files Modified**:
+- `app/Models/Attendance.php` - Added `face_photo_path` to fillable fields
+- `app/Http/Controllers/AttendanceController.php` - Enhanced with debugging logs for troubleshooting
+
+**Key Lesson**: When using mass assignment methods like `updateOrCreate()`, all fields must be explicitly listed in the model's `$fillable` array, even if the database column exists and data is being passed correctly.
 
 ===
 

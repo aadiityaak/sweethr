@@ -13,7 +13,9 @@ import {
     AlertCircle,
     ArrowLeft,
     Timer,
-    Briefcase
+    Briefcase,
+    Eye,
+    Shield
 } from 'lucide-vue-next';
 
 interface User {
@@ -45,6 +47,12 @@ interface AttendanceRecord {
     overtime_duration: number | null;
     status: 'present' | 'late' | 'absent' | 'half_day';
     notes?: string;
+    face_photo_path?: string | null;
+    face_photo_url?: string | null;
+    face_match_confidence?: number | null;
+    face_verification_passed?: boolean;
+    face_verification_skipped?: boolean;
+    face_verification_notes?: string | null;
     user: User;
     office_location: {
         id: number;
@@ -266,6 +274,90 @@ const openMaps = (lat: number, lng: number) => {
                             <div class="flex justify-between">
                                 <span class="text-sm text-gray-600 dark:text-gray-400">Lembur:</span>
                                 <span class="text-sm font-medium text-blue-600 dark:text-blue-400">{{ formatDuration(attendance.overtime_duration) }}</span>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+            </div>
+
+            <!-- Face Verification Section -->
+            <div v-if="attendance.face_match_confidence !== null || attendance.face_photo_url" class="rounded-xl border border-gray-200/50 bg-white p-6 shadow-sm dark:border-gray-800/50 dark:bg-gray-950">
+                <div class="mb-4 flex items-center gap-3">
+                    <div class="flex h-10 w-10 items-center justify-center rounded-full bg-cyan-500/10 ring-1 ring-cyan-500/20">
+                        <Shield class="h-5 w-5 text-cyan-600 dark:text-cyan-400" />
+                    </div>
+                    <h2 class="text-lg font-semibold text-gray-900 dark:text-white">
+                        Verifikasi Wajah
+                    </h2>
+                </div>
+
+                <div class="grid gap-6 lg:grid-cols-2">
+                    <!-- Face Photo -->
+                    <div v-if="attendance.face_photo_url" class="space-y-3">
+                        <h3 class="text-sm font-medium text-gray-900 dark:text-white">Foto Check-in</h3>
+                        <div class="relative">
+                            <img
+                                :src="attendance.face_photo_url"
+                                alt="Foto Check-in"
+                                class="h-48 w-full rounded-lg object-cover shadow-sm"
+                                @error="$event.target.style.display = 'none'"
+                            />
+                            <div class="absolute inset-0 rounded-lg ring-1 ring-inset ring-gray-900/10"></div>
+                        </div>
+                    </div>
+
+                    <!-- Verification Details -->
+                    <div class="space-y-4">
+                        <h3 class="text-sm font-medium text-gray-900 dark:text-white">Detail Verifikasi</h3>
+
+                        <div class="space-y-3">
+                            <div v-if="attendance.face_match_confidence !== null" class="flex justify-between">
+                                <span class="text-sm text-gray-600 dark:text-gray-400">Tingkat Keyakinan:</span>
+                                <div class="flex items-center gap-2">
+                                    <span class="text-sm font-medium text-gray-900 dark:text-white">
+                                        {{ Math.round(attendance.face_match_confidence) }}%
+                                    </span>
+                                    <div
+                                        class="inline-flex items-center rounded-full px-2 py-1 text-xs font-medium"
+                                        :class="{
+                                            'bg-emerald-50 text-emerald-700 ring-emerald-600/20 dark:bg-emerald-950/50 dark:text-emerald-400': attendance.face_match_confidence >= 70,
+                                            'bg-amber-50 text-amber-700 ring-amber-600/20 dark:bg-amber-950/50 dark:text-amber-400': attendance.face_match_confidence >= 50 && attendance.face_match_confidence < 70,
+                                            'bg-red-50 text-red-700 ring-red-600/20 dark:bg-red-950/50 dark:text-red-400': attendance.face_match_confidence < 50
+                                        }"
+                                    >
+                                        <span v-if="attendance.face_match_confidence >= 70">Tinggi</span>
+                                        <span v-else-if="attendance.face_match_confidence >= 50">Sedang</span>
+                                        <span v-else>Rendah</span>
+                                    </div>
+                                </div>
+                            </div>
+
+                            <div class="flex justify-between">
+                                <span class="text-sm text-gray-600 dark:text-gray-400">Status Verifikasi:</span>
+                                <div class="flex items-center gap-2">
+                                    <span
+                                        class="inline-flex items-center rounded-full px-2 py-1 text-xs font-medium ring-1 ring-inset"
+                                        :class="{
+                                            'bg-emerald-50 text-emerald-700 ring-emerald-600/20 dark:bg-emerald-950/50 dark:text-emerald-400': attendance.face_verification_passed,
+                                            'bg-amber-50 text-amber-700 ring-amber-600/20 dark:bg-amber-950/50 dark:text-amber-400': attendance.face_verification_skipped,
+                                            'bg-red-50 text-red-700 ring-red-600/20 dark:bg-red-950/50 dark:text-red-400': attendance.face_verification_passed === false
+                                        }"
+                                    >
+                                        <CheckCircle v-if="attendance.face_verification_passed" class="mr-1 h-3 w-3" />
+                                        <AlertCircle v-else-if="attendance.face_verification_skipped" class="mr-1 h-3 w-3" />
+                                        <XCircle v-else class="mr-1 h-3 w-3" />
+                                        <span v-if="attendance.face_verification_passed">Berhasil</span>
+                                        <span v-else-if="attendance.face_verification_skipped">Dilewati</span>
+                                        <span v-else>Gagal</span>
+                                    </span>
+                                </div>
+                            </div>
+
+                            <div v-if="attendance.face_verification_notes" class="border-t border-gray-200/50 pt-3 dark:border-gray-800/50">
+                                <span class="text-sm text-gray-600 dark:text-gray-400">Catatan:</span>
+                                <div class="mt-1 rounded-md bg-gray-50 p-2 dark:bg-gray-900/50">
+                                    <p class="text-xs text-gray-700 dark:text-gray-300">{{ attendance.face_verification_notes }}</p>
+                                </div>
                             </div>
                         </div>
                     </div>
