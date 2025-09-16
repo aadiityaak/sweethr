@@ -32,7 +32,12 @@ export function useFaceRecognition() {
             console.log('Current URL:', window.location.href);
             console.log('CSRF Token:', document.querySelector('meta[name="csrf-token"]')?.getAttribute('content'));
 
-            // Get CSRF token from meta tag
+            // Ensure CSRF cookie is available before making the request
+            await fetch('/sanctum/csrf-cookie', {
+                credentials: 'same-origin',
+            });
+
+            // Get CSRF token from meta tag after ensuring cookie is set
             const csrfToken = document.querySelector('meta[name="csrf-token"]')?.getAttribute('content');
             if (!csrfToken) {
                 throw new Error('CSRF token not found. Please refresh the page.');
@@ -48,7 +53,7 @@ export function useFaceRecognition() {
                     'X-Requested-With': 'XMLHttpRequest',
                 },
                 body: JSON.stringify({ descriptors }),
-                credentials: 'same-origin', // Use same-origin instead of include for better compatibility
+                credentials: 'same-origin',
             });
 
             console.log('Response status:', response.status);
