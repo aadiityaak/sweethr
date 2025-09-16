@@ -72,6 +72,7 @@ const selectedOffice = ref<OfficeLocation | null>(null);
 const isInRange = ref(false);
 const distanceToOffice = ref(0);
 const isCheckingIn = ref(false);
+const isCheckingOut = ref(false);
 
 const formatTime = (time: string | null) => {
     if (!time) return '--:--';
@@ -252,6 +253,59 @@ const handleCheckInClick = () => {
         getCurrentLocation();
     } else if (locationStatus.value === 'success' && isInRange.value) {
         performCheckIn();
+    } else if (locationStatus.value === 'error') {
+        getCurrentLocation();
+    }
+};
+
+const performCheckOut = () => {
+    isCheckingOut.value = true;
+    toast({
+        title: '🕐 Sedang Check Out...',
+        description: 'Memproses absensi keluar Anda.',
+        variant: 'default',
+    });
+
+    const checkoutForm = useForm({
+        latitude: form.latitude,
+        longitude: form.longitude,
+    });
+
+    checkoutForm.post('/attendance/check-out', {
+        onSuccess: () => {
+            isCheckingOut.value = false;
+            toast({
+                title: '✅ Check Out Berhasil!',
+                description: `Absensi keluar Anda telah tercatat pada ${new Date().toLocaleTimeString('id-ID')}.`,
+                variant: 'success',
+                duration: 5000,
+            });
+            // Refresh the page to update attendance data
+            window.location.reload();
+        },
+        onError: (errors) => {
+            isCheckingOut.value = false;
+            console.error('Check-out errors:', errors);
+            toast({
+                title: '❌ Check Out Gagal',
+                description: errors.message || 'Terjadi kesalahan saat melakukan check out. Silakan coba lagi.',
+                variant: 'destructive',
+                duration: 6000,
+            });
+        },
+        preserveState: true,
+        preserveScroll: true,
+    });
+};
+
+const handleCheckOutClick = () => {
+    if (locationStatus.value === 'idle') {
+        getCurrentLocation();
+        return;
+    }
+
+    if (locationStatus.value === 'success') {
+        performCheckOut();
     } else if (locationStatus.value === 'error') {
         getCurrentLocation();
     }
@@ -443,14 +497,25 @@ onUnmounted(() => {
                         </div>
 
                         <!-- Check Out Button -->
-                        <Link
+                        <button
                             v-if="todayAttendance?.check_in_time && !todayAttendance?.check_out_time"
-                            href="/attendance"
-                            class="flex items-center justify-center gap-2 rounded-md bg-red-600 px-4 py-4 text-white font-medium hover:bg-red-700 transition-colors shadow-sm"
+                            @click="handleCheckOutClick"
+                            :disabled="isCheckingOut"
+                            class="flex items-center justify-center gap-2 rounded-md px-4 py-4 text-white font-medium transition-colors shadow-sm disabled:opacity-50 disabled:cursor-not-allowed"
+                            :class="{
+                                'bg-red-600 hover:bg-red-700': locationStatus === 'idle' || locationStatus === 'error' || locationStatus === 'success',
+                                'bg-blue-600 hover:bg-blue-700': locationStatus === 'loading'
+                            }"
                         >
-                            <Clock class="h-5 w-5" />
-                            <span class="text-sm">Check Out</span>
-                        </Link>
+                            <Loader2 v-if="locationStatus === 'loading' || isCheckingOut" class="h-5 w-5 animate-spin" />
+                            <Clock v-else class="h-5 w-5" />
+                            <span class="text-sm">
+                                {{ locationStatus === 'loading' ? 'Mencari Lokasi...' :
+                                   isCheckingOut ? 'Check Out...' :
+                                   locationStatus === 'error' ? 'Coba Lagi' :
+                                   'Check Out' }}
+                            </span>
+                        </button>
                         <div
                             v-else-if="todayAttendance?.check_out_time"
                             class="flex items-center justify-center gap-2 rounded-md bg-red-100 dark:bg-red-900/20 px-4 py-4 text-red-800 dark:text-red-200 font-medium"

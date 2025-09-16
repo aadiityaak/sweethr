@@ -5,7 +5,6 @@ namespace App\Http\Controllers;
 use App\Models\Attendance;
 use App\Models\OfficeLocation;
 use Carbon\Carbon;
-use Illuminate\Http\JsonResponse;
 use Illuminate\Http\RedirectResponse;
 use Illuminate\Http\Request;
 use Inertia\Inertia;
@@ -18,21 +17,21 @@ class AttendanceController extends Controller
         $user = auth()->user();
 
         $attendances = Attendance::where('user_id', $user->id)
-                                ->with(['officeLocation:id,name'])
-                                ->orderByDesc('date')
-                                ->when($request->month, function ($query, $month) {
-                                    $query->whereMonth('date', $month);
-                                })
-                                ->when($request->year, function ($query, $year) {
-                                    $query->whereYear('date', $year);
-                                })
-                                ->paginate(20);
+            ->with(['officeLocation:id,name'])
+            ->orderByDesc('date')
+            ->when($request->month, function ($query, $month) {
+                $query->whereMonth('date', $month);
+            })
+            ->when($request->year, function ($query, $year) {
+                $query->whereYear('date', $year);
+            })
+            ->paginate(20);
 
         // Get today's attendance
         $todayAttendance = Attendance::where('user_id', $user->id)
-                                    ->where('date', Carbon::today())
-                                    ->with('officeLocation')
-                                    ->first();
+            ->where('date', Carbon::today())
+            ->with('officeLocation')
+            ->first();
 
         return Inertia::render('user/Attendance/Index', [
             'attendances' => $attendances,
@@ -48,12 +47,12 @@ class AttendanceController extends Controller
 
         // Check if already checked in today
         $existingAttendance = Attendance::where('user_id', $user->id)
-                                       ->where('date', $today)
-                                       ->first();
+            ->where('date', $today)
+            ->first();
 
         if ($existingAttendance && $existingAttendance->check_in_time) {
             return redirect()->route('attendance.index')
-                           ->with('error', 'You have already checked in today.');
+                ->with('error', 'You have already checked in today.');
         }
 
         // Get all office locations
@@ -82,8 +81,8 @@ class AttendanceController extends Controller
 
         // Check if already checked in today
         $existingAttendance = Attendance::where('user_id', $user->id)
-                                       ->where('date', $today)
-                                       ->first();
+            ->where('date', $today)
+            ->first();
 
         if ($existingAttendance && $existingAttendance->check_in_time) {
             return back()->withErrors(['message' => 'Anda sudah melakukan check in hari ini']);
@@ -91,7 +90,7 @@ class AttendanceController extends Controller
 
         // Validate location
         $office = OfficeLocation::findOrFail($request->office_location_id);
-        if (!$office->isWithinRadius($request->latitude, $request->longitude)) {
+        if (! $office->isWithinRadius($request->latitude, $request->longitude)) {
             return back()->withErrors(['message' => 'Anda berada di luar radius kantor. Mohon mendekat ke lokasi kantor.']);
         }
 
@@ -135,22 +134,20 @@ class AttendanceController extends Controller
         $today = Carbon::today();
 
         $attendance = Attendance::where('user_id', $user->id)
-                                ->where('date', $today)
-                                ->first();
+            ->where('date', $today)
+            ->first();
 
-        if (!$attendance || !$attendance->check_in_time) {
-            return back()->with('error', 'You must check in first');
+        if (! $attendance || ! $attendance->check_in_time) {
+            return back()->withErrors(['message' => 'Anda harus check in terlebih dahulu']);
         }
 
         if ($attendance->check_out_time) {
-            return back()->with('error', 'You have already checked out today');
+            return back()->withErrors(['message' => 'Anda sudah melakukan check out hari ini']);
         }
 
-        // Validate location
-        $office = $attendance->officeLocation;
-        if (!$office->isWithinRadius($request->latitude, $request->longitude)) {
-            return back()->with('error', 'You are not within the office radius');
-        }
+        // Note: We don't validate location for checkout as strictly as check-in
+        // Users might be allowed to checkout from different locations
+        // Location is still recorded for audit purposes
 
         // Calculate work duration
         $checkInTime = Carbon::parse($attendance->check_in_time);
@@ -172,7 +169,6 @@ class AttendanceController extends Controller
             'overtime_duration' => $overtimeDuration,
         ]);
 
-        return redirect()->route('attendance.index')
-                        ->with('success', 'Successfully checked out!');
+        return back()->with('success', 'Check out berhasil!');
     }
 }
