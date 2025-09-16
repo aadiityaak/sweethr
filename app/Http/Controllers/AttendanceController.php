@@ -4,6 +4,7 @@ namespace App\Http\Controllers;
 
 use App\Models\Attendance;
 use App\Models\OfficeLocation;
+use App\Services\FaceRecognitionService;
 use Carbon\Carbon;
 use Illuminate\Http\RedirectResponse;
 use Illuminate\Http\Request;
@@ -12,6 +13,9 @@ use Inertia\Response;
 
 class AttendanceController extends Controller
 {
+    public function __construct(
+        private FaceRecognitionService $faceRecognitionService
+    ) {}
     public function index(Request $request): Response
     {
         $user = auth()->user();
@@ -67,16 +71,23 @@ class AttendanceController extends Controller
     public function storeCheckIn(Request $request)
     {
         try {
-            $request->validate([
+            $validationRules = [
                 'office_location_id' => 'required|exists:office_locations,id',
                 'latitude' => 'required|numeric|between:-90,90',
                 'longitude' => 'required|numeric|between:-180,180',
-            ]);
+            ];
+
+            // Add face recognition validation if required
+            $user = auth()->user();
+            if ($this->faceRecognitionService->isFaceRecognitionRequired($user)) {
+                $validationRules['face_confidence'] = 'required|numeric|min:0|max:100';
+            }
+
+            $request->validate($validationRules);
         } catch (\Illuminate\Validation\ValidationException $e) {
             return back()->withErrors($e->errors());
         }
 
-        $user = auth()->user();
         $today = Carbon::today();
 
         // Check if already checked in today
@@ -92,6 +103,36 @@ class AttendanceController extends Controller
         $office = OfficeLocation::findOrFail($request->office_location_id);
         if (! $office->isWithinRadius($request->latitude, $request->longitude)) {
             return back()->withErrors(['message' => 'Anda berada di luar radius kantor. Mohon mendekat ke lokasi kantor.']);
+        }
+
+        // Face recognition verification
+        $faceVerificationPassed = false;
+        $faceVerificationSkipped = false;
+        $faceMatchConfidence = null;
+        $faceVerificationNotes = null;
+
+        if ($this->faceRecognitionService->isFaceRecognitionRequired($user)) {
+            if ($request->has('face_confidence')) {
+                $faceConfidence = $request->input('face_confidence');
+                $faceResult = $this->faceRecognitionService->verifyFaceMatch($user, $faceConfidence);
+
+                $faceMatchConfidence = $faceConfidence;
+                $faceVerificationPassed = $faceResult['success'];
+
+                if (!$faceResult['success'] && $faceResult['mandatory']) {
+                    return back()->withErrors(['message' => $faceResult['error']]);
+                }
+
+                if (!$faceResult['success'] && !$faceResult['mandatory']) {
+                    $faceVerificationSkipped = true;
+                    $faceVerificationNotes = 'Face verification skipped after max attempts';
+                }
+            } else {
+                return back()->withErrors(['message' => 'Verifikasi wajah diperlukan untuk check in.']);
+            }
+        } else {
+            $faceVerificationSkipped = true;
+            $faceVerificationNotes = 'Face recognition not required for this user';
         }
 
         // Determine if late
@@ -117,10 +158,21 @@ class AttendanceController extends Controller
                 'check_in_latitude' => $request->latitude,
                 'check_in_longitude' => $request->longitude,
                 'status' => $status,
+                'face_match_confidence' => $faceMatchConfidence,
+                'face_verification_passed' => $faceVerificationPassed,
+                'face_verification_skipped' => $faceVerificationSkipped,
+                'face_verification_notes' => $faceVerificationNotes,
             ]
         );
 
-        return back()->with('success', 'Check in berhasil!');
+        $message = 'Check in berhasil!';
+        if ($faceVerificationSkipped && $faceMatchConfidence) {
+            $message .= ' (Verifikasi wajah dilewati)';
+        } elseif ($faceVerificationPassed) {
+            $message .= ' (Wajah terverifikasi)';
+        }
+
+        return back()->with('success', $message);
     }
 
     public function storeCheckOut(Request $request): RedirectResponse

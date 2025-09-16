@@ -5,6 +5,7 @@ use App\Http\Controllers\Api\AuthController;
 use App\Http\Controllers\Api\DashboardController;
 use App\Http\Controllers\Api\DepartmentController;
 use App\Http\Controllers\Api\EmployeeController;
+use App\Http\Controllers\Api\FaceRecognitionController;
 use App\Http\Controllers\Api\LeaveController;
 use App\Http\Controllers\Api\ShiftController;
 use Illuminate\Http\Request;
@@ -56,5 +57,16 @@ Route::middleware(['auth:sanctum'])->group(function () {
     // Office Locations
     Route::get('/office-locations', function () {
         return \App\Models\OfficeLocation::active()->get();
+    });
+
+    // Face Recognition
+    Route::prefix('face-recognition')->group(function () {
+        Route::post('/setup', [FaceRecognitionController::class, 'setup']);
+        Route::post('/verify', [FaceRecognitionController::class, 'verify']);
+        Route::get('/status', [FaceRecognitionController::class, 'status']);
+        Route::get('/descriptors', [FaceRecognitionController::class, 'getDescriptors']);
+        Route::delete('/delete', [FaceRecognitionController::class, 'delete']);
+        Route::post('/reset-attempts', [FaceRecognitionController::class, 'resetAttempts']);
+        Route::get('/stats', [FaceRecognitionController::class, 'stats']); // Admin only
     });
 });
