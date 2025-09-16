@@ -87,6 +87,18 @@ const isFaceMatched = ref(false);
 const detectionInterval = ref<number | null>(null);
 const stream = ref<MediaStream | null>(null);
 
+// Auto-capture state
+const capturedFaceData = ref<{
+    confidence: number;
+    timestamp: Date;
+    descriptor: Float32Array;
+    imageDataUrl: string;
+} | null>(null);
+const isFaceCaptured = ref(false);
+const captureTimeout = ref<number | null>(null);
+const isCapturing = ref(false);
+const captureCountdown = ref(0);
+
 const formatTime = (time: string | null) => {
     if (!time) return '--:--';
     return time.substring(0, 5);
@@ -235,12 +247,12 @@ const performCheckIn = () => {
         return;
     }
 
-    // Check if face recognition is required and matched
+    // Check if face recognition is required and captured
     if (faceRecognitionEnabled && faceDescriptors && faceDescriptors.length > 0) {
-        if (!isFaceMatched.value) {
+        if (!isFaceCaptured.value) {
             toast({
                 title: '❌ Verifikasi Wajah Diperlukan',
-                description: 'Posisikan wajah Anda di depan kamera untuk verifikasi.',
+                description: 'Posisikan wajah Anda di depan kamera untuk verifikasi terlebih dahulu.',
                 variant: 'destructive',
                 duration: 4000,
             });
@@ -255,9 +267,9 @@ const performCheckIn = () => {
 const executeCheckIn = () => {
     isCheckingIn.value = true;
 
-    // Set face confidence if face recognition is enabled
-    if (faceRecognitionEnabled && faceDescriptors && faceDescriptors.length > 0) {
-        form.face_confidence = faceMatchConfidence.value;
+    // Set face confidence if face recognition is enabled and captured
+    if (faceRecognitionEnabled && faceDescriptors && faceDescriptors.length > 0 && capturedFaceData.value) {
+        form.face_confidence = capturedFaceData.value.confidence;
     }
 
     toast({
@@ -271,6 +283,11 @@ const executeCheckIn = () => {
             isCheckingIn.value = false;
             locationStatus.value = 'idle'; // Reset for next time
             stopFaceDetection(); // Stop face detection after successful check-in
+
+            // Reset capture state
+            capturedFaceData.value = null;
+            isFaceCaptured.value = false;
+
             toast({
                 title: '✅ Check In Berhasil!',
                 description: `Absensi masuk Anda telah tercatat pada ${new Date().toLocaleTimeString('id-ID')}.`,
@@ -394,6 +411,11 @@ const detectFace = async () => {
             faceMatchConfidence.value = Math.round(bestMatch);
             isFaceMatched.value = bestMatch >= 75; // 75% confidence threshold
 
+            // Auto-capture face when verified
+            if (isFaceMatched.value && !isFaceCaptured.value) {
+                autoCaptureFace(bestMatch, currentDescriptor);
+            }
+
             // Draw detection on canvas
             const canvas = canvasElement.value;
             const displaySize = { width: 320, height: 240 };
@@ -406,14 +428,15 @@ const detectFace = async () => {
 
                 // Draw face detection box
                 const box = resized.detection.box;
-                ctx.strokeStyle = isFaceMatched.value ? '#22c55e' : '#ef4444';
+                ctx.strokeStyle = isFaceCaptured.value ? '#10b981' : (isFaceMatched.value ? '#22c55e' : '#ef4444');
                 ctx.lineWidth = 3;
                 ctx.strokeRect(box.x, box.y, box.width, box.height);
 
                 // Draw confidence text
-                ctx.fillStyle = isFaceMatched.value ? '#22c55e' : '#ef4444';
+                ctx.fillStyle = isFaceCaptured.value ? '#10b981' : (isFaceMatched.value ? '#22c55e' : '#ef4444');
                 ctx.font = '16px Arial';
-                ctx.fillText(`${Math.round(bestMatch)}%`, box.x, box.y - 10);
+                const label = isFaceCaptured.value ? `✓ ${Math.round(bestMatch)}%` : `${Math.round(bestMatch)}%`;
+                ctx.fillText(label, box.x, box.y - 10);
             }
         } else {
             isFaceMatched.value = false;
@@ -431,10 +454,86 @@ const detectFace = async () => {
     }
 };
 
+const autoCaptureFace = (confidence: number, descriptor: Float32Array) => {
+    // Clear any existing timeout
+    if (captureTimeout.value) {
+        clearTimeout(captureTimeout.value);
+    }
+
+    // Start capture countdown
+    isCapturing.value = true;
+    captureCountdown.value = 2;
+
+    // Update countdown every second
+    const countdownInterval = setInterval(() => {
+        captureCountdown.value--;
+        if (captureCountdown.value <= 0) {
+            clearInterval(countdownInterval);
+        }
+    }, 1000);
+
+    // Set timeout to capture after 2 seconds of stable detection
+    captureTimeout.value = window.setTimeout(() => {
+        // Capture image from video
+        const imageDataUrl = captureImageFromVideo();
+
+        if (imageDataUrl) {
+            capturedFaceData.value = {
+                confidence: confidence,
+                timestamp: new Date(),
+                descriptor: descriptor,
+                imageDataUrl: imageDataUrl
+            };
+            isFaceCaptured.value = true;
+            isCapturing.value = false;
+
+            toast({
+                title: '✅ Wajah Tertangkap!',
+                description: `Verifikasi berhasil dengan tingkat keyakinan ${Math.round(confidence)}%. Anda dapat check-in sekarang.`,
+                variant: 'success',
+                duration: 3000,
+            });
+
+            // Stop detection after successful capture
+            stopFaceDetection();
+        }
+    }, 2000); // 2 seconds delay for stable capture
+};
+
+const captureImageFromVideo = (): string | null => {
+    if (!videoElement.value) return null;
+
+    try {
+        // Create a temporary canvas to capture the video frame
+        const tempCanvas = document.createElement('canvas');
+        const tempCtx = tempCanvas.getContext('2d');
+
+        if (!tempCtx) return null;
+
+        // Set canvas size to video size
+        tempCanvas.width = videoElement.value.videoWidth;
+        tempCanvas.height = videoElement.value.videoHeight;
+
+        // Draw current video frame to canvas
+        tempCtx.drawImage(videoElement.value, 0, 0);
+
+        // Convert to data URL (base64 image)
+        return tempCanvas.toDataURL('image/jpeg', 0.8);
+    } catch (error) {
+        console.error('Failed to capture image from video:', error);
+        return null;
+    }
+};
+
 const stopFaceDetection = () => {
     if (detectionInterval.value) {
         clearInterval(detectionInterval.value);
         detectionInterval.value = null;
+    }
+
+    if (captureTimeout.value) {
+        clearTimeout(captureTimeout.value);
+        captureTimeout.value = null;
     }
 
     if (stream.value) {
@@ -445,6 +544,24 @@ const stopFaceDetection = () => {
     faceDetectionActive.value = false;
     isFaceMatched.value = false;
     faceMatchConfidence.value = 0;
+    isCapturing.value = false;
+    captureCountdown.value = 0;
+};
+
+const resetCapture = () => {
+    // Reset capture state
+    capturedFaceData.value = null;
+    isFaceCaptured.value = false;
+
+    // Restart face detection
+    startFaceDetection();
+
+    toast({
+        title: '🔄 Memulai Ulang',
+        description: 'Verifikasi wajah dimulai ulang. Posisikan wajah Anda ke kamera.',
+        variant: 'default',
+        duration: 3000,
+    });
 };
 
 const performCheckOut = () => {
@@ -651,7 +768,59 @@ onUnmounted(() => {
                     <!-- Real-time Face Recognition -->
                     <div v-if="faceRecognitionEnabled && faceDescriptors && faceDescriptors.length > 0 && !todayAttendance?.check_in_time" class="mt-4 flex justify-center">
                         <div class="relative">
-                            <div class="relative w-80 h-60 bg-gray-900 rounded-lg overflow-hidden border-2"
+                            <!-- Face Captured State -->
+                            <div v-if="isFaceCaptured" class="w-80 h-60 bg-gradient-to-br from-green-50 to-green-100 dark:from-green-900/20 dark:to-green-800/20 rounded-lg overflow-hidden border-2 border-green-500 relative">
+                                <!-- Captured Face Image Background -->
+                                <div
+                                    v-if="capturedFaceData?.imageDataUrl"
+                                    class="absolute inset-0 bg-cover bg-center bg-no-repeat opacity-20"
+                                    :style="{ backgroundImage: `url(${capturedFaceData.imageDataUrl})` }"
+                                ></div>
+
+                                <!-- Content Overlay -->
+                                <div class="relative z-10 h-full flex flex-col">
+                                    <!-- Captured Image Display -->
+                                    <div class="flex-shrink-0 p-4 flex justify-center">
+                                        <div class="relative">
+                                            <img
+                                                v-if="capturedFaceData?.imageDataUrl"
+                                                :src="capturedFaceData.imageDataUrl"
+                                                alt="Captured Face"
+                                                class="w-24 h-24 rounded-full object-cover border-4 border-green-500 shadow-lg"
+                                            />
+                                            <div class="absolute -bottom-1 -right-1 w-8 h-8 bg-green-500 rounded-full flex items-center justify-center border-2 border-white">
+                                                <CheckCircle class="h-4 w-4 text-white" />
+                                            </div>
+                                        </div>
+                                    </div>
+
+                                    <!-- Verification Info -->
+                                    <div class="flex-grow flex items-center justify-center px-4">
+                                        <div class="text-center">
+                                            <h3 class="text-lg font-semibold text-green-800 dark:text-green-200 mb-2">
+                                                Wajah Terverifikasi!
+                                            </h3>
+                                            <div class="bg-white/70 dark:bg-black/30 rounded-lg p-3 mb-3">
+                                                <p class="text-sm text-green-600 dark:text-green-300 font-medium mb-1">
+                                                    Tingkat Keyakinan: {{ capturedFaceData?.confidence }}%
+                                                </p>
+                                                <p class="text-xs text-green-500 dark:text-green-400">
+                                                    {{ capturedFaceData?.timestamp.toLocaleTimeString('id-ID') }}
+                                                </p>
+                                            </div>
+                                            <button
+                                                @click="resetCapture"
+                                                class="px-3 py-1.5 text-xs bg-green-600 hover:bg-green-700 text-white rounded-md transition-colors font-medium"
+                                            >
+                                                Ulangi Verifikasi
+                                            </button>
+                                        </div>
+                                    </div>
+                                </div>
+                            </div>
+
+                            <!-- Active Detection State -->
+                            <div v-else class="relative w-80 h-60 bg-gray-900 rounded-lg overflow-hidden border-2"
                                  :class="faceDetectionActive ? (isFaceMatched ? 'border-green-500' : 'border-red-500') : 'border-gray-300'">
 
                                 <!-- Video Element -->
@@ -681,9 +850,19 @@ onUnmounted(() => {
                                     </div>
                                 </div>
 
+                                <!-- Capture Countdown Overlay -->
+                                <div v-if="isCapturing" class="absolute inset-0 bg-black/60 flex items-center justify-center">
+                                    <div class="text-center">
+                                        <div class="mb-4 w-20 h-20 rounded-full bg-green-500 flex items-center justify-center text-white text-3xl font-bold animate-pulse">
+                                            {{ captureCountdown }}
+                                        </div>
+                                        <p class="text-white font-medium">Mengkapture dalam {{ captureCountdown }} detik...</p>
+                                    </div>
+                                </div>
+
                                 <!-- Face Match Status -->
                                 <div class="absolute bottom-2 left-2 right-2">
-                                    <div v-if="faceDetectionActive" class="bg-black/50 rounded px-2 py-1 text-white text-sm text-center">
+                                    <div v-if="faceDetectionActive && !isCapturing" class="bg-black/50 rounded px-2 py-1 text-white text-sm text-center">
                                         <span v-if="isFaceMatched" class="text-green-400">
                                             ✅ Wajah Terverifikasi ({{ faceMatchConfidence }}%)
                                         </span>
@@ -699,7 +878,7 @@ onUnmounted(() => {
 
                             <div class="absolute -bottom-8 left-1/2 transform -translate-x-1/2">
                                 <p class="text-xs text-muted-foreground font-medium text-center">
-                                    Verifikasi Wajah Real-time
+                                    {{ isFaceCaptured ? 'Wajah Tersimpan' : 'Verifikasi Wajah Real-time' }}
                                 </p>
                             </div>
                         </div>
@@ -718,25 +897,25 @@ onUnmounted(() => {
                         <button
                             v-if="!todayAttendance?.check_in_time"
                             @click="handleCheckInClick"
-                            :disabled="isCheckingIn || (locationStatus === 'success' && !isInRange) || (faceRecognitionEnabled && faceDescriptors && !isFaceMatched)"
+                            :disabled="isCheckingIn || (locationStatus === 'success' && !isInRange) || (faceRecognitionEnabled && faceDescriptors && !isFaceCaptured)"
                             class="flex items-center justify-center gap-2 rounded-md px-4 py-4 text-white font-medium transition-colors shadow-sm disabled:opacity-50 disabled:cursor-not-allowed"
                             :class="{
-                                'bg-green-600 hover:bg-green-700': (locationStatus === 'idle' || locationStatus === 'error' || (locationStatus === 'success' && isInRange)) && (!faceRecognitionEnabled || !faceDescriptors || isFaceMatched),
+                                'bg-green-600 hover:bg-green-700': (locationStatus === 'idle' || locationStatus === 'error' || (locationStatus === 'success' && isInRange)) && (!faceRecognitionEnabled || !faceDescriptors || isFaceCaptured),
                                 'bg-blue-600 hover:bg-blue-700': locationStatus === 'loading',
-                                'bg-gray-500': (locationStatus === 'success' && !isInRange) || (faceRecognitionEnabled && faceDescriptors && !isFaceMatched),
-                                'bg-orange-500': faceRecognitionEnabled && faceDescriptors && faceMatchConfidence > 0 && !isFaceMatched
+                                'bg-gray-500': (locationStatus === 'success' && !isInRange) || (faceRecognitionEnabled && faceDescriptors && !isFaceCaptured),
+                                'bg-orange-500': faceRecognitionEnabled && faceDescriptors && faceMatchConfidence > 0 && !isFaceCaptured
                             }"
                         >
                             <Loader2 v-if="locationStatus === 'loading' || isCheckingIn" class="h-5 w-5 animate-spin" />
-                            <CheckCircle v-else-if="isFaceMatched && isInRange" class="h-5 w-5" />
-                            <Eye v-else-if="faceRecognitionEnabled && faceDescriptors && !isFaceMatched" class="h-5 w-5" />
+                            <CheckCircle v-else-if="isFaceCaptured && isInRange" class="h-5 w-5" />
+                            <Eye v-else-if="faceRecognitionEnabled && faceDescriptors && !isFaceCaptured" class="h-5 w-5" />
                             <Clock v-else class="h-5 w-5" />
                             <span class="text-sm">
                                 {{ isCheckingIn ? 'Sedang Check In...' :
                                    locationStatus === 'loading' ? 'Mencari Lokasi...' :
                                    locationStatus === 'success' && !isInRange ? 'Di Luar Area' :
-                                   faceRecognitionEnabled && faceDescriptors && !isFaceMatched ? 'Tunggu Verifikasi' :
-                                   isFaceMatched && isInRange ? 'Siap Check In!' :
+                                   faceRecognitionEnabled && faceDescriptors && !isFaceCaptured ? 'Tunggu Verifikasi' :
+                                   isFaceCaptured && isInRange ? 'Siap Check In!' :
                                    locationStatus === 'error' ? 'Coba Lagi' :
                                    'Check In' }}
                             </span>
