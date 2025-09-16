@@ -17,6 +17,10 @@ Route::middleware(['auth', 'verified'])->group(function () {
     Route::get('home', [App\Http\Controllers\DashboardController::class, 'welcome'])
         ->name('welcome');
 
+    // Dashboard for regular users (same as welcome page)
+    Route::get('dashboard', [App\Http\Controllers\DashboardController::class, 'welcome'])
+        ->name('user.dashboard');
+
     // Attendance routes (accessible by all employees)
     Route::get('attendance', [App\Http\Controllers\AttendanceController::class, 'index'])
         ->name('attendance.index');
@@ -54,8 +58,8 @@ Route::middleware(['auth', 'verified'])->group(function () {
 
 // Admin-only routes
 Route::middleware(['auth', 'verified', 'admin'])->group(function () {
-    Route::get('dashboard', [App\Http\Controllers\DashboardController::class, 'index'])
-        ->name('dashboard');
+    Route::get('admin/dashboard', [App\Http\Controllers\DashboardController::class, 'index'])
+        ->name('admin.dashboard');
 
     // Employee management (Admin only)
     Route::resource('employees', App\Http\Controllers\EmployeeController::class);
