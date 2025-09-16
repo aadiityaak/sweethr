@@ -722,14 +722,26 @@ onUnmounted(() => {
                             <p class="text-sm text-muted-foreground">{{ user?.name || 'Guest' }}</p>
                         </div>
                     </div>
-                    <Link
-                        href="/logout"
-                        method="post"
-                        as="button"
-                        class="rounded-md bg-secondary p-2 text-secondary-foreground hover:bg-secondary/80 transition-colors"
-                    >
-                        <LogOut class="h-4 w-4" />
-                    </Link>
+                    <div class="flex items-center gap-2">
+                        <!-- Admin Dashboard Button - Only show for admin -->
+                        <Link
+                            v-if="user?.is_admin"
+                            href="/admin/dashboard"
+                            class="rounded-md bg-primary p-2 text-primary-foreground hover:bg-primary/90 transition-colors"
+                            title="Admin Dashboard"
+                        >
+                            <UserCircle class="h-4 w-4" />
+                        </Link>
+                        <Link
+                            href="/logout"
+                            method="post"
+                            as="button"
+                            class="rounded-md bg-secondary p-2 text-secondary-foreground hover:bg-secondary/80 transition-colors"
+                            title="Logout"
+                        >
+                            <LogOut class="h-4 w-4" />
+                        </Link>
+                    </div>
                 </div>
             </div>
         </div>

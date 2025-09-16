@@ -3,7 +3,7 @@ import NavFooter from '@/components/NavFooter.vue';
 import NavMain from '@/components/NavMain.vue';
 import NavUser from '@/components/NavUser.vue';
 import { Sidebar, SidebarContent, SidebarFooter, SidebarHeader, SidebarMenu, SidebarMenuButton, SidebarMenuItem } from '@/components/ui/sidebar';
-import { welcome } from '@/routes';
+// import { welcome } from '@/routes';
 import { type NavItem } from '@/types';
 import { Link, usePage } from '@inertiajs/vue3';
 import { BookOpen, LayoutGrid, Clock, Users, Calendar, MapPin, Settings, Shield, Building, UserCheck } from 'lucide-vue-next';
@@ -17,7 +17,7 @@ const user = computed(() => page.props.auth.user);
 const userNavItems: NavItem[] = [
     {
         title: 'Dasbor',
-        href: welcome(),
+        href: '/home',
         icon: LayoutGrid,
     },
     {
@@ -36,7 +36,7 @@ const userNavItems: NavItem[] = [
 const adminNavItems: NavItem[] = [
     {
         title: 'Dasbor',
-        href: welcome(),
+        href: '/admin/dashboard',
         icon: LayoutGrid,
     },
     {
@@ -126,7 +126,7 @@ const footerNavItems = computed<NavItem[]>(() => {
             <SidebarMenu>
                 <SidebarMenuItem>
                     <SidebarMenuButton size="lg" as-child>
-                        <Link :href="welcome()">
+                        <Link href="/home">
                             <AppLogo />
                         </Link>
                     </SidebarMenuButton>
