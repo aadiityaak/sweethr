@@ -25,7 +25,8 @@
       "mcp__laravel-boost__get-absolute-url",
       "Read(//d/**)",
       "Bash(node:*)",
-      "Bash(curl:*)"
+      "Bash(curl:*)",
+      "Bash(grep:*)"
     ],
     "deny": [],
     "ask": []

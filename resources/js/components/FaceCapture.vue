@@ -35,6 +35,7 @@ const isProcessing = ref(false);
 const faceDetected = ref(false);
 const errorMessage = ref('');
 const modelsLoaded = ref(false);
+const loadingStatus = ref('Memulai...');
 
 // Face detection state
 const capturedDescriptors = ref<number[][]>([]);
@@ -70,8 +71,9 @@ const loadModels = async () => {
         }
 
         // Load models one by one with better error handling and timeout
-        const loadWithTimeout = async (loadFunction: () => Promise<void>, name: string, timeoutMs = 30000) => {
+        const loadWithTimeout = async (loadFunction: () => Promise<void>, name: string, timeoutMs = 15000) => {
             console.log(`Loading ${name}...`);
+            loadingStatus.value = `Memuat ${name}...`;
             return Promise.race([
                 loadFunction(),
                 new Promise((_, reject) =>
@@ -266,22 +268,27 @@ onMounted(async () => {
 
     // For testing - start camera first to check permissions
     console.log('Testing camera access first...');
+    loadingStatus.value = 'Meminta akses kamera...';
 
     try {
         await startCamera();
         console.log('Camera started successfully, now loading models...');
+        loadingStatus.value = 'Kamera aktif, memuat AI models...';
 
         // Load models after camera is working
         await loadModels();
 
         if (modelsLoaded.value) {
             console.log('Models loaded successfully, restarting face detection...');
+            loadingStatus.value = 'Siap untuk deteksi wajah';
             startFaceDetection();
         } else {
             console.error('Models failed to load');
+            loadingStatus.value = 'Gagal memuat models';
         }
     } catch (error) {
         console.error('Error in component mounting:', error);
+        loadingStatus.value = 'Error: ' + (error instanceof Error ? error.message : 'Unknown error');
     }
 });
 
@@ -320,10 +327,11 @@ onUnmounted(() => {
             <div class="relative p-4">
                 <div class="relative aspect-video w-full overflow-hidden rounded-lg bg-gray-100 dark:bg-gray-800">
                     <!-- Loading State -->
-                    <div v-if="isLoading" class="absolute inset-0 flex items-center justify-center">
-                        <div class="text-center">
-                            <Loader2 class="mx-auto h-8 w-8 animate-spin text-blue-600" />
-                            <p class="mt-2 text-sm text-gray-600 dark:text-gray-400">Memuat kamera...</p>
+                    <div v-if="isLoading" class="absolute inset-0 flex items-center justify-center bg-gray-900/50">
+                        <div class="text-center text-white bg-gray-800/80 p-6 rounded-lg">
+                            <Loader2 class="mx-auto h-8 w-8 animate-spin text-blue-400" />
+                            <p class="mt-3 text-lg font-medium">{{ loadingStatus }}</p>
+                            <p class="mt-1 text-sm text-gray-300">Mohon tunggu...</p>
                         </div>
                     </div>
 
