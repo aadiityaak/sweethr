@@ -1,7 +1,7 @@
 <script setup lang="ts">
 import AppLayout from '@/layouts/AppLayout.vue';
 import AttendanceChart from '@/components/AttendanceChart.vue';
-import { dashboard } from '@/routes';
+// Admin dashboard uses direct URL
 import { type BreadcrumbItem } from '@/types';
 import { Head, Link } from '@inertiajs/vue3';
 import { Clock, Users, Calendar, CheckCircle, XCircle, AlertCircle } from 'lucide-vue-next';
@@ -87,7 +87,7 @@ const { user, todayAttendance, pendingLeaves, stats, announcements } = definePro
 const breadcrumbs: BreadcrumbItem[] = [
     {
         title: 'Dasbor',
-        href: dashboard().url,
+        href: '/admin/dashboard',
     },
 ];
 

@@ -28,14 +28,32 @@ export function useFaceRecognition() {
         isLoading.value = true;
 
         try {
+            // Ensure CSRF cookie is available before making the request
+            await fetch('/sanctum/csrf-cookie', {
+                credentials: 'include',
+            });
+
             const response = await fetch('/api/face-recognition/setup', {
                 method: 'POST',
                 headers: {
                     'Content-Type': 'application/json',
                     'X-CSRF-TOKEN': document.querySelector('meta[name="csrf-token"]')?.getAttribute('content') || '',
+                    'Accept': 'application/json',
+                    'X-Requested-With': 'XMLHttpRequest',
                 },
                 body: JSON.stringify({ descriptors }),
+                credentials: 'include', // Include cookies for session authentication
             });
+
+            if (!response.ok) {
+                if (response.status === 401) {
+                    throw new Error('Session expired. Please login again.');
+                } else if (response.status === 403) {
+                    throw new Error('Access denied.');
+                } else {
+                    throw new Error(`Server error: ${response.status}`);
+                }
+            }
 
             const data = await response.json();
 
@@ -70,14 +88,32 @@ export function useFaceRecognition() {
         isLoading.value = true;
 
         try {
+            // Ensure CSRF cookie is available before making the request
+            await fetch('/sanctum/csrf-cookie', {
+                credentials: 'include',
+            });
+
             const response = await fetch('/api/face-recognition/verify', {
                 method: 'POST',
                 headers: {
                     'Content-Type': 'application/json',
                     'X-CSRF-TOKEN': document.querySelector('meta[name="csrf-token"]')?.getAttribute('content') || '',
+                    'Accept': 'application/json',
+                    'X-Requested-With': 'XMLHttpRequest',
                 },
                 body: JSON.stringify({ confidence }),
+                credentials: 'include', // Include cookies for session authentication
             });
+
+            if (!response.ok) {
+                if (response.status === 401) {
+                    throw new Error('Session expired. Please login again.');
+                } else if (response.status === 403) {
+                    throw new Error('Access denied.');
+                } else {
+                    throw new Error(`Server error: ${response.status}`);
+                }
+            }
 
             const result = await response.json();
             verificationResult.value = result;
@@ -123,13 +159,31 @@ export function useFaceRecognition() {
         isLoading.value = true;
 
         try {
+            // Ensure CSRF cookie is available before making the request
+            await fetch('/sanctum/csrf-cookie', {
+                credentials: 'include',
+            });
+
             const response = await fetch('/api/face-recognition/delete', {
                 method: 'DELETE',
                 headers: {
                     'Content-Type': 'application/json',
                     'X-CSRF-TOKEN': document.querySelector('meta[name="csrf-token"]')?.getAttribute('content') || '',
+                    'Accept': 'application/json',
+                    'X-Requested-With': 'XMLHttpRequest',
                 },
+                credentials: 'include', // Include cookies for session authentication
             });
+
+            if (!response.ok) {
+                if (response.status === 401) {
+                    throw new Error('Session expired. Please login again.');
+                } else if (response.status === 403) {
+                    throw new Error('Access denied.');
+                } else {
+                    throw new Error(`Server error: ${response.status}`);
+                }
+            }
 
             const data = await response.json();
 
@@ -187,7 +241,20 @@ export function useFaceRecognition() {
 
     const checkFaceRecognitionStatus = async () => {
         try {
-            const response = await fetch('/api/face-recognition/status');
+            const response = await fetch('/api/face-recognition/status', {
+                headers: {
+                    'Accept': 'application/json',
+                },
+                credentials: 'include', // Include cookies for session authentication
+            });
+            if (!response.ok) {
+                if (response.status === 401) {
+                    return { enabled: false, error: 'Not authenticated' };
+                } else {
+                    throw new Error(`Server error: ${response.status}`);
+                }
+            }
+
             const data = await response.json();
 
             if (data.enabled) {
