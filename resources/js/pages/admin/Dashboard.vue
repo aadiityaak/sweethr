@@ -161,7 +161,7 @@ const generateMockAttendanceData = () => {
     <AppLayout :breadcrumbs="breadcrumbs">
         <div class="mx-auto max-w-7xl px-4 py-6 sm:px-6 lg:px-8">
             <!-- Welcome Hero Section -->
-            <div class="relative overflow-hidden rounded-xl border border-gray-200/50 bg-gradient-to-br from-blue-50 via-indigo-50/80 to-purple-50/60 p-8 shadow-sm dark:border-gray-800/50 dark:from-blue-950/20 dark:via-indigo-950/20 dark:to-purple-950/20">
+            <div class="mb-8 relative overflow-hidden rounded-xl border border-gray-200/50 bg-gradient-to-br from-blue-50 via-indigo-50/80 to-purple-50/60 p-8 shadow-sm dark:border-gray-800/50 dark:from-blue-950/20 dark:via-indigo-950/20 dark:to-purple-950/20">
                 <div class="relative z-10">
                     <div class="flex items-center gap-3 mb-2">
                         <div class="flex h-10 w-10 items-center justify-center rounded-full bg-blue-500/10 backdrop-blur-sm">
@@ -190,7 +190,7 @@ const generateMockAttendanceData = () => {
             </div>
 
             <!-- 30-Day Attendance Trend (Admin Only) -->
-            <div v-if="user.is_admin" class="rounded-xl border border-gray-200/50 bg-gradient-to-br from-white to-gray-50/30 p-6 shadow-sm dark:border-gray-800/50 dark:from-gray-950 dark:to-gray-900/30">
+            <div v-if="user.is_admin" class="mb-8 rounded-xl border border-gray-200/50 bg-gradient-to-br from-white to-gray-50/30 p-6 shadow-sm dark:border-gray-800/50 dark:from-gray-950 dark:to-gray-900/30">
                 <div class="mb-6 flex items-center gap-3">
                     <div class="flex h-8 w-8 items-center justify-center rounded-lg bg-purple-500/10 ring-1 ring-purple-500/20">
                         <CheckCircle class="h-4 w-4 text-purple-600 dark:text-purple-400" />
@@ -212,7 +212,7 @@ const generateMockAttendanceData = () => {
             </div>
 
             <!-- Key Metrics Grid -->
-            <div class="grid gap-4 md:grid-cols-2 lg:grid-cols-4">
+            <div class="mb-8 grid gap-6 md:grid-cols-2 lg:grid-cols-4">
                 <!-- Company Overview Card (Admin Only) -->
                 <div v-if="user.is_admin" class="group relative overflow-hidden rounded-xl border border-gray-200/50 bg-gradient-to-br from-white to-gray-50/50 p-6 shadow-sm transition-all hover:shadow-md dark:border-gray-800/50 dark:from-gray-950 dark:to-gray-900/50">
                     <div class="flex items-start justify-between">
@@ -407,7 +407,7 @@ const generateMockAttendanceData = () => {
             </div>
 
             <!-- Pending Leave Requests Section -->
-            <div v-if="pendingLeaves.length > 0" class="rounded-xl border border-gray-200/50 bg-gradient-to-br from-white to-gray-50/30 p-6 shadow-sm dark:border-gray-800/50 dark:from-gray-950 dark:to-gray-900/30">
+            <div v-if="pendingLeaves.length > 0" class="mb-8 rounded-xl border border-gray-200/50 bg-gradient-to-br from-white to-gray-50/30 p-6 shadow-sm dark:border-gray-800/50 dark:from-gray-950 dark:to-gray-900/30">
                 <div class="mb-6 flex items-center gap-3">
                     <div class="flex h-8 w-8 items-center justify-center rounded-lg bg-amber-500/10 ring-1 ring-amber-500/20">
                         <AlertCircle class="h-4 w-4 text-amber-600 dark:text-amber-400" />

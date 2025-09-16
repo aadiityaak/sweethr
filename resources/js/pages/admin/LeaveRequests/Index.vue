@@ -2,206 +2,233 @@
     <Head title="Admin - Kelola Cuti" />
 
     <AppLayout :breadcrumbs="breadcrumbs">
-        <div class="flex h-full flex-1 flex-col gap-6 p-6">
+        <div class="mx-auto max-w-7xl px-4 py-6 sm:px-6 lg:px-8">
             <!-- Header -->
-            <div class="flex flex-col gap-4 sm:flex-row sm:items-center sm:justify-between">
-                <div>
-                    <h1 class="text-2xl font-bold tracking-tight">Kelola Cuti</h1>
-                    <p class="text-muted-foreground">Kelola pengajuan cuti karyawan</p>
+            <div class="mb-8">
+                <div class="flex items-center justify-between">
+                    <div>
+                        <h1 class="text-3xl font-bold text-gray-900 dark:text-white">
+                            Kelola Cuti
+                        </h1>
+                        <p class="mt-1 text-gray-600 dark:text-gray-400">
+                            Kelola pengajuan cuti karyawan
+                        </p>
+                    </div>
                 </div>
             </div>
 
-            <!-- Stats Cards -->
-            <div class="grid gap-4 md:grid-cols-2 lg:grid-cols-4">
-                <div class="rounded-lg border bg-card p-6">
-                    <div class="flex items-center gap-4">
-                        <div class="rounded-full bg-blue-100 p-3 dark:bg-blue-900/20">
-                            <Calendar class="h-5 w-5 text-blue-600 dark:text-blue-400" />
-                        </div>
-                        <div>
-                            <p class="text-sm font-medium text-muted-foreground">Total Pengajuan</p>
-                            <p class="text-2xl font-bold">{{ stats.total_requests }}</p>
-                        </div>
-                    </div>
-                </div>
-
-                <div class="rounded-lg border bg-card p-6">
-                    <div class="flex items-center gap-4">
-                        <div class="rounded-full bg-yellow-100 p-3 dark:bg-yellow-900/20">
-                            <Clock class="h-5 w-5 text-yellow-600 dark:text-yellow-400" />
-                        </div>
-                        <div>
-                            <p class="text-sm font-medium text-muted-foreground">Menunggu</p>
-                            <div class="flex items-baseline gap-2">
-                                <p class="text-2xl font-bold">{{ stats.pending_count }}</p>
-                                <p class="text-sm text-muted-foreground">({{ stats.pending_percentage }}%)</p>
+            <!-- Overview Cards -->
+            <div class="mb-8 grid grid-cols-1 gap-6 sm:grid-cols-2 lg:grid-cols-4">
+                <!-- Total Requests -->
+                <div class="overflow-hidden rounded-xl bg-white shadow-sm ring-1 ring-gray-900/5 dark:bg-gray-900 dark:ring-white/10">
+                    <div class="p-6">
+                        <div class="flex items-center">
+                            <div class="flex h-12 w-12 shrink-0 items-center justify-center rounded-full bg-blue-500/10">
+                                <Calendar class="h-6 w-6 text-blue-600 dark:text-blue-400" />
+                            </div>
+                            <div class="ml-4 flex-1">
+                                <p class="text-sm font-medium text-gray-600 dark:text-gray-400">Total Pengajuan</p>
+                                <p class="text-2xl font-bold text-gray-900 dark:text-white">{{ stats.total_requests }}</p>
                             </div>
                         </div>
                     </div>
                 </div>
 
-                <div class="rounded-lg border bg-card p-6">
-                    <div class="flex items-center gap-4">
-                        <div class="rounded-full bg-green-100 p-3 dark:bg-green-900/20">
-                            <CheckCircle class="h-5 w-5 text-green-600 dark:text-green-400" />
-                        </div>
-                        <div>
-                            <p class="text-sm font-medium text-muted-foreground">Disetujui</p>
-                            <p class="text-2xl font-bold">{{ stats.approved_count }}</p>
+                <!-- Pending -->
+                <div class="overflow-hidden rounded-xl bg-white shadow-sm ring-1 ring-gray-900/5 dark:bg-gray-900 dark:ring-white/10">
+                    <div class="p-6">
+                        <div class="flex items-center">
+                            <div class="flex h-12 w-12 shrink-0 items-center justify-center rounded-full bg-yellow-500/10">
+                                <Clock class="h-6 w-6 text-yellow-600 dark:text-yellow-400" />
+                            </div>
+                            <div class="ml-4 flex-1">
+                                <p class="text-sm font-medium text-gray-600 dark:text-gray-400">Menunggu</p>
+                                <div class="flex items-baseline gap-2">
+                                    <p class="text-2xl font-bold text-gray-900 dark:text-white">{{ stats.pending_count }}</p>
+                                    <p class="text-sm text-gray-600 dark:text-gray-400">({{ stats.pending_percentage }}%)</p>
+                                </div>
+                            </div>
                         </div>
                     </div>
                 </div>
 
-                <div class="rounded-lg border bg-card p-6">
-                    <div class="flex items-center gap-4">
-                        <div class="rounded-full bg-red-100 p-3 dark:bg-red-900/20">
-                            <XCircle class="h-5 w-5 text-red-600 dark:text-red-400" />
+                <!-- Approved -->
+                <div class="overflow-hidden rounded-xl bg-white shadow-sm ring-1 ring-gray-900/5 dark:bg-gray-900 dark:ring-white/10">
+                    <div class="p-6">
+                        <div class="flex items-center">
+                            <div class="flex h-12 w-12 shrink-0 items-center justify-center rounded-full bg-green-500/10">
+                                <CheckCircle class="h-6 w-6 text-green-600 dark:text-green-400" />
+                            </div>
+                            <div class="ml-4 flex-1">
+                                <p class="text-sm font-medium text-gray-600 dark:text-gray-400">Disetujui</p>
+                                <p class="text-2xl font-bold text-gray-900 dark:text-white">{{ stats.approved_count }}</p>
+                            </div>
                         </div>
-                        <div>
-                            <p class="text-sm font-medium text-muted-foreground">Ditolak</p>
-                            <p class="text-2xl font-bold">{{ stats.rejected_count }}</p>
+                    </div>
+                </div>
+
+                <!-- Rejected -->
+                <div class="overflow-hidden rounded-xl bg-white shadow-sm ring-1 ring-gray-900/5 dark:bg-gray-900 dark:ring-white/10">
+                    <div class="p-6">
+                        <div class="flex items-center">
+                            <div class="flex h-12 w-12 shrink-0 items-center justify-center rounded-full bg-red-500/10">
+                                <XCircle class="h-6 w-6 text-red-600 dark:text-red-400" />
+                            </div>
+                            <div class="ml-4 flex-1">
+                                <p class="text-sm font-medium text-gray-600 dark:text-gray-400">Ditolak</p>
+                                <p class="text-2xl font-bold text-gray-900 dark:text-white">{{ stats.rejected_count }}</p>
+                            </div>
                         </div>
                     </div>
                 </div>
             </div>
 
             <!-- Charts Row -->
-            <div class="grid gap-6 lg:grid-cols-2">
+            <div class="mb-8 grid gap-6 lg:grid-cols-2">
                 <!-- Monthly Trend Chart -->
-                <div class="rounded-lg border bg-card p-6">
-                    <div class="mb-4">
-                        <h3 class="text-lg font-semibold">Tren Pengajuan 6 Bulan Terakhir</h3>
-                        <p class="text-sm text-muted-foreground">Statistik pengajuan cuti bulanan</p>
-                    </div>
-                    <div class="h-80">
-                        <Chart
-                            :data="monthlyChartData"
-                            type="line"
-                            :options="{ responsive: true, maintainAspectRatio: false }"
-                        />
+                <div class="overflow-hidden rounded-xl bg-white shadow-sm ring-1 ring-gray-900/5 dark:bg-gray-900 dark:ring-white/10">
+                    <div class="p-6">
+                        <div class="mb-4">
+                            <h3 class="text-lg font-semibold text-gray-900 dark:text-white">Tren Pengajuan 6 Bulan Terakhir</h3>
+                            <p class="text-sm text-gray-600 dark:text-gray-400">Statistik pengajuan cuti bulanan</p>
+                        </div>
+                        <div class="h-80">
+                            <Chart
+                                :data="monthlyChartData"
+                                type="line"
+                                :options="{ responsive: true, maintainAspectRatio: false }"
+                            />
+                        </div>
                     </div>
                 </div>
 
                 <!-- Status Distribution -->
-                <div class="rounded-lg border bg-card p-6">
-                    <div class="mb-4">
-                        <h3 class="text-lg font-semibold">Distribusi Status</h3>
-                        <p class="text-sm text-muted-foreground">Perbandingan status pengajuan</p>
-                    </div>
-                    <div class="h-80">
-                        <Chart
-                            :data="statusChartData"
-                            type="doughnut"
-                            :options="{ responsive: true, maintainAspectRatio: false }"
-                        />
+                <div class="overflow-hidden rounded-xl bg-white shadow-sm ring-1 ring-gray-900/5 dark:bg-gray-900 dark:ring-white/10">
+                    <div class="p-6">
+                        <div class="mb-4">
+                            <h3 class="text-lg font-semibold text-gray-900 dark:text-white">Distribusi Status</h3>
+                            <p class="text-sm text-gray-600 dark:text-gray-400">Perbandingan status pengajuan</p>
+                        </div>
+                        <div class="h-80">
+                            <Chart
+                                :data="statusChartData"
+                                type="doughnut"
+                                :options="{ responsive: true, maintainAspectRatio: false }"
+                            />
+                        </div>
                     </div>
                 </div>
             </div>
 
             <!-- Filters -->
-            <div class="rounded-lg border bg-card p-6">
-                <div class="grid gap-4 md:grid-cols-6">
-                    <div class="md:col-span-2">
-                        <Input
-                            v-model="search"
-                            placeholder="Cari karyawan..."
-                            class="w-full"
-                            @input="debouncedSearch"
-                        />
-                    </div>
-                    <div>
-                        <select
-                            v-model="selectedStatus"
-                            class="w-full rounded-md border border-input bg-background px-3 py-2 text-sm"
-                            @change="applyFilters"
-                        >
-                            <option value="">Semua Status</option>
-                            <option value="pending">Menunggu</option>
-                            <option value="approved">Disetujui</option>
-                            <option value="rejected">Ditolak</option>
-                        </select>
-                    </div>
-                    <div>
-                        <select
-                            v-model="selectedLeaveType"
-                            class="w-full rounded-md border border-input bg-background px-3 py-2 text-sm"
-                            @change="applyFilters"
-                        >
-                            <option value="">Semua Tipe</option>
-                            <option v-for="type in leaveTypes" :key="type.id" :value="type.id">
-                                {{ type.name }}
-                            </option>
-                        </select>
-                    </div>
-                    <div>
-                        <select
-                            v-model="selectedDepartment"
-                            class="w-full rounded-md border border-input bg-background px-3 py-2 text-sm"
-                            @change="applyFilters"
-                        >
-                            <option value="">Semua Departemen</option>
-                            <option v-for="dept in departments" :key="dept.id" :value="dept.id">
-                                {{ dept.name }}
-                            </option>
-                        </select>
-                    </div>
-                    <div>
-                        <Button variant="outline" @click="clearFilters" class="w-full">
-                            <FilterX class="mr-2 h-4 w-4" />
-                            Reset
-                        </Button>
+            <div class="mb-8 overflow-hidden rounded-xl bg-white shadow-sm ring-1 ring-gray-900/5 dark:bg-gray-900 dark:ring-white/10">
+                <div class="p-6">
+                    <div class="grid gap-4 md:grid-cols-6">
+                        <div class="md:col-span-2">
+                            <Input
+                                v-model="search"
+                                placeholder="Cari karyawan..."
+                                class="w-full"
+                                @input="debouncedSearch"
+                            />
+                        </div>
+                        <div>
+                            <select
+                                v-model="selectedStatus"
+                                class="w-full rounded-lg border border-gray-300 px-3 py-2 text-sm dark:border-gray-600 dark:bg-gray-800"
+                                @change="applyFilters"
+                            >
+                                <option value="">Semua Status</option>
+                                <option value="pending">Menunggu</option>
+                                <option value="approved">Disetujui</option>
+                                <option value="rejected">Ditolak</option>
+                            </select>
+                        </div>
+                        <div>
+                            <select
+                                v-model="selectedLeaveType"
+                                class="w-full rounded-lg border border-gray-300 px-3 py-2 text-sm dark:border-gray-600 dark:bg-gray-800"
+                                @change="applyFilters"
+                            >
+                                <option value="">Semua Tipe</option>
+                                <option v-for="type in leaveTypes" :key="type.id" :value="type.id">
+                                    {{ type.name }}
+                                </option>
+                            </select>
+                        </div>
+                        <div>
+                            <select
+                                v-model="selectedDepartment"
+                                class="w-full rounded-lg border border-gray-300 px-3 py-2 text-sm dark:border-gray-600 dark:bg-gray-800"
+                                @change="applyFilters"
+                            >
+                                <option value="">Semua Departemen</option>
+                                <option v-for="dept in departments" :key="dept.id" :value="dept.id">
+                                    {{ dept.name }}
+                                </option>
+                            </select>
+                        </div>
+                        <div>
+                            <Button variant="outline" @click="clearFilters" class="w-full">
+                                <FilterX class="mr-2 h-4 w-4" />
+                                Reset
+                            </Button>
+                        </div>
                     </div>
                 </div>
             </div>
 
             <!-- Leave Requests Table -->
-            <div class="rounded-lg border bg-card">
-                <div class="p-6 pb-0">
-                    <h3 class="text-lg font-semibold">Daftar Pengajuan Cuti</h3>
-                    <p class="text-sm text-muted-foreground">{{ leaveRequests.total }} pengajuan ditemukan</p>
+            <div class="overflow-hidden rounded-xl bg-white shadow-sm ring-1 ring-gray-900/5 dark:bg-gray-900 dark:ring-white/10">
+                <div class="px-6 py-4 border-b border-gray-200 dark:border-gray-700">
+                    <h3 class="text-lg font-semibold text-gray-900 dark:text-white flex items-center">
+                        <Calendar class="mr-2 h-5 w-5 text-blue-600 dark:text-blue-400" />
+                        Daftar Pengajuan Cuti
+                    </h3>
+                    <p class="text-sm text-gray-600 dark:text-gray-400">{{ leaveRequests.total }} pengajuan ditemukan</p>
                 </div>
 
                 <div class="overflow-x-auto">
                     <table class="w-full">
-                        <thead class="border-b">
-                            <tr class="text-left">
-                                <th class="p-4 font-semibold">Karyawan</th>
-                                <th class="p-4 font-semibold">Tipe Cuti</th>
-                                <th class="p-4 font-semibold">Tanggal</th>
-                                <th class="p-4 font-semibold">Durasi</th>
-                                <th class="p-4 font-semibold">Status</th>
-                                <th class="p-4 font-semibold">Diajukan</th>
-                                <th class="p-4 font-semibold">Aksi</th>
+                        <thead class="border-t border-gray-200 dark:border-gray-700">
+                            <tr class="border-b border-gray-200 dark:border-gray-700">
+                                <th class="px-6 py-3 text-left text-sm font-medium text-gray-500 dark:text-gray-400">Karyawan</th>
+                                <th class="px-6 py-3 text-left text-sm font-medium text-gray-500 dark:text-gray-400">Tipe Cuti</th>
+                                <th class="px-6 py-3 text-left text-sm font-medium text-gray-500 dark:text-gray-400">Tanggal</th>
+                                <th class="px-6 py-3 text-left text-sm font-medium text-gray-500 dark:text-gray-400">Durasi</th>
+                                <th class="px-6 py-3 text-left text-sm font-medium text-gray-500 dark:text-gray-400">Status</th>
+                                <th class="px-6 py-3 text-left text-sm font-medium text-gray-500 dark:text-gray-400">Diajukan</th>
+                                <th class="px-6 py-3 text-left text-sm font-medium text-gray-500 dark:text-gray-400">Aksi</th>
                             </tr>
                         </thead>
                         <tbody>
-                            <tr v-for="request in leaveRequests.data" :key="request.id" class="border-b hover:bg-muted/50">
-                                <td class="p-4">
+                            <tr v-for="request in leaveRequests.data" :key="request.id" class="border-b border-gray-100 hover:bg-gray-50 dark:border-gray-800 dark:hover:bg-gray-900/50">
+                                <td class="px-6 py-4">
                                     <div class="flex items-center gap-3">
-                                        <div class="flex h-8 w-8 items-center justify-center rounded-full bg-primary text-xs font-medium text-primary-foreground">
-                                            {{ getInitials(request.user.name) }}
+                                        <div class="flex h-8 w-8 items-center justify-center rounded-full bg-gray-100 dark:bg-gray-800">
+                                            <span class="text-xs font-medium text-gray-600 dark:text-gray-300">{{ getInitials(request.user.name) }}</span>
                                         </div>
                                         <div>
-                                            <p class="font-medium">{{ request.user.name }}</p>
-                                            <p class="text-sm text-muted-foreground">{{ request.user.employee_id }}</p>
+                                            <p class="font-medium text-gray-900 dark:text-white">{{ request.user.name }}</p>
+                                            <p class="text-sm text-gray-500 dark:text-gray-400">{{ request.user.employee_id }}</p>
                                         </div>
                                     </div>
                                 </td>
-                                <td class="p-4">
+                                <td class="px-6 py-4">
                                     <span class="inline-flex items-center rounded-full bg-blue-100 px-2.5 py-0.5 text-xs font-medium text-blue-800 dark:bg-blue-900/20 dark:text-blue-400">
                                         {{ request.leave_type.name }}
                                     </span>
                                 </td>
-                                <td class="p-4">
+                                <td class="px-6 py-4">
                                     <div class="text-sm">
-                                        <p class="font-medium">{{ formatDate(request.start_date) }}</p>
-                                        <p class="text-muted-foreground">s/d {{ formatDate(request.end_date) }}</p>
+                                        <p class="font-medium text-gray-900 dark:text-white">{{ formatDate(request.start_date) }}</p>
+                                        <p class="text-gray-500 dark:text-gray-400">s/d {{ formatDate(request.end_date) }}</p>
                                     </div>
                                 </td>
-                                <td class="p-4">
+                                <td class="px-6 py-4 text-sm text-gray-600 dark:text-gray-300">
                                     <span class="font-medium">{{ request.duration }} hari</span>
                                 </td>
-                                <td class="p-4">
+                                <td class="px-6 py-4">
                                     <span
                                         :class="{
                                             'bg-yellow-100 text-yellow-800 dark:bg-yellow-900/20 dark:text-yellow-400': request.status === 'pending',
@@ -213,10 +240,10 @@
                                         {{ getStatusLabel(request.status) }}
                                     </span>
                                 </td>
-                                <td class="p-4 text-sm text-muted-foreground">
+                                <td class="px-6 py-4 text-sm text-gray-600 dark:text-gray-400">
                                     {{ formatDate(request.created_at) }}
                                 </td>
-                                <td class="p-4">
+                                <td class="px-6 py-4">
                                     <div class="flex items-center gap-2">
                                         <Button
                                             v-if="request.status === 'pending'"
@@ -247,21 +274,23 @@
                 </div>
 
                 <!-- Pagination -->
-                <div class="flex items-center justify-between p-4 border-t">
-                    <div class="text-sm text-muted-foreground">
-                        Menampilkan {{ leaveRequests.from || 0 }}-{{ leaveRequests.to || 0 }} dari {{ leaveRequests.total }} hasil
-                    </div>
-                    <div class="flex items-center gap-2">
-                        <Button
-                            v-for="link in leaveRequests.links"
-                            :key="link.label"
-                            :disabled="!link.url"
-                            :variant="link.active ? 'default' : 'outline'"
-                            size="sm"
-                            @click="link.url && router.visit(link.url)"
-                            v-html="link.label"
-                            class="pagination-btn"
-                        />
+                <div v-if="leaveRequests.total > 10" class="border-t border-gray-200 p-4 dark:border-gray-700">
+                    <div class="flex items-center justify-between">
+                        <p class="text-sm text-gray-500 dark:text-gray-400">
+                            Menampilkan {{ leaveRequests.from || 0 }} sampai {{ leaveRequests.to || 0 }} dari {{ leaveRequests.total }} hasil
+                        </p>
+                        <div class="flex gap-2">
+                            <Button
+                                v-for="link in leaveRequests.links"
+                                :key="link.label"
+                                :disabled="!link.url"
+                                :variant="link.active ? 'default' : 'outline'"
+                                size="sm"
+                                @click="link.url && router.visit(link.url)"
+                                v-html="link.label"
+                                class="pagination-btn"
+                            />
+                        </div>
                     </div>
                 </div>
             </div>

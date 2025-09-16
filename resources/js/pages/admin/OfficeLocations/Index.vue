@@ -122,109 +122,138 @@ const closeMapModal = () => {
     <Head title="Lokasi Kantor" />
 
     <AppLayout :breadcrumbs="breadcrumbs">
-        <div class="flex h-full flex-1 flex-col gap-6 p-6">
+        <div class="mx-auto max-w-7xl px-4 py-6 sm:px-6 lg:px-8">
             <!-- Header -->
-            <div class="flex items-center justify-between">
-                <div>
-                    <h1 class="text-2xl font-bold text-gray-900 dark:text-white">Lokasi Kantor</h1>
-                    <p class="text-gray-600 dark:text-gray-300">Kelola lokasi kantor dan zona absensi</p>
+            <div class="mb-8">
+                <div class="flex items-center justify-between">
+                    <div>
+                        <h1 class="text-3xl font-bold text-gray-900 dark:text-white">
+                            Lokasi Kantor
+                        </h1>
+                        <p class="mt-1 text-gray-600 dark:text-gray-400">
+                            Kelola lokasi kantor dan zona absensi
+                        </p>
+                    </div>
+                    <div class="flex gap-3">
+                        <Link
+                            href="/office-locations/create"
+                            class="inline-flex items-center gap-2 rounded-lg bg-blue-600 px-4 py-2 text-sm font-medium text-white shadow-sm hover:bg-blue-700 focus:outline-none focus:ring-2 focus:ring-blue-500 focus:ring-offset-2 transition-colors"
+                        >
+                            <Plus class="h-4 w-4" />
+                            Tambah Lokasi
+                        </Link>
+                    </div>
                 </div>
-                <Link
-                    href="/office-locations/create"
-                    class="inline-flex items-center gap-2 rounded-lg bg-blue-600 px-4 py-2 text-sm font-medium text-white hover:bg-blue-700"
-                >
-                    <Plus class="h-4 w-4" />
-                    Tambah Lokasi
-                </Link>
             </div>
 
-            <!-- Stats Cards -->
-            <div class="grid gap-4 md:grid-cols-4">
-                <div class="rounded-xl border border-sidebar-border/70 bg-white p-4 dark:border-sidebar-border dark:bg-gray-950">
-                    <div class="flex items-center gap-3">
-                        <div class="rounded-lg bg-blue-100 p-2 dark:bg-blue-900/30">
-                            <MapPin class="h-5 w-5 text-blue-600 dark:text-blue-400" />
-                        </div>
-                        <div>
-                            <p class="text-sm text-gray-600 dark:text-gray-300">Total Lokasi</p>
-                            <p class="text-xl font-bold text-gray-900 dark:text-white">{{ stats.total_locations }}</p>
-                        </div>
-                    </div>
-                </div>
-                <div class="rounded-xl border border-sidebar-border/70 bg-white p-4 dark:border-sidebar-border dark:bg-gray-950">
-                    <div class="flex items-center gap-3">
-                        <div class="rounded-lg bg-green-100 p-2 dark:bg-green-900/30">
-                            <Target class="h-5 w-5 text-green-600 dark:text-green-400" />
-                        </div>
-                        <div>
-                            <p class="text-sm text-gray-600 dark:text-gray-300">Lokasi Aktif</p>
-                            <p class="text-xl font-bold text-gray-900 dark:text-white">{{ stats.active_locations }}</p>
+            <!-- Overview Cards -->
+            <div class="mb-8 grid grid-cols-1 gap-6 sm:grid-cols-2 lg:grid-cols-4">
+                <!-- Total Locations -->
+                <div class="overflow-hidden rounded-xl bg-white shadow-sm ring-1 ring-gray-900/5 dark:bg-gray-900 dark:ring-white/10">
+                    <div class="p-6">
+                        <div class="flex items-center">
+                            <div class="flex h-12 w-12 shrink-0 items-center justify-center rounded-full bg-blue-500/10">
+                                <MapPin class="h-6 w-6 text-blue-600 dark:text-blue-400" />
+                            </div>
+                            <div class="ml-4 flex-1">
+                                <p class="text-sm font-medium text-gray-600 dark:text-gray-400">Total Lokasi</p>
+                                <p class="text-2xl font-bold text-gray-900 dark:text-white">{{ stats.total_locations }}</p>
+                            </div>
                         </div>
                     </div>
                 </div>
-                <div class="rounded-xl border border-sidebar-border/70 bg-white p-4 dark:border-sidebar-border dark:bg-gray-950">
-                    <div class="flex items-center gap-3">
-                        <div class="rounded-lg bg-purple-100 p-2 dark:bg-purple-900/30">
-                            <Navigation class="h-5 w-5 text-purple-600 dark:text-purple-400" />
-                        </div>
-                        <div>
-                            <p class="text-sm text-gray-600 dark:text-gray-300">Area Cakupan</p>
-                            <p class="text-xl font-bold text-gray-900 dark:text-white">{{ stats.total_radius_coverage }}m²</p>
+
+                <!-- Active Locations -->
+                <div class="overflow-hidden rounded-xl bg-white shadow-sm ring-1 ring-gray-900/5 dark:bg-gray-900 dark:ring-white/10">
+                    <div class="p-6">
+                        <div class="flex items-center">
+                            <div class="flex h-12 w-12 shrink-0 items-center justify-center rounded-full bg-green-500/10">
+                                <Target class="h-6 w-6 text-green-600 dark:text-green-400" />
+                            </div>
+                            <div class="ml-4 flex-1">
+                                <p class="text-sm font-medium text-gray-600 dark:text-gray-400">Lokasi Aktif</p>
+                                <p class="text-2xl font-bold text-gray-900 dark:text-white">{{ stats.active_locations }}</p>
+                            </div>
                         </div>
                     </div>
                 </div>
-                <div class="rounded-xl border border-sidebar-border/70 bg-white p-4 dark:border-sidebar-border dark:bg-gray-950">
-                    <div class="flex items-center gap-3">
-                        <div class="rounded-lg bg-orange-100 p-2 dark:bg-orange-900/30">
-                            <Clock class="h-5 w-5 text-orange-600 dark:text-orange-400" />
+
+                <!-- Coverage Area -->
+                <div class="overflow-hidden rounded-xl bg-white shadow-sm ring-1 ring-gray-900/5 dark:bg-gray-900 dark:ring-white/10">
+                    <div class="p-6">
+                        <div class="flex items-center">
+                            <div class="flex h-12 w-12 shrink-0 items-center justify-center rounded-full bg-purple-500/10">
+                                <Navigation class="h-6 w-6 text-purple-600 dark:text-purple-400" />
+                            </div>
+                            <div class="ml-4 flex-1">
+                                <p class="text-sm font-medium text-gray-600 dark:text-gray-400">Area Cakupan</p>
+                                <p class="text-2xl font-bold text-gray-900 dark:text-white">{{ stats.total_radius_coverage }}m²</p>
+                            </div>
                         </div>
-                        <div>
-                            <p class="text-sm text-gray-600 dark:text-gray-300">Absensi Hari Ini</p>
-                            <p class="text-xl font-bold text-gray-900 dark:text-white">{{ stats.today_checkins }}</p>
+                    </div>
+                </div>
+
+                <!-- Today's Check-ins -->
+                <div class="overflow-hidden rounded-xl bg-white shadow-sm ring-1 ring-gray-900/5 dark:bg-gray-900 dark:ring-white/10">
+                    <div class="p-6">
+                        <div class="flex items-center">
+                            <div class="flex h-12 w-12 shrink-0 items-center justify-center rounded-full bg-orange-500/10">
+                                <Clock class="h-6 w-6 text-orange-600 dark:text-orange-400" />
+                            </div>
+                            <div class="ml-4 flex-1">
+                                <p class="text-sm font-medium text-gray-600 dark:text-gray-400">Absensi Hari Ini</p>
+                                <p class="text-2xl font-bold text-gray-900 dark:text-white">{{ stats.today_checkins }}</p>
+                            </div>
                         </div>
                     </div>
                 </div>
             </div>
 
             <!-- Filters -->
-            <div class="rounded-xl border border-sidebar-border/70 bg-white p-4 dark:border-sidebar-border dark:bg-gray-950">
-                <div class="grid gap-4 md:grid-cols-3">
-                    <div class="relative">
-                        <Search class="absolute left-3 top-1/2 h-4 w-4 -translate-y-1/2 text-gray-400" />
-                        <input
-                            v-model="searchQuery"
-                            @input="filterLocations"
-                            type="text"
-                            placeholder="Cari lokasi..."
-                            class="w-full rounded-lg border border-gray-300 pl-10 pr-3 py-2 text-sm dark:border-gray-600 dark:bg-gray-800 dark:text-white"
-                        />
-                    </div>
-                    <select
-                        v-model="selectedStatus"
-                        @change="filterLocations"
-                        class="rounded-lg border border-gray-300 px-3 py-2 text-sm dark:border-gray-600 dark:bg-gray-800"
-                    >
-                        <option value="">Semua Status</option>
-                        <option value="active">Aktif</option>
-                        <option value="inactive">Tidak Aktif</option>
-                    </select>
-                    <div class="flex gap-2">
-                        <button
-                            @click="filterLocations"
-                            class="inline-flex items-center gap-2 rounded-lg bg-gray-100 px-3 py-2 text-sm font-medium text-gray-700 hover:bg-gray-200 dark:bg-gray-800 dark:text-gray-300 dark:hover:bg-gray-700"
+            <div class="mb-8 overflow-hidden rounded-xl bg-white shadow-sm ring-1 ring-gray-900/5 dark:bg-gray-900 dark:ring-white/10">
+                <div class="p-6">
+                    <div class="grid gap-4 md:grid-cols-3">
+                        <div class="relative">
+                            <Search class="absolute left-3 top-1/2 h-4 w-4 -translate-y-1/2 text-gray-400" />
+                            <input
+                                v-model="searchQuery"
+                                @input="filterLocations"
+                                type="text"
+                                placeholder="Cari lokasi..."
+                                class="w-full rounded-lg border border-gray-300 pl-10 pr-3 py-2 text-sm dark:border-gray-600 dark:bg-gray-800 dark:text-white"
+                            />
+                        </div>
+                        <select
+                            v-model="selectedStatus"
+                            @change="filterLocations"
+                            class="rounded-lg border border-gray-300 px-3 py-2 text-sm dark:border-gray-600 dark:bg-gray-800"
                         >
-                            Terapkan
-                        </button>
+                            <option value="">Semua Status</option>
+                            <option value="active">Aktif</option>
+                            <option value="inactive">Tidak Aktif</option>
+                        </select>
+                        <div class="flex gap-2">
+                            <button
+                                @click="filterLocations"
+                                class="inline-flex items-center gap-2 rounded-lg bg-gray-100 px-3 py-2 text-sm font-medium text-gray-700 hover:bg-gray-200 dark:bg-gray-800 dark:text-gray-300 dark:hover:bg-gray-700"
+                            >
+                                Terapkan
+                            </button>
+                        </div>
                     </div>
                 </div>
             </div>
 
             <!-- Map Overview -->
-            <div class="rounded-xl border border-sidebar-border/70 bg-white dark:border-sidebar-border dark:bg-gray-950">
+            <div class="mb-8 overflow-hidden rounded-xl bg-white shadow-sm ring-1 ring-gray-900/5 dark:bg-gray-900 dark:ring-white/10">
+                <div class="px-6 py-4 border-b border-gray-200 dark:border-gray-700">
+                    <h3 class="text-lg font-semibold text-gray-900 dark:text-white flex items-center">
+                        <Map class="mr-2 h-5 w-5 text-blue-600 dark:text-blue-400" />
+                        Peta Lokasi Kantor
+                    </h3>
+                    <p class="text-sm text-gray-600 dark:text-gray-400">Ringkasan semua lokasi kantor</p>
+                </div>
                 <div class="p-6">
-                    <h2 class="text-lg font-semibold text-gray-900 dark:text-white">Peta Lokasi Kantor</h2>
-                    <p class="text-sm text-gray-600 dark:text-gray-300 mb-4">Ringkasan semua lokasi kantor</p>
-
                     <!-- Map showing all locations -->
                     <LeafletMap
                         v-if="officeLocations?.data && officeLocations.data.length > 0"
@@ -250,9 +279,12 @@ const closeMapModal = () => {
             </div>
 
             <!-- Office Locations List -->
-            <div class="rounded-xl border border-sidebar-border/70 bg-white dark:border-sidebar-border dark:bg-gray-950">
-                <div class="p-6">
-                    <h2 class="text-lg font-semibold text-gray-900 dark:text-white">Daftar Lokasi Kantor</h2>
+            <div class="overflow-hidden rounded-xl bg-white shadow-sm ring-1 ring-gray-900/5 dark:bg-gray-900 dark:ring-white/10">
+                <div class="px-6 py-4 border-b border-gray-200 dark:border-gray-700">
+                    <h3 class="text-lg font-semibold text-gray-900 dark:text-white flex items-center">
+                        <MapPin class="mr-2 h-5 w-5 text-blue-600 dark:text-blue-400" />
+                        Daftar Lokasi Kantor
+                    </h3>
                 </div>
 
                 <div class="overflow-x-auto">

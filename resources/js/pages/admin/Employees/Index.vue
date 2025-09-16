@@ -189,48 +189,49 @@ const formatDate = (dateString: string) => {
             </div>
 
             <!-- Filters -->
-            <div class="overflow-hidden rounded-xl bg-white shadow-sm ring-1 ring-gray-900/5 dark:bg-gray-900 dark:ring-white/10">
+            <div class="mb-8 overflow-hidden rounded-xl bg-white shadow-sm ring-1 ring-gray-900/5 dark:bg-gray-900 dark:ring-white/10">
                 <div class="p-6">
-                <div class="grid gap-4 md:grid-cols-4">
-                    <div class="relative">
-                        <Search class="absolute left-3 top-1/2 h-4 w-4 -translate-y-1/2 text-gray-400" />
-                        <input
-                            v-model="searchQuery"
-                            @input="filterEmployees"
-                            type="text"
-                            placeholder="Cari karyawan..."
-                            class="w-full rounded-lg border border-gray-300 pl-10 pr-3 py-2 text-sm dark:border-gray-600 dark:bg-gray-800 dark:text-white"
-                        />
+                    <div class="grid gap-4 md:grid-cols-4">
+                        <div class="relative">
+                            <Search class="absolute left-3 top-1/2 h-4 w-4 -translate-y-1/2 text-gray-400" />
+                            <input
+                                v-model="searchQuery"
+                                @input="filterEmployees"
+                                type="text"
+                                placeholder="Cari karyawan..."
+                                class="w-full rounded-lg border border-gray-300 pl-10 pr-3 py-2 text-sm dark:border-gray-600 dark:bg-gray-800 dark:text-white"
+                            />
+                        </div>
+                        <select
+                            v-model="selectedDepartment"
+                            @change="filterEmployees"
+                            class="rounded-lg border border-gray-300 px-3 py-2 text-sm dark:border-gray-600 dark:bg-gray-800"
+                        >
+                            <option value="">Semua Departemen</option>
+                            <option v-for="dept in departments" :key="dept.id" :value="dept.id">
+                                {{ dept.name }}
+                            </option>
+                        </select>
+                        <select
+                            v-model="selectedPosition"
+                            @change="filterEmployees"
+                            class="rounded-lg border border-gray-300 px-3 py-2 text-sm dark:border-gray-600 dark:bg-gray-800"
+                        >
+                            <option value="">Semua Posisi</option>
+                            <option v-for="pos in positions" :key="pos.id" :value="pos.id">
+                                {{ pos.title }}
+                            </option>
+                        </select>
+                        <select
+                            v-model="selectedStatus"
+                            @change="filterEmployees"
+                            class="rounded-lg border border-gray-300 px-3 py-2 text-sm dark:border-gray-600 dark:bg-gray-800"
+                        >
+                            <option value="">Semua Status</option>
+                            <option value="active">Aktif</option>
+                            <option value="inactive">Tidak Aktif</option>
+                        </select>
                     </div>
-                    <select
-                        v-model="selectedDepartment"
-                        @change="filterEmployees"
-                        class="rounded-lg border border-gray-300 px-3 py-2 text-sm dark:border-gray-600 dark:bg-gray-800"
-                    >
-                        <option value="">Semua Departemen</option>
-                        <option v-for="dept in departments" :key="dept.id" :value="dept.id">
-                            {{ dept.name }}
-                        </option>
-                    </select>
-                    <select
-                        v-model="selectedPosition"
-                        @change="filterEmployees"
-                        class="rounded-lg border border-gray-300 px-3 py-2 text-sm dark:border-gray-600 dark:bg-gray-800"
-                    >
-                        <option value="">Semua Posisi</option>
-                        <option v-for="pos in positions" :key="pos.id" :value="pos.id">
-                            {{ pos.title }}
-                        </option>
-                    </select>
-                    <select
-                        v-model="selectedStatus"
-                        @change="filterEmployees"
-                        class="rounded-lg border border-gray-300 px-3 py-2 text-sm dark:border-gray-600 dark:bg-gray-800"
-                    >
-                        <option value="">Semua Status</option>
-                        <option value="active">Aktif</option>
-                        <option value="inactive">Tidak Aktif</option>
-                    </select>
                 </div>
             </div>
 

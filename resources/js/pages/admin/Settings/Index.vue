@@ -2,30 +2,36 @@
     <Head title="Admin - Pengaturan Perusahaan" />
 
     <AppLayout :breadcrumbs="breadcrumbs">
-        <div class="flex h-full flex-1 flex-col gap-6 p-6">
+        <div class="mx-auto max-w-7xl px-4 py-6 sm:px-6 lg:px-8">
             <!-- Header -->
-            <div class="flex flex-col gap-4 sm:flex-row sm:items-center sm:justify-between">
-                <div>
-                    <h1 class="text-2xl font-bold tracking-tight">Pengaturan Perusahaan</h1>
-                    <p class="text-muted-foreground">Kelola informasi dan branding perusahaan</p>
+            <div class="mb-8">
+                <div class="flex items-center justify-between">
+                    <div>
+                        <h1 class="text-3xl font-bold text-gray-900 dark:text-white">
+                            Pengaturan Perusahaan
+                        </h1>
+                        <p class="mt-1 text-gray-600 dark:text-gray-400">
+                            Kelola informasi dan branding perusahaan
+                        </p>
+                    </div>
                 </div>
             </div>
 
             <!-- Settings Form -->
-            <form @submit.prevent="submitForm" class="space-y-8">
+            <form @submit.prevent="submitForm" class="w-full space-y-8">
                 <!-- Branding & Identity -->
-                <div class="rounded-lg border bg-card p-6">
-                    <div class="mb-6">
-                        <h3 class="text-lg font-semibold">{{ groups.branding }}</h3>
-                        <p class="text-sm text-muted-foreground">Atur identitas visual dan branding perusahaan</p>
+                <div class="overflow-hidden rounded-xl bg-white shadow-sm ring-1 ring-gray-900/5 dark:bg-gray-900 dark:ring-white/10">
+                    <div class="px-6 py-4 border-b border-gray-200 dark:border-gray-700">
+                        <h3 class="text-lg font-semibold text-gray-900 dark:text-white">{{ groups.branding }}</h3>
+                        <p class="text-sm text-gray-600 dark:text-gray-400">Atur identitas visual dan branding perusahaan</p>
                     </div>
-
-                    <div class="grid gap-6 md:grid-cols-2">
-                        <div v-for="(setting, key) in settings.branding" :key="key" class="space-y-2">
-                            <label class="text-sm font-medium">
-                                {{ setting.label }}
-                                <span v-if="setting.required" class="text-red-500">*</span>
-                            </label>
+                    <div class="p-6">
+                        <div class="grid gap-6 md:grid-cols-2">
+                            <div v-for="(setting, key) in settings.branding" :key="key" class="space-y-2">
+                                <label class="text-sm font-medium text-gray-900 dark:text-white">
+                                    {{ setting.label }}
+                                    <span v-if="setting.required" class="text-red-500">*</span>
+                                </label>
 
                             <!-- Text Input -->
                             <Input
@@ -87,29 +93,29 @@
                                 />
                             </div>
 
-                            <p v-if="setting.description" class="text-xs text-muted-foreground">
-                                {{ setting.description }}
-                            </p>
-                            <p v-if="errors[key]" class="text-sm text-red-600">
-                                {{ errors[key] }}
-                            </p>
+                                <p v-if="setting.description" class="text-xs text-gray-600 dark:text-gray-400">
+                                    {{ setting.description }}
+                                </p>
+                                <p v-if="errors[key]" class="text-sm text-red-600">
+                                    {{ errors[key] }}
+                                </p>
+                            </div>
                         </div>
                     </div>
                 </div>
 
-                <!-- Company Information -->
-                <div class="rounded-lg border bg-card p-6">
-                    <div class="mb-6">
-                        <h3 class="text-lg font-semibold">{{ groups.company_info }}</h3>
-                        <p class="text-sm text-muted-foreground">Informasi kontak dan detail perusahaan</p>
+                <div class="overflow-hidden rounded-xl bg-white shadow-sm ring-1 ring-gray-900/5 dark:bg-gray-900 dark:ring-white/10">
+                    <div class="px-6 py-4 border-b border-gray-200 dark:border-gray-700">
+                        <h3 class="text-lg font-semibold text-gray-900 dark:text-white">{{ groups.company_info }}</h3>
+                        <p class="text-sm text-gray-600 dark:text-gray-400">Informasi kontak dan detail perusahaan</p>
                     </div>
-
-                    <div class="grid gap-6 md:grid-cols-2">
-                        <div v-for="(setting, key) in settings.company_info" :key="key" class="space-y-2" :class="{ 'md:col-span-2': setting.type === 'textarea' }">
-                            <label class="text-sm font-medium">
-                                {{ setting.label }}
-                                <span v-if="setting.required" class="text-red-500">*</span>
-                            </label>
+                    <div class="p-6">
+                        <div class="grid gap-6 md:grid-cols-2">
+                            <div v-for="(setting, key) in settings.company_info" :key="key" class="space-y-2" :class="{ 'md:col-span-2': setting.type === 'textarea' }">
+                                <label class="text-sm font-medium text-gray-900 dark:text-white">
+                                    {{ setting.label }}
+                                    <span v-if="setting.required" class="text-red-500">*</span>
+                                </label>
 
                             <!-- Text Input -->
                             <Input
@@ -129,22 +135,22 @@
                                 rows="3"
                             />
 
-                            <p v-if="setting.description" class="text-xs text-muted-foreground">
-                                {{ setting.description }}
-                            </p>
-                            <p v-if="errors[key]" class="text-sm text-red-600">
-                                {{ errors[key] }}
-                            </p>
+                                <p v-if="setting.description" class="text-xs text-gray-600 dark:text-gray-400">
+                                    {{ setting.description }}
+                                </p>
+                                <p v-if="errors[key]" class="text-sm text-red-600">
+                                    {{ errors[key] }}
+                                </p>
+                            </div>
                         </div>
                     </div>
                 </div>
 
-                <!-- Submit Button -->
                 <div class="flex justify-end">
                     <Button
                         type="submit"
                         :disabled="processing"
-                        class="px-8"
+                        class="inline-flex items-center gap-2 rounded-lg bg-blue-600 px-8 py-2 text-sm font-medium text-white shadow-sm hover:bg-blue-700 focus:outline-none focus:ring-2 focus:ring-blue-500 focus:ring-offset-2 transition-colors disabled:opacity-50 disabled:cursor-not-allowed"
                     >
                         {{ processing ? 'Menyimpan...' : 'Simpan Pengaturan' }}
                     </Button>
