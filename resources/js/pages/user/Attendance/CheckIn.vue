@@ -360,14 +360,6 @@ const submitCheckIn = () => {
                                     ✓ Anda berada dalam radius check-in ({{ selectedOffice.radius_meters }}m)
                                 </p>
                             </div>
-                            <div v-else class="rounded-lg bg-red-50 dark:bg-red-950/50 border border-red-200 dark:border-red-800 p-3">
-                                <p class="text-sm font-medium text-red-800 dark:text-red-300">
-                                    ✗ Anda harus berada dalam radius {{ selectedOffice.radius_meters }}m
-                                </p>
-                                <p class="mt-1 text-xs text-red-600 dark:text-red-400">
-                                    Mohon mendekat {{ distanceToOffice - selectedOffice.radius_meters }}m lagi
-                                </p>
-                            </div>
                         </div>
                     </div>
                 </div>

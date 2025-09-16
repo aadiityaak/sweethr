@@ -1,8 +1,9 @@
 <script setup lang="ts">
-import { Head, Link, router } from '@inertiajs/vue3';
-import { Clock, MapPin, CheckCircle, XCircle, AlertTriangle, ArrowLeft, Calendar } from 'lucide-vue-next';
+import { Head, Link, router, useForm } from '@inertiajs/vue3';
+import { Clock, MapPin, CheckCircle, XCircle, AlertTriangle, ArrowLeft, Calendar, Loader2 } from 'lucide-vue-next';
 import BottomNavigation from '@/components/BottomNavigation.vue';
 import AttendanceCalendar from '@/components/AttendanceCalendar.vue';
+import { useToast } from '@/components/ui/toast/use-toast';
 import { ref, computed } from 'vue';
 
 interface OfficeLocation {
@@ -45,9 +46,23 @@ interface Props {
 
 const { attendances, todayAttendance, filters } = defineProps<Props>();
 
+const { toast } = useToast();
+
 // State for calendar
 const showCalendarView = ref(true);
 const selectedMonth = ref(new Date());
+
+// State for checkout
+const isCheckingOut = ref(false);
+const locationStatus = ref<'idle' | 'loading' | 'success' | 'error'>('idle');
+const locationError = ref('');
+const userLocation = ref({ latitude: 0, longitude: 0 });
+
+// Checkout form
+const checkoutForm = useForm({
+    latitude: 0,
+    longitude: 0,
+});
 
 // Transform attendance data for calendar
 const calendarAttendanceData = computed(() => {
@@ -133,6 +148,102 @@ const getStatusIcon = (status: string) => {
 const filterAttendance = (month?: string, year?: string) => {
     router.get('/attendance', { month, year }, { preserveState: true });
 };
+
+// Location and checkout functions
+const getCurrentLocation = () => {
+    if (!navigator.geolocation) {
+        locationStatus.value = 'error';
+        locationError.value = 'Geolocation is not supported by this browser.';
+        return;
+    }
+
+    locationStatus.value = 'loading';
+    navigator.geolocation.getCurrentPosition(
+        (position) => {
+            userLocation.value.latitude = position.coords.latitude;
+            userLocation.value.longitude = position.coords.longitude;
+            checkoutForm.latitude = position.coords.latitude;
+            checkoutForm.longitude = position.coords.longitude;
+            locationStatus.value = 'success';
+        },
+        (error) => {
+            locationStatus.value = 'error';
+            switch (error.code) {
+                case error.PERMISSION_DENIED:
+                    locationError.value = 'Location access denied. Please enable location access.';
+                    break;
+                case error.POSITION_UNAVAILABLE:
+                    locationError.value = 'Location information is unavailable.';
+                    break;
+                case error.TIMEOUT:
+                    locationError.value = 'Location request timed out.';
+                    break;
+                default:
+                    locationError.value = 'An unknown error occurred while retrieving location.';
+                    break;
+            }
+        },
+        {
+            enableHighAccuracy: true,
+            timeout: 10000,
+            maximumAge: 60000
+        }
+    );
+};
+
+const handleCheckOutClick = () => {
+    // Reset states and get location
+    locationStatus.value = 'idle';
+    locationError.value = '';
+    getCurrentLocation();
+    // Show modal after starting location detection
+    document.getElementById('checkOutModal')?.showModal();
+};
+
+const confirmCheckOut = () => {
+    if (locationStatus.value !== 'success') {
+        toast({
+            title: '❌ Tidak Dapat Check Out',
+            description: 'Lokasi belum terdeteksi. Mohon tunggu atau coba lagi.',
+            variant: 'destructive',
+        });
+        return;
+    }
+
+    isCheckingOut.value = true;
+    toast({
+        title: '🕐 Sedang Check Out...',
+        description: 'Memproses absensi keluar Anda.',
+        variant: 'default',
+    });
+
+    checkoutForm.post('/attendance/check-out', {
+        onSuccess: () => {
+            isCheckingOut.value = false;
+            document.getElementById('checkOutModal')?.close();
+            toast({
+                title: '✅ Check Out Berhasil!',
+                description: `Absensi keluar Anda telah tercatat pada ${new Date().toLocaleTimeString('id-ID')}.`,
+                variant: 'success',
+                duration: 5000,
+            });
+            // Refresh the page to update attendance data
+            window.location.reload();
+        },
+        onError: (errors) => {
+            isCheckingOut.value = false;
+            console.error('Check-out errors:', errors);
+            toast({
+                title: '❌ Check Out Gagal',
+                description: errors.message || 'Terjadi kesalahan saat melakukan check out. Silakan coba lagi.',
+                variant: 'destructive',
+                duration: 6000,
+            });
+        },
+        preserveState: true,
+        preserveScroll: true,
+    });
+};
 </script>
 
 <template>
@@ -217,7 +328,7 @@ const filterAttendance = (month?: string, year?: string) => {
                     <!-- Check Out Button -->
                     <div v-if="todayAttendance?.check_in_time && !todayAttendance?.check_out_time" class="mt-4">
                         <button
-                            @click="$refs.checkOutModal.showModal()"
+                            @click="handleCheckOutClick"
                             class="flex w-full items-center justify-center gap-2 rounded-md bg-destructive px-4 py-3 text-destructive-foreground font-medium hover:bg-destructive/90 transition-colors"
                         >
                             <Clock class="h-4 w-4" />
@@ -377,10 +488,39 @@ const filterAttendance = (month?: string, year?: string) => {
     </div>
 
         <!-- Check Out Modal -->
-        <dialog ref="checkOutModal" class="rounded-lg border bg-card p-6 backdrop:bg-black/50 max-w-sm">
+        <dialog ref="checkOutModal" id="checkOutModal" class="rounded-lg border bg-card p-6 backdrop:bg-black/50 max-w-sm fixed top-1/2 left-1/2 transform -translate-x-1/2 -translate-y-1/2 m-0">
             <div>
                 <h3 class="text-lg font-semibold mb-2">Konfirmasi Check Out</h3>
                 <p class="text-sm text-muted-foreground mb-4">Apakah Anda yakin ingin check out sekarang?</p>
+
+                <!-- Location Status -->
+                <div class="mb-4 p-3 rounded-lg border">
+                    <div v-if="locationStatus === 'loading'" class="flex items-center gap-2 text-blue-600">
+                        <Loader2 class="h-4 w-4 animate-spin" />
+                        <span class="text-sm">Mendeteksi lokasi...</span>
+                    </div>
+                    <div v-else-if="locationStatus === 'success'" class="flex items-center gap-2 text-green-600">
+                        <CheckCircle class="h-4 w-4" />
+                        <div class="text-sm">
+                            <div class="font-medium">Lokasi terdeteksi</div>
+                            <div class="text-xs text-muted-foreground">
+                                {{ userLocation.latitude.toFixed(6) }}, {{ userLocation.longitude.toFixed(6) }}
+                            </div>
+                        </div>
+                    </div>
+                    <div v-else-if="locationStatus === 'error'" class="flex items-center gap-2 text-red-600">
+                        <XCircle class="h-4 w-4" />
+                        <div class="text-sm">
+                            <div class="font-medium">Gagal mendeteksi lokasi</div>
+                            <div class="text-xs">{{ locationError }}</div>
+                        </div>
+                    </div>
+                    <div v-else class="flex items-center gap-2 text-muted-foreground">
+                        <MapPin class="h-4 w-4" />
+                        <span class="text-sm">Menunggu deteksi lokasi...</span>
+                    </div>
+                </div>
+
                 <div class="flex gap-3">
                     <button
                         @click="$refs.checkOutModal.close()"
@@ -389,9 +529,12 @@ const filterAttendance = (month?: string, year?: string) => {
                         Batal
                     </button>
                     <button
-                        class="flex-1 rounded-md bg-destructive px-4 py-2 text-sm font-medium text-destructive-foreground hover:bg-destructive/90 transition-colors"
+                        @click="confirmCheckOut"
+                        :disabled="locationStatus !== 'success' || isCheckingOut"
+                        class="flex-1 rounded-md bg-destructive px-4 py-2 text-sm font-medium text-destructive-foreground hover:bg-destructive/90 transition-colors disabled:opacity-50 disabled:cursor-not-allowed"
                     >
-                        Konfirmasi
+                        <Loader2 v-if="isCheckingOut" class="h-4 w-4 animate-spin mr-2" />
+                        {{ isCheckingOut ? 'Memproses...' : 'Konfirmasi' }}
                     </button>
                 </div>
             </div>

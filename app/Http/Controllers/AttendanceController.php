@@ -5,6 +5,7 @@ namespace App\Http\Controllers;
 use App\Models\Attendance;
 use App\Models\OfficeLocation;
 use Carbon\Carbon;
+use Illuminate\Http\JsonResponse;
 use Illuminate\Http\RedirectResponse;
 use Illuminate\Http\Request;
 use Inertia\Inertia;
@@ -64,13 +65,17 @@ class AttendanceController extends Controller
         ]);
     }
 
-    public function storeCheckIn(Request $request): RedirectResponse
+    public function storeCheckIn(Request $request)
     {
-        $request->validate([
-            'office_location_id' => 'required|exists:office_locations,id',
-            'latitude' => 'required|numeric|between:-90,90',
-            'longitude' => 'required|numeric|between:-180,180',
-        ]);
+        try {
+            $request->validate([
+                'office_location_id' => 'required|exists:office_locations,id',
+                'latitude' => 'required|numeric|between:-90,90',
+                'longitude' => 'required|numeric|between:-180,180',
+            ]);
+        } catch (\Illuminate\Validation\ValidationException $e) {
+            return back()->withErrors($e->errors());
+        }
 
         $user = auth()->user();
         $today = Carbon::today();
@@ -81,13 +86,13 @@ class AttendanceController extends Controller
                                        ->first();
 
         if ($existingAttendance && $existingAttendance->check_in_time) {
-            return back()->with('error', 'Already checked in today');
+            return back()->withErrors(['message' => 'Anda sudah melakukan check in hari ini']);
         }
 
         // Validate location
         $office = OfficeLocation::findOrFail($request->office_location_id);
         if (!$office->isWithinRadius($request->latitude, $request->longitude)) {
-            return back()->with('error', 'You are not within the office radius. Please get closer to the office location.');
+            return back()->withErrors(['message' => 'Anda berada di luar radius kantor. Mohon mendekat ke lokasi kantor.']);
         }
 
         // Determine if late
@@ -102,7 +107,7 @@ class AttendanceController extends Controller
             }
         }
 
-        Attendance::updateOrCreate(
+        $attendance = Attendance::updateOrCreate(
             [
                 'user_id' => $user->id,
                 'date' => $today,
@@ -116,8 +121,7 @@ class AttendanceController extends Controller
             ]
         );
 
-        return redirect()->route('attendance.index')
-                        ->with('success', 'Successfully checked in!');
+        return back()->with('success', 'Check in berhasil!');
     }
 
     public function storeCheckOut(Request $request): RedirectResponse

@@ -5,6 +5,7 @@ namespace App\Http\Controllers;
 use App\Models\Attendance;
 use App\Models\Department;
 use App\Models\LeaveRequest;
+use App\Models\OfficeLocation;
 use App\Models\User;
 use Carbon\Carbon;
 use Inertia\Inertia;
@@ -78,9 +79,13 @@ class DashboardController extends Controller
             'leave_balance' => $this->calculateLeaveBalance($user->id),
         ];
 
+        // Get all office locations for check-in functionality
+        $officeLocations = OfficeLocation::active()->get();
+
         return Inertia::render('user/Welcome', [
             'user' => $user->load(['department', 'position']),
             'todayAttendance' => $todayAttendance,
+            'officeLocations' => $officeLocations,
             'stats' => $stats,
         ]);
     }

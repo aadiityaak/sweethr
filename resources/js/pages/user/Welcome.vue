@@ -1,8 +1,9 @@
 <script setup lang="ts">
-import { Head, Link } from '@inertiajs/vue3';
+import { Head, Link, useForm } from '@inertiajs/vue3';
 import { ref, onMounted, onUnmounted } from 'vue';
-import { Clock, Calendar, CheckCircle, User, MapPin, LogOut, UserCircle, BarChart3 } from 'lucide-vue-next';
+import { Clock, Calendar, CheckCircle, User, MapPin, LogOut, UserCircle, BarChart3, Loader2 } from 'lucide-vue-next';
 import { useCompanySettings } from '@/composables/useCompanySettings';
+import { useToast } from '@/components/ui/toast/use-toast';
 import BottomNavigation from '@/components/BottomNavigation.vue';
 
 interface User {
@@ -32,9 +33,19 @@ interface TodayAttendance {
     };
 }
 
+interface OfficeLocation {
+    id: number;
+    name: string;
+    address: string;
+    latitude: number;
+    longitude: number;
+    radius_meters: number;
+}
+
 interface Props {
     user?: User;
     todayAttendance?: TodayAttendance | null;
+    officeLocations?: OfficeLocation[];
     stats?: {
         monthly_attendance_days: number;
         monthly_late_days: number;
@@ -43,9 +54,24 @@ interface Props {
     };
 }
 
-const { user, todayAttendance, stats } = defineProps<Props>();
+const { user, todayAttendance, officeLocations, stats } = defineProps<Props>();
 
 const { companyName, companyLogo } = useCompanySettings();
+const { toast } = useToast();
+
+// Check-in form and location state
+const form = useForm({
+    office_location_id: '',
+    latitude: 0,
+    longitude: 0,
+});
+
+const locationStatus = ref<'idle' | 'loading' | 'success' | 'error'>('idle');
+const locationError = ref('');
+const selectedOffice = ref<OfficeLocation | null>(null);
+const isInRange = ref(false);
+const distanceToOffice = ref(0);
+const isCheckingIn = ref(false);
 
 const formatTime = (time: string | null) => {
     if (!time) return '--:--';
@@ -75,6 +101,160 @@ const updateTime = () => {
         month: 'long',
         day: 'numeric'
     });
+};
+
+// Location and check-in functions
+const calculateDistance = (lat1: number, lng1: number, lat2: number, lng2: number) => {
+    const earthRadius = 6371000; // meters
+    const lat1Rad = (lat1 * Math.PI) / 180;
+    const lng1Rad = (lng1 * Math.PI) / 180;
+    const lat2Rad = (lat2 * Math.PI) / 180;
+    const lng2Rad = (lng2 * Math.PI) / 180;
+
+    const deltaLat = lat2Rad - lat1Rad;
+    const deltaLng = lng2Rad - lng1Rad;
+
+    const a = Math.sin(deltaLat / 2) * Math.sin(deltaLat / 2) +
+              Math.cos(lat1Rad) * Math.cos(lat2Rad) *
+              Math.sin(deltaLng / 2) * Math.sin(deltaLng / 2);
+    const c = 2 * Math.atan2(Math.sqrt(a), Math.sqrt(1 - a));
+
+    return earthRadius * c;
+};
+
+const getCurrentLocation = () => {
+    if (!navigator.geolocation) {
+        locationStatus.value = 'error';
+        locationError.value = 'Geolocation is not supported by this browser.';
+        return;
+    }
+
+    locationStatus.value = 'loading';
+    navigator.geolocation.getCurrentPosition(
+        (position) => {
+            form.latitude = position.coords.latitude;
+            form.longitude = position.coords.longitude;
+            locationStatus.value = 'success';
+            checkOfficeProximity();
+        },
+        (error) => {
+            locationStatus.value = 'error';
+            switch (error.code) {
+                case error.PERMISSION_DENIED:
+                    locationError.value = 'Location access denied. Please enable location access.';
+                    break;
+                case error.POSITION_UNAVAILABLE:
+                    locationError.value = 'Location information is unavailable.';
+                    break;
+                case error.TIMEOUT:
+                    locationError.value = 'Location request timed out.';
+                    break;
+                default:
+                    locationError.value = 'An unknown error occurred while retrieving location.';
+                    break;
+            }
+        },
+        {
+            enableHighAccuracy: true,
+            timeout: 10000,
+            maximumAge: 60000
+        }
+    );
+};
+
+const checkOfficeProximity = () => {
+    if (!form.latitude || !form.longitude || !officeLocations) return;
+
+    let nearestOffice: OfficeLocation | null = null;
+    let nearestDistance = Infinity;
+    let isWithinRange = false;
+
+    officeLocations.forEach(office => {
+        const distance = calculateDistance(
+            form.latitude,
+            form.longitude,
+            office.latitude,
+            office.longitude
+        );
+
+        if (distance < nearestDistance) {
+            nearestDistance = distance;
+            nearestOffice = office;
+        }
+
+        if (distance <= office.radius_meters) {
+            isWithinRange = true;
+            form.office_location_id = office.id.toString();
+        }
+    });
+
+    selectedOffice.value = nearestOffice;
+    distanceToOffice.value = Math.round(nearestDistance);
+    isInRange.value = isWithinRange;
+};
+
+const performCheckIn = () => {
+    if (!isInRange.value) {
+        if (selectedOffice.value) {
+            const distanceNeeded = Math.round(distanceToOffice.value - selectedOffice.value.radius_meters);
+            toast({
+                title: '❌ Tidak Dapat Check In',
+                description: `Anda masih berada di luar radius ${selectedOffice.value.radius_meters}m. Mohon mendekat ${distanceNeeded}m lagi ke ${selectedOffice.value.name}.`,
+                variant: 'destructive',
+                duration: 6000,
+            });
+        } else {
+            toast({
+                title: '❌ Tidak Dapat Check In',
+                description: 'Anda tidak berada dalam jangkauan lokasi kantor manapun. Mohon mendekat ke lokasi kantor.',
+                variant: 'destructive',
+            });
+        }
+        return;
+    }
+
+    isCheckingIn.value = true;
+    toast({
+        title: '🕐 Sedang Check In...',
+        description: 'Memproses absensi masuk Anda.',
+        variant: 'default',
+    });
+
+    form.post('/attendance/check-in', {
+        onSuccess: () => {
+            isCheckingIn.value = false;
+            toast({
+                title: '✅ Check In Berhasil!',
+                description: `Absensi masuk Anda telah tercatat pada ${new Date().toLocaleTimeString('id-ID')}.`,
+                variant: 'success',
+                duration: 5000,
+            });
+            // Refresh the page to update attendance data
+            window.location.reload();
+        },
+        onError: (errors) => {
+            isCheckingIn.value = false;
+            console.error('Check-in errors:', errors);
+            toast({
+                title: '❌ Check In Gagal',
+                description: errors.message || 'Terjadi kesalahan saat melakukan check in. Silakan coba lagi.',
+                variant: 'destructive',
+                duration: 6000,
+            });
+        },
+        preserveState: true,
+        preserveScroll: true,
+    });
+};
+
+const handleCheckInClick = () => {
+    if (locationStatus.value === 'idle') {
+        getCurrentLocation();
+    } else if (locationStatus.value === 'success' && isInRange.value) {
+        performCheckIn();
+    } else if (locationStatus.value === 'error') {
+        getCurrentLocation();
+    }
 };
 
 onMounted(() => {
@@ -232,14 +412,28 @@ onUnmounted(() => {
                     <!-- Attendance Actions -->
                     <div class="mt-6 grid gap-3 grid-cols-2">
                         <!-- Check In Button -->
-                        <Link
+                        <button
                             v-if="!todayAttendance?.check_in_time"
-                            href="/attendance/check-in"
-                            class="flex items-center justify-center gap-2 rounded-md bg-green-600 px-4 py-4 text-white font-medium hover:bg-green-700 transition-colors shadow-sm"
+                            @click="handleCheckInClick"
+                            :disabled="isCheckingIn || (locationStatus === 'success' && !isInRange)"
+                            class="flex items-center justify-center gap-2 rounded-md px-4 py-4 text-white font-medium transition-colors shadow-sm disabled:opacity-50 disabled:cursor-not-allowed"
+                            :class="{
+                                'bg-green-600 hover:bg-green-700': locationStatus === 'idle' || locationStatus === 'error' || (locationStatus === 'success' && isInRange),
+                                'bg-blue-600 hover:bg-blue-700': locationStatus === 'loading',
+                                'bg-gray-500': locationStatus === 'success' && !isInRange
+                            }"
                         >
-                            <Clock class="h-5 w-5" />
-                            <span class="text-sm">Check In</span>
-                        </Link>
+                            <Loader2 v-if="locationStatus === 'loading' || isCheckingIn" class="h-5 w-5 animate-spin" />
+                            <Clock v-else class="h-5 w-5" />
+                            <span class="text-sm">
+                                {{ locationStatus === 'loading' ? 'Mencari Lokasi...' :
+                                   isCheckingIn ? 'Check In...' :
+                                   locationStatus === 'success' && isInRange ? 'Check In' :
+                                   locationStatus === 'success' && !isInRange ? 'Di Luar Area' :
+                                   locationStatus === 'error' ? 'Coba Lagi' :
+                                   'Check In' }}
+                            </span>
+                        </button>
                         <div
                             v-else
                             class="flex items-center justify-center gap-2 rounded-md bg-green-100 dark:bg-green-900/20 px-4 py-4 text-green-800 dark:text-green-200 font-medium"
