@@ -4,7 +4,7 @@ import AttendanceChart from '@/components/AttendanceChart.vue';
 import { type BreadcrumbItem } from '@/types';
 import DatePicker from '@/components/ui/date-picker/DatePicker.vue';
 import { Head, Link, router } from '@inertiajs/vue3';
-import { ref, watch } from 'vue';
+import { ref, watch, onMounted, onUnmounted } from 'vue';
 import {
     Clock,
     Users,
@@ -18,7 +18,9 @@ import {
     MapPin,
     Eye,
     Edit,
-    Trash2
+    Trash2,
+    MoreHorizontal,
+    Plus
 } from 'lucide-vue-next';
 
 interface User {
@@ -92,6 +94,9 @@ const searchQuery = ref(filters.search || '');
 const selectedStatus = ref(filters.status || '');
 const selectedDepartment = ref(filters.department || '');
 const selectedDate = ref(filters.date || '');
+
+// Action dropdown state
+const activeDropdown = ref<number | null>(null);
 
 // Debounce search
 let searchTimeout: NodeJS.Timeout;
@@ -224,7 +229,48 @@ const deleteAttendance = (attendance: AttendanceRecord) => {
             preserveScroll: true,
         });
     }
+    activeDropdown.value = null;
 };
+
+// Toggle dropdown
+const toggleDropdown = (recordId: number) => {
+    activeDropdown.value = activeDropdown.value === recordId ? null : recordId;
+};
+
+// Close dropdown when clicking outside
+const closeDropdown = () => {
+    activeDropdown.value = null;
+};
+
+// Export attendance data
+const exportData = () => {
+    const queryParams = new URLSearchParams({
+        date: selectedDate.value || '',
+        status: selectedStatus.value || '',
+        department: selectedDepartment.value || '',
+        search: searchQuery.value || '',
+        export: 'excel'
+    });
+
+    window.open(`/admin/attendance/export?${queryParams.toString()}`, '_blank');
+};
+
+// Handle click outside to close dropdown
+const handleClickOutside = (event: Event) => {
+    const target = event.target as HTMLElement;
+    if (!target.closest('.relative')) {
+        activeDropdown.value = null;
+    }
+};
+
+// Lifecycle hooks
+onMounted(() => {
+    document.addEventListener('click', handleClickOutside);
+});
+
+onUnmounted(() => {
+    document.removeEventListener('click', handleClickOutside);
+});
 </script>
 
 <template>
@@ -243,13 +289,12 @@ const deleteAttendance = (attendance: AttendanceRecord) => {
                     </p>
                 </div>
                 <div class="flex gap-3">
-                    <button class="inline-flex items-center rounded-lg border border-gray-300 bg-white px-4 py-2 text-sm font-medium text-gray-700 shadow-sm hover:bg-gray-50 focus:outline-none focus:ring-2 focus:ring-blue-500 focus:ring-offset-2 dark:border-gray-600 dark:bg-gray-800 dark:text-gray-300 dark:hover:bg-gray-700">
-                        <Filter class="mr-2 h-4 w-4" />
-                        Filter
-                    </button>
-                    <button class="inline-flex items-center rounded-lg bg-blue-600 px-4 py-2 text-sm font-medium text-white shadow-sm hover:bg-blue-700 focus:outline-none focus:ring-2 focus:ring-blue-500 focus:ring-offset-2">
+                    <button
+                        @click="exportData"
+                        class="inline-flex items-center rounded-lg bg-green-600 px-4 py-2 text-sm font-medium text-white shadow-sm hover:bg-green-700 focus:outline-none focus:ring-2 focus:ring-green-500 focus:ring-offset-2 transition-colors"
+                    >
                         <Download class="mr-2 h-4 w-4" />
-                        Export
+                        Export Excel
                     </button>
                 </div>
             </div>
@@ -518,28 +563,72 @@ const deleteAttendance = (attendance: AttendanceRecord) => {
                                     </div>
                                 </td>
                                 <td class="px-6 py-4">
-                                    <div class="flex items-center gap-2">
-                                        <Link
-                                            :href="`/admin/attendance/${record.id}`"
-                                            class="inline-flex items-center rounded-md bg-gray-50 px-2.5 py-1.5 text-xs font-medium text-gray-700 ring-1 ring-gray-200 hover:bg-gray-100 dark:bg-gray-800 dark:text-gray-300 dark:ring-gray-700 dark:hover:bg-gray-700 transition-colors"
-                                        >
-                                            <Eye class="mr-1 h-3 w-3" />
-                                            Detail
-                                        </Link>
-                                        <Link
-                                            :href="`/admin/attendance/${record.id}/edit`"
-                                            class="inline-flex items-center rounded-md bg-blue-50 px-2.5 py-1.5 text-xs font-medium text-blue-700 ring-1 ring-blue-200 hover:bg-blue-100 dark:bg-blue-950/50 dark:text-blue-400 dark:ring-blue-800 dark:hover:bg-blue-900/50 transition-colors"
-                                        >
-                                            <Edit class="mr-1 h-3 w-3" />
-                                            Edit
-                                        </Link>
-                                        <button
-                                            @click="deleteAttendance(record)"
-                                            class="inline-flex items-center rounded-md bg-red-50 px-2.5 py-1.5 text-xs font-medium text-red-700 ring-1 ring-red-200 hover:bg-red-100 dark:bg-red-950/50 dark:text-red-400 dark:ring-red-800 dark:hover:bg-red-900/50 transition-colors"
-                                        >
-                                            <Trash2 class="mr-1 h-3 w-3" />
-                                            Hapus
-                                        </button>
+                                    <div class="relative">
+                                        <!-- Quick action buttons for larger screens -->
+                                        <div class="hidden sm:flex items-center gap-2">
+                                            <Link
+                                                :href="`/admin/attendance/${record.id}`"
+                                                class="inline-flex items-center rounded-md bg-gray-50 px-2.5 py-1.5 text-xs font-medium text-gray-700 ring-1 ring-gray-200 hover:bg-gray-100 dark:bg-gray-800 dark:text-gray-300 dark:ring-gray-700 dark:hover:bg-gray-700 transition-colors"
+                                                title="Lihat Detail"
+                                            >
+                                                <Eye class="h-3 w-3" />
+                                            </Link>
+                                            <Link
+                                                :href="`/admin/attendance/${record.id}/edit`"
+                                                class="inline-flex items-center rounded-md bg-blue-50 px-2.5 py-1.5 text-xs font-medium text-blue-700 ring-1 ring-blue-200 hover:bg-blue-100 dark:bg-blue-950/50 dark:text-blue-400 dark:ring-blue-800 dark:hover:bg-blue-900/50 transition-colors"
+                                                title="Edit"
+                                            >
+                                                <Edit class="h-3 w-3" />
+                                            </Link>
+                                            <button
+                                                @click="deleteAttendance(record)"
+                                                class="inline-flex items-center rounded-md bg-red-50 px-2.5 py-1.5 text-xs font-medium text-red-700 ring-1 ring-red-200 hover:bg-red-100 dark:bg-red-950/50 dark:text-red-400 dark:ring-red-800 dark:hover:bg-red-900/50 transition-colors"
+                                                title="Hapus"
+                                            >
+                                                <Trash2 class="h-3 w-3" />
+                                            </button>
+                                        </div>
+
+                                        <!-- Dropdown menu for smaller screens -->
+                                        <div class="sm:hidden">
+                                            <button
+                                                @click="toggleDropdown(record.id)"
+                                                class="inline-flex items-center rounded-md bg-gray-50 px-2 py-1.5 text-xs font-medium text-gray-700 ring-1 ring-gray-200 hover:bg-gray-100 dark:bg-gray-800 dark:text-gray-300 dark:ring-gray-700 dark:hover:bg-gray-700 transition-colors"
+                                            >
+                                                <MoreHorizontal class="h-4 w-4" />
+                                            </button>
+
+                                            <!-- Dropdown menu -->
+                                            <div
+                                                v-if="activeDropdown === record.id"
+                                                @click.stop
+                                                class="absolute right-0 top-8 z-10 w-48 rounded-md bg-white py-1 shadow-lg ring-1 ring-black ring-opacity-5 dark:bg-gray-800 dark:ring-gray-700"
+                                            >
+                                                <Link
+                                                    :href="`/admin/attendance/${record.id}`"
+                                                    @click="closeDropdown"
+                                                    class="flex items-center px-4 py-2 text-sm text-gray-700 hover:bg-gray-100 dark:text-gray-300 dark:hover:bg-gray-700"
+                                                >
+                                                    <Eye class="mr-3 h-4 w-4" />
+                                                    Lihat Detail
+                                                </Link>
+                                                <Link
+                                                    :href="`/admin/attendance/${record.id}/edit`"
+                                                    @click="closeDropdown"
+                                                    class="flex items-center px-4 py-2 text-sm text-gray-700 hover:bg-gray-100 dark:text-gray-300 dark:hover:bg-gray-700"
+                                                >
+                                                    <Edit class="mr-3 h-4 w-4" />
+                                                    Edit
+                                                </Link>
+                                                <button
+                                                    @click="deleteAttendance(record)"
+                                                    class="flex w-full items-center px-4 py-2 text-sm text-red-700 hover:bg-red-50 dark:text-red-400 dark:hover:bg-red-900/20"
+                                                >
+                                                    <Trash2 class="mr-3 h-4 w-4" />
+                                                    Hapus
+                                                </button>
+                                            </div>
+                                        </div>
                                     </div>
                                 </td>
                             </tr>
