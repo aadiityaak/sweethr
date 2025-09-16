@@ -123,7 +123,7 @@ const calculateDistance = (lat1: number, lng1: number, lat2: number, lng2: numbe
     return earthRadius * c;
 };
 
-const getCurrentLocation = () => {
+const getCurrentLocation = (autoAction = false) => {
     if (!navigator.geolocation) {
         locationStatus.value = 'error';
         locationError.value = 'Geolocation is not supported by this browser.';
@@ -137,21 +137,28 @@ const getCurrentLocation = () => {
             form.longitude = position.coords.longitude;
             locationStatus.value = 'success';
             checkOfficeProximity();
+
+            // Auto perform action if requested
+            if (autoAction === 'checkin') {
+                performCheckIn();
+            } else if (autoAction === 'checkout') {
+                performCheckOut();
+            }
         },
         (error) => {
             locationStatus.value = 'error';
             switch (error.code) {
                 case error.PERMISSION_DENIED:
-                    locationError.value = 'Location access denied. Please enable location access.';
+                    locationError.value = 'Akses lokasi ditolak. Mohon izinkan akses lokasi.';
                     break;
                 case error.POSITION_UNAVAILABLE:
-                    locationError.value = 'Location information is unavailable.';
+                    locationError.value = 'Informasi lokasi tidak tersedia.';
                     break;
                 case error.TIMEOUT:
-                    locationError.value = 'Location request timed out.';
+                    locationError.value = 'Permintaan lokasi timeout.';
                     break;
                 default:
-                    locationError.value = 'An unknown error occurred while retrieving location.';
+                    locationError.value = 'Terjadi kesalahan saat mengambil lokasi.';
                     break;
             }
         },
@@ -211,6 +218,7 @@ const performCheckIn = () => {
                 variant: 'destructive',
             });
         }
+        locationStatus.value = 'idle'; // Reset status so user can try again
         return;
     }
 
@@ -224,6 +232,7 @@ const performCheckIn = () => {
     form.post('/attendance/check-in', {
         onSuccess: () => {
             isCheckingIn.value = false;
+            locationStatus.value = 'idle'; // Reset for next time
             toast({
                 title: '✅ Check In Berhasil!',
                 description: `Absensi masuk Anda telah tercatat pada ${new Date().toLocaleTimeString('id-ID')}.`,
@@ -235,6 +244,7 @@ const performCheckIn = () => {
         },
         onError: (errors) => {
             isCheckingIn.value = false;
+            locationStatus.value = 'idle'; // Reset so user can try again
             console.error('Check-in errors:', errors);
             toast({
                 title: '❌ Check In Gagal',
@@ -249,12 +259,10 @@ const performCheckIn = () => {
 };
 
 const handleCheckInClick = () => {
-    if (locationStatus.value === 'idle') {
-        getCurrentLocation();
+    if (locationStatus.value === 'idle' || locationStatus.value === 'error') {
+        getCurrentLocation('checkin');
     } else if (locationStatus.value === 'success' && isInRange.value) {
         performCheckIn();
-    } else if (locationStatus.value === 'error') {
-        getCurrentLocation();
     }
 };
 
@@ -274,6 +282,7 @@ const performCheckOut = () => {
     checkoutForm.post('/attendance/check-out', {
         onSuccess: () => {
             isCheckingOut.value = false;
+            locationStatus.value = 'idle'; // Reset for next time
             toast({
                 title: '✅ Check Out Berhasil!',
                 description: `Absensi keluar Anda telah tercatat pada ${new Date().toLocaleTimeString('id-ID')}.`,
@@ -285,6 +294,7 @@ const performCheckOut = () => {
         },
         onError: (errors) => {
             isCheckingOut.value = false;
+            locationStatus.value = 'idle'; // Reset so user can try again
             console.error('Check-out errors:', errors);
             toast({
                 title: '❌ Check Out Gagal',
@@ -299,15 +309,10 @@ const performCheckOut = () => {
 };
 
 const handleCheckOutClick = () => {
-    if (locationStatus.value === 'idle') {
-        getCurrentLocation();
-        return;
-    }
-
-    if (locationStatus.value === 'success') {
+    if (locationStatus.value === 'idle' || locationStatus.value === 'error') {
+        getCurrentLocation('checkout');
+    } else if (locationStatus.value === 'success') {
         performCheckOut();
-    } else if (locationStatus.value === 'error') {
-        getCurrentLocation();
     }
 };
 
@@ -480,9 +485,8 @@ onUnmounted(() => {
                             <Loader2 v-if="locationStatus === 'loading' || isCheckingIn" class="h-5 w-5 animate-spin" />
                             <Clock v-else class="h-5 w-5" />
                             <span class="text-sm">
-                                {{ locationStatus === 'loading' ? 'Mencari Lokasi...' :
-                                   isCheckingIn ? 'Check In...' :
-                                   locationStatus === 'success' && isInRange ? 'Check In' :
+                                {{ isCheckingIn ? 'Sedang Check In...' :
+                                   locationStatus === 'loading' ? 'Mencari Lokasi...' :
                                    locationStatus === 'success' && !isInRange ? 'Di Luar Area' :
                                    locationStatus === 'error' ? 'Coba Lagi' :
                                    'Check In' }}
@@ -510,8 +514,8 @@ onUnmounted(() => {
                             <Loader2 v-if="locationStatus === 'loading' || isCheckingOut" class="h-5 w-5 animate-spin" />
                             <Clock v-else class="h-5 w-5" />
                             <span class="text-sm">
-                                {{ locationStatus === 'loading' ? 'Mencari Lokasi...' :
-                                   isCheckingOut ? 'Check Out...' :
+                                {{ isCheckingOut ? 'Sedang Check Out...' :
+                                   locationStatus === 'loading' ? 'Mencari Lokasi...' :
                                    locationStatus === 'error' ? 'Coba Lagi' :
                                    'Check Out' }}
                             </span>
