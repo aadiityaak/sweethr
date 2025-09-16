@@ -16,7 +16,9 @@ import {
     Filter,
     Search,
     MapPin,
-    Eye
+    Eye,
+    Edit,
+    Trash2
 } from 'lucide-vue-next';
 
 interface User {
@@ -213,6 +215,15 @@ const generateAttendanceBreakdown = () => {
         absent: stats.absent_today,
         late: stats.late_today
     };
+};
+
+// Delete attendance record
+const deleteAttendance = (attendance: AttendanceRecord) => {
+    if (confirm(`Apakah Anda yakin ingin menghapus data kehadiran ${attendance.user.name} pada tanggal ${formatDate(attendance.date)}?`)) {
+        router.delete(`/admin/attendance/${attendance.id}`, {
+            preserveScroll: true,
+        });
+    }
 };
 </script>
 
@@ -507,13 +518,29 @@ const generateAttendanceBreakdown = () => {
                                     </div>
                                 </td>
                                 <td class="px-6 py-4">
-                                    <Link
-                                        :href="`/admin/attendance/${record.id}`"
-                                        class="inline-flex items-center rounded-md bg-gray-50 px-2.5 py-1.5 text-xs font-medium text-gray-700 ring-1 ring-gray-200 hover:bg-gray-100 dark:bg-gray-800 dark:text-gray-300 dark:ring-gray-700 dark:hover:bg-gray-700 transition-colors"
-                                    >
-                                        <Eye class="mr-1 h-3 w-3" />
-                                        Detail
-                                    </Link>
+                                    <div class="flex items-center gap-2">
+                                        <Link
+                                            :href="`/admin/attendance/${record.id}`"
+                                            class="inline-flex items-center rounded-md bg-gray-50 px-2.5 py-1.5 text-xs font-medium text-gray-700 ring-1 ring-gray-200 hover:bg-gray-100 dark:bg-gray-800 dark:text-gray-300 dark:ring-gray-700 dark:hover:bg-gray-700 transition-colors"
+                                        >
+                                            <Eye class="mr-1 h-3 w-3" />
+                                            Detail
+                                        </Link>
+                                        <Link
+                                            :href="`/admin/attendance/${record.id}/edit`"
+                                            class="inline-flex items-center rounded-md bg-blue-50 px-2.5 py-1.5 text-xs font-medium text-blue-700 ring-1 ring-blue-200 hover:bg-blue-100 dark:bg-blue-950/50 dark:text-blue-400 dark:ring-blue-800 dark:hover:bg-blue-900/50 transition-colors"
+                                        >
+                                            <Edit class="mr-1 h-3 w-3" />
+                                            Edit
+                                        </Link>
+                                        <button
+                                            @click="deleteAttendance(record)"
+                                            class="inline-flex items-center rounded-md bg-red-50 px-2.5 py-1.5 text-xs font-medium text-red-700 ring-1 ring-red-200 hover:bg-red-100 dark:bg-red-950/50 dark:text-red-400 dark:ring-red-800 dark:hover:bg-red-900/50 transition-colors"
+                                        >
+                                            <Trash2 class="mr-1 h-3 w-3" />
+                                            Hapus
+                                        </button>
+                                    </div>
                                 </td>
                             </tr>
                         </tbody>

@@ -74,6 +74,12 @@ Route::middleware(['auth', 'verified', 'admin'])->group(function () {
         ->name('admin.attendance.index');
     Route::get('admin/attendance/{attendance}', [App\Http\Controllers\Admin\AttendanceController::class, 'show'])
         ->name('admin.attendance.show');
+    Route::get('admin/attendance/{attendance}/edit', [App\Http\Controllers\Admin\AttendanceController::class, 'edit'])
+        ->name('admin.attendance.edit');
+    Route::put('admin/attendance/{attendance}', [App\Http\Controllers\Admin\AttendanceController::class, 'update'])
+        ->name('admin.attendance.update');
+    Route::delete('admin/attendance/{attendance}', [App\Http\Controllers\Admin\AttendanceController::class, 'destroy'])
+        ->name('admin.attendance.destroy');
 
     // Admin Leave Requests Management
     Route::get('admin/leave-requests', [App\Http\Controllers\Admin\LeaveRequestController::class, 'index'])
