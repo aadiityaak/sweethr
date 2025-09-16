@@ -8,7 +8,7 @@ use Illuminate\Support\Facades\Log;
 
 class FaceRecognitionService
 {
-    private const MIN_CONFIDENCE_SCORE = 75;
+    private const MIN_CONFIDENCE_SCORE = 65;
     private const MAX_DAILY_ATTEMPTS = 3;
 
     public function storeFaceDescriptors(User $user, array $descriptors): bool

@@ -97,7 +97,6 @@ const capturedFaceData = ref<{
 const isFaceCaptured = ref(false);
 const captureTimeout = ref<number | null>(null);
 const isCapturing = ref(false);
-const captureCountdown = ref(0);
 
 const formatTime = (time: string | null) => {
     if (!time) return '--:--';
@@ -409,7 +408,7 @@ const detectFace = async () => {
             }
 
             faceMatchConfidence.value = Math.round(bestMatch);
-            isFaceMatched.value = bestMatch >= 75; // 75% confidence threshold
+            isFaceMatched.value = bestMatch >= 65; // 65% confidence threshold for faster detection
 
             // Auto-capture face when verified
             if (isFaceMatched.value && !isFaceCaptured.value) {
@@ -418,25 +417,13 @@ const detectFace = async () => {
 
             // Draw detection on canvas
             const canvas = canvasElement.value;
-            const displaySize = { width: 320, height: 240 };
+            const displaySize = { width: 320, height: 320 };
             faceapi.matchDimensions(canvas, displaySize);
 
-            const resized = faceapi.resizeResults(detection, displaySize);
+            // Clear canvas without drawing detection box
             const ctx = canvas.getContext('2d');
             if (ctx) {
                 ctx.clearRect(0, 0, canvas.width, canvas.height);
-
-                // Draw face detection box
-                const box = resized.detection.box;
-                ctx.strokeStyle = isFaceCaptured.value ? '#10b981' : (isFaceMatched.value ? '#22c55e' : '#ef4444');
-                ctx.lineWidth = 3;
-                ctx.strokeRect(box.x, box.y, box.width, box.height);
-
-                // Draw confidence text
-                ctx.fillStyle = isFaceCaptured.value ? '#10b981' : (isFaceMatched.value ? '#22c55e' : '#ef4444');
-                ctx.font = '16px Arial';
-                const label = isFaceCaptured.value ? `✓ ${Math.round(bestMatch)}%` : `${Math.round(bestMatch)}%`;
-                ctx.fillText(label, box.x, box.y - 10);
             }
         } else {
             isFaceMatched.value = false;
@@ -460,26 +447,17 @@ const autoCaptureFace = (confidence: number, descriptor: Float32Array) => {
         clearTimeout(captureTimeout.value);
     }
 
-    // Start capture countdown
+    // Start capture process
     isCapturing.value = true;
-    captureCountdown.value = 2;
 
-    // Update countdown every second
-    const countdownInterval = setInterval(() => {
-        captureCountdown.value--;
-        if (captureCountdown.value <= 0) {
-            clearInterval(countdownInterval);
-        }
-    }, 1000);
-
-    // Set timeout to capture after 2 seconds of stable detection
+    // Set timeout to capture after 0.5 seconds of stable detection
     captureTimeout.value = window.setTimeout(() => {
         // Capture image from video
         const imageDataUrl = captureImageFromVideo();
 
         if (imageDataUrl) {
             capturedFaceData.value = {
-                confidence: confidence,
+                confidence: Math.round(confidence),
                 timestamp: new Date(),
                 descriptor: descriptor,
                 imageDataUrl: imageDataUrl
@@ -497,7 +475,7 @@ const autoCaptureFace = (confidence: number, descriptor: Float32Array) => {
             // Stop detection after successful capture
             stopFaceDetection();
         }
-    }, 2000); // 2 seconds delay for stable capture
+    }, 500); // 0.5 second delay for fast capture
 };
 
 const captureImageFromVideo = (): string | null => {
@@ -545,7 +523,6 @@ const stopFaceDetection = () => {
     isFaceMatched.value = false;
     faceMatchConfidence.value = 0;
     isCapturing.value = false;
-    captureCountdown.value = 0;
 };
 
 const resetCapture = () => {
@@ -769,105 +746,97 @@ onUnmounted(() => {
                     <div v-if="faceRecognitionEnabled && faceDescriptors && faceDescriptors.length > 0 && !todayAttendance?.check_in_time" class="mt-4 flex justify-center">
                         <div class="relative">
                             <!-- Face Captured State -->
-                            <div v-if="isFaceCaptured" class="w-80 h-60 bg-gradient-to-br from-green-50 to-green-100 dark:from-green-900/20 dark:to-green-800/20 rounded-lg overflow-hidden border-2 border-green-500 relative">
-                                <!-- Captured Face Image Background -->
-                                <div
+                            <div v-if="isFaceCaptured" class="w-80 h-80 rounded-full overflow-hidden border-4 border-green-500 relative bg-gray-900">
+                                <!-- Captured Face Image (Full Circle) -->
+                                <img
                                     v-if="capturedFaceData?.imageDataUrl"
-                                    class="absolute inset-0 bg-cover bg-center bg-no-repeat opacity-20"
-                                    :style="{ backgroundImage: `url(${capturedFaceData.imageDataUrl})` }"
-                                ></div>
+                                    :src="capturedFaceData.imageDataUrl"
+                                    alt="Captured Face"
+                                    class="w-full h-full object-cover"
+                                />
 
-                                <!-- Content Overlay -->
-                                <div class="relative z-10 h-full flex flex-col">
-                                    <!-- Captured Image Display -->
-                                    <div class="flex-shrink-0 p-4 flex justify-center">
-                                        <div class="relative">
-                                            <img
-                                                v-if="capturedFaceData?.imageDataUrl"
-                                                :src="capturedFaceData.imageDataUrl"
-                                                alt="Captured Face"
-                                                class="w-24 h-24 rounded-full object-cover border-4 border-green-500 shadow-lg"
-                                            />
-                                            <div class="absolute -bottom-1 -right-1 w-8 h-8 bg-green-500 rounded-full flex items-center justify-center border-2 border-white">
-                                                <CheckCircle class="h-4 w-4 text-white" />
-                                            </div>
-                                        </div>
+                                <!-- Success Overlay -->
+                                <div class="absolute inset-0 bg-green-500/20 flex items-center justify-center">
+                                    <div class="bg-green-500 rounded-full p-3 shadow-lg">
+                                        <CheckCircle class="h-8 w-8 text-white" />
                                     </div>
+                                </div>
 
-                                    <!-- Verification Info -->
-                                    <div class="flex-grow flex items-center justify-center px-4">
-                                        <div class="text-center">
-                                            <h3 class="text-lg font-semibold text-green-800 dark:text-green-200 mb-2">
-                                                Wajah Terverifikasi!
-                                            </h3>
-                                            <div class="bg-white/70 dark:bg-black/30 rounded-lg p-3 mb-3">
-                                                <p class="text-sm text-green-600 dark:text-green-300 font-medium mb-1">
-                                                    Tingkat Keyakinan: {{ capturedFaceData?.confidence }}%
-                                                </p>
-                                                <p class="text-xs text-green-500 dark:text-green-400">
-                                                    {{ capturedFaceData?.timestamp.toLocaleTimeString('id-ID') }}
-                                                </p>
-                                            </div>
-                                            <button
-                                                @click="resetCapture"
-                                                class="px-3 py-1.5 text-xs bg-green-600 hover:bg-green-700 text-white rounded-md transition-colors font-medium"
-                                            >
-                                                Ulangi Verifikasi
-                                            </button>
-                                        </div>
-                                    </div>
+                                <!-- Confidence Badge -->
+                                <div class="absolute top-4 right-4 bg-black/70 backdrop-blur-sm rounded-full px-3 py-1">
+                                    <span class="text-white text-sm font-medium">{{ capturedFaceData?.confidence }}%</span>
+                                </div>
+
+                                <!-- Reset Button -->
+                                <div class="absolute bottom-4 left-1/2 transform -translate-x-1/2">
+                                    <button
+                                        @click="resetCapture"
+                                        class="bg-black/70 backdrop-blur-sm hover:bg-black/80 text-white px-4 py-2 rounded-full text-sm font-medium transition-colors"
+                                    >
+                                        Ulangi
+                                    </button>
                                 </div>
                             </div>
 
                             <!-- Active Detection State -->
-                            <div v-else class="relative w-80 h-60 bg-gray-900 rounded-lg overflow-hidden border-2"
+                            <div v-else class="relative w-80 h-80 bg-gray-900 rounded-full overflow-hidden border-4"
                                  :class="faceDetectionActive ? (isFaceMatched ? 'border-green-500' : 'border-red-500') : 'border-gray-300'">
 
-                                <!-- Video Element -->
+                                <!-- Video Element (Circular) -->
                                 <video
                                     ref="videoElement"
                                     autoplay
                                     muted
                                     playsinline
-                                    class="w-full h-full object-cover"
+                                    class="w-full h-full object-cover scale-150"
                                     v-show="faceDetectionActive"
                                 />
 
-                                <!-- Canvas for face detection overlay -->
+                                <!-- Canvas for face detection overlay (Circular) -->
                                 <canvas
                                     ref="canvasElement"
                                     width="320"
-                                    height="240"
+                                    height="320"
                                     class="absolute top-0 left-0 w-full h-full"
                                     v-show="faceDetectionActive"
                                 />
 
+                                <!-- Scanning Animation Overlay -->
+                                <div v-if="faceDetectionActive && !isCapturing" class="absolute inset-0 rounded-full overflow-hidden">
+                                    <!-- Vertical Scanning Line (like barcode scanner) -->
+                                    <div class="absolute inset-0">
+                                        <div class="absolute left-0 right-0 h-1 bg-gradient-to-r from-transparent via-white via-white to-transparent opacity-80 shadow-lg scan-line">
+                                        </div>
+                                    </div>
+
+                                    <!-- Pulsing Rings -->
+                                    <div class="absolute inset-2 rounded-full border-2 border-green-400/30 animate-pulse"></div>
+                                    <div class="absolute inset-6 rounded-full border border-green-400/20 animate-ping" style="animation-duration: 2s;"></div>
+
+                                    <!-- Corner Markers -->
+                                    <div class="absolute top-8 left-8 w-6 h-6 border-l-2 border-t-2 border-green-400 rounded-tl-lg opacity-60"></div>
+                                    <div class="absolute top-8 right-8 w-6 h-6 border-r-2 border-t-2 border-green-400 rounded-tr-lg opacity-60"></div>
+                                    <div class="absolute bottom-8 left-8 w-6 h-6 border-l-2 border-b-2 border-green-400 rounded-bl-lg opacity-60"></div>
+                                    <div class="absolute bottom-8 right-8 w-6 h-6 border-r-2 border-b-2 border-green-400 rounded-br-lg opacity-60"></div>
+                                </div>
+
                                 <!-- Loading/Status Overlay -->
-                                <div v-if="!faceDetectionActive" class="absolute inset-0 flex items-center justify-center bg-gray-800/80">
+                                <div v-if="!faceDetectionActive" class="absolute inset-0 rounded-full bg-gray-800/80 flex items-center justify-center">
                                     <div class="text-center text-white">
                                         <Loader2 class="h-8 w-8 animate-spin mx-auto mb-2" />
                                         <p class="text-sm">Memuat kamera...</p>
                                     </div>
                                 </div>
 
-                                <!-- Capture Countdown Overlay -->
-                                <div v-if="isCapturing" class="absolute inset-0 bg-black/60 flex items-center justify-center">
-                                    <div class="text-center">
-                                        <div class="mb-4 w-20 h-20 rounded-full bg-green-500 flex items-center justify-center text-white text-3xl font-bold animate-pulse">
-                                            {{ captureCountdown }}
-                                        </div>
-                                        <p class="text-white font-medium">Mengkapture dalam {{ captureCountdown }} detik...</p>
-                                    </div>
-                                </div>
 
-                                <!-- Face Match Status -->
-                                <div class="absolute bottom-2 left-2 right-2">
-                                    <div v-if="faceDetectionActive && !isCapturing" class="bg-black/50 rounded px-2 py-1 text-white text-sm text-center">
+                                <!-- Face Match Status (Circular) -->
+                                <div class="absolute bottom-0 left-1/2 transform -translate-x-1/2 translate-y-full mt-2">
+                                    <div v-if="faceDetectionActive && !isCapturing" class="bg-black/70 rounded-full px-4 py-2 text-white text-sm text-center whitespace-nowrap">
                                         <span v-if="isFaceMatched" class="text-green-400">
-                                            ✅ Wajah Terverifikasi ({{ faceMatchConfidence }}%)
+                                            ✅ Terverifikasi ({{ Math.round(faceMatchConfidence) }}%)
                                         </span>
                                         <span v-else-if="faceMatchConfidence > 0" class="text-red-400">
-                                            ❌ Verifikasi Gagal ({{ faceMatchConfidence }}%)
+                                            ❌ Gagal ({{ Math.round(faceMatchConfidence) }}%)
                                         </span>
                                         <span v-else class="text-yellow-400">
                                             🔍 Mencari wajah...
@@ -876,11 +845,6 @@ onUnmounted(() => {
                                 </div>
                             </div>
 
-                            <div class="absolute -bottom-8 left-1/2 transform -translate-x-1/2">
-                                <p class="text-xs text-muted-foreground font-medium text-center">
-                                    {{ isFaceCaptured ? 'Wajah Tersimpan' : 'Verifikasi Wajah Real-time' }}
-                                </p>
-                            </div>
                         </div>
                     </div>
 
@@ -1023,3 +987,21 @@ onUnmounted(() => {
         <BottomNavigation current-route="/home" />
     </div>
 </template>
+
+<style scoped>
+@keyframes scanLine {
+    0% {
+        top: 0;
+    }
+    50% {
+        top: calc(100% - 4px);
+    }
+    100% {
+        top: 0;
+    }
+}
+
+.scan-line {
+    animation: scanLine 2s ease-in-out infinite;
+}
+</style>
