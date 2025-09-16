@@ -28,48 +28,67 @@ export function useFaceRecognition() {
         isLoading.value = true;
 
         try {
-            // Debug: Check if user is authenticated by checking if we're on a protected page
+            // Debug: Check if user is authenticated
             console.log('Current URL:', window.location.href);
             console.log('CSRF Token:', document.querySelector('meta[name="csrf-token"]')?.getAttribute('content'));
 
-            // Ensure CSRF cookie is available before making the request
-            const csrfResponse = await fetch('/sanctum/csrf-cookie', {
-                credentials: 'include',
+            // Get CSRF token from meta tag
+            const csrfToken = document.querySelector('meta[name="csrf-token"]')?.getAttribute('content');
+            if (!csrfToken) {
+                throw new Error('CSRF token not found. Please refresh the page.');
+            }
+
+            // Make the API request with proper headers
+            const response = await fetch('/api/face-recognition/setup', {
+                method: 'POST',
+                headers: {
+                    'Content-Type': 'application/json',
+                    'Accept': 'application/json',
+                    'X-CSRF-TOKEN': csrfToken,
+                    'X-Requested-With': 'XMLHttpRequest',
+                },
+                body: JSON.stringify({ descriptors }),
+                credentials: 'same-origin', // Use same-origin instead of include for better compatibility
             });
-            console.log('CSRF cookie response status:', csrfResponse.status);
 
-            // Try using Inertia's built-in method instead of raw fetch
-            const { router } = await import('@inertiajs/vue3');
+            console.log('Response status:', response.status);
+            console.log('Response headers:', Object.fromEntries(response.headers.entries()));
 
-            return new Promise((resolve, reject) => {
-                router.post('/api/face-recognition/setup',
-                    { descriptors },
-                    {
-                        onSuccess: (page) => {
-                            console.log('Inertia success:', page);
-                            faceDescriptors.value = descriptors;
-                            showFaceCapture.value = false;
+            if (!response.ok) {
+                if (response.status === 401) {
+                    throw new Error('Session expired. Please refresh the page and login again.');
+                } else if (response.status === 403) {
+                    throw new Error('Access denied. Please check your permissions.');
+                } else if (response.status === 419) {
+                    throw new Error('CSRF token mismatch. Please refresh the page.');
+                } else {
+                    throw new Error(`Server error: ${response.status}`);
+                }
+            }
 
-                            toast({
-                                title: '✅ Setup Berhasil!',
-                                description: 'Pengenalan wajah telah berhasil diaktifkan.',
-                                variant: 'success',
-                            });
+            const data = await response.json();
+            console.log('API response:', data);
 
-                            resolve(true);
-                        },
-                        onError: (errors) => {
-                            console.log('Inertia error:', errors);
-                            reject(new Error('Setup gagal: ' + JSON.stringify(errors)));
-                        },
-                        onFinish: () => {
-                            isLoading.value = false;
-                        }
-                    }
-                );
-            });
+            if (data.success) {
+                faceDescriptors.value = descriptors;
+                showFaceCapture.value = false;
+
+                toast({
+                    title: '✅ Setup Berhasil!',
+                    description: 'Pengenalan wajah telah berhasil diaktifkan.',
+                    variant: 'success',
+                });
+
+                // Reload the page to update the UI state
+                setTimeout(() => {
+                    window.location.reload();
+                }, 1000);
+
+                return true;
+            } else {
+                throw new Error(data.message || 'Setup gagal');
+            }
         } catch (error) {
-            isLoading.value = false;
             console.error('Face recognition setup error:', error);
             toast({
                 title: '❌ Setup Gagal',
@@ -77,6 +96,8 @@ export function useFaceRecognition() {
                 variant: 'destructive',
             });
             return false;
+        } finally {
+            isLoading.value = false;
         }
     };
 
