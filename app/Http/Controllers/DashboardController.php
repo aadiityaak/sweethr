@@ -7,12 +7,16 @@ use App\Models\Department;
 use App\Models\LeaveRequest;
 use App\Models\OfficeLocation;
 use App\Models\User;
+use App\Services\FaceRecognitionService;
 use Carbon\Carbon;
 use Inertia\Inertia;
 use Inertia\Response;
 
 class DashboardController extends Controller
 {
+    public function __construct(
+        private FaceRecognitionService $faceRecognitionService
+    ) {}
     public function index(): Response
     {
         $user = auth()->user();
@@ -82,11 +86,21 @@ class DashboardController extends Controller
         // Get all office locations for check-in functionality
         $officeLocations = OfficeLocation::active()->get();
 
+        // Get face recognition data
+        $faceRecognitionEnabled = $user->face_recognition_enabled ?? false;
+        $faceDescriptors = null;
+
+        if ($faceRecognitionEnabled) {
+            $faceDescriptors = $this->faceRecognitionService->getFaceDescriptors($user);
+        }
+
         return Inertia::render('user/Welcome', [
             'user' => $user->load(['department', 'position']),
             'todayAttendance' => $todayAttendance,
             'officeLocations' => $officeLocations,
             'stats' => $stats,
+            'faceRecognitionEnabled' => $faceRecognitionEnabled,
+            'faceDescriptors' => $faceDescriptors,
         ]);
     }
 

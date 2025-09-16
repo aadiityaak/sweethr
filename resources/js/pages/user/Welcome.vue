@@ -1,10 +1,11 @@
 <script setup lang="ts">
 import { Head, Link, useForm } from '@inertiajs/vue3';
 import { ref, onMounted, onUnmounted } from 'vue';
-import { Clock, Calendar, CheckCircle, User, MapPin, LogOut, UserCircle, BarChart3, Loader2 } from 'lucide-vue-next';
+import { Clock, Calendar, CheckCircle, User, MapPin, LogOut, UserCircle, BarChart3, Loader2, Eye } from 'lucide-vue-next';
 import { useCompanySettings } from '@/composables/useCompanySettings';
 import { useToast } from '@/components/ui/toast/use-toast';
 import BottomNavigation from '@/components/BottomNavigation.vue';
+import * as faceapi from 'face-api.js';
 
 interface User {
     id: number;
@@ -52,9 +53,11 @@ interface Props {
         monthly_work_hours: number;
         leave_balance: number;
     };
+    faceRecognitionEnabled?: boolean;
+    faceDescriptors?: number[][];
 }
 
-const { user, todayAttendance, officeLocations, stats } = defineProps<Props>();
+const { user, todayAttendance, officeLocations, stats, faceRecognitionEnabled, faceDescriptors } = defineProps<Props>();
 
 const { companyName, companyLogo } = useCompanySettings();
 const { toast } = useToast();
@@ -64,6 +67,7 @@ const form = useForm({
     office_location_id: '',
     latitude: 0,
     longitude: 0,
+    face_confidence: 0,
 });
 
 const locationStatus = ref<'idle' | 'loading' | 'success' | 'error'>('idle');
@@ -73,6 +77,15 @@ const isInRange = ref(false);
 const distanceToOffice = ref(0);
 const isCheckingIn = ref(false);
 const isCheckingOut = ref(false);
+
+// Real-time face recognition state
+const videoElement = ref<HTMLVideoElement | null>(null);
+const canvasElement = ref<HTMLCanvasElement | null>(null);
+const faceDetectionActive = ref(false);
+const faceMatchConfidence = ref(0);
+const isFaceMatched = ref(false);
+const detectionInterval = ref<number | null>(null);
+const stream = ref<MediaStream | null>(null);
 
 const formatTime = (time: string | null) => {
     if (!time) return '--:--';
@@ -222,7 +235,31 @@ const performCheckIn = () => {
         return;
     }
 
+    // Check if face recognition is required and matched
+    if (faceRecognitionEnabled && faceDescriptors && faceDescriptors.length > 0) {
+        if (!isFaceMatched.value) {
+            toast({
+                title: '❌ Verifikasi Wajah Diperlukan',
+                description: 'Posisikan wajah Anda di depan kamera untuk verifikasi.',
+                variant: 'destructive',
+                duration: 4000,
+            });
+            return;
+        }
+    }
+
+    // Proceed with check-in (location and face verified)
+    executeCheckIn();
+};
+
+const executeCheckIn = () => {
     isCheckingIn.value = true;
+
+    // Set face confidence if face recognition is enabled
+    if (faceRecognitionEnabled && faceDescriptors && faceDescriptors.length > 0) {
+        form.face_confidence = faceMatchConfidence.value;
+    }
+
     toast({
         title: '🕐 Sedang Check In...',
         description: 'Memproses absensi masuk Anda.',
@@ -233,6 +270,7 @@ const performCheckIn = () => {
         onSuccess: () => {
             isCheckingIn.value = false;
             locationStatus.value = 'idle'; // Reset for next time
+            stopFaceDetection(); // Stop face detection after successful check-in
             toast({
                 title: '✅ Check In Berhasil!',
                 description: `Absensi masuk Anda telah tercatat pada ${new Date().toLocaleTimeString('id-ID')}.`,
@@ -264,6 +302,149 @@ const handleCheckInClick = () => {
     } else if (locationStatus.value === 'success' && isInRange.value) {
         performCheckIn();
     }
+};
+
+
+// Real-time face detection functions
+const loadFaceApiModels = async () => {
+    try {
+        await Promise.all([
+            faceapi.nets.ssdMobilenetv1.loadFromUri('/models'),
+            faceapi.nets.faceLandmark68Net.loadFromUri('/models'),
+            faceapi.nets.faceRecognitionNet.loadFromUri('/models'),
+        ]);
+        console.log('Face-api models loaded successfully');
+        return true;
+    } catch (error) {
+        console.error('Failed to load face-api models:', error);
+        return false;
+    }
+};
+
+const startFaceDetection = async () => {
+    if (!faceRecognitionEnabled || !faceDescriptors || faceDescriptors.length === 0) {
+        return;
+    }
+
+    try {
+        // Load face-api models
+        const modelsLoaded = await loadFaceApiModels();
+        if (!modelsLoaded) {
+            console.error('Cannot start face detection: models not loaded');
+            return;
+        }
+
+        // Get video stream
+        stream.value = await navigator.mediaDevices.getUserMedia({
+            video: { width: 320, height: 240, facingMode: 'user' }
+        });
+
+        if (videoElement.value) {
+            videoElement.value.srcObject = stream.value;
+            await new Promise((resolve) => {
+                videoElement.value!.onloadedmetadata = resolve;
+            });
+
+            faceDetectionActive.value = true;
+            startDetectionLoop();
+        }
+    } catch (error) {
+        console.error('Failed to start face detection:', error);
+        toast({
+            title: '❌ Kamera Error',
+            description: 'Tidak dapat mengakses kamera untuk verifikasi wajah.',
+            variant: 'destructive',
+        });
+    }
+};
+
+const startDetectionLoop = () => {
+    if (detectionInterval.value) {
+        clearInterval(detectionInterval.value);
+    }
+
+    detectionInterval.value = window.setInterval(async () => {
+        await detectFace();
+    }, 1000); // Check every second
+};
+
+const detectFace = async () => {
+    if (!videoElement.value || !canvasElement.value || !faceDescriptors) {
+        return;
+    }
+
+    try {
+        const detection = await faceapi
+            .detectSingleFace(videoElement.value)
+            .withFaceLandmarks()
+            .withFaceDescriptor();
+
+        if (detection) {
+            // Compare with stored descriptors
+            const storedDescriptors = faceDescriptors.map(desc => new Float32Array(desc));
+            const currentDescriptor = detection.descriptor;
+
+            let bestMatch = 0;
+            for (const storedDesc of storedDescriptors) {
+                const distance = faceapi.euclideanDistance(currentDescriptor, storedDesc);
+                const similarity = Math.max(0, (1 - distance) * 100);
+                bestMatch = Math.max(bestMatch, similarity);
+            }
+
+            faceMatchConfidence.value = Math.round(bestMatch);
+            isFaceMatched.value = bestMatch >= 75; // 75% confidence threshold
+
+            // Draw detection on canvas
+            const canvas = canvasElement.value;
+            const displaySize = { width: 320, height: 240 };
+            faceapi.matchDimensions(canvas, displaySize);
+
+            const resized = faceapi.resizeResults(detection, displaySize);
+            const ctx = canvas.getContext('2d');
+            if (ctx) {
+                ctx.clearRect(0, 0, canvas.width, canvas.height);
+
+                // Draw face detection box
+                const box = resized.detection.box;
+                ctx.strokeStyle = isFaceMatched.value ? '#22c55e' : '#ef4444';
+                ctx.lineWidth = 3;
+                ctx.strokeRect(box.x, box.y, box.width, box.height);
+
+                // Draw confidence text
+                ctx.fillStyle = isFaceMatched.value ? '#22c55e' : '#ef4444';
+                ctx.font = '16px Arial';
+                ctx.fillText(`${Math.round(bestMatch)}%`, box.x, box.y - 10);
+            }
+        } else {
+            isFaceMatched.value = false;
+            faceMatchConfidence.value = 0;
+
+            // Clear canvas
+            const canvas = canvasElement.value;
+            const ctx = canvas?.getContext('2d');
+            if (ctx) {
+                ctx.clearRect(0, 0, canvas.width, canvas.height);
+            }
+        }
+    } catch (error) {
+        console.error('Face detection error:', error);
+    }
+};
+
+const stopFaceDetection = () => {
+    if (detectionInterval.value) {
+        clearInterval(detectionInterval.value);
+        detectionInterval.value = null;
+    }
+
+    if (stream.value) {
+        stream.value.getTracks().forEach(track => track.stop());
+        stream.value = null;
+    }
+
+    faceDetectionActive.value = false;
+    isFaceMatched.value = false;
+    faceMatchConfidence.value = 0;
 };
 
 const performCheckOut = () => {
@@ -319,12 +500,18 @@ const handleCheckOutClick = () => {
 onMounted(() => {
     updateTime();
     timeInterval = window.setInterval(updateTime, 1000);
+
+    // Start face detection if enabled and user hasn't checked in yet
+    if (faceRecognitionEnabled && !todayAttendance?.check_in_time) {
+        startFaceDetection();
+    }
 });
 
 onUnmounted(() => {
     if (timeInterval) {
         clearInterval(timeInterval);
     }
+    stopFaceDetection();
 });
 </script>
 
@@ -461,6 +648,63 @@ onUnmounted(() => {
                         </div>
                     </div>
 
+                    <!-- Real-time Face Recognition -->
+                    <div v-if="faceRecognitionEnabled && faceDescriptors && faceDescriptors.length > 0 && !todayAttendance?.check_in_time" class="mt-4 flex justify-center">
+                        <div class="relative">
+                            <div class="relative w-80 h-60 bg-gray-900 rounded-lg overflow-hidden border-2"
+                                 :class="faceDetectionActive ? (isFaceMatched ? 'border-green-500' : 'border-red-500') : 'border-gray-300'">
+
+                                <!-- Video Element -->
+                                <video
+                                    ref="videoElement"
+                                    autoplay
+                                    muted
+                                    playsinline
+                                    class="w-full h-full object-cover"
+                                    v-show="faceDetectionActive"
+                                />
+
+                                <!-- Canvas for face detection overlay -->
+                                <canvas
+                                    ref="canvasElement"
+                                    width="320"
+                                    height="240"
+                                    class="absolute top-0 left-0 w-full h-full"
+                                    v-show="faceDetectionActive"
+                                />
+
+                                <!-- Loading/Status Overlay -->
+                                <div v-if="!faceDetectionActive" class="absolute inset-0 flex items-center justify-center bg-gray-800/80">
+                                    <div class="text-center text-white">
+                                        <Loader2 class="h-8 w-8 animate-spin mx-auto mb-2" />
+                                        <p class="text-sm">Memuat kamera...</p>
+                                    </div>
+                                </div>
+
+                                <!-- Face Match Status -->
+                                <div class="absolute bottom-2 left-2 right-2">
+                                    <div v-if="faceDetectionActive" class="bg-black/50 rounded px-2 py-1 text-white text-sm text-center">
+                                        <span v-if="isFaceMatched" class="text-green-400">
+                                            ✅ Wajah Terverifikasi ({{ faceMatchConfidence }}%)
+                                        </span>
+                                        <span v-else-if="faceMatchConfidence > 0" class="text-red-400">
+                                            ❌ Verifikasi Gagal ({{ faceMatchConfidence }}%)
+                                        </span>
+                                        <span v-else class="text-yellow-400">
+                                            🔍 Mencari wajah...
+                                        </span>
+                                    </div>
+                                </div>
+                            </div>
+
+                            <div class="absolute -bottom-8 left-1/2 transform -translate-x-1/2">
+                                <p class="text-xs text-muted-foreground font-medium text-center">
+                                    Verifikasi Wajah Real-time
+                                </p>
+                            </div>
+                        </div>
+                    </div>
+
                     <div v-if="todayAttendance?.office_location" class="mt-4 flex items-center gap-2 rounded-md bg-muted p-3">
                         <MapPin class="h-4 w-4 text-muted-foreground" />
                         <span class="text-sm text-muted-foreground">
@@ -474,20 +718,25 @@ onUnmounted(() => {
                         <button
                             v-if="!todayAttendance?.check_in_time"
                             @click="handleCheckInClick"
-                            :disabled="isCheckingIn || (locationStatus === 'success' && !isInRange)"
+                            :disabled="isCheckingIn || (locationStatus === 'success' && !isInRange) || (faceRecognitionEnabled && faceDescriptors && !isFaceMatched)"
                             class="flex items-center justify-center gap-2 rounded-md px-4 py-4 text-white font-medium transition-colors shadow-sm disabled:opacity-50 disabled:cursor-not-allowed"
                             :class="{
-                                'bg-green-600 hover:bg-green-700': locationStatus === 'idle' || locationStatus === 'error' || (locationStatus === 'success' && isInRange),
+                                'bg-green-600 hover:bg-green-700': (locationStatus === 'idle' || locationStatus === 'error' || (locationStatus === 'success' && isInRange)) && (!faceRecognitionEnabled || !faceDescriptors || isFaceMatched),
                                 'bg-blue-600 hover:bg-blue-700': locationStatus === 'loading',
-                                'bg-gray-500': locationStatus === 'success' && !isInRange
+                                'bg-gray-500': (locationStatus === 'success' && !isInRange) || (faceRecognitionEnabled && faceDescriptors && !isFaceMatched),
+                                'bg-orange-500': faceRecognitionEnabled && faceDescriptors && faceMatchConfidence > 0 && !isFaceMatched
                             }"
                         >
                             <Loader2 v-if="locationStatus === 'loading' || isCheckingIn" class="h-5 w-5 animate-spin" />
+                            <CheckCircle v-else-if="isFaceMatched && isInRange" class="h-5 w-5" />
+                            <Eye v-else-if="faceRecognitionEnabled && faceDescriptors && !isFaceMatched" class="h-5 w-5" />
                             <Clock v-else class="h-5 w-5" />
                             <span class="text-sm">
                                 {{ isCheckingIn ? 'Sedang Check In...' :
                                    locationStatus === 'loading' ? 'Mencari Lokasi...' :
                                    locationStatus === 'success' && !isInRange ? 'Di Luar Area' :
+                                   faceRecognitionEnabled && faceDescriptors && !isFaceMatched ? 'Tunggu Verifikasi' :
+                                   isFaceMatched && isInRange ? 'Siap Check In!' :
                                    locationStatus === 'error' ? 'Coba Lagi' :
                                    'Check In' }}
                             </span>
