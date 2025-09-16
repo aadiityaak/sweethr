@@ -68,6 +68,7 @@ const form = useForm({
     latitude: 0,
     longitude: 0,
     face_confidence: 0,
+    face_photo: '',
 });
 
 const locationStatus = ref<'idle' | 'loading' | 'success' | 'error'>('idle');
@@ -266,9 +267,10 @@ const performCheckIn = () => {
 const executeCheckIn = () => {
     isCheckingIn.value = true;
 
-    // Set face confidence if face recognition is enabled and captured
+    // Set face confidence and photo if face recognition is enabled and captured
     if (faceRecognitionEnabled && faceDescriptors && faceDescriptors.length > 0 && capturedFaceData.value) {
         form.face_confidence = capturedFaceData.value.confidence;
+        form.face_photo = capturedFaceData.value.imageDataUrl;
     }
 
     toast({

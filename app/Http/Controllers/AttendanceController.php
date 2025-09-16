@@ -86,6 +86,7 @@ class AttendanceController extends Controller
             $user = auth()->user();
             if ($this->faceRecognitionService->isFaceRecognitionRequired($user)) {
                 $validationRules['face_confidence'] = 'required|numeric|min:0|max:100';
+                $validationRules['face_photo'] = 'required|string'; // Base64 image data
             }
 
             $request->validate($validationRules);
@@ -115,6 +116,7 @@ class AttendanceController extends Controller
         $faceVerificationSkipped = false;
         $faceMatchConfidence = null;
         $faceVerificationNotes = null;
+        $facePhotoPath = null;
 
         if ($this->faceRecognitionService->isFaceRecognitionRequired($user)) {
             if ($request->has('face_confidence')) {
@@ -131,6 +133,11 @@ class AttendanceController extends Controller
                 if (!$faceResult['success'] && !$faceResult['mandatory']) {
                     $faceVerificationSkipped = true;
                     $faceVerificationNotes = 'Face verification skipped after max attempts';
+                }
+
+                // Save face photo if provided
+                if ($request->has('face_photo')) {
+                    $facePhotoPath = $this->saveFacePhoto($request->face_photo, $user->id, $today);
                 }
             } else {
                 return back()->withErrors(['message' => 'Verifikasi wajah diperlukan untuk check in.']);
@@ -167,6 +174,7 @@ class AttendanceController extends Controller
                 'face_verification_passed' => $faceVerificationPassed,
                 'face_verification_skipped' => $faceVerificationSkipped,
                 'face_verification_notes' => $faceVerificationNotes,
+                'face_photo_path' => $facePhotoPath,
             ]
         );
 
@@ -227,5 +235,49 @@ class AttendanceController extends Controller
         ]);
 
         return back()->with('success', 'Check out berhasil!');
+    }
+
+    private function saveFacePhoto(string $base64Image, int $userId, Carbon $date): ?string
+    {
+        try {
+            // Extract the base64 data (remove data:image/jpeg;base64, prefix)
+            if (preg_match('/^data:image\/(\w+);base64,/', $base64Image, $matches)) {
+                $extension = $matches[1];
+                $imageData = substr($base64Image, strpos($base64Image, ',') + 1);
+                $imageData = base64_decode($imageData);
+
+                if ($imageData === false) {
+                    return null;
+                }
+
+                // Create face photos directory if it doesn't exist
+                $directory = storage_path('app/public/face-photos');
+                if (!file_exists($directory)) {
+                    mkdir($directory, 0755, true);
+                }
+
+                // Generate filename: user_id_date_timestamp.extension
+                $filename = sprintf(
+                    'user_%d_%s_%s.%s',
+                    $userId,
+                    $date->format('Y-m-d'),
+                    time(),
+                    $extension
+                );
+
+                $fullPath = $directory . '/' . $filename;
+
+                if (file_put_contents($fullPath, $imageData)) {
+                    return 'face-photos/' . $filename;
+                }
+            }
+        } catch (\Exception $e) {
+            \Log::error('Failed to save face photo', [
+                'user_id' => $userId,
+                'error' => $e->getMessage()
+            ]);
+        }
+
+        return null;
     }
 }
