@@ -14,7 +14,6 @@ import {
     ArrowLeft,
     Timer,
     Briefcase,
-    Eye,
     Shield
 } from 'lucide-vue-next';
 
@@ -141,222 +140,273 @@ const getStatusIcon = (status: string) => {
     }
 };
 
-const openMaps = (lat: number, lng: number) => {
-    const url = `https://www.google.com/maps?q=${lat},${lng}`;
-    window.open(url, '_blank');
-};
 </script>
 
 <template>
     <Head :title="`Detail Kehadiran - ${attendance.user.name}`" />
 
     <AppLayout :breadcrumbs="breadcrumbs">
-        <div class="flex h-full flex-1 flex-col gap-6 p-6">
-            <!-- Header Section -->
-            <div class="flex flex-col gap-4 sm:flex-row sm:items-center sm:justify-between">
-                <div class="flex items-center gap-4">
-                    <Link
-                        href="/admin/attendance"
-                        class="inline-flex items-center rounded-lg border border-gray-300 bg-white px-3 py-2 text-sm font-medium text-gray-700 shadow-sm hover:bg-gray-50 focus:outline-none focus:ring-2 focus:ring-blue-500 focus:ring-offset-2 dark:border-gray-600 dark:bg-gray-800 dark:text-gray-300 dark:hover:bg-gray-700"
-                    >
-                        <ArrowLeft class="mr-2 h-4 w-4" />
-                        Kembali
-                    </Link>
+        <div class="mx-auto max-w-7xl px-4 py-6 sm:px-6 lg:px-8">
+            <!-- Header -->
+            <div class="mb-8">
+                <div class="flex items-center justify-between">
                     <div>
-                        <h1 class="text-2xl font-bold tracking-tight text-gray-900 dark:text-white">
+                        <h1 class="text-3xl font-bold text-gray-900 dark:text-white">
                             Detail Kehadiran
                         </h1>
-                        <p class="text-sm text-gray-600 dark:text-gray-400">
-                            {{ attendance.user.name }} - {{ formatDate(attendance.date) }}
+                        <p class="mt-1 text-gray-600 dark:text-gray-400">
+                            {{ attendance.user.name }} • {{ formatDate(attendance.date) }}
                         </p>
+                    </div>
+                    <div class="text-right">
+                        <div
+                            class="inline-flex items-center rounded-full px-3 py-1 text-sm font-medium ring-1 ring-inset"
+                            :class="getStatusBadge(attendance.status)"
+                        >
+                            <component :is="getStatusIcon(attendance.status)" class="mr-1.5 h-4 w-4" />
+                            {{ getStatusText(attendance.status) }}
+                        </div>
+                    </div>
+                </div>
+            </div>
+
+            <!-- Overview Cards -->
+            <div class="mb-8 grid grid-cols-1 gap-6 sm:grid-cols-2 lg:grid-cols-4">
+                <!-- Employee Card -->
+                <div class="overflow-hidden rounded-xl bg-white shadow-sm ring-1 ring-gray-900/5 dark:bg-gray-900 dark:ring-white/10">
+                    <div class="p-6">
+                        <div class="flex items-center">
+                            <div class="flex h-12 w-12 shrink-0 items-center justify-center rounded-full bg-blue-500/10">
+                                <User class="h-6 w-6 text-blue-600 dark:text-blue-400" />
+                            </div>
+                            <div class="ml-4 flex-1">
+                                <p class="text-sm font-medium text-gray-600 dark:text-gray-400">Karyawan</p>
+                                <p class="text-lg font-semibold text-gray-900 dark:text-white">{{ attendance.user.name }}</p>
+                                <p class="text-sm text-gray-500 dark:text-gray-500">{{ attendance.user.employee_id }}</p>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+
+                <!-- Check-in Time -->
+                <div class="overflow-hidden rounded-xl bg-white shadow-sm ring-1 ring-gray-900/5 dark:bg-gray-900 dark:ring-white/10">
+                    <div class="p-6">
+                        <div class="flex items-center">
+                            <div class="flex h-12 w-12 shrink-0 items-center justify-center rounded-full bg-green-500/10">
+                                <Clock class="h-6 w-6 text-green-600 dark:text-green-400" />
+                            </div>
+                            <div class="ml-4 flex-1">
+                                <p class="text-sm font-medium text-gray-600 dark:text-gray-400">Check-in</p>
+                                <p class="text-2xl font-bold text-gray-900 dark:text-white">{{ formatTime(attendance.check_in_time) }}</p>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+
+                <!-- Check-out Time -->
+                <div class="overflow-hidden rounded-xl bg-white shadow-sm ring-1 ring-gray-900/5 dark:bg-gray-900 dark:ring-white/10">
+                    <div class="p-6">
+                        <div class="flex items-center">
+                            <div class="flex h-12 w-12 shrink-0 items-center justify-center rounded-full bg-orange-500/10">
+                                <Clock class="h-6 w-6 text-orange-600 dark:text-orange-400" />
+                            </div>
+                            <div class="ml-4 flex-1">
+                                <p class="text-sm font-medium text-gray-600 dark:text-gray-400">Check-out</p>
+                                <p class="text-2xl font-bold text-gray-900 dark:text-white">{{ formatTime(attendance.check_out_time) }}</p>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+
+                <!-- Work Duration -->
+                <div class="overflow-hidden rounded-xl bg-white shadow-sm ring-1 ring-gray-900/5 dark:bg-gray-900 dark:ring-white/10">
+                    <div class="p-6">
+                        <div class="flex items-center">
+                            <div class="flex h-12 w-12 shrink-0 items-center justify-center rounded-full bg-purple-500/10">
+                                <Timer class="h-6 w-6 text-purple-600 dark:text-purple-400" />
+                            </div>
+                            <div class="ml-4 flex-1">
+                                <p class="text-sm font-medium text-gray-600 dark:text-gray-400">Total Kerja</p>
+                                <p class="text-2xl font-bold text-gray-900 dark:text-white">{{ formatDuration(attendance.work_duration) }}</p>
+                            </div>
+                        </div>
                     </div>
                 </div>
             </div>
 
             <!-- Main Content Grid -->
-            <div class="grid gap-6 lg:grid-cols-3">
-                <!-- Employee Info Card -->
-                <div class="rounded-xl border border-gray-200/50 bg-white p-6 shadow-sm dark:border-gray-800/50 dark:bg-gray-950">
-                    <div class="mb-4 flex items-center gap-3">
-                        <div class="flex h-10 w-10 items-center justify-center rounded-full bg-blue-500/10 ring-1 ring-blue-500/20">
-                            <User class="h-5 w-5 text-blue-600 dark:text-blue-400" />
+            <div class="grid gap-8 lg:grid-cols-2">
+                <!-- Left Column -->
+                <div class="space-y-8">
+                    <!-- Employee Details -->
+                    <div class="overflow-hidden rounded-xl bg-white shadow-sm ring-1 ring-gray-900/5 dark:bg-gray-900 dark:ring-white/10">
+                        <div class="px-6 py-4 border-b border-gray-200 dark:border-gray-700">
+                            <h3 class="text-lg font-semibold text-gray-900 dark:text-white flex items-center">
+                                <User class="mr-2 h-5 w-5 text-blue-600 dark:text-blue-400" />
+                                Detail Karyawan
+                            </h3>
                         </div>
-                        <h2 class="text-lg font-semibold text-gray-900 dark:text-white">
-                            Informasi Karyawan
-                        </h2>
+                        <div class="p-6">
+                            <dl class="space-y-4">
+                                <div class="flex justify-between">
+                                    <dt class="text-sm text-gray-600 dark:text-gray-400">Email</dt>
+                                    <dd class="text-sm font-medium text-gray-900 dark:text-white">{{ attendance.user.email }}</dd>
+                                </div>
+                                <div v-if="attendance.user.department" class="flex justify-between">
+                                    <dt class="text-sm text-gray-600 dark:text-gray-400">Departemen</dt>
+                                    <dd class="text-sm font-medium text-gray-900 dark:text-white">{{ attendance.user.department.name }}</dd>
+                                </div>
+                                <div v-if="attendance.user.position" class="flex justify-between">
+                                    <dt class="text-sm text-gray-600 dark:text-gray-400">Posisi</dt>
+                                    <dd class="text-sm font-medium text-gray-900 dark:text-white">{{ attendance.user.position.title }}</dd>
+                                </div>
+                                <div class="flex justify-between">
+                                    <dt class="text-sm text-gray-600 dark:text-gray-400">Lembur</dt>
+                                    <dd class="text-sm font-medium text-blue-600 dark:text-blue-400">{{ formatDuration(attendance.overtime_duration) }}</dd>
+                                </div>
+                            </dl>
+                        </div>
                     </div>
-                    <div class="space-y-4">
-                        <div class="flex items-center gap-3">
-                            <div class="flex h-12 w-12 items-center justify-center rounded-full bg-gray-100 text-lg font-medium text-gray-700 dark:bg-gray-800 dark:text-gray-300">
-                                {{ attendance.user.name.charAt(0) }}
-                            </div>
-                            <div>
-                                <div class="font-medium text-gray-900 dark:text-white">{{ attendance.user.name }}</div>
-                                <div class="text-sm text-gray-500 dark:text-gray-400">{{ attendance.user.employee_id }}</div>
-                            </div>
+
+                    <!-- Face Verification -->
+                    <div v-if="attendance.face_match_confidence !== null || attendance.face_photo_url"
+                         class="overflow-hidden rounded-xl bg-white shadow-sm ring-1 ring-gray-900/5 dark:bg-gray-900 dark:ring-white/10">
+                        <div class="px-6 py-4 border-b border-gray-200 dark:border-gray-700">
+                            <h3 class="text-lg font-semibold text-gray-900 dark:text-white flex items-center">
+                                <Shield class="mr-2 h-5 w-5 text-green-600 dark:text-green-400" />
+                                Verifikasi Wajah
+                            </h3>
                         </div>
-                        <div class="space-y-2 border-t border-gray-200/50 pt-4 dark:border-gray-800/50">
-                            <div class="flex justify-between">
-                                <span class="text-sm text-gray-600 dark:text-gray-400">Email:</span>
-                                <span class="text-sm font-medium text-gray-900 dark:text-white">{{ attendance.user.email }}</span>
+                        <div class="p-6">
+                            <div v-if="attendance.face_photo_url" class="mb-6">
+                                <img
+                                    :src="attendance.face_photo_url"
+                                    alt="Foto Check-in"
+                                    class="h-48 w-full rounded-lg object-cover bg-gray-100 dark:bg-gray-800"
+                                    @error="$event.target.style.display = 'none'"
+                                />
                             </div>
-                            <div v-if="attendance.user.department" class="flex justify-between">
-                                <span class="text-sm text-gray-600 dark:text-gray-400">Departemen:</span>
-                                <span class="text-sm font-medium text-gray-900 dark:text-white">{{ attendance.user.department.name }}</span>
-                            </div>
-                            <div v-if="attendance.user.position" class="flex justify-between">
-                                <span class="text-sm text-gray-600 dark:text-gray-400">Posisi:</span>
-                                <span class="text-sm font-medium text-gray-900 dark:text-white">{{ attendance.user.position.title }}</span>
-                            </div>
+                            <dl class="space-y-4">
+                                <div v-if="attendance.face_match_confidence !== null" class="flex justify-between items-center">
+                                    <dt class="text-sm text-gray-600 dark:text-gray-400">Confidence</dt>
+                                    <dd class="flex items-center gap-2">
+                                        <span class="text-sm font-medium text-gray-900 dark:text-white">
+                                            {{ Math.round(attendance.face_match_confidence) }}%
+                                        </span>
+                                        <span
+                                            class="inline-flex items-center rounded-full px-2 py-1 text-xs font-medium"
+                                            :class="{
+                                                'bg-green-100 text-green-800 dark:bg-green-900/30 dark:text-green-400': attendance.face_match_confidence >= 70,
+                                                'bg-yellow-100 text-yellow-800 dark:bg-yellow-900/30 dark:text-yellow-400': attendance.face_match_confidence >= 50 && attendance.face_match_confidence < 70,
+                                                'bg-red-100 text-red-800 dark:bg-red-900/30 dark:text-red-400': attendance.face_match_confidence < 50
+                                            }"
+                                        >
+                                            <span v-if="attendance.face_match_confidence >= 70">Tinggi</span>
+                                            <span v-else-if="attendance.face_match_confidence >= 50">Sedang</span>
+                                            <span v-else>Rendah</span>
+                                        </span>
+                                    </dd>
+                                </div>
+                                <div class="flex justify-between items-center">
+                                    <dt class="text-sm text-gray-600 dark:text-gray-400">Status</dt>
+                                    <dd>
+                                        <span
+                                            class="inline-flex items-center rounded-full px-2 py-1 text-xs font-medium"
+                                            :class="{
+                                                'bg-green-100 text-green-800 dark:bg-green-900/30 dark:text-green-400': attendance.face_verification_passed,
+                                                'bg-yellow-100 text-yellow-800 dark:bg-yellow-900/30 dark:text-yellow-400': attendance.face_verification_skipped,
+                                                'bg-red-100 text-red-800 dark:bg-red-900/30 dark:text-red-400': attendance.face_verification_passed === false
+                                            }"
+                                        >
+                                            <CheckCircle v-if="attendance.face_verification_passed" class="mr-1 h-3 w-3" />
+                                            <AlertCircle v-else-if="attendance.face_verification_skipped" class="mr-1 h-3 w-3" />
+                                            <XCircle v-else class="mr-1 h-3 w-3" />
+                                            <span v-if="attendance.face_verification_passed">Berhasil</span>
+                                            <span v-else-if="attendance.face_verification_skipped">Dilewati</span>
+                                            <span v-else>Gagal</span>
+                                        </span>
+                                    </dd>
+                                </div>
+                            </dl>
                         </div>
                     </div>
                 </div>
 
-                <!-- Attendance Status Card -->
-                <div class="rounded-xl border border-gray-200/50 bg-white p-6 shadow-sm dark:border-gray-800/50 dark:bg-gray-950">
-                    <div class="mb-4 flex items-center gap-3">
-                        <div class="flex h-10 w-10 items-center justify-center rounded-full bg-emerald-500/10 ring-1 ring-emerald-500/20">
-                            <component :is="getStatusIcon(attendance.status)" class="h-5 w-5 text-emerald-600 dark:text-emerald-400" />
+                <!-- Right Column -->
+                <div class="space-y-8">
+                    <!-- Office Location -->
+                    <div class="overflow-hidden rounded-xl bg-white shadow-sm ring-1 ring-gray-900/5 dark:bg-gray-900 dark:ring-white/10">
+                        <div class="px-6 py-4 border-b border-gray-200 dark:border-gray-700">
+                            <h3 class="text-lg font-semibold text-gray-900 dark:text-white flex items-center">
+                                <Building class="mr-2 h-5 w-5 text-orange-600 dark:text-orange-400" />
+                                {{ attendance.office_location.name }}
+                            </h3>
+                            <p class="text-sm text-gray-600 dark:text-gray-400">{{ attendance.office_location.address }}</p>
                         </div>
-                        <h2 class="text-lg font-semibold text-gray-900 dark:text-white">
-                            Status Kehadiran
-                        </h2>
-                    </div>
-                    <div class="space-y-4">
-                        <div class="flex items-center justify-center">
-                            <span
-                                class="inline-flex items-center rounded-full px-4 py-2 text-lg font-medium ring-1 ring-inset"
-                                :class="getStatusBadge(attendance.status)"
-                            >
-                                <component :is="getStatusIcon(attendance.status)" class="mr-2 h-5 w-5" />
-                                {{ getStatusText(attendance.status) }}
-                            </span>
-                        </div>
-                        <div class="space-y-3 border-t border-gray-200/50 pt-4 dark:border-gray-800/50">
-                            <div class="flex justify-between">
-                                <span class="text-sm text-gray-600 dark:text-gray-400">Tanggal:</span>
-                                <span class="text-sm font-medium text-gray-900 dark:text-white">{{ formatDate(attendance.date) }}</span>
+                        <div class="p-6">
+                            <div class="aspect-[4/3] rounded-lg overflow-hidden bg-gray-100 dark:bg-gray-800">
+                                <iframe
+                                    :src="`https://maps.google.com/maps?q=${attendance.office_location.latitude},${attendance.office_location.longitude}&z=16&output=embed`"
+                                    class="h-full w-full"
+                                    style="border:0;"
+                                    allowfullscreen=""
+                                    loading="lazy"
+                                    referrerpolicy="no-referrer-when-downgrade">
+                                </iframe>
                             </div>
-                            <div class="flex justify-between">
-                                <span class="text-sm text-gray-600 dark:text-gray-400">Check-in:</span>
-                                <span class="text-sm font-medium text-gray-900 dark:text-white">{{ formatTime(attendance.check_in_time) }}</span>
-                            </div>
-                            <div class="flex justify-between">
-                                <span class="text-sm text-gray-600 dark:text-gray-400">Check-out:</span>
-                                <span class="text-sm font-medium text-gray-900 dark:text-white">{{ formatTime(attendance.check_out_time) }}</span>
-                            </div>
-                        </div>
-                    </div>
-                </div>
-
-                <!-- Work Duration Card -->
-                <div class="rounded-xl border border-gray-200/50 bg-white p-6 shadow-sm dark:border-gray-800/50 dark:bg-gray-950">
-                    <div class="mb-4 flex items-center gap-3">
-                        <div class="flex h-10 w-10 items-center justify-center rounded-full bg-purple-500/10 ring-1 ring-purple-500/20">
-                            <Timer class="h-5 w-5 text-purple-600 dark:text-purple-400" />
-                        </div>
-                        <h2 class="text-lg font-semibold text-gray-900 dark:text-white">
-                            Durasi Kerja
-                        </h2>
-                    </div>
-                    <div class="space-y-4">
-                        <div class="text-center">
-                            <div class="text-3xl font-bold text-purple-600 dark:text-purple-400">
-                                {{ formatDuration(attendance.work_duration) }}
-                            </div>
-                            <div class="text-sm text-gray-600 dark:text-gray-400">Total Jam Kerja</div>
-                        </div>
-                        <div class="space-y-3 border-t border-gray-200/50 pt-4 dark:border-gray-800/50">
-                            <div class="flex justify-between">
-                                <span class="text-sm text-gray-600 dark:text-gray-400">Istirahat:</span>
-                                <span class="text-sm font-medium text-gray-900 dark:text-white">{{ formatDuration(attendance.break_duration) }}</span>
-                            </div>
-                            <div class="flex justify-between">
-                                <span class="text-sm text-gray-600 dark:text-gray-400">Lembur:</span>
-                                <span class="text-sm font-medium text-blue-600 dark:text-blue-400">{{ formatDuration(attendance.overtime_duration) }}</span>
-                            </div>
-                        </div>
-                    </div>
-                </div>
-            </div>
-
-            <!-- Face Verification Section -->
-            <div v-if="attendance.face_match_confidence !== null || attendance.face_photo_url" class="rounded-xl border border-gray-200/50 bg-white p-6 shadow-sm dark:border-gray-800/50 dark:bg-gray-950">
-                <div class="mb-4 flex items-center gap-3">
-                    <div class="flex h-10 w-10 items-center justify-center rounded-full bg-cyan-500/10 ring-1 ring-cyan-500/20">
-                        <Shield class="h-5 w-5 text-cyan-600 dark:text-cyan-400" />
-                    </div>
-                    <h2 class="text-lg font-semibold text-gray-900 dark:text-white">
-                        Verifikasi Wajah
-                    </h2>
-                </div>
-
-                <div class="grid gap-6 lg:grid-cols-2">
-                    <!-- Face Photo -->
-                    <div v-if="attendance.face_photo_url" class="space-y-3">
-                        <h3 class="text-sm font-medium text-gray-900 dark:text-white">Foto Check-in</h3>
-                        <div class="relative">
-                            <img
-                                :src="attendance.face_photo_url"
-                                alt="Foto Check-in"
-                                class="h-48 w-full rounded-lg object-cover shadow-sm"
-                                @error="$event.target.style.display = 'none'"
-                            />
-                            <div class="absolute inset-0 rounded-lg ring-1 ring-inset ring-gray-900/10"></div>
                         </div>
                     </div>
 
-                    <!-- Verification Details -->
-                    <div class="space-y-4">
-                        <h3 class="text-sm font-medium text-gray-900 dark:text-white">Detail Verifikasi</h3>
-
-                        <div class="space-y-3">
-                            <div v-if="attendance.face_match_confidence !== null" class="flex justify-between">
-                                <span class="text-sm text-gray-600 dark:text-gray-400">Tingkat Keyakinan:</span>
-                                <div class="flex items-center gap-2">
-                                    <span class="text-sm font-medium text-gray-900 dark:text-white">
-                                        {{ Math.round(attendance.face_match_confidence) }}%
-                                    </span>
-                                    <div
-                                        class="inline-flex items-center rounded-full px-2 py-1 text-xs font-medium"
-                                        :class="{
-                                            'bg-emerald-50 text-emerald-700 ring-emerald-600/20 dark:bg-emerald-950/50 dark:text-emerald-400': attendance.face_match_confidence >= 70,
-                                            'bg-amber-50 text-amber-700 ring-amber-600/20 dark:bg-amber-950/50 dark:text-amber-400': attendance.face_match_confidence >= 50 && attendance.face_match_confidence < 70,
-                                            'bg-red-50 text-red-700 ring-red-600/20 dark:bg-red-950/50 dark:text-red-400': attendance.face_match_confidence < 50
-                                        }"
-                                    >
-                                        <span v-if="attendance.face_match_confidence >= 70">Tinggi</span>
-                                        <span v-else-if="attendance.face_match_confidence >= 50">Sedang</span>
-                                        <span v-else>Rendah</span>
-                                    </div>
+                    <!-- Check-in/out Locations -->
+                    <div class="space-y-6">
+                        <!-- Check-in Location -->
+                        <div v-if="attendance.check_in_latitude && attendance.check_in_longitude"
+                             class="overflow-hidden rounded-xl bg-white shadow-sm ring-1 ring-gray-900/5 dark:bg-gray-900 dark:ring-white/10">
+                            <div class="px-6 py-4 border-b border-gray-200 dark:border-gray-700">
+                                <h3 class="text-lg font-semibold text-gray-900 dark:text-white flex items-center">
+                                    <MapPin class="mr-2 h-5 w-5 text-green-600 dark:text-green-400" />
+                                    Lokasi Check-in
+                                </h3>
+                                <p class="text-xs text-gray-500 dark:text-gray-500 font-mono">
+                                    {{ attendance.check_in_latitude }}, {{ attendance.check_in_longitude }}
+                                </p>
+                            </div>
+                            <div class="p-6">
+                                <div ref="checkInMapContainer" class="aspect-[4/3] rounded-lg overflow-hidden bg-gray-100 dark:bg-gray-800">
+                                    <iframe
+                                        :src="`https://maps.google.com/maps?q=${attendance.check_in_latitude},${attendance.check_in_longitude}&z=16&output=embed`"
+                                        class="h-full w-full"
+                                        style="border:0;"
+                                        allowfullscreen=""
+                                        loading="lazy"
+                                        referrerpolicy="no-referrer-when-downgrade">
+                                    </iframe>
                                 </div>
                             </div>
+                        </div>
 
-                            <div class="flex justify-between">
-                                <span class="text-sm text-gray-600 dark:text-gray-400">Status Verifikasi:</span>
-                                <div class="flex items-center gap-2">
-                                    <span
-                                        class="inline-flex items-center rounded-full px-2 py-1 text-xs font-medium ring-1 ring-inset"
-                                        :class="{
-                                            'bg-emerald-50 text-emerald-700 ring-emerald-600/20 dark:bg-emerald-950/50 dark:text-emerald-400': attendance.face_verification_passed,
-                                            'bg-amber-50 text-amber-700 ring-amber-600/20 dark:bg-amber-950/50 dark:text-amber-400': attendance.face_verification_skipped,
-                                            'bg-red-50 text-red-700 ring-red-600/20 dark:bg-red-950/50 dark:text-red-400': attendance.face_verification_passed === false
-                                        }"
-                                    >
-                                        <CheckCircle v-if="attendance.face_verification_passed" class="mr-1 h-3 w-3" />
-                                        <AlertCircle v-else-if="attendance.face_verification_skipped" class="mr-1 h-3 w-3" />
-                                        <XCircle v-else class="mr-1 h-3 w-3" />
-                                        <span v-if="attendance.face_verification_passed">Berhasil</span>
-                                        <span v-else-if="attendance.face_verification_skipped">Dilewati</span>
-                                        <span v-else>Gagal</span>
-                                    </span>
-                                </div>
+                        <!-- Check-out Location -->
+                        <div v-if="attendance.check_out_latitude && attendance.check_out_longitude"
+                             class="overflow-hidden rounded-xl bg-white shadow-sm ring-1 ring-gray-900/5 dark:bg-gray-900 dark:ring-white/10">
+                            <div class="px-6 py-4 border-b border-gray-200 dark:border-gray-700">
+                                <h3 class="text-lg font-semibold text-gray-900 dark:text-white flex items-center">
+                                    <MapPin class="mr-2 h-5 w-5 text-red-600 dark:text-red-400" />
+                                    Lokasi Check-out
+                                </h3>
+                                <p class="text-xs text-gray-500 dark:text-gray-500 font-mono">
+                                    {{ attendance.check_out_latitude }}, {{ attendance.check_out_longitude }}
+                                </p>
                             </div>
-
-                            <div v-if="attendance.face_verification_notes" class="border-t border-gray-200/50 pt-3 dark:border-gray-800/50">
-                                <span class="text-sm text-gray-600 dark:text-gray-400">Catatan:</span>
-                                <div class="mt-1 rounded-md bg-gray-50 p-2 dark:bg-gray-900/50">
-                                    <p class="text-xs text-gray-700 dark:text-gray-300">{{ attendance.face_verification_notes }}</p>
+                            <div class="p-6">
+                                <div ref="checkOutMapContainer" class="aspect-[4/3] rounded-lg overflow-hidden bg-gray-100 dark:bg-gray-800">
+                                    <iframe
+                                        :src="`https://maps.google.com/maps?q=${attendance.check_out_latitude},${attendance.check_out_longitude}&z=16&output=embed`"
+                                        class="h-full w-full"
+                                        style="border:0;"
+                                        allowfullscreen=""
+                                        loading="lazy"
+                                        referrerpolicy="no-referrer-when-downgrade">
+                                    </iframe>
                                 </div>
                             </div>
                         </div>
@@ -364,113 +414,34 @@ const openMaps = (lat: number, lng: number) => {
                 </div>
             </div>
 
-            <!-- Location Details -->
-            <div class="grid gap-6 lg:grid-cols-2">
-                <!-- Office Location -->
-                <div class="rounded-xl border border-gray-200/50 bg-white p-6 shadow-sm dark:border-gray-800/50 dark:bg-gray-950">
-                    <div class="mb-4 flex items-center gap-3">
-                        <div class="flex h-10 w-10 items-center justify-center rounded-full bg-orange-500/10 ring-1 ring-orange-500/20">
-                            <Building class="h-5 w-5 text-orange-600 dark:text-orange-400" />
-                        </div>
-                        <h2 class="text-lg font-semibold text-gray-900 dark:text-white">
-                            Lokasi Kantor
-                        </h2>
-                    </div>
-                    <div class="space-y-3">
-                        <div>
-                            <div class="font-medium text-gray-900 dark:text-white">{{ attendance.office_location.name }}</div>
-                            <div class="text-sm text-gray-600 dark:text-gray-400">{{ attendance.office_location.address }}</div>
-                        </div>
-                        <button
-                            @click="openMaps(attendance.office_location.latitude, attendance.office_location.longitude)"
-                            class="inline-flex items-center rounded-md bg-orange-50 px-3 py-2 text-sm font-medium text-orange-700 ring-1 ring-orange-200 hover:bg-orange-100 dark:bg-orange-950/50 dark:text-orange-300 dark:ring-orange-800"
-                        >
-                            <MapPin class="mr-2 h-4 w-4" />
-                            Lihat di Maps
-                        </button>
-                    </div>
-                </div>
-
-                <!-- Check-in/out Locations -->
-                <div class="rounded-xl border border-gray-200/50 bg-white p-6 shadow-sm dark:border-gray-800/50 dark:bg-gray-950">
-                    <div class="mb-4 flex items-center gap-3">
-                        <div class="flex h-10 w-10 items-center justify-center rounded-full bg-green-500/10 ring-1 ring-green-500/20">
-                            <MapPin class="h-5 w-5 text-green-600 dark:text-green-400" />
-                        </div>
-                        <h2 class="text-lg font-semibold text-gray-900 dark:text-white">
-                            Lokasi Check-in/out
-                        </h2>
-                    </div>
-                    <div class="space-y-4">
-                        <div v-if="attendance.check_in_latitude && attendance.check_in_longitude">
-                            <div class="mb-2 flex items-center justify-between">
-                                <span class="text-sm font-medium text-gray-900 dark:text-white">Check-in</span>
-                                <button
-                                    @click="openMaps(attendance.check_in_latitude!, attendance.check_in_longitude!)"
-                                    class="text-sm text-blue-600 hover:text-blue-700 dark:text-blue-400"
-                                >
-                                    Lihat Maps
-                                </button>
-                            </div>
-                            <div class="text-sm text-gray-600 dark:text-gray-400">
-                                {{ attendance.check_in_latitude }}, {{ attendance.check_in_longitude }}
-                            </div>
-                        </div>
-                        <div v-if="attendance.check_out_latitude && attendance.check_out_longitude" class="border-t border-gray-200/50 pt-4 dark:border-gray-800/50">
-                            <div class="mb-2 flex items-center justify-between">
-                                <span class="text-sm font-medium text-gray-900 dark:text-white">Check-out</span>
-                                <button
-                                    @click="openMaps(attendance.check_out_latitude!, attendance.check_out_longitude!)"
-                                    class="text-sm text-blue-600 hover:text-blue-700 dark:text-blue-400"
-                                >
-                                    Lihat Maps
-                                </button>
-                            </div>
-                            <div class="text-sm text-gray-600 dark:text-gray-400">
-                                {{ attendance.check_out_latitude }}, {{ attendance.check_out_longitude }}
-                            </div>
-                        </div>
-                    </div>
-                </div>
-            </div>
-
-            <!-- Notes and Timestamps -->
-            <div class="grid gap-6 lg:grid-cols-2">
-                <!-- Notes -->
-                <div v-if="attendance.notes" class="rounded-xl border border-gray-200/50 bg-white p-6 shadow-sm dark:border-gray-800/50 dark:bg-gray-950">
-                    <div class="mb-4 flex items-center gap-3">
-                        <div class="flex h-10 w-10 items-center justify-center rounded-full bg-gray-500/10 ring-1 ring-gray-500/20">
-                            <Briefcase class="h-5 w-5 text-gray-600 dark:text-gray-400" />
-                        </div>
-                        <h2 class="text-lg font-semibold text-gray-900 dark:text-white">
+            <!-- Footer Information -->
+            <div v-if="attendance.notes" class="mt-8">
+                <div class="overflow-hidden rounded-xl bg-white shadow-sm ring-1 ring-gray-900/5 dark:bg-gray-900 dark:ring-white/10">
+                    <div class="px-6 py-4 border-b border-gray-200 dark:border-gray-700">
+                        <h3 class="text-lg font-semibold text-gray-900 dark:text-white flex items-center">
+                            <Briefcase class="mr-2 h-5 w-5 text-gray-600 dark:text-gray-400" />
                             Catatan
-                        </h2>
+                        </h3>
                     </div>
-                    <div class="rounded-lg bg-gray-50 p-4 dark:bg-gray-900/50">
-                        <p class="text-sm text-gray-700 dark:text-gray-300">{{ attendance.notes }}</p>
+                    <div class="p-6">
+                        <div class="rounded-lg bg-gray-50 p-4 dark:bg-gray-800/50">
+                            <p class="text-sm text-gray-700 dark:text-gray-300">{{ attendance.notes }}</p>
+                        </div>
                     </div>
                 </div>
+            </div>
 
-                <!-- Timestamps -->
-                <div class="rounded-xl border border-gray-200/50 bg-white p-6 shadow-sm dark:border-gray-800/50 dark:bg-gray-950">
-                    <div class="mb-4 flex items-center gap-3">
-                        <div class="flex h-10 w-10 items-center justify-center rounded-full bg-indigo-500/10 ring-1 ring-indigo-500/20">
-                            <Calendar class="h-5 w-5 text-indigo-600 dark:text-indigo-400" />
-                        </div>
-                        <h2 class="text-lg font-semibold text-gray-900 dark:text-white">
-                            Riwayat Record
-                        </h2>
-                    </div>
-                    <div class="space-y-3">
-                        <div class="flex justify-between">
-                            <span class="text-sm text-gray-600 dark:text-gray-400">Dibuat:</span>
-                            <span class="text-sm font-medium text-gray-900 dark:text-white">{{ formatDateTime(attendance.created_at) }}</span>
-                        </div>
-                        <div class="flex justify-between">
-                            <span class="text-sm text-gray-600 dark:text-gray-400">Diperbarui:</span>
-                            <span class="text-sm font-medium text-gray-900 dark:text-white">{{ formatDateTime(attendance.updated_at) }}</span>
-                        </div>
-                    </div>
+            <!-- Metadata -->
+            <div class="mt-8 flex items-center justify-between text-sm text-gray-500 dark:text-gray-400">
+                <div class="flex items-center space-x-4">
+                    <span class="flex items-center">
+                        <Calendar class="mr-1 h-4 w-4" />
+                        Dibuat: {{ formatDateTime(attendance.created_at) }}
+                    </span>
+                    <span class="flex items-center">
+                        <Clock class="mr-1 h-4 w-4" />
+                        Diperbarui: {{ formatDateTime(attendance.updated_at) }}
+                    </span>
                 </div>
             </div>
         </div>
