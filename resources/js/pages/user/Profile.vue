@@ -249,6 +249,93 @@
                     </form>
                 </div>
 
+                <!-- Face Recognition Card -->
+                <div class="rounded-xl border border-gray-200/50 bg-white p-6 shadow-sm dark:border-gray-800/50 dark:bg-gray-950">
+                    <div class="mb-6 flex items-center gap-3">
+                        <div class="flex h-8 w-8 items-center justify-center rounded-lg bg-green-500/10 ring-1 ring-green-500/20">
+                            <Scan class="h-4 w-4 text-green-600 dark:text-green-400" />
+                        </div>
+                        <div>
+                            <h3 class="text-lg font-semibold text-gray-900 dark:text-white">Pengenalan Wajah</h3>
+                            <p class="text-sm text-gray-600 dark:text-gray-400">Setup dan kelola verifikasi wajah untuk absensi</p>
+                        </div>
+                    </div>
+
+                    <div class="space-y-4">
+                        <!-- Face Recognition Status -->
+                        <div v-if="user.face_recognition_enabled" class="rounded-lg bg-green-50 dark:bg-green-950/20 border border-green-200 dark:border-green-800 p-4">
+                            <div class="flex items-start gap-3">
+                                <div class="rounded-lg bg-green-100 dark:bg-green-900/50 p-2">
+                                    <CheckCircle class="h-5 w-5 text-green-600 dark:text-green-400" />
+                                </div>
+                                <div class="flex-1">
+                                    <h4 class="font-medium text-green-900 dark:text-green-100">Face Recognition Aktif</h4>
+                                    <p class="text-sm text-green-700 dark:text-green-300 mt-1">
+                                        Pengenalan wajah sudah diaktifkan untuk akun Anda.
+                                    </p>
+                                    <p v-if="user.face_setup_at" class="text-xs text-green-600 dark:text-green-400 mt-1">
+                                        Setup pada: {{ new Date(user.face_setup_at).toLocaleDateString('id-ID') }}
+                                    </p>
+                                </div>
+                            </div>
+                        </div>
+
+                        <div v-else class="rounded-lg bg-yellow-50 dark:bg-yellow-950/20 border border-yellow-200 dark:border-yellow-800 p-4">
+                            <div class="flex items-start gap-3">
+                                <div class="rounded-lg bg-yellow-100 dark:bg-yellow-900/50 p-2">
+                                    <AlertCircle class="h-5 w-5 text-yellow-600 dark:text-yellow-400" />
+                                </div>
+                                <div class="flex-1">
+                                    <h4 class="font-medium text-yellow-900 dark:text-yellow-100">Face Recognition Belum Setup</h4>
+                                    <p class="text-sm text-yellow-700 dark:text-yellow-300 mt-1">
+                                        Setup pengenalan wajah untuk keamanan tambahan saat absensi.
+                                    </p>
+                                </div>
+                            </div>
+                        </div>
+
+                        <!-- Action Buttons -->
+                        <div class="flex gap-3 pt-2">
+                            <button
+                                v-if="!user.face_recognition_enabled"
+                                @click="openFaceSetup"
+                                :disabled="faceLoading"
+                                class="inline-flex items-center rounded-lg bg-green-600 px-4 py-2 text-sm font-medium text-white hover:bg-green-700 focus:outline-none focus:ring-2 focus:ring-green-500 focus:ring-offset-2 disabled:opacity-50"
+                            >
+                                <Scan class="mr-2 h-4 w-4" />
+                                Setup Face Recognition
+                            </button>
+
+                            <button
+                                v-if="user.face_recognition_enabled"
+                                @click="openFaceSetup"
+                                :disabled="faceLoading"
+                                class="inline-flex items-center rounded-lg bg-blue-600 px-4 py-2 text-sm font-medium text-white hover:bg-blue-700 focus:outline-none focus:ring-2 focus:ring-blue-500 focus:ring-offset-2 disabled:opacity-50"
+                            >
+                                <Camera class="mr-2 h-4 w-4" />
+                                Setup Ulang
+                            </button>
+
+                            <button
+                                v-if="user.face_recognition_enabled"
+                                @click="handleDeleteFaceData"
+                                :disabled="faceLoading"
+                                class="inline-flex items-center rounded-lg bg-red-600 px-3 py-2 text-sm font-medium text-white hover:bg-red-700 focus:outline-none focus:ring-2 focus:ring-red-500 focus:ring-offset-2 disabled:opacity-50"
+                            >
+                                <Trash2 class="mr-2 h-4 w-4" />
+                                Hapus Data
+                            </button>
+                        </div>
+
+                        <!-- Warning for mandatory users -->
+                        <div v-if="user.face_recognition_mandatory && !user.face_recognition_enabled" class="rounded-lg bg-red-50 dark:bg-red-950/20 border border-red-200 dark:border-red-800 p-3">
+                            <p class="text-sm text-red-700 dark:text-red-300">
+                                ⚠️ <strong>Wajib:</strong> Face recognition diperlukan untuk akun Anda. Silakan setup sekarang.
+                            </p>
+                        </div>
+                    </div>
+                </div>
+
                 <!-- Theme/Dark Mode Settings -->
                 <div class="mb-6 rounded-lg border bg-card p-6">
                     <div class="mb-4 flex items-center gap-3">
@@ -310,6 +397,15 @@
 
         <BottomNavigation current-route="/user/profile" />
         </div>
+
+        <!-- Face Recognition Modal -->
+        <FaceCapture
+            v-if="showFaceCapture"
+            mode="setup"
+            @capture="handleFaceSetup"
+            @close="closeFaceCapture"
+            @error="handleFaceCaptureError"
+        />
     </div>
 </template>
 
@@ -317,6 +413,8 @@
 import { Head, Link, useForm } from '@inertiajs/vue3';
 import DatePicker from '@/components/ui/date-picker/DatePicker.vue';
 import BottomNavigation from '@/components/BottomNavigation.vue';
+import FaceCapture from '@/components/FaceCapture.vue';
+import { useFaceRecognition } from '@/composables/useFaceRecognition';
 import {
     User,
     Mail,
@@ -334,7 +432,11 @@ import {
     ArrowLeft,
     Moon,
     Sun,
-    Monitor
+    Monitor,
+    Scan,
+    Trash2,
+    CheckCircle,
+    AlertCircle
 } from 'lucide-vue-next';
 import { ref, computed, onMounted } from 'vue';
 
@@ -357,6 +459,10 @@ interface UserProfile {
         id: number;
         title: string;
     };
+    face_recognition_enabled?: boolean;
+    face_recognition_mandatory?: boolean;
+    face_descriptors?: any;
+    face_setup_at?: string;
 }
 
 interface Props {
@@ -364,6 +470,18 @@ interface Props {
 }
 
 const { user } = defineProps<Props>();
+
+// Face Recognition
+const {
+    isLoading: faceLoading,
+    showFaceCapture,
+    isSetupMode,
+    setupFaceRecognition,
+    deleteFaceData,
+    openFaceSetup,
+    closeFaceCapture,
+    handleFaceCaptureError
+} = useFaceRecognition();
 
 // Edit states
 const isEditingBasic = ref(false);
@@ -476,4 +594,23 @@ onMounted(() => {
         }
     });
 });
+
+// Face Recognition Methods
+const handleFaceSetup = async (descriptors: number[][]) => {
+    const success = await setupFaceRecognition(descriptors);
+    if (success) {
+        // Refresh the page to update user data
+        window.location.reload();
+    }
+};
+
+const handleDeleteFaceData = async () => {
+    if (confirm('Apakah Anda yakin ingin menghapus data face recognition? Anda perlu setup ulang nanti.')) {
+        const success = await deleteFaceData();
+        if (success) {
+            // Refresh the page to update user data
+            window.location.reload();
+        }
+    }
+};
 </script>

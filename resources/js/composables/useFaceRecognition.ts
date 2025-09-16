@@ -94,7 +94,6 @@ export function useFaceRecognition() {
                     title: '❌ Verifikasi Gagal',
                     description: result.error || 'Wajah tidak cocok.',
                     variant: 'destructive',
-                    duration: 5000,
                 });
             }
 

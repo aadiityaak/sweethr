@@ -1,11 +1,13 @@
 <script setup lang="ts">
 import { Head, Link, useForm } from '@inertiajs/vue3';
-import { MapPin, Clock, AlertCircle, CheckCircle, Loader2, ArrowLeft, User, AlertTriangle } from 'lucide-vue-next';
+import { MapPin, Clock, AlertCircle, CheckCircle, Loader2, ArrowLeft, User, AlertTriangle, Camera } from 'lucide-vue-next';
 import { ref, onMounted } from 'vue';
 import LeafletMap from '@/components/LeafletMap.vue';
 import BottomNavigation from '@/components/BottomNavigation.vue';
+import FaceCapture from '@/components/FaceCapture.vue';
 import { useCompanySettings } from '@/composables/useCompanySettings';
 import { useToast } from '@/components/ui/toast/use-toast';
+import { useFaceRecognition } from '@/composables/useFaceRecognition';
 
 interface OfficeLocation {
     id: number;
@@ -19,12 +21,27 @@ interface OfficeLocation {
 interface Props {
     officeLocations: OfficeLocation[];
     existingAttendance: any | null;
+    user: {
+        face_recognition_enabled: boolean;
+        face_recognition_mandatory: boolean;
+        face_descriptors?: any;
+    };
 }
 
-const { officeLocations, existingAttendance } = defineProps<Props>();
+const { officeLocations, existingAttendance, user } = defineProps<Props>();
 
 const { companyName, companyLogo } = useCompanySettings();
 const { toast } = useToast();
+
+// Face Recognition
+const {
+    isLoading: faceLoading,
+    showFaceCapture,
+    verifyFace,
+    openFaceVerification,
+    closeFaceCapture,
+    verificationResult
+} = useFaceRecognition();
 
 const form = useForm({
     office_location_id: '',
@@ -39,12 +56,20 @@ const isInRange = ref(false);
 const distanceToOffice = ref(0);
 const hasShownOutOfRangeAlert = ref(false);
 const hasCheckedInToday = ref(false);
+const faceVerificationCompleted = ref(false);
+const faceVerificationRequired = ref(false);
 
 onMounted(() => {
     // Check if user already checked in today
     if (existingAttendance?.check_in_time) {
         hasCheckedInToday.value = true;
     }
+
+    // Check if face verification is required
+    if (user.face_recognition_enabled && user.face_recognition_mandatory) {
+        faceVerificationRequired.value = true;
+    }
+
     getCurrentLocation();
 });
 
@@ -179,6 +204,27 @@ const submitCheckIn = () => {
         return;
     }
 
+    // Check if face verification is required and not completed
+    if (faceVerificationRequired.value && !faceVerificationCompleted.value) {
+        if (!user.face_descriptors) {
+            toast({
+                title: '⚠️ Face Recognition Belum Setup',
+                description: 'Silakan setup face recognition di profile terlebih dahulu.',
+                variant: 'destructive',
+            });
+            return;
+        }
+
+        // Open face verification
+        openFaceVerification(JSON.parse(user.face_descriptors));
+        return;
+    }
+
+    // Proceed with check-in
+    performCheckIn();
+};
+
+const performCheckIn = () => {
     toast({
         title: '🕐 Sedang Check In...',
         description: 'Memproses absensi masuk Anda.',
@@ -188,6 +234,7 @@ const submitCheckIn = () => {
     form.post('/attendance/check-in', {
         onSuccess: (page) => {
             hasCheckedInToday.value = true;
+            faceVerificationCompleted.value = false; // Reset for next time
             toast({
                 title: '✅ Check In Berhasil!',
                 description: `Absensi masuk Anda telah tercatat pada ${new Date().toLocaleTimeString('id-ID')}.`,
@@ -210,6 +257,30 @@ const submitCheckIn = () => {
         preserveState: true,
         preserveScroll: true,
     });
+};
+
+const handleFaceVerification = async (confidence: number) => {
+    const result = await verifyFace(confidence);
+
+    if (result.success) {
+        faceVerificationCompleted.value = true;
+        closeFaceCapture();
+
+        // Automatically proceed with check-in after successful face verification
+        setTimeout(() => {
+            performCheckIn();
+        }, 1000);
+    } else if (!result.can_retry) {
+        // Max attempts reached, make it optional
+        faceVerificationRequired.value = false;
+        closeFaceCapture();
+
+        toast({
+            title: '⚠️ Verifikasi Wajah Dilewati',
+            description: 'Anda dapat melanjutkan check-in tanpa verifikasi wajah.',
+            variant: 'default',
+        });
+    }
 };
 </script>
 
@@ -417,12 +488,49 @@ const submitCheckIn = () => {
                     </div>
                 </div>
 
+                <!-- Face Recognition Required Alert -->
+                <div v-if="isInRange && faceVerificationRequired && !faceVerificationCompleted && !hasCheckedInToday"
+                     class="rounded-lg border-2 border-blue-500/50 bg-blue-50 dark:bg-blue-950/50 p-4">
+                    <div class="flex items-start gap-3">
+                        <div class="rounded-lg bg-blue-100 dark:bg-blue-900/50 p-2">
+                            <Camera class="h-5 w-5 text-blue-600 dark:text-blue-400" />
+                        </div>
+                        <div class="flex-1">
+                            <h3 class="font-semibold text-blue-800 dark:text-blue-300">Verifikasi Wajah Diperlukan</h3>
+                            <p class="text-sm text-blue-700 dark:text-blue-400 mt-1">
+                                Silakan lakukan verifikasi wajah untuk melanjutkan check-in.
+                            </p>
+                        </div>
+                    </div>
+                </div>
+
+                <!-- Face Verification Success -->
+                <div v-if="faceVerificationCompleted"
+                     class="rounded-lg border-2 border-green-500/50 bg-green-50 dark:bg-green-950/50 p-4">
+                    <div class="flex items-start gap-3">
+                        <div class="rounded-lg bg-green-100 dark:bg-green-900/50 p-2">
+                            <CheckCircle class="h-5 w-5 text-green-600 dark:text-green-400" />
+                        </div>
+                        <div class="flex-1">
+                            <h3 class="font-semibold text-green-800 dark:text-green-300">Verifikasi Wajah Berhasil!</h3>
+                            <p class="text-sm text-green-700 dark:text-green-400 mt-1">
+                                Wajah Anda telah terverifikasi. Siap untuk check-in.
+                            </p>
+                        </div>
+                    </div>
+                </div>
+
                 <!-- Check In Action -->
                 <div class="rounded-lg border bg-card p-6">
                     <div class="text-center space-y-4">
                         <!-- Already Checked In State -->
                         <div v-if="hasCheckedInToday" class="mx-auto w-16 h-16 rounded-full bg-green-100 dark:bg-green-900/50 flex items-center justify-center">
                             <CheckCircle class="h-8 w-8 text-green-600 dark:text-green-400" />
+                        </div>
+                        <!-- Face Recognition State -->
+                        <div v-else-if="faceVerificationRequired && !faceVerificationCompleted" class="mx-auto w-16 h-16 rounded-full flex items-center justify-center"
+                             :class="isInRange ? 'bg-blue-100 dark:bg-blue-900/50' : 'bg-muted'">
+                            <Camera class="h-8 w-8" :class="isInRange ? 'text-blue-600 dark:text-blue-400' : 'text-muted-foreground'" />
                         </div>
                         <!-- Normal States -->
                         <div v-else class="mx-auto w-16 h-16 rounded-full flex items-center justify-center"
@@ -432,12 +540,19 @@ const submitCheckIn = () => {
 
                         <div>
                             <h2 class="text-lg font-semibold">
-                                {{ hasCheckedInToday ? 'Sudah Check In Hari Ini' : (isInRange ? 'Siap Check In!' : 'Belum Bisa Check In') }}
+                                {{ hasCheckedInToday
+                                    ? 'Sudah Check In Hari Ini'
+                                    : faceVerificationRequired && !faceVerificationCompleted
+                                        ? (isInRange ? 'Verifikasi Wajah' : 'Belum Bisa Check In')
+                                        : (isInRange ? 'Siap Check In!' : 'Belum Bisa Check In')
+                                }}
                             </h2>
                             <p class="text-sm text-muted-foreground mt-1">
                                 {{ hasCheckedInToday
                                     ? 'Absensi masuk Anda sudah tercatat untuk hari ini'
-                                    : (isInRange ? 'Anda dapat melakukan absensi masuk sekarang' : 'Mohon mendekat ke lokasi kantor')
+                                    : faceVerificationRequired && !faceVerificationCompleted
+                                        ? (isInRange ? 'Silakan verifikasi wajah untuk melanjutkan' : 'Mohon mendekat ke lokasi kantor')
+                                        : (isInRange ? 'Anda dapat melakukan absensi masuk sekarang' : 'Mohon mendekat ke lokasi kantor')
                                 }}
                             </p>
                         </div>
@@ -445,14 +560,22 @@ const submitCheckIn = () => {
                         <button
                             v-if="!hasCheckedInToday"
                             @click="submitCheckIn"
-                            :disabled="!isInRange || form.processing"
+                            :disabled="!isInRange || form.processing || faceLoading"
                             class="w-full inline-flex items-center justify-center gap-2 rounded-lg px-6 py-4 text-sm font-medium transition-colors disabled:opacity-50 disabled:cursor-not-allowed"
                             :class="isInRange
-                                ? 'bg-green-600 hover:bg-green-700 text-white shadow-sm'
+                                ? (faceVerificationRequired && !faceVerificationCompleted)
+                                    ? 'bg-blue-600 hover:bg-blue-700 text-white shadow-sm'
+                                    : 'bg-green-600 hover:bg-green-700 text-white shadow-sm'
                                 : 'bg-muted text-muted-foreground cursor-not-allowed'"
                         >
-                            <Clock class="h-4 w-4" />
+                            <Loader2 v-if="form.processing || faceLoading" class="h-4 w-4 animate-spin" />
+                            <Camera v-else-if="faceVerificationRequired && !faceVerificationCompleted" class="h-4 w-4" />
+                            <Clock v-else class="h-4 w-4" />
                             <span v-if="form.processing">Sedang Check In...</span>
+                            <span v-else-if="faceLoading">Memproses Wajah...</span>
+                            <span v-else-if="faceVerificationRequired && !faceVerificationCompleted">
+                                {{ isInRange ? 'Verifikasi Wajah' : 'Belum Bisa Check In' }}
+                            </span>
                             <span v-else>{{ isInRange ? 'Check In Sekarang' : 'Belum Bisa Check In' }}</span>
                         </button>
 
@@ -484,5 +607,15 @@ const submitCheckIn = () => {
         </div>
 
         <BottomNavigation current-route="/attendance" />
+
+        <!-- Face Recognition Modal -->
+        <FaceCapture
+            v-if="showFaceCapture"
+            mode="verification"
+            :stored-descriptors="user.face_descriptors ? JSON.parse(user.face_descriptors) : []"
+            @verification="handleFaceVerification"
+            @close="closeFaceCapture"
+            @error="(error) => toast({ title: '❌ Error', description: error, variant: 'destructive' })"
+        />
     </div>
 </template>

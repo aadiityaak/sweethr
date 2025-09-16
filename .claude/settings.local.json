@@ -24,7 +24,8 @@
       "Bash(npm run dev:*)",
       "mcp__laravel-boost__get-absolute-url",
       "Read(//d/**)",
-      "Bash(node:*)"
+      "Bash(node:*)",
+      "Bash(curl:*)"
     ],
     "deny": [],
     "ask": []

@@ -20,7 +20,12 @@ class ProfileController extends Controller
         $user = auth()->user()->load(['department:id,name', 'position:id,title']);
 
         return Inertia::render('user/Profile', [
-            'user' => $user,
+            'user' => array_merge($user->toArray(), [
+                'face_recognition_enabled' => $user->face_recognition_enabled ?? false,
+                'face_recognition_mandatory' => $user->face_recognition_mandatory ?? true,
+                'face_descriptors' => $user->face_descriptors,
+                'face_setup_at' => $user->face_setup_at,
+            ]),
         ]);
     }
 

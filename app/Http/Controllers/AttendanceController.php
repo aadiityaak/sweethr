@@ -65,6 +65,11 @@ class AttendanceController extends Controller
         return Inertia::render('user/Attendance/CheckIn', [
             'officeLocations' => $officeLocations,
             'existingAttendance' => $existingAttendance,
+            'user' => [
+                'face_recognition_enabled' => $user->face_recognition_enabled ?? false,
+                'face_recognition_mandatory' => $user->face_recognition_mandatory ?? true,
+                'face_descriptors' => $user->face_descriptors,
+            ],
         ]);
     }
 
