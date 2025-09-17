@@ -32,7 +32,10 @@
       "Bash(dir D:devsweethrpublic)",
       "mcp__laravel-boost__read-log-entries",
       "Read(//g/wscrm/**)",
-      "Bash(php:*)"
+      "Bash(php:*)",
+      "Bash(git commit:*)",
+      "Bash(git push:*)",
+      "Bash(git add:*)"
     ],
     "deny": [],
     "ask": []
