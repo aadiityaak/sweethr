@@ -12,8 +12,8 @@ return new class extends Migration
     public function up(): void
     {
         Schema::table('leave_requests', function (Blueprint $table) {
-            $table->string('attachment_path')->nullable()->after('reason');
-            $table->string('attachment_original_name')->nullable()->after('attachment_path');
+            $table->string('attachment_path', 500)->nullable()->after('reason');
+            $table->string('attachment_original_name', 191)->nullable()->after('attachment_path');
         });
     }
 

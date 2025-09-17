@@ -13,8 +13,8 @@ return new class extends Migration
     {
         Schema::create('positions', function (Blueprint $table) {
             $table->id();
-            $table->string('title');
-            $table->string('code')->unique();
+            $table->string('title', 191);
+            $table->string('code', 191)->unique();
             $table->text('description')->nullable();
             $table->unsignedBigInteger('department_id');
             $table->integer('level')->default(1); // 1=staff, 2=supervisor, 3=manager, 4=director

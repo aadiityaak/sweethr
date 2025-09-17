@@ -13,8 +13,8 @@ return new class extends Migration
     {
         Schema::create('leave_types', function (Blueprint $table) {
             $table->id();
-            $table->string('name');
-            $table->string('code')->unique();
+            $table->string('name', 191);
+            $table->string('code', 191)->unique();
             $table->text('description')->nullable();
             $table->integer('max_days_per_year')->nullable();
             $table->integer('max_consecutive_days')->nullable();

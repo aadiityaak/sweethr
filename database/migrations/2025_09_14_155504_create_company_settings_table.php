@@ -13,10 +13,10 @@ return new class extends Migration
     {
         Schema::create('company_settings', function (Blueprint $table) {
             $table->id();
-            $table->string('key')->unique();
+            $table->string('key', 191)->unique();
             $table->text('value')->nullable();
-            $table->string('type')->default('text'); // text, textarea, image, file, boolean
-            $table->string('group')->default('general'); // general, branding, contact, etc
+            $table->string('type', 50)->default('text'); // text, textarea, image, file, boolean
+            $table->string('group', 100)->default('general'); // general, branding, contact, etc
             $table->text('description')->nullable();
             $table->boolean('is_public')->default(false); // Whether setting can be accessed publicly
             $table->timestamps();
