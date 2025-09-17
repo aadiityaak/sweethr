@@ -96,6 +96,21 @@
             "@php artisan cache:clear",
             "@php artisan view:clear",
             "@php artisan event:clear"
+        ],
+        "build:structure": [
+            "@php artisan build:production-structure"
+        ],
+        "build:package": [
+            "@php artisan build:package"
+        ],
+        "build:flat-deployment": [
+            "powershell -Command \"if (Test-Path 'flat-deployment') { Remove-Item -Recurse -Force 'flat-deployment' }\"",
+            "powershell -Command \"New-Item -ItemType Directory -Force -Path 'flat-deployment'\"",
+            "powershell -Command \"Copy-Item -Path 'public\\*' -Destination 'flat-deployment\\' -Recurse -Force\"",
+            "powershell -Command \"Copy-Item -Path '.' -Destination 'flat-deployment\\application' -Recurse -Force -Exclude @('public', 'flat-deployment', 'node_modules', '.git', 'tests', 'storage\\logs\\*')\"",
+            "powershell -Command \"(Get-Content 'flat-deployment\\index.php') -replace '__DIR__\\.\\'/\\.\\./vendor/autoload.php', '__DIR__.'/application/vendor/autoload.php' | Set-Content 'flat-deployment\\index.php'\"",
+            "powershell -Command \"(Get-Content 'flat-deployment\\index.php') -replace '__DIR__\\.\\'/\\.\\./bootstrap/app.php', '__DIR__.'/application/bootstrap/app.php' | Set-Content 'flat-deployment\\index.php'\"",
+            "powershell -Command \"(Get-Content 'flat-deployment\\index.php') -replace '__DIR__\\.\\'/\\.\\./storage/framework/maintenance.php', '__DIR__.'/application/storage/framework/maintenance.php' | Set-Content 'flat-deployment\\index.php'\""
         ]
     },
     "extra": {
