@@ -549,7 +549,7 @@ const getInitials = (name: string) => {
 // Dark mode functionality
 type Theme = 'light' | 'dark' | 'system';
 
-const currentTheme = ref<Theme>('system');
+const currentTheme = ref<Theme>('light');
 const isDark = ref(false);
 
 const themes = [
@@ -583,7 +583,7 @@ const setTheme = (theme: Theme) => {
 };
 
 onMounted(() => {
-    const savedTheme = localStorage.getItem('theme') as Theme || 'system';
+    const savedTheme = localStorage.getItem('theme') as Theme || 'light';
     currentTheme.value = savedTheme;
     applyTheme(savedTheme);
 
