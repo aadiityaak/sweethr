@@ -449,9 +449,16 @@ const startFaceDetection = async () => {
             return;
         }
 
-        // Get video stream
+        // Mobile-optimized video stream
+        const isMobile = /Android|iPhone|iPad|iPod|BlackBerry|IEMobile|Opera Mini/i.test(navigator.userAgent);
+
         stream.value = await navigator.mediaDevices.getUserMedia({
-            video: { width: 320, height: 240, facingMode: 'user' }
+            video: {
+                width: isMobile ? 240 : 320,
+                height: isMobile ? 180 : 240,
+                facingMode: 'user',
+                frameRate: { ideal: isMobile ? 10 : 15 }
+            }
         });
 
         if (videoElement.value) {
@@ -478,9 +485,13 @@ const startDetectionLoop = () => {
         clearInterval(detectionInterval.value);
     }
 
+    // Mobile-optimized detection interval
+    const isMobile = /Android|iPhone|iPad|iPod|BlackBerry|IEMobile|Opera Mini/i.test(navigator.userAgent);
+    const detectionDelay = isMobile ? 2000 : 1000; // 2 seconds for mobile, 1 second for desktop
+
     detectionInterval.value = window.setInterval(async () => {
         await detectFace();
-    }, 1000); // Check every second
+    }, detectionDelay);
 };
 
 const detectFace = async () => {
@@ -489,8 +500,15 @@ const detectFace = async () => {
     }
 
     try {
+        // Mobile-optimized detection options
+        const isMobile = /Android|iPhone|iPad|iPod|BlackBerry|IEMobile|Opera Mini/i.test(navigator.userAgent);
+        const detectionOptions = new faceapi.TinyFaceDetectorOptions({
+            inputSize: isMobile ? 128 : 416, // Smaller input size for mobile
+            scoreThreshold: isMobile ? 0.3 : 0.5 // Lower threshold for mobile
+        });
+
         const detection = await faceapi
-            .detectSingleFace(videoElement.value)
+            .detectSingleFace(videoElement.value, detectionOptions)
             .withFaceLandmarks()
             .withFaceDescriptor();
 
@@ -891,7 +909,7 @@ onUnmounted(() => {
                     <div v-if="faceRecognitionEnabled && faceDescriptors && faceDescriptors.length > 0 && !todayAttendance?.check_in_time" class="mt-4 flex justify-center">
                         <div class="relative">
                             <!-- Face Captured State -->
-                            <div v-if="isFaceCaptured" class="w-80 h-80 rounded-full overflow-hidden border-4 border-green-500 relative bg-gray-900">
+                            <div v-if="isFaceCaptured" class="w-64 h-64 sm:w-80 sm:h-80 rounded-full overflow-hidden border-4 border-green-500 relative bg-gray-900">
                                 <!-- Captured Face Image (Full Circle) -->
                                 <img
                                     v-if="capturedFaceData?.imageDataUrl"
@@ -924,8 +942,11 @@ onUnmounted(() => {
                             </div>
 
                             <!-- Active Detection State -->
-                            <div v-else class="relative w-80 h-80 bg-gray-900 rounded-full overflow-hidden border-4"
-                                 :class="faceDetectionActive ? (isFaceMatched ? 'border-green-500' : 'border-red-500') : 'border-gray-300'">
+                            <div v-else class="relative bg-gray-900 rounded-full overflow-hidden border-4"
+                                 :class="[
+                                     faceDetectionActive ? (isFaceMatched ? 'border-green-500' : 'border-red-500') : 'border-gray-300',
+                                     'w-64 h-64 sm:w-80 sm:h-80'
+                                 ]">
 
                                 <!-- Video Element (Circular) -->
                                 <video

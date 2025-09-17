@@ -116,11 +116,15 @@ const startCamera = async () => {
             throw new Error('getUserMedia tidak didukung di browser ini');
         }
 
+        // Mobile-optimized constraints
+        const isMobile = /Android|iPhone|iPad|iPod|BlackBerry|IEMobile|Opera Mini/i.test(navigator.userAgent);
+
         const constraints = {
             video: {
-                width: { ideal: 640 },
-                height: { ideal: 480 },
-                facingMode: 'user'
+                width: { ideal: isMobile ? 320 : 640 },
+                height: { ideal: isMobile ? 240 : 480 },
+                facingMode: 'user',
+                frameRate: { ideal: isMobile ? 15 : 30 }
             }
         };
 
@@ -178,12 +182,22 @@ const startFaceDetection = () => {
         console.log('Canvas dimensions set to:', displaySize);
     }
 
+    // Mobile-optimized detection interval
+    const isMobile = /Android|iPhone|iPad|iPod|BlackBerry|IEMobile|Opera Mini/i.test(navigator.userAgent);
+    const detectionDelay = isMobile ? 500 : 100; // 500ms for mobile, 100ms for desktop
+
     detectionInterval.value = window.setInterval(async () => {
         if (!videoRef.value || isProcessing.value) return;
 
         try {
+            // Mobile-optimized detection options
+            const detectionOptions = new faceapi.TinyFaceDetectorOptions({
+                inputSize: isMobile ? 128 : 416, // Smaller input size for mobile
+                scoreThreshold: isMobile ? 0.3 : 0.5 // Lower threshold for mobile
+            });
+
             const detection = await faceapi
-                .detectSingleFace(videoRef.value, new faceapi.TinyFaceDetectorOptions())
+                .detectSingleFace(videoRef.value, detectionOptions)
                 .withFaceLandmarks()
                 .withFaceDescriptor();
 
@@ -210,7 +224,7 @@ const startFaceDetection = () => {
         } catch (error) {
             console.error('Face detection error:', error);
         }
-    }, 100);
+    }, detectionDelay);
 };
 
 const capturePhoto = async () => {
