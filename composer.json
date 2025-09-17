@@ -68,6 +68,34 @@
         "test": [
             "@php artisan config:clear --ansi",
             "@php artisan test"
+        ],
+        "build:production": [
+            "powershell -Command \"if (Test-Path 'dist') { Remove-Item -Recurse -Force 'dist' }\"",
+            "npm run build",
+            "@php artisan config:cache",
+            "@php artisan view:cache",
+            "@php artisan event:cache",
+            "@php artisan storage:link"
+        ],
+        "build:clean": [
+            "powershell -Command \"if (Test-Path 'public/build') { Remove-Item -Recurse -Force 'public/build' }\"",
+            "powershell -Command \"if (Test-Path 'public/storage') { Remove-Item -Recurse -Force 'public/storage' }\"",
+            "powershell -Command \"if (Test-Path 'bootstrap/cache/*.php') { Remove-Item -Force 'bootstrap/cache/*.php' }\"",
+            "@php artisan config:clear",
+            "@php artisan cache:clear",
+            "@php artisan view:clear",
+            "@php artisan event:clear"
+        ],
+        "optimize": [
+            "@php artisan config:cache",
+            "@php artisan view:cache",
+            "@php artisan event:cache"
+        ],
+        "optimize:clear": [
+            "@php artisan config:clear",
+            "@php artisan cache:clear",
+            "@php artisan view:clear",
+            "@php artisan event:clear"
         ]
     },
     "extra": {
