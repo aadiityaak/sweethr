@@ -1,5 +1,5 @@
 <template>
-    <div class="min-h-screen bg-gradient-to-br from-blue-50 to-indigo-100 dark:from-gray-900 dark:to-gray-800">
+    <div class="min-h-screen bg-gradient-to-br from-blue-50 to-indigo-100 dark:from-gray-900 dark:to-gray-800 flex flex-col">
         <!-- Navigation -->
         <nav class="bg-white/80 backdrop-blur-md border-b border-gray-200 dark:bg-gray-900/80 dark:border-gray-700">
             <div class="mx-auto max-w-7xl px-4 sm:px-6 lg:px-8">
@@ -22,7 +22,7 @@
         </nav>
 
         <!-- Hero Section -->
-        <main class="mx-auto max-w-7xl px-4 sm:px-6 lg:px-8 py-20">
+        <main class="mx-auto max-w-7xl px-4 sm:px-6 lg:px-8 py-20 flex-1 flex items-center justify-center">
             <div class="text-center">
                 <h1 class="text-4xl font-bold tracking-tight text-gray-900 dark:text-white sm:text-6xl mb-4">
                     Selamat Datang di
@@ -44,8 +44,8 @@
         </main>
 
         <!-- Footer -->
-        <footer class="bg-white dark:bg-gray-900 mt-32">
-            <div class="mx-auto max-w-7xl px-4 py-12 sm:px-6 lg:px-8">
+        <footer class="bg-white dark:bg-gray-900 mt-auto">
+            <div class="mx-auto max-w-7xl px-4 pb-12 sm:px-6 lg:px-8">
                 <div class="border-t border-gray-200 dark:border-gray-700 pt-8">
                     <div class="text-center">
                         <p class="text-sm text-gray-500 dark:text-gray-400">
