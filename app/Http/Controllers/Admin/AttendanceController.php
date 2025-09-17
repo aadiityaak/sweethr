@@ -8,10 +8,12 @@ use App\Models\Attendance;
 use App\Models\Department;
 use App\Models\OfficeLocation;
 use App\Models\User;
+use App\Exports\AttendanceExport;
 use Carbon\Carbon;
 use Illuminate\Http\Request;
 use Inertia\Inertia;
 use Inertia\Response;
+use Maatwebsite\Excel\Facades\Excel;
 
 class AttendanceController extends Controller
 {
@@ -165,5 +167,19 @@ class AttendanceController extends Controller
         return redirect()
             ->route('admin.attendance.index')
             ->with('success', "Data kehadiran {$employeeName} tanggal {$date} berhasil dihapus.");
+    }
+
+    public function export(Request $request)
+    {
+        // Get filters from request
+        $filters = $request->only(['date', 'status', 'department', 'search']);
+        $date = $filters['date'] ?? Carbon::today()->format('Y-m-d');
+
+        // Create filename with date
+        $dateFormatted = Carbon::parse($date)->format('d-m-Y');
+        $filename = "laporan-kehadiran-{$dateFormatted}.xlsx";
+
+        // Export to Excel
+        return Excel::download(new AttendanceExport($filters), $filename);
     }
 }

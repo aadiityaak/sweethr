@@ -84,6 +84,8 @@ Route::middleware(['auth', 'verified', 'admin'])->group(function () {
     // Admin Attendance Management
     Route::get('admin/attendance', [App\Http\Controllers\Admin\AttendanceController::class, 'index'])
         ->name('admin.attendance.index');
+    Route::get('admin/attendance/export', [App\Http\Controllers\Admin\AttendanceController::class, 'export'])
+        ->name('admin.attendance.export');
     Route::get('admin/attendance/{attendance}', [App\Http\Controllers\Admin\AttendanceController::class, 'show'])
         ->name('admin.attendance.show');
     Route::get('admin/attendance/{attendance}/edit', [App\Http\Controllers\Admin\AttendanceController::class, 'edit'])
