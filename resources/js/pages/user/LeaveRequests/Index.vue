@@ -25,13 +25,13 @@ interface LeaveRequest {
     reason: string;
     status: 'pending' | 'approved' | 'rejected';
     created_at: string;
-    reviewed_at?: string;
+    approved_at?: string;
     rejection_reason?: string;
     attachment_path?: string;
     attachment_original_name?: string;
     user: User;
     leave_type: LeaveType;
-    reviewer?: User;
+    approved_by?: User;
 }
 
 interface Props {
@@ -262,8 +262,8 @@ const formatDateTime = (dateString: string) => {
 
                             <div class="text-xs text-muted-foreground">
                                 Diajukan {{ formatDateTime(request.created_at) }}
-                                <span v-if="request.reviewed_at && request.reviewer">
-                                    • Direview {{ formatDateTime(request.reviewed_at) }}
+                                <span v-if="request.approved_at && request.approved_by">
+                                    • Direview {{ formatDateTime(request.approved_at) }}
                                 </span>
                             </div>
 
