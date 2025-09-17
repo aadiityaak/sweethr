@@ -13,15 +13,28 @@ class DatabaseSeeder extends Seeder
     public function run(): void
     {
         $this->call([
+            // Basic Company Configuration
+            CompanySettingSeeder::class,
+
+            // Core HR Structure (Order matters for FK relationships)
             DepartmentSeeder::class,
             PositionSeeder::class,
             WorkShiftSeeder::class,
             LeaveTypeSeeder::class,
             OfficeLocationSeeder::class,
+
+            // Users (depends on departments & positions)
             AdminUserSeeder::class,
+
+            // Department Management (depends on users being created)
             DepartmentManagerSeeder::class,
+
+            // Employee Work Assignment (depends on users & work shifts)
             EmployeeShiftSeeder::class,
+
+            // Sample Data (optional for testing)
             LeaveRequestSeeder::class,
+            AttendanceSeeder::class,
         ]);
     }
 }

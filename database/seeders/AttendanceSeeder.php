@@ -16,9 +16,7 @@ class AttendanceSeeder extends Seeder
      */
     public function run(): void
     {
-        // Clear existing attendance records
-        Attendance::truncate();
-
+        // Get active employees only
         $employees = User::where('is_admin', false)
             ->where('employment_status', 'active')
             ->get();
@@ -26,8 +24,11 @@ class AttendanceSeeder extends Seeder
         $officeLocation = OfficeLocation::first();
 
         if ($employees->isEmpty() || !$officeLocation) {
+            $this->command->warn('No active employees or office locations found. Skipping attendance seeding.');
             return;
         }
+
+        $this->command->info('Seeding attendance data for ' . $employees->count() . ' employees...');
 
         // Generate attendance data for the last 30 days
         for ($i = 29; $i >= 0; $i--) {
@@ -45,24 +46,28 @@ class AttendanceSeeder extends Seeder
                     $checkOutTime = $this->getRandomCheckOutTime($checkInTime);
                     $workDuration = $this->calculateWorkDuration($checkInTime, $checkOutTime);
 
-                    Attendance::create([
-                        'user_id' => $employee->id,
-                        'office_location_id' => $officeLocation->id,
-                        'date' => $date->format('Y-m-d'),
-                        'check_in_time' => $checkInTime,
-                        'check_out_time' => $checkOutTime,
-                        'check_in_latitude' => $officeLocation->latitude + (rand(-50, 50) / 1000000), // Small variation
-                        'check_in_longitude' => $officeLocation->longitude + (rand(-50, 50) / 1000000),
-                        'check_out_latitude' => $officeLocation->latitude + (rand(-50, 50) / 1000000),
-                        'check_out_longitude' => $officeLocation->longitude + (rand(-50, 50) / 1000000),
-                        'work_duration' => $workDuration,
-                        'break_duration' => rand(30, 90), // 30-90 minutes break
-                        'overtime_duration' => $workDuration > 480 ? $workDuration - 480 : 0, // Overtime if > 8 hours
-                        'status' => $this->getAttendanceStatus($checkInTime),
-                        'notes' => $this->getRandomNotes(),
-                        'created_at' => $date,
-                        'updated_at' => $date,
-                    ]);
+                    Attendance::updateOrCreate(
+                        [
+                            'user_id' => $employee->id,
+                            'date' => $date->format('Y-m-d'),
+                        ],
+                        [
+                            'office_location_id' => $officeLocation->id,
+                            'check_in_time' => $checkInTime,
+                            'check_out_time' => $checkOutTime,
+                            'check_in_latitude' => $officeLocation->latitude + (rand(-50, 50) / 1000000), // Small variation
+                            'check_in_longitude' => $officeLocation->longitude + (rand(-50, 50) / 1000000),
+                            'check_out_latitude' => $officeLocation->latitude + (rand(-50, 50) / 1000000),
+                            'check_out_longitude' => $officeLocation->longitude + (rand(-50, 50) / 1000000),
+                            'work_duration' => $workDuration,
+                            'break_duration' => rand(30, 90), // 30-90 minutes break
+                            'overtime_duration' => $workDuration > 480 ? $workDuration - 480 : 0, // Overtime if > 8 hours
+                            'status' => $this->getAttendanceStatus($checkInTime),
+                            'notes' => $this->getRandomNotes(),
+                            'created_at' => $date,
+                            'updated_at' => $date,
+                        ]
+                    );
                 }
             }
         }
@@ -81,7 +86,14 @@ class AttendanceSeeder extends Seeder
         $checkIn = Carbon::createFromFormat('H:i:s', $checkInTime);
         // Work for 8-10 hours
         $workHours = rand(8, 10);
-        $checkOut = $checkIn->copy()->addHours($workHours)->addMinutes(rand(0, 59));
+        $workMinutes = rand(0, 59);
+        $checkOut = $checkIn->copy()->addHours($workHours)->addMinutes($workMinutes);
+
+        // Make sure checkout is not beyond 23:59
+        if ($checkOut->format('H') >= 24) {
+            $checkOut = Carbon::createFromFormat('H:i:s', '23:59:00');
+        }
+
         return $checkOut->format('H:i:s');
     }
 

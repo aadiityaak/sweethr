@@ -85,7 +85,10 @@ class WorkShiftSeeder extends Seeder
         ];
 
         foreach ($shifts as $shift) {
-            WorkShift::create($shift);
+            WorkShift::updateOrCreate(
+                ['code' => $shift['code']],
+                $shift
+            );
         }
     }
 }

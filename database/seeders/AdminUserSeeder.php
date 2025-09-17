@@ -20,25 +20,27 @@ class AdminUserSeeder extends Seeder
         $positions = Position::all()->keyBy('code');
 
         // Create admin user
-        User::create([
-            'name' => 'Administrator',
-            'email' => 'admin@example.com',
-            'password' => Hash::make('password'),
-            'employee_id' => 'ADM001',
-            'phone' => '08123456789',
-            'date_of_birth' => '1985-05-15',
-            'gender' => 'male',
-            'address' => 'Jl. Admin No. 1, Jakarta',
-            'hire_date' => now()->subMonths(24),
-            'employment_status' => 'active',
-            'is_admin' => true,
-            'email_verified_at' => now(),
-            'emergency_contact' => [
-                'name' => 'Admin Emergency',
-                'phone' => '08111111111',
-                'relationship' => 'spouse'
-            ],
-        ]);
+        User::updateOrCreate(
+            ['email' => 'admin@example.com'],
+            [
+                'name' => 'Administrator',
+                'password' => Hash::make('password'),
+                'employee_id' => 'ADM001',
+                'phone' => '08123456789',
+                'date_of_birth' => '1985-05-15',
+                'gender' => 'male',
+                'address' => 'Jl. Admin No. 1, Jakarta',
+                'hire_date' => now()->subMonths(24),
+                'employment_status' => 'active',
+                'is_admin' => true,
+                'email_verified_at' => now(),
+                'emergency_contact' => [
+                    'name' => 'Admin Emergency',
+                    'phone' => '08111111111',
+                    'relationship' => 'spouse'
+                ],
+            ]
+        );
 
         // Create sample employees with departments and positions
         $employees = [
@@ -226,23 +228,25 @@ class AdminUserSeeder extends Seeder
         ];
 
         foreach ($employees as $employee) {
-            User::create([
-                'name' => $employee['name'],
-                'email' => $employee['email'],
-                'password' => Hash::make('password'),
-                'employee_id' => $employee['employee_id'],
-                'phone' => $employee['phone'],
-                'date_of_birth' => $employee['date_of_birth'],
-                'gender' => $employee['gender'],
-                'address' => $employee['address'],
-                'hire_date' => $employee['hire_date'],
-                'department_id' => $departments[$employee['department_code']]->id,
-                'position_id' => $positions[$employee['position_code']]->id,
-                'employment_status' => $employee['employment_status'],
-                'emergency_contact' => $employee['emergency_contact'],
-                'is_admin' => false,
-                'email_verified_at' => now(),
-            ]);
+            User::updateOrCreate(
+                ['email' => $employee['email']],
+                [
+                    'name' => $employee['name'],
+                    'password' => Hash::make('password'),
+                    'employee_id' => $employee['employee_id'],
+                    'phone' => $employee['phone'],
+                    'date_of_birth' => $employee['date_of_birth'],
+                    'gender' => $employee['gender'],
+                    'address' => $employee['address'],
+                    'hire_date' => $employee['hire_date'],
+                    'department_id' => $departments[$employee['department_code']]->id,
+                    'position_id' => $positions[$employee['position_code']]->id,
+                    'employment_status' => $employee['employment_status'],
+                    'emergency_contact' => $employee['emergency_contact'],
+                    'is_admin' => false,
+                    'email_verified_at' => now(),
+                ]
+            );
         }
     }
 }

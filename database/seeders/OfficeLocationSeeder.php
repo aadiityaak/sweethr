@@ -58,7 +58,10 @@ class OfficeLocationSeeder extends Seeder
         ];
 
         foreach ($offices as $office) {
-            OfficeLocation::create($office);
+            OfficeLocation::updateOrCreate(
+                ['name' => $office['name']],
+                $office
+            );
         }
     }
 }
