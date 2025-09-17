@@ -17,8 +17,16 @@ Route::middleware(['auth', 'verified'])->group(function () {
     Route::get('home', [App\Http\Controllers\DashboardController::class, 'welcome'])
         ->name('welcome');
 
-    // Dashboard for regular users (same as welcome page)
-    Route::get('dashboard', [App\Http\Controllers\DashboardController::class, 'welcome'])
+    // Dashboard route that redirects based on user role
+    Route::get('dashboard', function () {
+        if (auth()->user()->is_admin) {
+            return redirect()->route('admin.dashboard');
+        }
+        return redirect()->route('welcome');
+    })->name('dashboard');
+
+    // User dashboard (alias for welcome page)
+    Route::get('user/dashboard', [App\Http\Controllers\DashboardController::class, 'welcome'])
         ->name('user.dashboard');
 
     // Attendance routes (accessible by all employees)

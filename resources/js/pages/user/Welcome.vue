@@ -861,6 +861,32 @@ onUnmounted(() => {
                         </div>
                     </div>
 
+                    <!-- Face Recognition Warning -->
+                    <div v-if="!faceRecognitionEnabled || !faceDescriptors || faceDescriptors.length === 0" class="mt-4 rounded-lg border border-orange-200 dark:border-orange-800 bg-orange-50 dark:bg-orange-900/20 p-4">
+                        <div class="flex items-start gap-3">
+                            <div class="flex-shrink-0">
+                                <div class="w-10 h-10 rounded-md bg-orange-100 dark:bg-orange-900/30 flex items-center justify-center">
+                                    <Eye class="h-5 w-5 text-orange-600 dark:text-orange-400" />
+                                </div>
+                            </div>
+                            <div class="flex-1">
+                                <h4 class="text-sm font-medium text-orange-800 dark:text-orange-200 mb-1">
+                                    Face Recognition Belum Setup
+                                </h4>
+                                <p class="text-sm text-orange-700 dark:text-orange-300 mb-3">
+                                    Setup pengenalan wajah untuk keamanan tambahan saat absensi.
+                                </p>
+                                <Link
+                                    href="/user/profile"
+                                    class="inline-flex items-center gap-2 px-3 py-2 text-sm font-medium text-orange-700 dark:text-orange-300 bg-orange-100 dark:bg-orange-900/50 hover:bg-orange-200 dark:hover:bg-orange-900/70 border border-orange-300 dark:border-orange-700 rounded-md transition-colors"
+                                >
+                                    <UserCircle class="h-4 w-4" />
+                                    Setup Sekarang
+                                </Link>
+                            </div>
+                        </div>
+                    </div>
+
                     <!-- Real-time Face Recognition -->
                     <div v-if="faceRecognitionEnabled && faceDescriptors && faceDescriptors.length > 0 && !todayAttendance?.check_in_time" class="mt-4 flex justify-center">
                         <div class="relative">
