@@ -45,6 +45,9 @@ class AttendanceExport implements FromCollection, WithHeadings, WithMapping, Wit
                     $q->where('department_id', $department);
                 });
             })
+            ->when($this->filters['office_location'] ?? false, function ($query, $officeLocation) {
+                $query->where('office_location_id', $officeLocation);
+            })
             ->when($this->filters['search'] ?? false, function ($query, $search) {
                 $query->whereHas('user', function ($q) use ($search) {
                     $q->where('name', 'like', "%{$search}%")

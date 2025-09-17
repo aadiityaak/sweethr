@@ -20,7 +20,7 @@ class AttendanceController extends Controller
     public function index(Request $request): Response
     {
         // Get filters
-        $filters = $request->only(['date', 'status', 'department', 'search']);
+        $filters = $request->only(['date', 'status', 'department', 'office_location', 'search']);
         $date = $filters['date'] ?? Carbon::today()->format('Y-m-d');
 
         // Query attendance records with filters
@@ -38,6 +38,9 @@ class AttendanceController extends Controller
                 $query->whereHas('user', function ($q) use ($department) {
                     $q->where('department_id', $department);
                 });
+            })
+            ->when($filters['office_location'] ?? false, function ($query, $officeLocation) {
+                $query->where('office_location_id', $officeLocation);
             })
             ->when($filters['search'] ?? false, function ($query, $search) {
                 $query->whereHas('user', function ($q) use ($search) {
@@ -87,11 +90,18 @@ class AttendanceController extends Controller
             ->orderBy('name')
             ->get();
 
+        // Get office locations for filter dropdown
+        $officeLocations = OfficeLocation::select('id', 'name')
+            ->where('is_active', true)
+            ->orderBy('name')
+            ->get();
+
         return Inertia::render('admin/Attendance/Index', [
             'attendanceRecords' => $attendanceRecords,
             'stats' => $stats,
             'filters' => $filters,
             'departments' => $departments,
+            'officeLocations' => $officeLocations,
         ]);
     }
 
@@ -172,7 +182,7 @@ class AttendanceController extends Controller
     public function export(Request $request)
     {
         // Get filters from request
-        $filters = $request->only(['date', 'status', 'department', 'search']);
+        $filters = $request->only(['date', 'status', 'department', 'office_location', 'search']);
         $date = $filters['date'] ?? Carbon::today()->format('Y-m-d');
 
         // Create filename with date

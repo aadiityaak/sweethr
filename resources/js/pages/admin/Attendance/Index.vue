@@ -74,15 +74,20 @@ interface Props {
         date?: string;
         status?: string;
         department?: string;
+        office_location?: string;
         search?: string;
     };
     departments: Array<{
         id: number;
         name: string;
     }>;
+    officeLocations: Array<{
+        id: number;
+        name: string;
+    }>;
 }
 
-const { attendanceRecords, stats, filters, departments } = defineProps<Props>();
+const { attendanceRecords, stats, filters, departments, officeLocations } = defineProps<Props>();
 
 const breadcrumbs: BreadcrumbItem[] = [
     { title: 'Dasbor', href: '/dashboard' },
@@ -93,6 +98,7 @@ const breadcrumbs: BreadcrumbItem[] = [
 const searchQuery = ref(filters.search || '');
 const selectedStatus = ref(filters.status || '');
 const selectedDepartment = ref(filters.department || '');
+const selectedOfficeLocation = ref(filters.office_location || '');
 const selectedDate = ref(filters.date || '');
 
 // Action dropdown state
@@ -107,6 +113,7 @@ const updateFilters = () => {
         search: searchQuery.value || undefined,
         status: selectedStatus.value || undefined,
         department: selectedDepartment.value || undefined,
+        office_location: selectedOfficeLocation.value || undefined,
         date: selectedDate.value || undefined,
     };
 
@@ -143,6 +150,12 @@ const handleStatusChange = (event: Event) => {
 const handleDepartmentChange = (event: Event) => {
     const target = event.target as HTMLSelectElement;
     selectedDepartment.value = target.value;
+    updateFilters();
+};
+
+const handleOfficeLocationChange = (event: Event) => {
+    const target = event.target as HTMLSelectElement;
+    selectedOfficeLocation.value = target.value;
     updateFilters();
 };
 
@@ -248,6 +261,7 @@ const exportData = () => {
         date: selectedDate.value || '',
         status: selectedStatus.value || '',
         department: selectedDepartment.value || '',
+        office_location: selectedOfficeLocation.value || '',
         search: searchQuery.value || '',
         export: 'excel'
     });
@@ -449,6 +463,14 @@ onUnmounted(() => {
                         >
                             <option value="">Semua Departemen</option>
                             <option v-for="dept in departments" :key="dept.id" :value="dept.id">{{ dept.name }}</option>
+                        </select>
+                        <select
+                            class="rounded-lg border border-gray-300 bg-white px-3 py-2 text-sm focus:border-blue-500 focus:outline-none focus:ring-1 focus:ring-blue-500 dark:border-gray-600 dark:bg-gray-800 dark:text-gray-300"
+                            :value="selectedOfficeLocation"
+                            @change="handleOfficeLocationChange"
+                        >
+                            <option value="">Semua Lokasi</option>
+                            <option v-for="location in officeLocations" :key="location.id" :value="location.id">{{ location.name }}</option>
                         </select>
                         <div class="relative">
                             <DatePicker
