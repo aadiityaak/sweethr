@@ -1006,13 +1006,13 @@ onUnmounted(() => {
                         <button
                             v-if="!todayAttendance?.check_in_time"
                             @click="handleCheckInClick"
-                            :disabled="isCheckingIn || (locationStatus === 'success' && !isInRange) || (faceRecognitionEnabled && faceDescriptors && !isFaceCaptured)"
+                            :disabled="isCheckingIn || (locationStatus === 'success' && !isInRange) || (faceRecognitionEnabled && faceDescriptors && faceDescriptors.length > 0 && !isFaceCaptured) || (!faceRecognitionEnabled || !faceDescriptors || faceDescriptors.length === 0)"
                             class="flex items-center justify-center gap-2 rounded-md px-4 py-4 text-white font-medium transition-colors shadow-sm disabled:opacity-50 disabled:cursor-not-allowed"
                             :class="{
-                                'bg-green-600 hover:bg-green-700': (locationStatus === 'idle' || locationStatus === 'error' || (locationStatus === 'success' && isInRange)) && (!faceRecognitionEnabled || !faceDescriptors || isFaceCaptured),
+                                'bg-green-600 hover:bg-green-700': (locationStatus === 'idle' || locationStatus === 'error' || (locationStatus === 'success' && isInRange)) && faceRecognitionEnabled && faceDescriptors && faceDescriptors.length > 0 && isFaceCaptured,
                                 'bg-blue-600 hover:bg-blue-700': locationStatus === 'loading',
-                                'bg-gray-500': (locationStatus === 'success' && !isInRange) || (faceRecognitionEnabled && faceDescriptors && !isFaceCaptured),
-                                'bg-orange-500': faceRecognitionEnabled && faceDescriptors && faceMatchConfidence > 0 && !isFaceCaptured
+                                'bg-gray-500': (locationStatus === 'success' && !isInRange) || (faceRecognitionEnabled && faceDescriptors && faceDescriptors.length > 0 && !isFaceCaptured) || (!faceRecognitionEnabled || !faceDescriptors || faceDescriptors.length === 0),
+                                'bg-orange-500': faceRecognitionEnabled && faceDescriptors && faceDescriptors.length > 0 && faceMatchConfidence > 0 && !isFaceCaptured
                             }"
                         >
                             <Loader2 v-if="locationStatus === 'loading' || isCheckingIn" class="h-5 w-5 animate-spin" />
@@ -1023,7 +1023,8 @@ onUnmounted(() => {
                                 {{ isCheckingIn ? 'Sedang Check In...' :
                                    locationStatus === 'loading' ? 'Mencari Lokasi...' :
                                    locationStatus === 'success' && !isInRange ? 'Di Luar Area' :
-                                   faceRecognitionEnabled && faceDescriptors && !isFaceCaptured ? 'Tunggu Verifikasi' :
+                                   (!faceRecognitionEnabled || !faceDescriptors || faceDescriptors.length === 0) ? 'Tidak Tersedia' :
+                                   faceRecognitionEnabled && faceDescriptors && faceDescriptors.length > 0 && !isFaceCaptured ? 'Tunggu Verifikasi' :
                                    isFaceCaptured && isInRange ? 'Siap Check In!' :
                                    locationStatus === 'error' ? 'Coba Lagi' :
                                    'Check In' }}
