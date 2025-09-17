@@ -3,13 +3,16 @@
 use Illuminate\Support\Facades\Route;
 
 Route::get('/', function () {
-    // Jika user tidak login, redirect ke /login
-    if (! auth()->check()) {
-        return redirect()->route('login');
+    // Jika user sudah login, redirect ke dashboard sesuai role
+    if (auth()->check()) {
+        if (auth()->user()->is_admin) {
+            return redirect()->route('admin.dashboard');
+        }
+        return redirect()->route('welcome');
     }
 
-    // Jika user sudah login (baik admin maupun karyawan), redirect ke /home
-    return redirect()->route('welcome');
+    // Jika user belum login, tampilkan halaman landing publik
+    return \Inertia\Inertia::render('Public/Landing');
 })->name('home');
 
 Route::middleware(['auth', 'verified'])->group(function () {
