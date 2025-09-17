@@ -3,7 +3,7 @@ import AppLayout from '@/layouts/AppLayout.vue';
 import AttendanceChart from '@/components/AttendanceChart.vue';
 // Admin dashboard uses direct URL
 import { type BreadcrumbItem } from '@/types';
-import { Head, Link } from '@inertiajs/vue3';
+import { Head, Link, useForm } from '@inertiajs/vue3';
 import { Clock, Users, Calendar, CheckCircle, XCircle, AlertCircle } from 'lucide-vue-next';
 
 interface User {
@@ -130,6 +130,39 @@ const generateLast30Days = () => {
     return days;
 };
 
+// Leave request approval functions
+const approveLeave = (leaveId: number) => {
+    const form = useForm({});
+    form.patch(`/leave-requests/${leaveId}/approve`, {
+        onSuccess: () => {
+            // Remove from pending leaves list
+            const index = pendingLeaves.findIndex(leave => leave.id === leaveId);
+            if (index > -1) {
+                pendingLeaves.splice(index, 1);
+            }
+        },
+        onError: (errors) => {
+            console.error('Error approving leave:', errors);
+        }
+    });
+};
+
+const rejectLeave = (leaveId: number) => {
+    const form = useForm({});
+    form.patch(`/leave-requests/${leaveId}/reject`, {
+        onSuccess: () => {
+            // Remove from pending leaves list
+            const index = pendingLeaves.findIndex(leave => leave.id === leaveId);
+            if (index > -1) {
+                pendingLeaves.splice(index, 1);
+            }
+        },
+        onError: (errors) => {
+            console.error('Error rejecting leave:', errors);
+        }
+    });
+};
+
 // Generate mock attendance data (replace with real data from backend)
 const generateMockAttendanceData = () => {
     const data = [];
@@ -247,7 +280,7 @@ const generateMockAttendanceData = () => {
 
                     <div class="mt-4">
                         <Link
-                            href="/leave-requests"
+                            href="/admin/employees"
                             class="inline-flex w-full items-center justify-center rounded-lg bg-emerald-600 px-4 py-2.5 text-sm font-medium text-white shadow-sm transition-colors hover:bg-emerald-700 focus:outline-none focus:ring-2 focus:ring-emerald-500 focus:ring-offset-2"
                         >
                             <Users class="mr-2 h-4 w-4" />
@@ -294,7 +327,7 @@ const generateMockAttendanceData = () => {
                     <div class="mt-4">
                         <Link
                             v-if="!todayAttendance?.check_in_time"
-                            href="/attendance/check-in"
+                            href="/home"
                             class="inline-flex w-full items-center justify-center rounded-lg bg-emerald-600 px-4 py-2.5 text-sm font-medium text-white shadow-sm transition-colors hover:bg-emerald-700 focus:outline-none focus:ring-2 focus:ring-emerald-500 focus:ring-offset-2"
                         >
                             <Clock class="mr-2 h-4 w-4" />
@@ -447,11 +480,17 @@ const generateMockAttendanceData = () => {
                                 </div>
                             </div>
                             <div v-if="user.is_admin" class="flex gap-2">
-                                <button class="inline-flex items-center rounded-md bg-emerald-50 px-3 py-1.5 text-xs font-medium text-emerald-700 ring-1 ring-emerald-600/20 transition-colors hover:bg-emerald-100 dark:bg-emerald-950/50 dark:text-emerald-400 dark:ring-emerald-400/30 dark:hover:bg-emerald-950">
+                                <button
+                                    @click="approveLeave(leave.id)"
+                                    class="inline-flex items-center rounded-md bg-emerald-50 px-3 py-1.5 text-xs font-medium text-emerald-700 ring-1 ring-emerald-600/20 transition-colors hover:bg-emerald-100 dark:bg-emerald-950/50 dark:text-emerald-400 dark:ring-emerald-400/30 dark:hover:bg-emerald-950"
+                                >
                                     <CheckCircle class="mr-1 h-3 w-3" />
                                     Setujui
                                 </button>
-                                <button class="inline-flex items-center rounded-md bg-red-50 px-3 py-1.5 text-xs font-medium text-red-700 ring-1 ring-red-600/20 transition-colors hover:bg-red-100 dark:bg-red-950/50 dark:text-red-400 dark:ring-red-400/30 dark:hover:bg-red-950">
+                                <button
+                                    @click="rejectLeave(leave.id)"
+                                    class="inline-flex items-center rounded-md bg-red-50 px-3 py-1.5 text-xs font-medium text-red-700 ring-1 ring-red-600/20 transition-colors hover:bg-red-100 dark:bg-red-950/50 dark:text-red-400 dark:ring-red-400/30 dark:hover:bg-red-950"
+                                >
                                     <XCircle class="mr-1 h-3 w-3" />
                                     Tolak
                                 </button>
@@ -543,7 +582,7 @@ const generateMockAttendanceData = () => {
                         </Link>
                         <Link
                             v-if="user.is_admin"
-                            href="/leave-requests"
+                            href="/admin/leave-requests"
                             class="group flex w-full items-center gap-3 rounded-lg border border-gray-200/50 bg-white p-4 shadow-sm transition-all hover:shadow-md hover:border-amber-300 dark:border-gray-700/50 dark:bg-gray-950 dark:hover:border-amber-600"
                         >
                             <div class="flex h-8 w-8 items-center justify-center rounded-lg bg-amber-500/10 ring-1 ring-amber-500/20 group-hover:bg-amber-500/20">
@@ -556,7 +595,7 @@ const generateMockAttendanceData = () => {
                         </Link>
                         <Link
                             v-if="user.is_admin"
-                            href="/employees"
+                            href="/admin/employees"
                             class="group flex w-full items-center gap-3 rounded-lg border border-gray-200/50 bg-white p-4 shadow-sm transition-all hover:shadow-md hover:border-purple-300 dark:border-gray-700/50 dark:bg-gray-950 dark:hover:border-purple-600"
                         >
                             <div class="flex h-8 w-8 items-center justify-center rounded-lg bg-purple-500/10 ring-1 ring-purple-500/20 group-hover:bg-purple-500/20">
@@ -569,7 +608,7 @@ const generateMockAttendanceData = () => {
                         </Link>
                         <Link
                             v-if="user.is_admin"
-                            href="/office-locations"
+                            href="/admin/office-locations"
                             class="group flex w-full items-center gap-3 rounded-lg border border-gray-200/50 bg-white p-4 shadow-sm transition-all hover:shadow-md hover:border-green-300 dark:border-gray-700/50 dark:bg-gray-950 dark:hover:border-green-600"
                         >
                             <div class="flex h-8 w-8 items-center justify-center rounded-lg bg-green-500/10 ring-1 ring-green-500/20 group-hover:bg-green-500/20">
