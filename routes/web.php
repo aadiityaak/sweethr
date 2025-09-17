@@ -145,6 +145,21 @@ Route::middleware(['auth', 'verified', 'admin'])->group(function () {
         ->name('admin.settings.update');
     Route::delete('admin/settings/file/{key}', [App\Http\Controllers\Admin\CompanySettingController::class, 'deleteFile'])
         ->name('admin.settings.delete-file');
+
+    // Admin Announcements Management
+    Route::resource('admin/announcements', App\Http\Controllers\Admin\AnnouncementController::class, [
+        'names' => [
+            'index' => 'admin.announcements.index',
+            'create' => 'admin.announcements.create',
+            'store' => 'admin.announcements.store',
+            'show' => 'admin.announcements.show',
+            'edit' => 'admin.announcements.edit',
+            'update' => 'admin.announcements.update',
+            'destroy' => 'admin.announcements.destroy',
+        ],
+    ]);
+    Route::patch('admin/announcements/{announcement}/toggle-status', [App\Http\Controllers\Admin\AnnouncementController::class, 'toggleStatus'])
+        ->name('admin.announcements.toggle-status');
 });
 
 require __DIR__.'/settings.php';

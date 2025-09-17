@@ -2,6 +2,7 @@
 
 namespace App\Http\Controllers;
 
+use App\Models\Announcement;
 use App\Models\Attendance;
 use App\Models\Department;
 use App\Models\LeaveRequest;
@@ -41,19 +42,20 @@ class DashboardController extends Controller
         // Calculate stats
         $stats = $this->getStats($user);
 
+        // Get recent announcements
+        $announcements = Announcement::visible()
+            ->with(['category', 'author'])
+            ->byPriority()
+            ->latest('published_at')
+            ->limit(3)
+            ->get();
+
         return Inertia::render('admin/Dashboard', [
             'user' => $user->load(['department', 'position']),
             'todayAttendance' => $todayAttendance,
             'pendingLeaves' => $pendingLeaves,
             'stats' => $stats,
-            'announcements' => [
-                [
-                    'id' => 1,
-                    'title' => 'Welcome to SweetHR',
-                    'message' => 'HR Management System is now live!',
-                    'created_at' => now()->subDays(1),
-                ]
-            ],
+            'announcements' => $announcements,
         ]);
     }
 
@@ -94,6 +96,14 @@ class DashboardController extends Controller
             $faceDescriptors = $this->faceRecognitionService->getFaceDescriptors($user);
         }
 
+        // Get announcements for carousel
+        $announcements = Announcement::visible()
+            ->with(['category', 'author'])
+            ->byPriority()
+            ->latest('published_at')
+            ->limit(5)
+            ->get();
+
         return Inertia::render('user/Welcome', [
             'user' => $user->load(['department', 'position']),
             'todayAttendance' => $todayAttendance,
@@ -101,6 +111,7 @@ class DashboardController extends Controller
             'stats' => $stats,
             'faceRecognitionEnabled' => $faceRecognitionEnabled,
             'faceDescriptors' => $faceDescriptors,
+            'announcements' => $announcements,
         ]);
     }
 

@@ -6,7 +6,7 @@ import { Sidebar, SidebarContent, SidebarFooter, SidebarHeader, SidebarMenu, Sid
 // import { welcome } from '@/routes';
 import { type NavItem } from '@/types';
 import { Link, usePage } from '@inertiajs/vue3';
-import { BookOpen, LayoutGrid, Clock, Users, Calendar, MapPin, Settings, Shield, Building, UserCheck } from 'lucide-vue-next';
+import { BookOpen, LayoutGrid, Clock, Users, Calendar, MapPin, Settings, Shield, Building, UserCheck, Megaphone } from 'lucide-vue-next';
 import { computed } from 'vue';
 import AppLogo from './AppLogo.vue';
 
@@ -68,6 +68,11 @@ const adminNavItems: NavItem[] = [
         title: 'Departemen',
         href: '/admin/departments',
         icon: Building,
+    },
+    {
+        title: 'Pengumuman',
+        href: '/admin/announcements',
+        icon: Megaphone,
     },
     {
         title: 'Pengaturan',

@@ -8,6 +8,8 @@ import BottomNavigation from '@/components/BottomNavigation.vue';
 import * as faceapi from 'face-api.js';
 import { Dialog, DialogContent, DialogDescription, DialogHeader, DialogTitle } from '@/components/ui/dialog';
 import { Button } from '@/components/ui/button';
+import AnnouncementCarousel from '@/components/AnnouncementCarousel.vue';
+import AnnouncementModal from '@/components/AnnouncementModal.vue';
 
 interface User {
     id: number;
@@ -57,9 +59,35 @@ interface Props {
     };
     faceRecognitionEnabled?: boolean;
     faceDescriptors?: number[][];
+    announcements?: Announcement[];
 }
 
-const { user, todayAttendance, officeLocations, stats, faceRecognitionEnabled, faceDescriptors } = defineProps<Props>();
+interface AnnouncementCategory {
+    id: number;
+    name: string;
+    color: string;
+    icon: string;
+}
+
+interface Author {
+    id: number;
+    name: string;
+}
+
+interface Announcement {
+    id: number;
+    title: string;
+    content: string;
+    excerpt: string;
+    category: AnnouncementCategory;
+    author: Author;
+    priority: 'low' | 'normal' | 'high' | 'urgent';
+    published_at: string;
+    expires_at: string | null;
+    image_url: string | null;
+}
+
+const { user, todayAttendance, officeLocations, stats, faceRecognitionEnabled, faceDescriptors, announcements } = defineProps<Props>();
 
 const { companyName, companyLogo } = useCompanySettings();
 const { toast } = useToast();
@@ -97,6 +125,20 @@ const selectedOffice = ref<OfficeLocation | null>(null);
 const isInRange = ref(false);
 const distanceToOffice = ref(0);
 const isCheckingIn = ref(false);
+
+// Announcement modal state
+const selectedAnnouncement = ref<Announcement | null>(null);
+const showAnnouncementModal = ref(false);
+
+const handleAnnouncementClick = (announcement: Announcement) => {
+    selectedAnnouncement.value = announcement;
+    showAnnouncementModal.value = true;
+};
+
+const closeAnnouncementModal = () => {
+    showAnnouncementModal.value = false;
+    selectedAnnouncement.value = null;
+};
 const isCheckingOut = ref(false);
 
 // Real-time face recognition state
@@ -1172,6 +1214,32 @@ onUnmounted(() => {
                 </div>
             </DialogContent>
         </Dialog>
+
+        <!-- Announcement Detail Modal -->
+        <AnnouncementModal
+            :announcement="selectedAnnouncement"
+            :open="showAnnouncementModal"
+            @close="closeAnnouncementModal"
+        />
+    </div>
+
+    <!-- Announcements Carousel (Outside main container for full width) -->
+    <div v-if="announcements && announcements.length > 0" class="mx-auto max-w-[480px] px-4 mb-8">
+        <div class="mb-4 flex items-center gap-3">
+            <div class="flex h-8 w-8 items-center justify-center rounded-lg bg-blue-500/10 ring-1 ring-blue-500/20">
+                <Calendar class="h-4 w-4 text-blue-600 dark:text-blue-400" />
+            </div>
+            <div>
+                <h2 class="text-lg font-semibold text-gray-900 dark:text-white">Pengumuman Terbaru</h2>
+                <p class="text-sm text-gray-600 dark:text-gray-400">Informasi penting dari perusahaan</p>
+            </div>
+        </div>
+        <AnnouncementCarousel
+            :announcements="announcements"
+            :auto-play="true"
+            :auto-play-interval="6000"
+            @announcement-click="handleAnnouncementClick"
+        />
     </div>
 </template>
 
