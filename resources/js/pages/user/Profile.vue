@@ -480,6 +480,14 @@ interface Props {
 
 const { user } = defineProps<Props>();
 
+// Debug user data
+console.log('Profile component user data:', {
+    face_recognition_enabled: user.face_recognition_enabled,
+    face_recognition_mandatory: user.face_recognition_mandatory,
+    face_setup_at: user.face_setup_at,
+    has_face_descriptors: !!user.face_descriptors
+});
+
 // Face Recognition
 const {
     isLoading: faceLoading,
@@ -607,14 +615,20 @@ onMounted(() => {
 // Face Recognition Methods
 const handleFaceSetup = async (descriptors: number[][]) => {
     console.log('Face setup started with descriptors:', descriptors.length);
+    console.log('First descriptor sample:', descriptors[0]?.slice(0, 5)); // First 5 values for debugging
+
     const success = await setupFaceRecognition(descriptors);
     console.log('Face setup result:', success);
 
     if (success) {
-        // Add a short delay then reload page to ensure data is saved
+        console.log('Setup successful - refreshing page...');
+
+        // Give time for database to commit, then reload
         setTimeout(() => {
             window.location.reload();
-        }, 1500);
+        }, 2000);
+    } else {
+        console.error('Setup failed');
     }
 };
 

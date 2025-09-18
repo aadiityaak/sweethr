@@ -21,8 +21,8 @@ class ProfileController extends Controller
 
         return Inertia::render('user/Profile', [
             'user' => array_merge($user->toArray(), [
-                'face_recognition_enabled' => $user->face_recognition_enabled ?? false,
-                'face_recognition_mandatory' => $user->face_recognition_mandatory ?? true,
+                'face_recognition_enabled' => (bool) $user->face_recognition_enabled,
+                'face_recognition_mandatory' => (bool) ($user->face_recognition_mandatory ?? true),
                 'face_descriptors' => $user->face_descriptors,
                 'face_setup_at' => $user->face_setup_at,
             ]),

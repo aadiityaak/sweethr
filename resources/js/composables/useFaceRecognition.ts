@@ -28,11 +28,14 @@ export function useFaceRecognition() {
         isLoading.value = true;
 
         try {
-            // Debug: Check if user is authenticated
+            console.log('=== SETUP FACE RECOGNITION DEBUG ===');
+            console.log('Descriptors received:', descriptors.length);
+            console.log('Descriptor length check:', descriptors.map(d => d.length));
             console.log('Current URL:', window.location.href);
             console.log('CSRF Token:', document.querySelector('meta[name="csrf-token"]')?.getAttribute('content'));
 
             // Ensure CSRF cookie is available before making the request
+            console.log('Fetching CSRF cookie...');
             await fetch('/sanctum/csrf-cookie', {
                 credentials: 'same-origin',
             });
@@ -42,6 +45,11 @@ export function useFaceRecognition() {
             if (!csrfToken) {
                 throw new Error('CSRF token not found. Please refresh the page.');
             }
+
+            console.log('Making API request to /api/face-recognition/setup...');
+            console.log('Request payload:', {
+                descriptors: descriptors.map(d => `Array(${d.length})`)
+            });
 
             // Make the API request with proper headers
             const response = await fetch('/api/face-recognition/setup', {
@@ -56,10 +64,17 @@ export function useFaceRecognition() {
                 credentials: 'same-origin',
             });
 
-            console.log('Response status:', response.status);
-            console.log('Response headers:', Object.fromEntries(response.headers.entries()));
+            console.log('Response received:', {
+                status: response.status,
+                statusText: response.statusText,
+                ok: response.ok,
+                headers: Object.fromEntries(response.headers.entries())
+            });
 
             if (!response.ok) {
+                const errorText = await response.text();
+                console.error('Error response body:', errorText);
+
                 if (response.status === 401) {
                     throw new Error('Session expired. Please refresh the page and login again.');
                 } else if (response.status === 403) {
@@ -67,14 +82,15 @@ export function useFaceRecognition() {
                 } else if (response.status === 419) {
                     throw new Error('CSRF token mismatch. Please refresh the page.');
                 } else {
-                    throw new Error(`Server error: ${response.status}`);
+                    throw new Error(`Server error: ${response.status} - ${errorText}`);
                 }
             }
 
             const data = await response.json();
-            console.log('API response:', data);
+            console.log('API response data:', data);
 
             if (data.success) {
+                console.log('Setup successful! Updating local state...');
                 faceDescriptors.value = descriptors;
                 showFaceCapture.value = false;
 
@@ -84,8 +100,10 @@ export function useFaceRecognition() {
                     variant: 'success',
                 });
 
+                console.log('=== SETUP COMPLETED SUCCESSFULLY ===');
                 return true;
             } else {
+                console.error('Setup failed with response:', data);
                 throw new Error(data.message || 'Setup gagal');
             }
         } catch (error) {
