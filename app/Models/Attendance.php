@@ -2,9 +2,9 @@
 
 namespace App\Models;
 
-use Illuminate\Database\Eloquent\Model;
-use Illuminate\Database\Eloquent\Factories\HasFactory;
 use Carbon\Carbon;
+use Illuminate\Database\Eloquent\Factories\HasFactory;
+use Illuminate\Database\Eloquent\Model;
 
 class Attendance extends Model
 {
@@ -30,6 +30,8 @@ class Attendance extends Model
         'face_verification_skipped',
         'face_verification_notes',
         'face_photo_path',
+        'face_confidence_score',
+        'face_detected',
     ];
 
     protected function casts(): array
@@ -45,6 +47,8 @@ class Attendance extends Model
             'face_match_confidence' => 'decimal:2',
             'face_verification_passed' => 'boolean',
             'face_verification_skipped' => 'boolean',
+            'face_confidence_score' => 'decimal:4',
+            'face_detected' => 'boolean',
         ];
     }
 
@@ -75,15 +79,21 @@ class Attendance extends Model
 
     public function getWorkDurationFormatted()
     {
-        if (!$this->work_duration) return null;
+        if (! $this->work_duration) {
+            return null;
+        }
         $hours = floor($this->work_duration / 60);
         $minutes = $this->work_duration % 60;
+
         return sprintf('%02d:%02d', $hours, $minutes);
     }
 
     public function isLate($shiftStartTime)
     {
-        if (!$this->check_in_time) return false;
+        if (! $this->check_in_time) {
+            return false;
+        }
+
         return Carbon::parse($this->check_in_time)->format('H:i:s') > $shiftStartTime;
     }
 }

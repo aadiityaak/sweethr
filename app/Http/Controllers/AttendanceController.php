@@ -16,6 +16,7 @@ class AttendanceController extends Controller
     public function __construct(
         private FaceRecognitionService $faceRecognitionService
     ) {}
+
     public function index(Request $request): Response
     {
         $user = auth()->user();
@@ -80,7 +81,7 @@ class AttendanceController extends Controller
             'has_face_photo' => $request->has('face_photo'),
             'has_face_confidence' => $request->has('face_confidence'),
             'face_photo_length' => $request->has('face_photo') ? strlen($request->face_photo) : 0,
-            'all_keys' => array_keys($request->all())
+            'all_keys' => array_keys($request->all()),
         ]);
 
         try {
@@ -119,53 +120,75 @@ class AttendanceController extends Controller
             return back()->withErrors(['message' => 'Anda berada di luar radius kantor. Mohon mendekat ke lokasi kantor.']);
         }
 
-        // Face recognition verification
+        // Face recognition verification - TIDAK WAJIB COCOK, HANYA DETEKSI
         $faceVerificationPassed = false;
         $faceVerificationSkipped = false;
         $faceMatchConfidence = null;
         $faceVerificationNotes = null;
         $facePhotoPath = null;
+        $faceConfidenceScore = null;
+        $faceDetected = false;
 
         if ($this->faceRecognitionService->isFaceRecognitionRequired($user)) {
-            if ($request->has('face_confidence')) {
-                $faceConfidence = $request->input('face_confidence');
-                $faceResult = $this->faceRecognitionService->verifyFaceMatch($user, $faceConfidence);
+            if ($request->has('face_confidence') || $request->has('face_photo')) {
+                // Jika ada confidence score atau photo, berarti wajah terdeteksi
+                $faceDetected = true;
 
-                $faceMatchConfidence = $faceConfidence;
-                $faceVerificationPassed = $faceResult['success'];
+                if ($request->has('face_confidence')) {
+                    $faceConfidence = $request->input('face_confidence');
+                    $faceConfidenceScore = $faceConfidence / 100; // Convert to decimal (0.0 - 1.0)
 
-                if (!$faceResult['success'] && $faceResult['mandatory']) {
-                    return back()->withErrors(['message' => $faceResult['error']]);
-                }
+                    // Untuk compatibility dengan sistem lama
+                    $faceMatchConfidence = $faceConfidence;
 
-                if (!$faceResult['success'] && !$faceResult['mandatory']) {
-                    $faceVerificationSkipped = true;
-                    $faceVerificationNotes = 'Face verification skipped after max attempts';
+                    // LOGIKA BARU: Selalu dianggap berhasil jika wajah terdeteksi
+                    $faceVerificationPassed = true;
+
+                    // Catat tingkat confidence untuk admin
+                    if ($faceConfidenceScore >= 0.8) {
+                        $faceVerificationNotes = 'High confidence match';
+                    } elseif ($faceConfidenceScore >= 0.6) {
+                        $faceVerificationNotes = 'Medium confidence match';
+                    } elseif ($faceConfidenceScore >= 0.4) {
+                        $faceVerificationNotes = 'Low confidence match';
+                    } else {
+                        $faceVerificationNotes = 'Very low confidence - face detected but poor match';
+                    }
+                } else {
+                    // Jika hanya photo tanpa confidence, anggap sebagai deteksi wajah
+                    $faceVerificationPassed = true;
+                    $faceConfidenceScore = 0.0; // Unknown confidence
+                    $faceVerificationNotes = 'Face detected without confidence score';
                 }
 
                 // Save face photo if provided
                 if ($request->has('face_photo')) {
                     \Log::info('Face photo received for user', [
                         'user_id' => $user->id,
-                        'photo_length' => strlen($request->face_photo)
+                        'photo_length' => strlen($request->face_photo),
+                        'confidence_score' => $faceConfidenceScore,
                     ]);
                     $facePhotoPath = $this->saveFacePhoto($request->face_photo, $user->id, $today);
                     \Log::info('Face photo saved result', [
                         'user_id' => $user->id,
-                        'photo_path' => $facePhotoPath
+                        'photo_path' => $facePhotoPath,
                     ]);
                 } else {
                     \Log::warning('Face photo not provided in request', [
                         'user_id' => $user->id,
-                        'has_face_confidence' => $request->has('face_confidence')
+                        'has_face_confidence' => $request->has('face_confidence'),
                     ]);
                 }
             } else {
-                return back()->withErrors(['message' => 'Verifikasi wajah diperlukan untuk check in.']);
+                // Tidak ada face data, skip verification
+                $faceVerificationSkipped = true;
+                $faceVerificationNotes = 'Face recognition skipped - no face data provided';
+                $faceDetected = false;
             }
         } else {
             $faceVerificationSkipped = true;
             $faceVerificationNotes = 'Face recognition not required for this user';
+            $faceDetected = false;
         }
 
         // Determine if late
@@ -184,7 +207,7 @@ class AttendanceController extends Controller
             'user_id' => $user->id,
             'face_photo_path_value' => $facePhotoPath,
             'face_match_confidence' => $faceMatchConfidence,
-            'face_verification_passed' => $faceVerificationPassed
+            'face_verification_passed' => $faceVerificationPassed,
         ]);
 
         $attendance = Attendance::updateOrCreate(
@@ -203,6 +226,8 @@ class AttendanceController extends Controller
                 'face_verification_skipped' => $faceVerificationSkipped,
                 'face_verification_notes' => $faceVerificationNotes,
                 'face_photo_path' => $facePhotoPath,
+                'face_confidence_score' => $faceConfidenceScore,
+                'face_detected' => $faceDetected,
             ]
         );
 
@@ -280,7 +305,7 @@ class AttendanceController extends Controller
 
                 // Create face photos directory if it doesn't exist
                 $directory = storage_path('app/public/face-photos');
-                if (!file_exists($directory)) {
+                if (! file_exists($directory)) {
                     mkdir($directory, 0755, true);
                 }
 
@@ -293,16 +318,16 @@ class AttendanceController extends Controller
                     $extension
                 );
 
-                $fullPath = $directory . '/' . $filename;
+                $fullPath = $directory.'/'.$filename;
 
                 if (file_put_contents($fullPath, $imageData)) {
-                    return 'face-photos/' . $filename;
+                    return 'face-photos/'.$filename;
                 }
             }
         } catch (\Exception $e) {
             \Log::error('Failed to save face photo', [
                 'user_id' => $userId,
-                'error' => $e->getMessage()
+                'error' => $e->getMessage(),
             ]);
         }
 

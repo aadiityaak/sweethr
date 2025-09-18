@@ -52,6 +52,8 @@ interface AttendanceRecord {
     face_verification_passed?: boolean;
     face_verification_skipped?: boolean;
     face_verification_notes?: string | null;
+    face_confidence_score?: number | null;
+    face_detected?: boolean;
     user: User;
     office_location: {
         id: number;
@@ -138,6 +140,36 @@ const getStatusIcon = (status: string) => {
         case 'half_day': return Clock;
         default: return XCircle;
     }
+};
+
+const formatConfidenceScore = (score: number | null) => {
+    if (score === null || score === undefined) return 'N/A';
+    return `${Math.round(score * 100)}%`;
+};
+
+const getConfidenceBadge = (score: number | null) => {
+    if (score === null || score === undefined) {
+        return 'bg-gray-50 text-gray-700 ring-gray-600/20 dark:bg-gray-950/50 dark:text-gray-400';
+    }
+
+    if (score >= 0.8) {
+        return 'bg-emerald-50 text-emerald-700 ring-emerald-600/20 dark:bg-emerald-950/50 dark:text-emerald-400';
+    } else if (score >= 0.6) {
+        return 'bg-blue-50 text-blue-700 ring-blue-600/20 dark:bg-blue-950/50 dark:text-blue-400';
+    } else if (score >= 0.4) {
+        return 'bg-amber-50 text-amber-700 ring-amber-600/20 dark:bg-amber-950/50 dark:text-amber-400';
+    } else {
+        return 'bg-red-50 text-red-700 ring-red-600/20 dark:bg-red-950/50 dark:text-red-400';
+    }
+};
+
+const getConfidenceLabel = (score: number | null) => {
+    if (score === null || score === undefined) return 'Tidak Ada Data';
+
+    if (score >= 0.8) return 'Sangat Cocok';
+    else if (score >= 0.6) return 'Cocok';
+    else if (score >= 0.4) return 'Kurang Cocok';
+    else return 'Tidak Cocok';
 };
 
 </script>
@@ -287,8 +319,44 @@ const getStatusIcon = (status: string) => {
                                 />
                             </div>
                             <dl class="space-y-4">
-                                <div v-if="attendance.face_match_confidence !== null" class="flex justify-between items-center">
-                                    <dt class="text-sm text-gray-600 dark:text-gray-400">Confidence</dt>
+                                <!-- Face Detection Status -->
+                                <div class="flex justify-between items-center">
+                                    <dt class="text-sm text-gray-600 dark:text-gray-400">Deteksi Wajah</dt>
+                                    <dd>
+                                        <span
+                                            class="inline-flex items-center rounded-full px-2 py-1 text-xs font-medium"
+                                            :class="{
+                                                'bg-green-100 text-green-800 dark:bg-green-900/30 dark:text-green-400': attendance.face_detected,
+                                                'bg-gray-100 text-gray-800 dark:bg-gray-900/30 dark:text-gray-400': !attendance.face_detected
+                                            }"
+                                        >
+                                            <CheckCircle v-if="attendance.face_detected" class="mr-1 h-3 w-3" />
+                                            <XCircle v-else class="mr-1 h-3 w-3" />
+                                            <span v-if="attendance.face_detected">Wajah Terdeteksi</span>
+                                            <span v-else>Tidak Ada Wajah</span>
+                                        </span>
+                                    </dd>
+                                </div>
+
+                                <!-- Confidence Score (New) -->
+                                <div v-if="attendance.face_confidence_score !== null" class="flex justify-between items-center">
+                                    <dt class="text-sm text-gray-600 dark:text-gray-400">Tingkat Kecocokan</dt>
+                                    <dd class="flex items-center gap-2">
+                                        <span class="text-sm font-medium text-gray-900 dark:text-white">
+                                            {{ formatConfidenceScore(attendance.face_confidence_score) }}
+                                        </span>
+                                        <span
+                                            class="inline-flex items-center rounded-full px-2 py-1 text-xs font-medium ring-1 ring-inset"
+                                            :class="getConfidenceBadge(attendance.face_confidence_score)"
+                                        >
+                                            {{ getConfidenceLabel(attendance.face_confidence_score) }}
+                                        </span>
+                                    </dd>
+                                </div>
+
+                                <!-- Legacy Confidence (for backward compatibility) -->
+                                <div v-else-if="attendance.face_match_confidence !== null" class="flex justify-between items-center">
+                                    <dt class="text-sm text-gray-600 dark:text-gray-400">Confidence (Legacy)</dt>
                                     <dd class="flex items-center gap-2">
                                         <span class="text-sm font-medium text-gray-900 dark:text-white">
                                             {{ Math.round(attendance.face_match_confidence) }}%
@@ -307,8 +375,10 @@ const getStatusIcon = (status: string) => {
                                         </span>
                                     </dd>
                                 </div>
+
+                                <!-- Verification Status -->
                                 <div class="flex justify-between items-center">
-                                    <dt class="text-sm text-gray-600 dark:text-gray-400">Status</dt>
+                                    <dt class="text-sm text-gray-600 dark:text-gray-400">Status Verifikasi</dt>
                                     <dd>
                                         <span
                                             class="inline-flex items-center rounded-full px-2 py-1 text-xs font-medium"
@@ -325,6 +395,14 @@ const getStatusIcon = (status: string) => {
                                             <span v-else-if="attendance.face_verification_skipped">Dilewati</span>
                                             <span v-else>Gagal</span>
                                         </span>
+                                    </dd>
+                                </div>
+
+                                <!-- Verification Notes -->
+                                <div v-if="attendance.face_verification_notes" class="border-t border-gray-200 dark:border-gray-700 pt-4">
+                                    <dt class="text-sm text-gray-600 dark:text-gray-400 mb-2">Catatan</dt>
+                                    <dd class="text-sm text-gray-900 dark:text-white bg-gray-50 dark:bg-gray-800 rounded-lg p-3">
+                                        {{ attendance.face_verification_notes }}
                                     </dd>
                                 </div>
                             </dl>

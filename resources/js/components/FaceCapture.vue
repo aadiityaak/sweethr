@@ -40,6 +40,8 @@ const loadingStatus = ref('Memulai...');
 // Face detection state
 const capturedDescriptors = ref<number[][]>([]);
 const detectionInterval = ref<number | null>(null);
+const verificationConfidence = ref<number | null>(null);
+const verificationStatus = ref<'pending' | 'success' | 'failed' | null>(null);
 
 const loadModels = async () => {
     try {
@@ -264,6 +266,18 @@ const capturePhoto = async () => {
                 bestMatch = Math.max(bestMatch, similarity);
             }
 
+            // Store confidence for display
+            verificationConfidence.value = Math.round(bestMatch);
+
+            // Determine verification status based on confidence
+            if (bestMatch >= 80) {
+                verificationStatus.value = 'success';
+            } else if (bestMatch >= 40) {
+                verificationStatus.value = 'success'; // Still success as per new logic - face detected
+            } else {
+                verificationStatus.value = 'success'; // Still success - any face detection is acceptable
+            }
+
             emit('verification', bestMatch);
             props.onVerification(bestMatch);
         }
@@ -291,6 +305,21 @@ const stopCamera = () => {
 const closeCapture = () => {
     stopCamera();
     emit('close');
+};
+
+// Helper function to get confidence level description
+const getConfidenceLabel = (confidence: number) => {
+    if (confidence >= 80) return 'Kecocokan Tinggi';
+    if (confidence >= 60) return 'Kecocokan Sedang';
+    if (confidence >= 40) return 'Kecocokan Rendah';
+    return 'Kecocokan Sangat Rendah';
+};
+
+const getConfidenceColor = (confidence: number) => {
+    if (confidence >= 80) return 'text-green-700 bg-green-100 dark:text-green-400 dark:bg-green-900/20';
+    if (confidence >= 60) return 'text-yellow-700 bg-yellow-100 dark:text-yellow-400 dark:bg-yellow-900/20';
+    if (confidence >= 40) return 'text-orange-700 bg-orange-100 dark:text-orange-400 dark:bg-orange-900/20';
+    return 'text-red-700 bg-red-100 dark:text-red-400 dark:bg-red-900/20';
 };
 
 onMounted(async () => {
@@ -396,7 +425,7 @@ onUnmounted(() => {
                     ></canvas>
 
                     <!-- Face Detection Indicator -->
-                    <div class="absolute top-4 right-4">
+                    <div class="absolute top-4 right-4 space-y-2">
                         <div
                             class="flex items-center gap-2 rounded-full px-3 py-1 text-xs font-medium"
                             :class="{
@@ -412,6 +441,17 @@ onUnmounted(() => {
                                 }"
                             ></div>
                             {{ faceDetected ? 'Wajah Terdeteksi' : 'Cari Wajah...' }}
+                        </div>
+
+                        <!-- Confidence Score Display -->
+                        <div v-if="mode === 'verification' && verificationConfidence !== null"
+                             class="rounded-full px-3 py-1 text-xs font-medium transition-all duration-300"
+                             :class="getConfidenceColor(verificationConfidence)">
+                            <div class="flex items-center gap-1">
+                                <Check v-if="verificationStatus === 'success'" class="h-3 w-3" />
+                                <AlertCircle v-else class="h-3 w-3" />
+                                <span>{{ verificationConfidence }}% - {{ getConfidenceLabel(verificationConfidence) }}</span>
+                            </div>
                         </div>
                     </div>
 
@@ -439,7 +479,30 @@ onUnmounted(() => {
                             <li>• Posisikan wajah di tengah kamera</li>
                             <li>• Jangan menggunakan masker atau kacamata gelap</li>
                             <li v-if="mode === 'setup'">• Ambil foto dari sudut yang berbeda</li>
+                            <li v-if="mode === 'verification'">• Anda akan melihat persentase kecocokan setelah verifikasi</li>
+                            <li v-if="mode === 'verification'">• Semua wajah yang terdeteksi akan diterima untuk absensi</li>
                         </ul>
+                    </div>
+                </div>
+
+                <!-- Verification Results -->
+                <div v-if="mode === 'verification' && verificationConfidence !== null" class="mt-4">
+                    <div class="rounded-lg border p-4 bg-green-50 border-green-200 dark:bg-green-900/10 dark:border-green-800">
+                        <div class="flex items-center justify-between">
+                            <div>
+                                <div class="flex items-center gap-2">
+                                    <Check class="h-5 w-5 text-green-600 dark:text-green-400" />
+                                    <span class="font-medium text-green-900 dark:text-green-100">Verifikasi Berhasil</span>
+                                </div>
+                                <p class="text-sm mt-1 text-green-800 dark:text-green-200">
+                                    Tingkat kecocokan: <span class="font-semibold">{{ verificationConfidence }}%</span>
+                                    <span class="ml-1">({{ getConfidenceLabel(verificationConfidence) }})</span>
+                                </p>
+                            </div>
+                        </div>
+                        <div class="mt-2 text-xs text-green-600 dark:text-green-400">
+                            Wajah terdeteksi dan absensi dapat dilanjutkan.
+                        </div>
                     </div>
                 </div>
 
@@ -455,8 +518,10 @@ onUnmounted(() => {
                         }"
                     >
                         <Loader2 v-if="isProcessing" class="h-4 w-4 animate-spin" />
+                        <Check v-else-if="mode === 'verification' && verificationConfidence !== null" class="h-4 w-4" />
                         <Camera v-else class="h-4 w-4" />
                         {{ isProcessing ? 'Memproses...' :
+                           mode === 'verification' && verificationConfidence !== null ? 'Verifikasi Ulang' :
                            mode === 'setup' ? 'Ambil Foto' : 'Verifikasi Wajah' }}
                     </button>
                 </div>
