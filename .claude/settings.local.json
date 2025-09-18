@@ -36,7 +36,9 @@
       "Bash(git commit:*)",
       "Bash(git push:*)",
       "Bash(git add:*)",
-      "Bash(find:*)"
+      "Bash(find:*)",
+      "Bash(dir public)",
+      "Bash(dir:*)"
     ],
     "deny": [],
     "ask": []

@@ -4,10 +4,8 @@ namespace App\Http\Controllers\User;
 
 use App\Http\Controllers\Controller;
 use App\Models\User;
-use App\Models\Department;
-use App\Models\Position;
-use Illuminate\Http\Request;
 use Illuminate\Http\RedirectResponse;
+use Illuminate\Http\Request;
 use Illuminate\Support\Facades\Hash;
 use Illuminate\Validation\Rules\Password;
 use Inertia\Inertia;
@@ -17,7 +15,14 @@ class ProfileController extends Controller
 {
     public function show(): Response
     {
-        $user = auth()->user()->load(['department:id,name', 'position:id,title']);
+        // Force fresh user data from database (no cache)
+        $userId = auth()->id();
+        $user = User::with(['department:id,name', 'position:id,title'])
+            ->where('id', $userId)
+            ->first();
+
+        // Ensure we have fresh data by refreshing again
+        $user->refresh();
 
         // Debug: Log what we're sending
         \Log::info('ProfileController sending user data', [
@@ -27,15 +32,12 @@ class ProfileController extends Controller
             'face_recognition_enabled_bool' => (bool) $user->face_recognition_enabled,
             'face_recognition_mandatory_raw' => $user->face_recognition_mandatory,
             'face_setup_at' => $user->face_setup_at,
-            'has_face_descriptors' => !empty($user->face_descriptors),
+            'has_face_descriptors' => ! empty($user->face_descriptors),
             'user_attributes' => $user->getAttributes(),
         ]);
 
-        // Force refresh user from database
-        $user->refresh();
-
         return Inertia::render('user/Profile', [
-            'user' => $user->toArray(),
+            'user' => $user->makeVisible(['face_recognition_enabled', 'face_recognition_mandatory', 'face_setup_at'])->toArray(),
         ]);
     }
 
@@ -45,7 +47,7 @@ class ProfileController extends Controller
 
         $request->validate([
             'name' => ['required', 'string', 'max:255'],
-            'email' => ['required', 'string', 'email', 'max:255', 'unique:users,email,' . $user->id],
+            'email' => ['required', 'string', 'email', 'max:255', 'unique:users,email,'.$user->id],
             'phone' => ['nullable', 'string', 'max:20'],
             'address' => ['nullable', 'string', 'max:500'],
             'date_of_birth' => ['nullable', 'date', 'before:today'],

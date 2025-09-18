@@ -113,15 +113,16 @@ export function useFaceRecognition() {
 
                 toast({
                     title: '✅ Setup Berhasil!',
-                    description: 'Pengenalan wajah telah berhasil diaktifkan.',
+                    description: 'Pengenalan wajah telah berhasil diaktifkan. Halaman akan diperbarui dalam 1 detik.',
                     variant: 'success',
                 });
 
                 console.log('=== SETUP COMPLETED SUCCESSFULLY ===');
+                console.log('Face recognition enabled in backend:', data.data?.face_recognition_enabled);
                 return true;
             } else {
                 console.error('Setup failed with response:', data);
-                throw new Error(data.message || 'Setup gagal');
+                throw new Error(data.message || 'Setup gagal - respon server tidak valid');
             }
         } catch (error) {
             console.error('Face recognition setup error:', error);

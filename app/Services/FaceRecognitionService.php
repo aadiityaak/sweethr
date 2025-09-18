@@ -4,40 +4,61 @@ namespace App\Services;
 
 use App\Models\User;
 use Illuminate\Support\Facades\Crypt;
+use Illuminate\Support\Facades\DB;
 use Illuminate\Support\Facades\Log;
 
 class FaceRecognitionService
 {
     private const MIN_CONFIDENCE_SCORE = 65;
+
     private const MAX_DAILY_ATTEMPTS = 3;
 
     public function storeFaceDescriptors(User $user, array $descriptors): bool
     {
         try {
-            $encryptedDescriptors = Crypt::encrypt($descriptors);
+            return DB::transaction(function () use ($user, $descriptors) {
+                $encryptedDescriptors = Crypt::encrypt($descriptors);
 
-            $user->update([
-                'face_descriptors' => $encryptedDescriptors,
-                'face_recognition_enabled' => true,
-                'face_setup_at' => now(),
-                'face_recognition_attempts' => 0,
-                'face_attempts_date' => null,
-            ]);
+                $updated = $user->update([
+                    'face_descriptors' => $encryptedDescriptors,
+                    'face_recognition_enabled' => true,
+                    'face_setup_at' => now(),
+                    'face_recognition_attempts' => 0,
+                    'face_attempts_date' => null,
+                ]);
 
-            Log::info('Face descriptors stored for user', ['user_id' => $user->id]);
-            return true;
+                if (! $updated) {
+                    throw new \Exception('Failed to update user face data');
+                }
+
+                // Verify the update was successful
+                $user->refresh();
+                if (! $user->face_recognition_enabled) {
+                    throw new \Exception('Face recognition not enabled after update');
+                }
+
+                Log::info('Face descriptors stored for user', [
+                    'user_id' => $user->id,
+                    'enabled' => $user->face_recognition_enabled,
+                    'setup_at' => $user->face_setup_at,
+                ]);
+
+                return true;
+            });
         } catch (\Exception $e) {
             Log::error('Failed to store face descriptors', [
                 'user_id' => $user->id,
-                'error' => $e->getMessage()
+                'error' => $e->getMessage(),
+                'trace' => $e->getTraceAsString(),
             ]);
+
             return false;
         }
     }
 
     public function getFaceDescriptors(User $user): ?array
     {
-        if (!$user->face_descriptors || !$user->face_recognition_enabled) {
+        if (! $user->face_descriptors || ! $user->face_recognition_enabled) {
             return null;
         }
 
@@ -46,8 +67,9 @@ class FaceRecognitionService
         } catch (\Exception $e) {
             Log::error('Failed to decrypt face descriptors', [
                 'user_id' => $user->id,
-                'error' => $e->getMessage()
+                'error' => $e->getMessage(),
             ]);
+
             return null;
         }
     }
@@ -63,8 +85,9 @@ class FaceRecognitionService
         ];
 
         // Check if user has face recognition set up
-        if (!$user->face_recognition_enabled || !$user->face_descriptors) {
+        if (! $user->face_recognition_enabled || ! $user->face_descriptors) {
             $result['error'] = 'Face recognition belum disetup. Silakan setup di profile.';
+
             return $result;
         }
 
@@ -87,7 +110,7 @@ class FaceRecognitionService
 
             Log::info('Face verification successful', [
                 'user_id' => $user->id,
-                'confidence' => $confidence
+                'confidence' => $confidence,
             ]);
 
             return $result;
@@ -107,7 +130,7 @@ class FaceRecognitionService
 
             Log::warning('User exceeded face verification attempts', [
                 'user_id' => $user->id,
-                'attempts' => $newAttempts
+                'attempts' => $newAttempts,
             ]);
         } else {
             $remaining = self::MAX_DAILY_ATTEMPTS - $newAttempts;
@@ -120,12 +143,12 @@ class FaceRecognitionService
     public function isFaceRecognitionRequired(User $user): bool
     {
         // If user doesn't have face recognition enabled, not required
-        if (!$user->face_recognition_enabled) {
+        if (! $user->face_recognition_enabled) {
             return false;
         }
 
         // If not mandatory for this user, not required
-        if (!$user->face_recognition_mandatory) {
+        if (! $user->face_recognition_mandatory) {
             return false;
         }
 
@@ -135,6 +158,7 @@ class FaceRecognitionService
                 'face_recognition_attempts' => 0,
                 'face_attempts_date' => today(),
             ]);
+
             return true;
         }
 
@@ -145,22 +169,40 @@ class FaceRecognitionService
     public function deleteFaceData(User $user): bool
     {
         try {
-            $user->update([
-                'face_descriptors' => null,
-                'face_recognition_enabled' => false,
-                'face_setup_at' => null,
-                'face_recognition_attempts' => 0,
-                'face_attempts_date' => null,
-                'face_recognition_mandatory' => true,
-            ]);
+            return DB::transaction(function () use ($user) {
+                $updated = $user->update([
+                    'face_descriptors' => null,
+                    'face_recognition_enabled' => false,
+                    'face_setup_at' => null,
+                    'face_recognition_attempts' => 0,
+                    'face_attempts_date' => null,
+                    'face_recognition_mandatory' => true,
+                ]);
 
-            Log::info('Face data deleted for user', ['user_id' => $user->id]);
-            return true;
+                if (! $updated) {
+                    throw new \Exception('Failed to delete user face data');
+                }
+
+                // Verify the deletion was successful
+                $user->refresh();
+                if ($user->face_recognition_enabled) {
+                    throw new \Exception('Face recognition still enabled after deletion');
+                }
+
+                Log::info('Face data deleted for user', [
+                    'user_id' => $user->id,
+                    'enabled' => $user->face_recognition_enabled,
+                ]);
+
+                return true;
+            });
         } catch (\Exception $e) {
             Log::error('Failed to delete face data', [
                 'user_id' => $user->id,
-                'error' => $e->getMessage()
+                'error' => $e->getMessage(),
+                'trace' => $e->getTraceAsString(),
             ]);
+
             return false;
         }
     }
@@ -170,8 +212,8 @@ class FaceRecognitionService
         $totalUsers = User::where('is_admin', false)->count();
         $enabledUsers = User::where('face_recognition_enabled', true)->count();
         $todayAttempts = User::where('face_attempts_date', today())
-                           ->where('face_recognition_attempts', '>', 0)
-                           ->count();
+            ->where('face_recognition_attempts', '>', 0)
+            ->count();
 
         return [
             'total_users' => $totalUsers,

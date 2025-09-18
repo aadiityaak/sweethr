@@ -488,11 +488,6 @@ console.log('Profile component user data:', {
     has_face_descriptors: !!user.face_descriptors
 });
 
-// Temporary debug alert
-setTimeout(() => {
-    alert('Debug: face_recognition_enabled = ' + user.face_recognition_enabled + ' (type: ' + typeof user.face_recognition_enabled + ')');
-}, 1000);
-
 // Face Recognition
 const {
     isLoading: faceLoading,
@@ -628,10 +623,10 @@ const handleFaceSetup = async (descriptors: number[][]) => {
     if (success) {
         console.log('Setup successful - refreshing page...');
 
-        // Give time for database to commit, then reload
+        // Use Inertia reload for better state management
         setTimeout(() => {
-            window.location.reload();
-        }, 2000);
+            router.reload({ only: ['user'] });
+        }, 1000);
     } else {
         console.error('Setup failed');
     }
@@ -641,8 +636,8 @@ const handleDeleteFaceData = async () => {
     if (confirm('Apakah Anda yakin ingin menghapus data face recognition? Anda perlu setup ulang nanti.')) {
         const success = await deleteFaceData();
         if (success) {
-            // Refresh the page to update user data
-            window.location.reload();
+            // Use Inertia reload for better state management
+            router.reload({ only: ['user'] });
         }
     }
 };
