@@ -997,6 +997,7 @@ onUnmounted(() => {
                                     muted
                                     playsinline
                                     class="w-full h-full object-cover scale-150"
+                                    style="transform: scaleX(-1);"
                                     v-show="faceDetectionActive"
                                 />
 

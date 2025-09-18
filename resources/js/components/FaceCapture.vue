@@ -414,6 +414,7 @@ onUnmounted(() => {
                             playsinline
                             class="w-full h-full object-cover scale-150"
                             :class="{ 'opacity-0': isLoading, 'opacity-100': !isLoading }"
+                            style="transform: scaleX(-1);"
                         ></video>
 
                         <!-- Detection Overlay -->
