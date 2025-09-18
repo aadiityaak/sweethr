@@ -488,6 +488,11 @@ console.log('Profile component user data:', {
     has_face_descriptors: !!user.face_descriptors
 });
 
+// Temporary debug alert
+setTimeout(() => {
+    alert('Debug: face_recognition_enabled = ' + user.face_recognition_enabled + ' (type: ' + typeof user.face_recognition_enabled + ')');
+}, 1000);
+
 // Face Recognition
 const {
     isLoading: faceLoading,

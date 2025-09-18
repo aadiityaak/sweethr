@@ -36,12 +36,28 @@ export function useFaceRecognition() {
 
             // Ensure CSRF cookie is available before making the request
             console.log('Fetching CSRF cookie...');
-            await fetch('/sanctum/csrf-cookie', {
+            const csrfCookieResponse = await fetch('/sanctum/csrf-cookie', {
                 credentials: 'same-origin',
             });
+            console.log('CSRF cookie response:', csrfCookieResponse.status);
+
+            // Wait a bit for cookie to be set
+            await new Promise(resolve => setTimeout(resolve, 100));
 
             // Get CSRF token from meta tag after ensuring cookie is set
-            const csrfToken = document.querySelector('meta[name="csrf-token"]')?.getAttribute('content');
+            let csrfToken = document.querySelector('meta[name="csrf-token"]')?.getAttribute('content');
+            console.log('CSRF token from meta tag:', csrfToken);
+
+            if (!csrfToken) {
+                // Try to get from cookies as fallback
+                const cookies = document.cookie.split(';');
+                const xsrfCookie = cookies.find(cookie => cookie.trim().startsWith('XSRF-TOKEN='));
+                if (xsrfCookie) {
+                    csrfToken = decodeURIComponent(xsrfCookie.split('=')[1]);
+                    console.log('CSRF token from cookie:', csrfToken);
+                }
+            }
+
             if (!csrfToken) {
                 throw new Error('CSRF token not found. Please refresh the page.');
             }
@@ -59,9 +75,10 @@ export function useFaceRecognition() {
                     'Accept': 'application/json',
                     'X-CSRF-TOKEN': csrfToken,
                     'X-Requested-With': 'XMLHttpRequest',
+                    'X-XSRF-TOKEN': csrfToken, // Additional CSRF header
                 },
                 body: JSON.stringify({ descriptors }),
-                credentials: 'same-origin',
+                credentials: 'include', // Changed from 'same-origin' to 'include'
             });
 
             console.log('Response received:', {

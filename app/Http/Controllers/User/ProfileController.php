@@ -19,13 +19,23 @@ class ProfileController extends Controller
     {
         $user = auth()->user()->load(['department:id,name', 'position:id,title']);
 
+        // Debug: Log what we're sending
+        \Log::info('ProfileController sending user data', [
+            'user_id' => $user->id,
+            'face_recognition_enabled_raw' => $user->face_recognition_enabled,
+            'face_recognition_enabled_type' => gettype($user->face_recognition_enabled),
+            'face_recognition_enabled_bool' => (bool) $user->face_recognition_enabled,
+            'face_recognition_mandatory_raw' => $user->face_recognition_mandatory,
+            'face_setup_at' => $user->face_setup_at,
+            'has_face_descriptors' => !empty($user->face_descriptors),
+            'user_attributes' => $user->getAttributes(),
+        ]);
+
+        // Force refresh user from database
+        $user->refresh();
+
         return Inertia::render('user/Profile', [
-            'user' => array_merge($user->toArray(), [
-                'face_recognition_enabled' => (bool) $user->face_recognition_enabled,
-                'face_recognition_mandatory' => (bool) ($user->face_recognition_mandatory ?? true),
-                'face_descriptors' => $user->face_descriptors,
-                'face_setup_at' => $user->face_setup_at,
-            ]),
+            'user' => $user->toArray(),
         ]);
     }
 
