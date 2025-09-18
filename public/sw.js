@@ -2,23 +2,29 @@ const CACHE_NAME = 'sweethr-v1';
 const urlsToCache = [
   '/',
   '/manifest.json',
-  '/build/assets/app.css',
-  '/build/assets/app.js',
-  '/icons/icon-192x192.png',
-  '/icons/icon-512x512.png',
-  // Add other critical assets
+  '/icons/icon-192x192.svg',
+  '/icons/icon-512x512.svg',
+  '/offline.html'
 ];
 
 // Install event - cache resources
 self.addEventListener('install', (event) => {
+  console.log('SW: Installing service worker');
   event.waitUntil(
     caches.open(CACHE_NAME)
       .then((cache) => {
-        console.log('Opened cache');
-        return cache.addAll(urlsToCache);
+        console.log('SW: Opened cache');
+        // Only cache essential files, skip ones that might fail
+        return cache.addAll([
+          '/',
+          '/manifest.json',
+          '/offline.html'
+        ]);
       })
       .catch((error) => {
-        console.log('Cache install failed:', error);
+        console.log('SW: Cache install failed:', error);
+        // Don't fail the install if cache fails
+        return Promise.resolve();
       })
   );
   // Force the waiting service worker to become the active service worker
