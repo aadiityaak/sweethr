@@ -116,8 +116,19 @@ class AttendanceController extends Controller
 
         // Validate location
         $office = OfficeLocation::findOrFail($request->office_location_id);
+
+        // Check if user is within radius OR has permission to check-in outside radius
         if (! $office->isWithinRadius($request->latitude, $request->longitude)) {
-            return back()->withErrors(['message' => 'Anda berada di luar radius kantor. Mohon mendekat ke lokasi kantor.']);
+            if (! $user->allow_outside_radius) {
+                return back()->withErrors(['message' => 'Anda berada di luar radius kantor. Mohon mendekat ke lokasi kantor.']);
+            }
+            // Log when user checks in outside radius but is allowed
+            \Log::info('User checked in outside radius with permission', [
+                'user_id' => $user->id,
+                'office_id' => $office->id,
+                'distance_from_office' => $office->calculateDistance($request->latitude, $request->longitude),
+                'allowed_radius' => $office->radius_meters,
+            ]);
         }
 
         // Face recognition verification - TIDAK WAJIB COCOK, HANYA DETEKSI

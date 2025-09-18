@@ -74,11 +74,13 @@ class EmployeeController extends Controller
             'hire_date' => 'required|date',
             'password' => 'required|string|min:8|confirmed',
             'is_admin' => 'boolean',
+            'allow_outside_radius' => 'boolean',
             'employment_status' => 'in:active,inactive,terminated',
         ]);
 
         $validated['password'] = bcrypt($validated['password']);
         $validated['is_admin'] = $request->boolean('is_admin');
+        $validated['allow_outside_radius'] = $request->boolean('allow_outside_radius');
         $validated['employment_status'] = $validated['employment_status'] ?? 'active';
 
         User::create($validated);
@@ -122,6 +124,7 @@ class EmployeeController extends Controller
             'hire_date' => 'required|date',
             'password' => 'nullable|string|min:8|confirmed',
             'is_admin' => 'boolean',
+            'allow_outside_radius' => 'boolean',
             'employment_status' => 'in:active,inactive,terminated',
         ]);
 
@@ -132,6 +135,7 @@ class EmployeeController extends Controller
         }
 
         $validated['is_admin'] = $request->boolean('is_admin');
+        $validated['allow_outside_radius'] = $request->boolean('allow_outside_radius');
         $validated['employment_status'] = $validated['employment_status'] ?? $employee->employment_status;
 
         $employee->update($validated);

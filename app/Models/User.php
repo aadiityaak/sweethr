@@ -41,6 +41,7 @@ class User extends Authenticatable
         'face_recognition_attempts',
         'face_attempts_date',
         'face_recognition_mandatory',
+        'allow_outside_radius',
     ];
 
     /**
@@ -72,6 +73,7 @@ class User extends Authenticatable
             'face_setup_at' => 'datetime',
             'face_attempts_date' => 'date',
             'face_recognition_mandatory' => 'boolean',
+            'allow_outside_radius' => 'boolean',
         ];
     }
 

@@ -267,6 +267,23 @@
                                 </p>
                             </div>
 
+                            <!-- Attendance Settings -->
+                            <div class="pt-6 border-t">
+                                <h4 class="text-md font-semibold mb-4">Pengaturan Absensi</h4>
+                                <div class="flex items-center space-x-2">
+                                    <input
+                                        id="allow_outside_radius"
+                                        type="checkbox"
+                                        v-model="form.allow_outside_radius"
+                                        class="rounded border-input"
+                                    />
+                                    <Label for="allow_outside_radius">Ijinkan absen di luar radius kantor</Label>
+                                </div>
+                                <p class="text-sm text-muted-foreground mt-1">
+                                    Karyawan dapat melakukan check-in/out dari lokasi manapun (untuk tugas luar, dll)
+                                </p>
+                            </div>
+
                             <!-- Submit Button -->
                             <div class="flex gap-2 pt-6 border-t">
                                 <Button type="submit" :disabled="form.processing">
@@ -401,6 +418,7 @@ interface Employee {
         relationship?: string;
     };
     is_admin: boolean;
+    allow_outside_radius: boolean;
     updated_at: string;
 }
 
@@ -466,6 +484,7 @@ const form = useForm({
         relationship: props.employee.emergency_contact?.relationship || '',
     },
     is_admin: props.employee.is_admin,
+    allow_outside_radius: props.employee.allow_outside_radius,
 });
 
 const filteredPositions = computed(() => {
