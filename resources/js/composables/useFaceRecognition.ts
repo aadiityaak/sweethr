@@ -249,8 +249,11 @@ export function useFaceRecognition() {
                     variant: 'success',
                 });
 
-                // Refresh page to update UI state
-                router.reload();
+                // Refresh page to update UI state with cache busting
+                router.reload({
+                    preserveState: false, // Don't preserve state to ensure fresh data
+                    preserveScroll: false // Don't preserve scroll to reset view
+                });
                 return true;
             } else {
                 throw new Error(data.message || 'Gagal menghapus data');

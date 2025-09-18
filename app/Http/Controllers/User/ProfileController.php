@@ -15,14 +15,25 @@ class ProfileController extends Controller
 {
     public function show(): Response
     {
-        // Force fresh user data from database (no cache)
+        // Clear any auth cache and force fresh user data from database
+        auth()->forgetUser();
+
         $userId = auth()->id();
+
+        // Force completely fresh query from database
         $user = User::with(['department:id,name', 'position:id,title'])
             ->where('id', $userId)
             ->first();
 
-        // Ensure we have fresh data by refreshing again
+        // Clear model cache and reload from database
+        $user->setRawAttributes($user->getAttributes());
         $user->refresh();
+
+        // Double check by reloading without relationships
+        $freshUser = User::find($userId);
+        $user->face_recognition_enabled = $freshUser->face_recognition_enabled;
+        $user->face_setup_at = $freshUser->face_setup_at;
+        $user->face_descriptors = $freshUser->face_descriptors;
 
         // Debug: Log what we're sending
         \Log::info('ProfileController sending user data', [
@@ -35,6 +46,11 @@ class ProfileController extends Controller
             'has_face_descriptors' => ! empty($user->face_descriptors),
             'user_attributes' => $user->getAttributes(),
         ]);
+
+        // Set cache headers to prevent caching
+        response()->header('Cache-Control', 'no-cache, no-store, must-revalidate');
+        response()->header('Pragma', 'no-cache');
+        response()->header('Expires', '0');
 
         return Inertia::render('user/Profile', [
             'user' => $user->makeVisible(['face_recognition_enabled', 'face_recognition_mandatory', 'face_setup_at'])->toArray(),

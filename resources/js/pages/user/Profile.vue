@@ -623,9 +623,13 @@ const handleFaceSetup = async (descriptors: number[][]) => {
     if (success) {
         console.log('Setup successful - refreshing page...');
 
-        // Use Inertia reload for better state management
+        // Use Inertia reload for better state management with cache busting
         setTimeout(() => {
-            router.reload({ only: ['user'] });
+            router.reload({
+                only: ['user'],
+                preserveState: false, // Don't preserve state to ensure fresh data
+                preserveScroll: false // Don't preserve scroll to reset view
+            });
         }, 1000);
     } else {
         console.error('Setup failed');
@@ -636,8 +640,12 @@ const handleDeleteFaceData = async () => {
     if (confirm('Apakah Anda yakin ingin menghapus data face recognition? Anda perlu setup ulang nanti.')) {
         const success = await deleteFaceData();
         if (success) {
-            // Use Inertia reload for better state management
-            router.reload({ only: ['user'] });
+            // Use Inertia reload for better state management with cache busting
+            router.reload({
+                only: ['user'],
+                preserveState: false, // Don't preserve state to ensure fresh data
+                preserveScroll: false // Don't preserve scroll to reset view
+            });
         }
     }
 };
