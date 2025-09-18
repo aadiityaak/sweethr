@@ -336,6 +336,21 @@
                     </div>
                 </div>
 
+                <!-- PWA Install Section -->
+                <div class="mb-6 rounded-lg border bg-card p-6">
+                    <div class="mb-4 flex items-center gap-3">
+                        <div class="rounded-lg bg-blue-100 p-2 dark:bg-blue-900/50">
+                            <Smartphone class="h-4 w-4 text-blue-600 dark:text-blue-400" />
+                        </div>
+                        <div>
+                            <h2 class="text-lg font-semibold">Install Aplikasi</h2>
+                            <p class="text-sm text-muted-foreground">Install SweetHR ke perangkat Anda</p>
+                        </div>
+                    </div>
+
+                    <PWAInstallButton />
+                </div>
+
                 <!-- Theme/Dark Mode Settings -->
                 <div class="mb-6 rounded-lg border bg-card p-6">
                     <div class="mb-4 flex items-center gap-3">
@@ -414,6 +429,7 @@ import { Head, Link, useForm } from '@inertiajs/vue3';
 import DatePicker from '@/components/ui/date-picker/DatePicker.vue';
 import BottomNavigation from '@/components/BottomNavigation.vue';
 import FaceCapture from '@/components/FaceCapture.vue';
+import PWAInstallButton from '@/components/PWAInstallButton.vue';
 import { useFaceRecognition } from '@/composables/useFaceRecognition';
 import {
     User,
@@ -436,7 +452,8 @@ import {
     Scan,
     Trash2,
     CheckCircle,
-    AlertCircle
+    AlertCircle,
+    Smartphone
 } from 'lucide-vue-next';
 import { ref, computed, onMounted } from 'vue';
 

@@ -1,0 +1,188 @@
+<template>
+  <div class="space-y-4">
+    <!-- PWA Status Card -->
+    <div class="bg-white dark:bg-gray-800 border border-gray-200 dark:border-gray-700 rounded-lg p-6">
+      <div class="flex items-start space-x-4">
+        <!-- Icon -->
+        <div class="flex-shrink-0">
+          <div
+            :class="[
+              'h-12 w-12 rounded-full flex items-center justify-center',
+              statusConfig.bgColor
+            ]"
+          >
+            <component :is="statusConfig.icon" :class="['h-6 w-6', statusConfig.iconColor]" />
+          </div>
+        </div>
+
+        <!-- Content -->
+        <div class="flex-1 min-w-0">
+          <h3 class="text-lg font-semibold text-gray-900 dark:text-white">
+            Install Aplikasi
+          </h3>
+          <p class="mt-1 text-sm text-gray-600 dark:text-gray-400">
+            {{ installInfo.message }}
+          </p>
+
+          <!-- Install Button -->
+          <div class="mt-4 flex items-center space-x-3">
+            <button
+              v-if="installInfo.canInstall"
+              @click="handleInstall"
+              :disabled="isLoading"
+              class="inline-flex items-center px-4 py-2 border border-transparent text-sm font-medium rounded-md text-white bg-blue-600 hover:bg-blue-700 focus:outline-none focus:ring-2 focus:ring-offset-2 focus:ring-blue-500 disabled:opacity-50 disabled:cursor-not-allowed transition-colors"
+            >
+              <Download v-if="!isLoading" class="h-4 w-4 mr-2" />
+              <Loader2 v-else class="h-4 w-4 mr-2 animate-spin" />
+              {{ isLoading ? 'Installing...' : 'Install Aplikasi' }}
+            </button>
+
+            <!-- Manual Install Instructions Button -->
+            <button
+              v-if="!installInfo.canInstall && !isInstalled"
+              @click="showInstructions = !showInstructions"
+              class="inline-flex items-center px-4 py-2 border border-gray-300 dark:border-gray-600 text-sm font-medium rounded-md text-gray-700 dark:text-gray-300 bg-white dark:bg-gray-700 hover:bg-gray-50 dark:hover:bg-gray-600 focus:outline-none focus:ring-2 focus:ring-offset-2 focus:ring-blue-500 transition-colors"
+            >
+              <Info class="h-4 w-4 mr-2" />
+              {{ showInstructions ? 'Sembunyikan' : 'Cara Install' }}
+            </button>
+
+            <!-- Already Installed Badge -->
+            <div v-if="isInstalled" class="inline-flex items-center px-3 py-1 rounded-full text-sm font-medium bg-green-100 dark:bg-green-900 text-green-800 dark:text-green-200">
+              <Check class="h-4 w-4 mr-1" />
+              Sudah Terinstall
+            </div>
+          </div>
+        </div>
+      </div>
+    </div>
+
+    <!-- Manual Install Instructions -->
+    <div
+      v-if="showInstructions"
+      class="bg-blue-50 dark:bg-blue-900/20 border border-blue-200 dark:border-blue-800 rounded-lg p-4"
+    >
+      <div class="flex items-start">
+        <div class="flex-shrink-0">
+          <Info class="h-5 w-5 text-blue-600 dark:text-blue-400" />
+        </div>
+        <div class="ml-3">
+          <h4 class="text-sm font-medium text-blue-900 dark:text-blue-200">
+            Cara Install di {{ instructions.platform }}
+          </h4>
+          <ol class="mt-2 text-sm text-blue-800 dark:text-blue-300 space-y-1">
+            <li v-for="(step, index) in instructions.steps" :key="index" class="flex items-start">
+              <span class="inline-flex items-center justify-center h-5 w-5 rounded-full bg-blue-600 text-white text-xs font-medium mr-2 mt-0.5 flex-shrink-0">
+                {{ index + 1 }}
+              </span>
+              {{ step }}
+            </li>
+          </ol>
+        </div>
+      </div>
+    </div>
+
+    <!-- PWA Features Info -->
+    <div class="bg-gray-50 dark:bg-gray-800/50 border border-gray-200 dark:border-gray-700 rounded-lg p-4">
+      <h4 class="text-sm font-semibold text-gray-900 dark:text-white mb-3">
+        Keuntungan Install Aplikasi:
+      </h4>
+      <div class="grid grid-cols-1 sm:grid-cols-2 gap-3">
+        <div class="flex items-center text-sm text-gray-600 dark:text-gray-400">
+          <Zap class="h-4 w-4 text-green-500 mr-2 flex-shrink-0" />
+          Akses lebih cepat
+        </div>
+        <div class="flex items-center text-sm text-gray-600 dark:text-gray-400">
+          <WifiOff class="h-4 w-4 text-green-500 mr-2 flex-shrink-0" />
+          Bisa digunakan offline
+        </div>
+        <div class="flex items-center text-sm text-gray-600 dark:text-gray-400">
+          <Bell class="h-4 w-4 text-green-500 mr-2 flex-shrink-0" />
+          Push notifications
+        </div>
+        <div class="flex items-center text-sm text-gray-600 dark:text-gray-400">
+          <Smartphone class="h-4 w-4 text-green-500 mr-2 flex-shrink-0" />
+          Pengalaman seperti app native
+        </div>
+      </div>
+    </div>
+  </div>
+</template>
+
+<script setup lang="ts">
+import { ref, computed } from 'vue'
+import { usePWAInstall } from '@/composables/usePWAInstall'
+import {
+  Download,
+  Loader2,
+  Info,
+  Check,
+  Smartphone,
+  WifiOff,
+  Zap,
+  Bell,
+  CheckCircle,
+  AlertTriangle,
+  Clock
+} from 'lucide-vue-next'
+
+const {
+  isInstallable,
+  isInstalled,
+  isLoading,
+  installPWA,
+  getInstallInstructions,
+  getInstallationInfo
+} = usePWAInstall()
+
+const showInstructions = ref(false)
+
+const installInfo = computed(() => getInstallationInfo())
+const instructions = computed(() => getInstallInstructions())
+
+const statusConfig = computed(() => {
+  switch (installInfo.value.status) {
+    case 'installed':
+      return {
+        icon: CheckCircle,
+        iconColor: 'text-green-600 dark:text-green-400',
+        bgColor: 'bg-green-100 dark:bg-green-900/20'
+      }
+    case 'installable':
+      return {
+        icon: Download,
+        iconColor: 'text-blue-600 dark:text-blue-400',
+        bgColor: 'bg-blue-100 dark:bg-blue-900/20'
+      }
+    case 'unsupported':
+      return {
+        icon: AlertTriangle,
+        iconColor: 'text-red-600 dark:text-red-400',
+        bgColor: 'bg-red-100 dark:bg-red-900/20'
+      }
+    default:
+      return {
+        icon: Clock,
+        iconColor: 'text-gray-600 dark:text-gray-400',
+        bgColor: 'bg-gray-100 dark:bg-gray-900/20'
+      }
+  }
+})
+
+const handleInstall = async () => {
+  try {
+    const success = await installPWA()
+    if (success) {
+      console.log('PWA installed successfully')
+      // Optional: Show success message or redirect
+    } else {
+      console.log('PWA installation was cancelled or failed')
+      // Optional: Show manual instructions
+      showInstructions.value = true
+    }
+  } catch (error) {
+    console.error('Failed to install PWA:', error)
+    // Optional: Show error message
+  }
+}
+</script>
