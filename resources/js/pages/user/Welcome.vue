@@ -1054,6 +1054,24 @@ onUnmounted(() => {
                             </div>
 
                         </div>
+
+                        <!-- Face Match Confidence Display -->
+                        <div v-if="faceRecognitionEnabled && faceDescriptors && faceDescriptors.length > 0 && faceMatchConfidence > 0" class="mt-6 text-center">
+                            <div class="inline-block">
+                                <div class="text-sm text-muted-foreground mb-1">Tingkat Kecocokan</div>
+                                <div class="text-2xl font-bold" :class="{
+                                    'text-green-600': faceMatchConfidence >= 70,
+                                    'text-yellow-600': faceMatchConfidence >= 40 && faceMatchConfidence < 70,
+                                    'text-red-600': faceMatchConfidence < 40
+                                }">
+                                    {{ Math.round(faceMatchConfidence) }}%
+                                </div>
+                                <div class="text-xs text-muted-foreground">
+                                    {{ faceMatchConfidence >= 70 ? 'Sangat Cocok' :
+                                       faceMatchConfidence >= 40 ? 'Cukup Cocok' : 'Kurang Cocok' }}
+                                </div>
+                            </div>
+                        </div>
                     </div>
 
                     <div v-if="todayAttendance?.office_location" class="mt-4 flex items-center gap-2 rounded-md bg-muted p-3">

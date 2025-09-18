@@ -384,25 +384,17 @@
                             </div>
                         </div>
 
-                        <div class="flex items-center justify-between p-3 rounded-lg bg-muted/50">
-                            <div class="flex items-center gap-3">
-                                <component
-                                    :is="isDark ? Moon : Sun"
-                                    class="h-4 w-4 text-muted-foreground"
-                                />
-                                <div>
-                                    <p class="text-sm font-medium">Mode Saat Ini</p>
-                                    <p class="text-xs text-muted-foreground">
-                                        {{ isDark ? 'Dark Mode' : 'Light Mode' }}
-                                        {{ currentTheme === 'system' ? ' (Mengikuti sistem)' : '' }}
-                                    </p>
-                                </div>
-                            </div>
-                            <div class="flex h-6 w-11 items-center rounded-full transition-colors"
-                                 :class="isDark ? 'bg-primary' : 'bg-muted'">
-                                <div class="h-4 w-4 rounded-full bg-white transition-transform"
-                                     :class="isDark ? 'translate-x-6' : 'translate-x-1'">
-                                </div>
+                        <div class="flex items-center gap-3 p-3 rounded-lg bg-muted/50">
+                            <component
+                                :is="isDark ? Moon : Sun"
+                                class="h-4 w-4 text-muted-foreground"
+                            />
+                            <div>
+                                <p class="text-sm font-medium">Mode Saat Ini</p>
+                                <p class="text-xs text-muted-foreground">
+                                    {{ isDark ? 'Dark Mode' : 'Light Mode' }}
+                                    {{ currentTheme === 'system' ? ' (Mengikuti sistem)' : '' }}
+                                </p>
                             </div>
                         </div>
                     </div>
@@ -425,7 +417,7 @@
 </template>
 
 <script setup lang="ts">
-import { Head, Link, useForm } from '@inertiajs/vue3';
+import { Head, Link, useForm, router } from '@inertiajs/vue3';
 import DatePicker from '@/components/ui/date-picker/DatePicker.vue';
 import BottomNavigation from '@/components/BottomNavigation.vue';
 import FaceCapture from '@/components/FaceCapture.vue';
@@ -614,10 +606,15 @@ onMounted(() => {
 
 // Face Recognition Methods
 const handleFaceSetup = async (descriptors: number[][]) => {
+    console.log('Face setup started with descriptors:', descriptors.length);
     const success = await setupFaceRecognition(descriptors);
+    console.log('Face setup result:', success);
+
     if (success) {
-        // Refresh the page to update user data
-        window.location.reload();
+        // Add a short delay then reload page to ensure data is saved
+        setTimeout(() => {
+            window.location.reload();
+        }, 1500);
     }
 };
 

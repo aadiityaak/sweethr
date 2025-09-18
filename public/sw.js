@@ -56,12 +56,17 @@ self.addEventListener('fetch', (event) => {
     return;
   }
 
+  // Skip non-GET requests for caching (POST, PUT, DELETE, etc.)
+  if (event.request.method !== 'GET') {
+    return;
+  }
+
   // Handle API requests differently
   if (event.request.url.includes('/api/')) {
     event.respondWith(
       fetch(event.request)
         .then((response) => {
-          // If successful, clone and cache the response
+          // Cache successful responses
           if (response.status === 200) {
             const responseClone = response.clone();
             caches.open(CACHE_NAME).then((cache) => {

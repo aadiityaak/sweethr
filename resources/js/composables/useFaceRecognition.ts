@@ -84,11 +84,6 @@ export function useFaceRecognition() {
                     variant: 'success',
                 });
 
-                // Reload the page to update the UI state
-                setTimeout(() => {
-                    window.location.reload();
-                }, 1000);
-
                 return true;
             } else {
                 throw new Error(data.message || 'Setup gagal');
