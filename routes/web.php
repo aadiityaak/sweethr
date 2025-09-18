@@ -162,5 +162,20 @@ Route::middleware(['auth', 'verified', 'admin'])->group(function () {
         ->name('admin.announcements.toggle-status');
 });
 
+// PWA routes
+Route::get('/manifest.json', function () {
+    return response()->file(public_path('manifest.json'))
+        ->header('Content-Type', 'application/manifest+json');
+})->name('pwa.manifest');
+
+Route::get('/sw.js', function () {
+    return response()->file(public_path('sw.js'))
+        ->header('Content-Type', 'application/javascript');
+})->name('pwa.service-worker');
+
+Route::get('/offline', function () {
+    return \Inertia\Inertia::render('PWA/Offline');
+})->name('pwa.offline');
+
 require __DIR__.'/settings.php';
 require __DIR__.'/auth.php';

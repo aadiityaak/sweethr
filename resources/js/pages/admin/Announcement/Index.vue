@@ -2,7 +2,7 @@
 import AppLayout from '@/layouts/AppLayout.vue';
 import { type BreadcrumbItem } from '@/types';
 import { Head, Link, useForm } from '@inertiajs/vue3';
-import { Plus, Edit, Trash2, Eye, Toggle, ToggleLeft, Calendar, User, Tag } from 'lucide-vue-next';
+import { Plus, Edit, Trash2, Eye, ToggleLeft, Calendar, User, Tag } from 'lucide-vue-next';
 
 interface AnnouncementCategory {
     id: number;

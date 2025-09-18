@@ -1,0 +1,128 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>PWA Icon Generator</title>
+    <style>
+        body {
+            font-family: Arial, sans-serif;
+            max-width: 800px;
+            margin: 0 auto;
+            padding: 20px;
+        }
+        .icon-preview {
+            margin: 20px 0;
+            text-align: center;
+        }
+        canvas {
+            border: 1px solid #ddd;
+            margin: 10px;
+        }
+        .controls {
+            margin: 20px 0;
+            text-align: center;
+        }
+        input, button {
+            margin: 5px;
+            padding: 10px;
+        }
+        button {
+            background: #3b82f6;
+            color: white;
+            border: none;
+            border-radius: 5px;
+            cursor: pointer;
+        }
+        button:hover {
+            background: #2563eb;
+        }
+    </style>
+</head>
+<body>
+    <h1>SweetHR PWA Icon Generator</h1>
+    <p>This tool generates all required PWA icons for SweetHR application.</p>
+
+    <div class="controls">
+        <label for="appName">App Name:</label>
+        <input type="text" id="appName" value="SweetHR" />
+
+        <label for="bgColor">Background Color:</label>
+        <input type="color" id="bgColor" value="#3b82f6" />
+
+        <label for="textColor">Text Color:</label>
+        <input type="color" id="textColor" value="#ffffff" />
+
+        <button onclick="generateIcons()">Generate Icons</button>
+        <button onclick="downloadAll()">Download All</button>
+    </div>
+
+    <div class="icon-preview" id="iconPreview"></div>
+
+    <script>
+        const iconSizes = [72, 96, 128, 144, 152, 192, 384, 512];
+        let canvases = {};
+
+        function generateIcons() {
+            const appName = document.getElementById('appName').value;
+            const bgColor = document.getElementById('bgColor').value;
+            const textColor = document.getElementById('textColor').value;
+            const preview = document.getElementById('iconPreview');
+
+            preview.innerHTML = '';
+            canvases = {};
+
+            iconSizes.forEach(size => {
+                const canvas = document.createElement('canvas');
+                canvas.width = size;
+                canvas.height = size;
+                const ctx = canvas.getContext('2d');
+
+                // Background
+                ctx.fillStyle = bgColor;
+                ctx.fillRect(0, 0, size, size);
+
+                // Text
+                ctx.fillStyle = textColor;
+                ctx.font = `bold ${size * 0.2}px Arial`;
+                ctx.textAlign = 'center';
+                ctx.textBaseline = 'middle';
+
+                // Draw "HR" text
+                ctx.fillText('HR', size / 2, size / 2);
+
+                // Add to preview
+                const container = document.createElement('div');
+                container.style.display = 'inline-block';
+                container.style.margin = '10px';
+
+                const label = document.createElement('div');
+                label.textContent = `${size}x${size}`;
+                label.style.marginBottom = '5px';
+
+                container.appendChild(label);
+                container.appendChild(canvas);
+                preview.appendChild(container);
+
+                canvases[size] = canvas;
+            });
+        }
+
+        function downloadAll() {
+            Object.entries(canvases).forEach(([size, canvas]) => {
+                canvas.toBlob(blob => {
+                    const url = URL.createObjectURL(blob);
+                    const a = document.createElement('a');
+                    a.href = url;
+                    a.download = `icon-${size}x${size}.png`;
+                    a.click();
+                    URL.revokeObjectURL(url);
+                });
+            });
+        }
+
+        // Generate default icons on load
+        window.onload = () => generateIcons();
+    </script>
+</body>
+</html>
