@@ -462,11 +462,16 @@ const handleCheckInClick = () => {
 // Real-time face detection functions
 const loadFaceApiModels = async () => {
     try {
+        console.log('Loading face-api models...');
+
+        // Load all required models including TinyYolov2 for face detection
         await Promise.all([
+            faceapi.nets.tinyFaceDetector.loadFromUri('/models'),
             faceapi.nets.ssdMobilenetv1.loadFromUri('/models'),
             faceapi.nets.faceLandmark68Net.loadFromUri('/models'),
             faceapi.nets.faceRecognitionNet.loadFromUri('/models'),
         ]);
+
         console.log('Face-api models loaded successfully');
         return true;
     } catch (error) {
@@ -1095,20 +1100,32 @@ onUnmounted(() => {
 
                         </div>
 
-                        <!-- Face Match Confidence Display -->
-                        <div v-if="faceRecognitionStatus.enabled && faceRecognitionStatus.has_descriptors && faceMatchConfidence > 0" class="mt-6 text-center">
-                            <div class="inline-block">
-                                <div class="text-sm text-muted-foreground mb-1">Tingkat Kecocokan</div>
-                                <div class="text-2xl font-bold" :class="{
-                                    'text-green-600': faceMatchConfidence >= 70,
-                                    'text-yellow-600': faceMatchConfidence >= 40 && faceMatchConfidence < 70,
-                                    'text-red-600': faceMatchConfidence < 40
+                        <!-- Face Match Confidence Display - Centered and Prominent -->
+                        <div v-if="faceRecognitionStatus.enabled && faceRecognitionStatus.has_descriptors && faceMatchConfidence > 0" class="mt-8 mb-6 flex justify-center">
+                            <div class="bg-white dark:bg-gray-800 rounded-xl border border-gray-200 dark:border-gray-700 shadow-lg p-6 text-center min-w-[200px]">
+                                <div class="text-sm font-medium text-gray-600 dark:text-gray-400 mb-2">Tingkat Kecocokan Wajah</div>
+                                <div class="text-4xl font-bold mb-2" :class="{
+                                    'text-green-600 dark:text-green-400': faceMatchConfidence >= 70,
+                                    'text-yellow-600 dark:text-yellow-400': faceMatchConfidence >= 40 && faceMatchConfidence < 70,
+                                    'text-red-600 dark:text-red-400': faceMatchConfidence < 40
                                 }">
                                     {{ Math.round(faceMatchConfidence) }}%
                                 </div>
-                                <div class="text-xs text-muted-foreground">
-                                    {{ faceMatchConfidence >= 70 ? 'Sangat Cocok' :
-                                       faceMatchConfidence >= 40 ? 'Cukup Cocok' : 'Kurang Cocok' }}
+                                <div class="text-sm font-medium" :class="{
+                                    'text-green-600 dark:text-green-400': faceMatchConfidence >= 70,
+                                    'text-yellow-600 dark:text-yellow-400': faceMatchConfidence >= 40 && faceMatchConfidence < 70,
+                                    'text-red-600 dark:text-red-400': faceMatchConfidence < 40
+                                }">
+                                    {{ faceMatchConfidence >= 70 ? '✅ Sangat Cocok' :
+                                       faceMatchConfidence >= 40 ? '⚠️ Cukup Cocok' : '❌ Kurang Cocok' }}
+                                </div>
+                                <!-- Progress bar -->
+                                <div class="mt-3 w-full bg-gray-200 dark:bg-gray-700 rounded-full h-2">
+                                    <div class="h-2 rounded-full transition-all duration-300" :class="{
+                                        'bg-green-500': faceMatchConfidence >= 70,
+                                        'bg-yellow-500': faceMatchConfidence >= 40 && faceMatchConfidence < 70,
+                                        'bg-red-500': faceMatchConfidence < 40
+                                    }" :style="{ width: faceMatchConfidence + '%' }"></div>
                                 </div>
                             </div>
                         </div>

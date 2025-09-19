@@ -61,7 +61,9 @@ class DashboardController extends Controller
 
     public function welcome(): Response
     {
-        $user = auth()->user();
+        // Get fresh user data from database to avoid cache issues
+        $userId = auth()->id();
+        $user = \App\Models\User::find($userId);
 
         // Force refresh user data from database to ensure fresh face recognition data
         $user->refresh();
@@ -115,8 +117,25 @@ class DashboardController extends Controller
             ->limit(5)
             ->get();
 
+        // Prepare user data for frontend with explicit values
+        $userData = $user->load(['department', 'position'])->makeVisible(['face_recognition_enabled', 'face_recognition_mandatory', 'face_setup_at'])->toArray();
+        $userData['face_recognition_enabled'] = (bool) $user->face_recognition_enabled;
+        $userData['face_recognition_mandatory'] = (bool) $user->face_recognition_mandatory;
+        $userData['face_setup_at'] = $user->face_setup_at?->toISOString();
+        $userData['_cache_buster'] = now()->timestamp;
+
+        \Log::info('DashboardController welcome() - Final data being sent to frontend', [
+            'user_id' => $user->id,
+            'face_recognition_enabled' => $userData['face_recognition_enabled'],
+            'face_recognition_mandatory' => $userData['face_recognition_mandatory'],
+            'face_setup_at' => $userData['face_setup_at'],
+            'has_face_descriptors' => !empty($user->face_descriptors),
+            'faceRecognitionEnabled_prop' => $faceRecognitionEnabled,
+            'faceDescriptors_available' => !empty($faceDescriptors),
+        ]);
+
         return Inertia::render('user/Welcome', [
-            'user' => $user->load(['department', 'position'])->makeVisible(['face_recognition_enabled', 'face_recognition_mandatory', 'face_setup_at']),
+            'user' => $userData,
             'todayAttendance' => $todayAttendance,
             'officeLocations' => $officeLocations,
             'stats' => $stats,

@@ -1,4 +1,4 @@
-const CACHE_NAME = 'sweethr-v3'; // Updated to clear face recognition cache
+const CACHE_NAME = 'sweethr-v5'; // No caching for face-api models and sensitive data
 const urlsToCache = [
   '/',
   '/manifest.json',
@@ -57,21 +57,17 @@ self.addEventListener('activate', (event) => {
 // Clear face recognition related cache
 async function clearFaceRecognitionCache() {
   try {
-    const cache = await caches.open(CACHE_NAME);
-    const requests = await cache.keys();
+    const cacheNames = await caches.keys();
 
-    const faceRecognitionRequests = requests.filter(request =>
-      request.url.includes('/api/face-recognition/') ||
-      request.url.includes('/user/profile') ||
-      request.url.includes('/api/user/')
-    );
-
-    for (const request of faceRecognitionRequests) {
-      console.log('SW: Clearing face recognition cache:', request.url);
-      await cache.delete(request);
+    // Clear all caches to ensure no stale data
+    for (const cacheName of cacheNames) {
+      console.log('SW: Clearing all cache:', cacheName);
+      await caches.delete(cacheName);
     }
+
+    console.log('SW: All caches cleared successfully');
   } catch (error) {
-    console.log('SW: Error clearing face recognition cache:', error);
+    console.log('SW: Error clearing caches:', error);
   }
 }
 
@@ -84,6 +80,16 @@ self.addEventListener('fetch', (event) => {
 
   // Skip non-GET requests for caching (POST, PUT, DELETE, etc.)
   if (event.request.method !== 'GET') {
+    return;
+  }
+
+  // Handle model files - always fetch fresh to avoid stale face-api models
+  if (event.request.url.includes('/models/')) {
+    event.respondWith(
+      fetch(event.request).catch(() => {
+        return new Response('Model not available offline', { status: 503 });
+      })
+    );
     return;
   }
 
@@ -158,7 +164,33 @@ self.addEventListener('fetch', (event) => {
     return;
   }
 
-  // Handle page requests
+  // Handle page requests - BUT exclude sensitive pages with face recognition data
+  const sensitivePages = [
+    '/',
+    '/user/profile',
+    '/dashboard',
+    '/welcome'
+  ];
+
+  const isSensitivePage = sensitivePages.some(page => {
+    const url = new URL(event.request.url);
+    return url.pathname === page || url.pathname.startsWith(page + '/');
+  });
+
+  if (isSensitivePage) {
+    // Always fetch fresh data for sensitive pages, no caching
+    event.respondWith(
+      fetch(event.request).catch(() => {
+        // If network fails, return offline page
+        if (event.request.destination === 'document') {
+          return caches.match('/offline.html');
+        }
+      })
+    );
+    return;
+  }
+
+  // Handle other page requests with normal caching
   event.respondWith(
     caches.match(event.request)
       .then((response) => {
