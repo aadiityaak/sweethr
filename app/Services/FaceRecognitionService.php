@@ -37,10 +37,16 @@ class FaceRecognitionService
                     throw new \Exception('Face recognition not enabled after update');
                 }
 
+                // Force session user refresh - critical for avoiding stale data
+                if (auth()->check() && auth()->id() === $user->id) {
+                    auth()->setUser($user);
+                }
+
                 Log::info('Face descriptors stored for user', [
                     'user_id' => $user->id,
                     'enabled' => $user->face_recognition_enabled,
                     'setup_at' => $user->face_setup_at,
+                    'session_refreshed' => true,
                 ]);
 
                 return true;
@@ -189,9 +195,15 @@ class FaceRecognitionService
                     throw new \Exception('Face recognition still enabled after deletion');
                 }
 
+                // Force session user refresh - critical for avoiding stale data
+                if (auth()->check() && auth()->id() === $user->id) {
+                    auth()->setUser($user);
+                }
+
                 Log::info('Face data deleted for user', [
                     'user_id' => $user->id,
                     'enabled' => $user->face_recognition_enabled,
+                    'session_refreshed' => true,
                 ]);
 
                 return true;

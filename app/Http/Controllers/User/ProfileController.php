@@ -15,8 +15,11 @@ class ProfileController extends Controller
 {
     public function show(): Response
     {
-        // Force fresh user data from database
-        $user = auth()->user()->load(['department:id,name', 'position:id,title']);
+        // Force completely fresh user data from database - bypass all caching
+        $userId = auth()->id();
+        $user = \App\Models\User::with(['department:id,name', 'position:id,title'])->find($userId);
+
+        // Double check - force refresh again
         $user->refresh();
 
         // Debug: Log what we're sending

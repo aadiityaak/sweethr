@@ -608,11 +608,25 @@ onMounted(async () => {
     applyTheme(savedTheme);
 
     // Initialize face recognition status from props
+    console.log('Profile.vue onMounted - initializing with user data:', {
+        face_recognition_enabled: user.face_recognition_enabled,
+        face_recognition_mandatory: user.face_recognition_mandatory,
+        face_setup_at: user.face_setup_at,
+        has_face_descriptors: !!user.face_descriptors
+    });
+
     await initializeFaceRecognitionStatus({
         face_recognition_enabled: user.face_recognition_enabled,
         face_recognition_mandatory: user.face_recognition_mandatory,
         face_setup_at: user.face_setup_at,
         face_descriptors: user.face_descriptors
+    });
+
+    console.log('Profile.vue onMounted - after init, reactive status:', {
+        enabled: faceRecognitionStatus.value.enabled,
+        mandatory: faceRecognitionStatus.value.mandatory,
+        setup_at: faceRecognitionStatus.value.setup_at,
+        has_descriptors: faceRecognitionStatus.value.has_descriptors
     });
 
     // Listen for system theme changes

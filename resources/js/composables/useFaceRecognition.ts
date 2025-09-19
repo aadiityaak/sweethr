@@ -159,7 +159,7 @@ export function useFaceRecognition() {
                 setTimeout(() => {
                     console.log('Face recognition setup completed - refreshing pages for global sync');
                     router.reload({ preserveState: false, preserveScroll: false });
-                }, 1000);
+                }, 500); // Quick refresh after backend session is updated
 
                 return true;
             } else {
@@ -287,12 +287,16 @@ export function useFaceRecognition() {
                 faceDescriptors.value = [];
 
                 // Update reactive status immediately
-                faceRecognitionStatus.value = {
+                const newStatus = {
                     enabled: false,
                     mandatory: faceRecognitionStatus.value.mandatory,
                     setup_at: null,
                     has_descriptors: false,
                 };
+
+                console.log('Before updating global state:', faceRecognitionStatus.value);
+                faceRecognitionStatus.value = newStatus;
+                console.log('After updating global state:', faceRecognitionStatus.value);
 
                 toast({
                     title: '✅ Data Dihapus',
@@ -300,10 +304,11 @@ export function useFaceRecognition() {
                     variant: 'success',
                 });
 
-                console.log('Face data deleted - status updated:', {
+                console.log('Face data deleted - final status check:', {
                     enabled: faceRecognitionStatus.value.enabled,
                     has_descriptors: faceRecognitionStatus.value.has_descriptors,
-                    descriptors_length: faceDescriptors.value.length
+                    descriptors_length: faceDescriptors.value.length,
+                    global_state_ref: faceRecognitionStatus
                 });
 
                 // Refresh the status from server to ensure consistency
@@ -313,7 +318,7 @@ export function useFaceRecognition() {
                 setTimeout(() => {
                     console.log('Face recognition deleted - refreshing pages for global sync');
                     router.reload({ preserveState: false, preserveScroll: false });
-                }, 1000);
+                }, 500); // Quick refresh after backend session is updated
 
                 return true;
             } else {
@@ -420,20 +425,30 @@ export function useFaceRecognition() {
 
     // Initialize status function for components to call
     const initializeFaceRecognitionStatus = async (initialData?: any) => {
+        console.log('initializeFaceRecognitionStatus called with:', initialData);
+
         if (initialData) {
             // Initialize from props/server data
-            faceRecognitionStatus.value = {
+            const newStatus = {
                 enabled: initialData.face_recognition_enabled || false,
                 mandatory: initialData.face_recognition_mandatory || false,
                 setup_at: initialData.face_setup_at || null,
                 has_descriptors: !!initialData.face_descriptors,
             };
 
+            console.log('Setting faceRecognitionStatus to:', newStatus);
+            faceRecognitionStatus.value = newStatus;
+
             if (initialData.face_descriptors) {
                 faceDescriptors.value = initialData.face_descriptors;
+            } else {
+                faceDescriptors.value = [];
             }
+
+            console.log('After initialization - faceRecognitionStatus.value:', faceRecognitionStatus.value);
         } else {
             // Fetch from API
+            console.log('No initial data - fetching from API');
             await refreshStatus();
         }
     };
