@@ -263,7 +263,7 @@
 
                     <div class="space-y-4">
                         <!-- Face Recognition Status -->
-                        <div v-if="user.face_recognition_enabled" class="rounded-lg bg-green-50 dark:bg-green-950/20 border border-green-200 dark:border-green-800 p-4">
+                        <div v-if="faceRecognitionStatus.enabled" class="rounded-lg bg-green-50 dark:bg-green-950/20 border border-green-200 dark:border-green-800 p-4">
                             <div class="flex items-start gap-3">
                                 <div class="rounded-lg bg-green-100 dark:bg-green-900/50 p-2">
                                     <CheckCircle class="h-5 w-5 text-green-600 dark:text-green-400" />
@@ -273,8 +273,8 @@
                                     <p class="text-sm text-green-700 dark:text-green-300 mt-1">
                                         Pengenalan wajah sudah diaktifkan untuk akun Anda.
                                     </p>
-                                    <p v-if="user.face_setup_at" class="text-xs text-green-600 dark:text-green-400 mt-1">
-                                        Setup pada: {{ new Date(user.face_setup_at).toLocaleDateString('id-ID') }}
+                                    <p v-if="faceRecognitionStatus.setup_at" class="text-xs text-green-600 dark:text-green-400 mt-1">
+                                        Setup pada: {{ new Date(faceRecognitionStatus.setup_at).toLocaleDateString('id-ID') }}
                                     </p>
                                 </div>
                             </div>
@@ -297,7 +297,7 @@
                         <!-- Action Buttons -->
                         <div class="flex gap-3 pt-2">
                             <button
-                                v-if="!user.face_recognition_enabled"
+                                v-if="!faceRecognitionStatus.enabled"
                                 @click="openFaceSetup"
                                 :disabled="faceLoading"
                                 class="inline-flex items-center rounded-lg bg-green-600 px-4 py-2 text-sm font-medium text-white hover:bg-green-700 focus:outline-none focus:ring-2 focus:ring-green-500 focus:ring-offset-2 disabled:opacity-50"
@@ -307,7 +307,7 @@
                             </button>
 
                             <button
-                                v-if="user.face_recognition_enabled"
+                                v-if="faceRecognitionStatus.enabled"
                                 @click="openFaceSetup"
                                 :disabled="faceLoading"
                                 class="inline-flex items-center rounded-lg bg-blue-600 px-4 py-2 text-sm font-medium text-white hover:bg-blue-700 focus:outline-none focus:ring-2 focus:ring-blue-500 focus:ring-offset-2 disabled:opacity-50"
@@ -317,7 +317,7 @@
                             </button>
 
                             <button
-                                v-if="user.face_recognition_enabled"
+                                v-if="faceRecognitionStatus.enabled"
                                 @click="handleDeleteFaceData"
                                 :disabled="faceLoading"
                                 class="inline-flex items-center rounded-lg bg-red-600 px-3 py-2 text-sm font-medium text-white hover:bg-red-700 focus:outline-none focus:ring-2 focus:ring-red-500 focus:ring-offset-2 disabled:opacity-50"
@@ -328,7 +328,7 @@
                         </div>
 
                         <!-- Warning for mandatory users -->
-                        <div v-if="user.face_recognition_mandatory && !user.face_recognition_enabled" class="rounded-lg bg-red-50 dark:bg-red-950/20 border border-red-200 dark:border-red-800 p-3">
+                        <div v-if="faceRecognitionStatus.mandatory && !faceRecognitionStatus.enabled" class="rounded-lg bg-red-50 dark:bg-red-950/20 border border-red-200 dark:border-red-800 p-3">
                             <p class="text-sm text-red-700 dark:text-red-300">
                                 ⚠️ <strong>Wajib:</strong> Face recognition diperlukan untuk akun Anda. Silakan setup sekarang.
                             </p>
@@ -497,7 +497,10 @@ const {
     deleteFaceData,
     openFaceSetup,
     closeFaceCapture,
-    handleFaceCaptureError
+    handleFaceCaptureError,
+    faceRecognitionStatus,
+    initializeFaceRecognitionStatus,
+    refreshStatus
 } = useFaceRecognition();
 
 // Edit states
@@ -599,10 +602,18 @@ const setTheme = (theme: Theme) => {
     applyTheme(theme);
 };
 
-onMounted(() => {
+onMounted(async () => {
     const savedTheme = localStorage.getItem('theme') as Theme || 'light';
     currentTheme.value = savedTheme;
     applyTheme(savedTheme);
+
+    // Initialize face recognition status from props
+    await initializeFaceRecognitionStatus({
+        face_recognition_enabled: user.face_recognition_enabled,
+        face_recognition_mandatory: user.face_recognition_mandatory,
+        face_setup_at: user.face_setup_at,
+        face_descriptors: user.face_descriptors
+    });
 
     // Listen for system theme changes
     window.matchMedia('(prefers-color-scheme: dark)').addEventListener('change', () => {
@@ -621,16 +632,8 @@ const handleFaceSetup = async (descriptors: number[][]) => {
     console.log('Face setup result:', success);
 
     if (success) {
-        console.log('Setup successful - refreshing page...');
-
-        // Use Inertia reload for better state management with cache busting
-        setTimeout(() => {
-            router.reload({
-                only: ['user'],
-                preserveState: false, // Don't preserve state to ensure fresh data
-                preserveScroll: false // Don't preserve scroll to reset view
-            });
-        }, 1000);
+        console.log('Setup successful - status should be updated reactively');
+        // No need to reload page as status is now reactive
     } else {
         console.error('Setup failed');
     }
@@ -640,12 +643,8 @@ const handleDeleteFaceData = async () => {
     if (confirm('Apakah Anda yakin ingin menghapus data face recognition? Anda perlu setup ulang nanti.')) {
         const success = await deleteFaceData();
         if (success) {
-            // Use Inertia reload for better state management with cache busting
-            router.reload({
-                only: ['user'],
-                preserveState: false, // Don't preserve state to ensure fresh data
-                preserveScroll: false // Don't preserve scroll to reset view
-            });
+            console.log('Delete successful - status should be updated reactively');
+            // No need to reload page as status is now reactive
         }
     }
 };

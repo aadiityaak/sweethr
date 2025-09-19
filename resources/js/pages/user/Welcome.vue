@@ -4,6 +4,7 @@ import { ref, onMounted, onUnmounted } from 'vue';
 import { Clock, Calendar, CheckCircle, User, MapPin, LogOut, UserCircle, BarChart3, Loader2, Eye } from 'lucide-vue-next';
 import { useCompanySettings } from '@/composables/useCompanySettings';
 import { useToast } from '@/components/ui/toast/use-toast';
+import { useFaceRecognition } from '@/composables/useFaceRecognition';
 import BottomNavigation from '@/components/BottomNavigation.vue';
 import * as faceapi from 'face-api.js';
 import { Dialog, DialogContent, DialogDescription, DialogHeader, DialogTitle } from '@/components/ui/dialog';
@@ -91,6 +92,13 @@ const { user, todayAttendance, officeLocations, stats, faceRecognitionEnabled, f
 
 const { companyName, companyLogo } = useCompanySettings();
 const { toast } = useToast();
+
+// Face recognition composable for reactive status
+const {
+    faceRecognitionStatus,
+    initializeFaceRecognitionStatus,
+    refreshStatus
+} = useFaceRecognition();
 
 // Alert modal function
 const showAlert = (title: string, message: string, variant: 'success' | 'destructive' | 'warning' | 'default' = 'destructive') => {
@@ -330,7 +338,7 @@ const performCheckIn = () => {
     }
 
     // Check if face recognition is required and captured
-    if (faceRecognitionEnabled && faceDescriptors && faceDescriptors.length > 0) {
+    if (faceRecognitionStatus.value.enabled && faceRecognitionStatus.value.has_descriptors) {
         if (!isFaceCaptured.value) {
             showAlert(
                 '❌ Verifikasi Wajah Diperlukan',
@@ -350,7 +358,7 @@ const executeCheckIn = () => {
     isCheckingIn.value = true;
 
     // Set face confidence and photo if face recognition is enabled and captured
-    if (faceRecognitionEnabled && faceDescriptors && faceDescriptors.length > 0 && capturedFaceData.value) {
+    if (faceRecognitionStatus.value.enabled && faceRecognitionStatus.value.has_descriptors && capturedFaceData.value) {
         console.log('Setting face data:', {
             confidence: capturedFaceData.value.confidence,
             hasImage: !!capturedFaceData.value.imageDataUrl,
@@ -360,8 +368,8 @@ const executeCheckIn = () => {
         form.face_photo = capturedFaceData.value.imageDataUrl;
     } else {
         console.log('Face data not available:', {
-            faceRecognitionEnabled,
-            hasDescriptors: faceDescriptors?.length > 0,
+            faceRecognitionEnabled: faceRecognitionStatus.value.enabled,
+            hasDescriptors: faceRecognitionStatus.value.has_descriptors,
             hasCapturedData: !!capturedFaceData.value
         });
     }
@@ -408,7 +416,7 @@ const executeCheckIn = () => {
 };
 
 const handleCheckInClick = () => {
-    console.log('Check-in clicked - locationStatus:', locationStatus.value, 'isInRange:', isInRange.value, 'faceRecognitionEnabled:', faceRecognitionEnabled, 'faceDescriptors:', faceDescriptors?.length, 'isFaceCaptured:', isFaceCaptured.value);
+    console.log('Check-in clicked - locationStatus:', locationStatus.value, 'isInRange:', isInRange.value, 'faceRecognitionEnabled:', faceRecognitionStatus.value.enabled, 'hasDescriptors:', faceRecognitionStatus.value.has_descriptors, 'isFaceCaptured:', isFaceCaptured.value);
 
     if (locationStatus.value === 'idle' || locationStatus.value === 'error') {
         console.log('Getting current location...');
@@ -431,7 +439,7 @@ const handleCheckInClick = () => {
                 variant: 'destructive',
                 duration: 4000,
             });
-        } else if (faceRecognitionEnabled && faceDescriptors && !isFaceCaptured.value) {
+        } else if (faceRecognitionStatus.value.enabled && faceRecognitionStatus.value.has_descriptors && !isFaceCaptured.value) {
             toast({
                 title: '❌ Verifikasi Wajah Diperlukan',
                 description: 'Posisikan wajah Anda di depan kamera untuk verifikasi sebelum check-in.',
@@ -473,7 +481,7 @@ const loadFaceApiModels = async () => {
 };
 
 const startFaceDetection = async () => {
-    if (!faceRecognitionEnabled || !faceDescriptors || faceDescriptors.length === 0) {
+    if (!faceRecognitionStatus.value.enabled || !faceRecognitionStatus.value.has_descriptors) {
         return;
     }
 
@@ -537,7 +545,7 @@ const startDetectionLoop = () => {
 };
 
 const detectFace = async () => {
-    if (!videoElement.value || !canvasElement.value || !faceDescriptors) {
+    if (!videoElement.value || !canvasElement.value || !faceDescriptors.value) {
         return;
     }
 
@@ -556,7 +564,7 @@ const detectFace = async () => {
 
         if (detection) {
             // Compare with stored descriptors
-            const storedDescriptors = faceDescriptors.map(desc => new Float32Array(desc));
+            const storedDescriptors = faceDescriptors.value.map(desc => new Float32Array(desc));
             const currentDescriptor = detection.descriptor;
 
             let bestMatch = 0;
@@ -758,12 +766,20 @@ const handleCheckOutClick = () => {
     }
 };
 
-onMounted(() => {
+onMounted(async () => {
     updateTime();
     timeInterval = window.setInterval(updateTime, 1000);
 
+    // Initialize face recognition status from props
+    await initializeFaceRecognitionStatus({
+        face_recognition_enabled: faceRecognitionEnabled,
+        face_recognition_mandatory: user?.face_recognition_mandatory,
+        face_setup_at: user?.face_setup_at,
+        face_descriptors: faceDescriptors
+    });
+
     // Start face detection if enabled and user hasn't checked in yet
-    if (faceRecognitionEnabled && !todayAttendance?.check_in_time) {
+    if (faceRecognitionStatus.value.enabled && faceRecognitionStatus.value.has_descriptors && !todayAttendance?.check_in_time) {
         startFaceDetection();
     }
 });
@@ -922,7 +938,7 @@ onUnmounted(() => {
                     </div>
 
                     <!-- Face Recognition Warning -->
-                    <div v-if="!faceRecognitionEnabled || !faceDescriptors || faceDescriptors.length === 0" class="mt-4 rounded-lg border border-orange-200 dark:border-orange-800 bg-orange-50 dark:bg-orange-900/20 p-4">
+                    <div v-if="!faceRecognitionStatus.enabled || !faceRecognitionStatus.has_descriptors" class="mt-4 rounded-lg border border-orange-200 dark:border-orange-800 bg-orange-50 dark:bg-orange-900/20 p-4">
                         <div class="flex items-start gap-3">
                             <div class="flex-shrink-0">
                                 <div class="w-10 h-10 rounded-md bg-orange-100 dark:bg-orange-900/30 flex items-center justify-center">
@@ -948,7 +964,7 @@ onUnmounted(() => {
                     </div>
 
                     <!-- Real-time Face Recognition -->
-                    <div v-if="faceRecognitionEnabled && faceDescriptors && faceDescriptors.length > 0 && !todayAttendance?.check_in_time" class="mt-4 flex justify-center">
+                    <div v-if="faceRecognitionStatus.enabled && faceRecognitionStatus.has_descriptors && !todayAttendance?.check_in_time" class="mt-4 flex justify-center">
                         <div class="relative">
                             <!-- Face Captured State -->
                             <div v-if="isFaceCaptured" class="w-64 h-64 sm:w-80 sm:h-80 rounded-full overflow-hidden border-4 border-green-500 relative bg-gray-900">
@@ -1057,7 +1073,7 @@ onUnmounted(() => {
                         </div>
 
                         <!-- Face Match Confidence Display -->
-                        <div v-if="faceRecognitionEnabled && faceDescriptors && faceDescriptors.length > 0 && faceMatchConfidence > 0" class="mt-6 text-center">
+                        <div v-if="faceRecognitionStatus.enabled && faceRecognitionStatus.has_descriptors && faceMatchConfidence > 0" class="mt-6 text-center">
                             <div class="inline-block">
                                 <div class="text-sm text-muted-foreground mb-1">Tingkat Kecocokan</div>
                                 <div class="text-2xl font-bold" :class="{
@@ -1088,25 +1104,25 @@ onUnmounted(() => {
                         <button
                             v-if="!todayAttendance?.check_in_time"
                             @click="handleCheckInClick"
-                            :disabled="isCheckingIn || (locationStatus === 'success' && !isInRange) || (faceRecognitionEnabled && faceDescriptors && faceDescriptors.length > 0 && !isFaceCaptured) || (!faceRecognitionEnabled || !faceDescriptors || faceDescriptors.length === 0)"
+                            :disabled="isCheckingIn || (locationStatus === 'success' && !isInRange) || (faceRecognitionStatus.enabled && faceRecognitionStatus.has_descriptors && !isFaceCaptured) || (!faceRecognitionStatus.enabled || !faceRecognitionStatus.has_descriptors)"
                             class="flex items-center justify-center gap-2 rounded-md px-4 py-4 text-white font-medium transition-colors shadow-sm disabled:opacity-50 disabled:cursor-not-allowed"
                             :class="{
-                                'bg-green-600 hover:bg-green-700': (locationStatus === 'idle' || locationStatus === 'error' || (locationStatus === 'success' && isInRange)) && faceRecognitionEnabled && faceDescriptors && faceDescriptors.length > 0 && isFaceCaptured,
+                                'bg-green-600 hover:bg-green-700': (locationStatus === 'idle' || locationStatus === 'error' || (locationStatus === 'success' && isInRange)) && faceRecognitionStatus.enabled && faceRecognitionStatus.has_descriptors && isFaceCaptured,
                                 'bg-blue-600 hover:bg-blue-700': locationStatus === 'loading',
-                                'bg-gray-500': (locationStatus === 'success' && !isInRange) || (faceRecognitionEnabled && faceDescriptors && faceDescriptors.length > 0 && !isFaceCaptured) || (!faceRecognitionEnabled || !faceDescriptors || faceDescriptors.length === 0),
-                                'bg-orange-500': faceRecognitionEnabled && faceDescriptors && faceDescriptors.length > 0 && faceMatchConfidence > 0 && !isFaceCaptured
+                                'bg-gray-500': (locationStatus === 'success' && !isInRange) || (faceRecognitionStatus.enabled && faceRecognitionStatus.has_descriptors && !isFaceCaptured) || (!faceRecognitionStatus.enabled || !faceRecognitionStatus.has_descriptors),
+                                'bg-orange-500': faceRecognitionStatus.enabled && faceRecognitionStatus.has_descriptors && faceMatchConfidence > 0 && !isFaceCaptured
                             }"
                         >
                             <Loader2 v-if="locationStatus === 'loading' || isCheckingIn" class="h-5 w-5 animate-spin" />
                             <CheckCircle v-else-if="isFaceCaptured && isInRange" class="h-5 w-5" />
-                            <Eye v-else-if="faceRecognitionEnabled && faceDescriptors && !isFaceCaptured" class="h-5 w-5" />
+                            <Eye v-else-if="faceRecognitionStatus.enabled && faceRecognitionStatus.has_descriptors && !isFaceCaptured" class="h-5 w-5" />
                             <Clock v-else class="h-5 w-5" />
                             <span class="text-sm">
                                 {{ isCheckingIn ? 'Sedang Check In...' :
                                    locationStatus === 'loading' ? 'Mencari Lokasi...' :
                                    locationStatus === 'success' && !isInRange ? 'Di Luar Area' :
-                                   (!faceRecognitionEnabled || !faceDescriptors || faceDescriptors.length === 0) ? 'Tidak Tersedia' :
-                                   faceRecognitionEnabled && faceDescriptors && faceDescriptors.length > 0 && !isFaceCaptured ? 'Tunggu Verifikasi' :
+                                   (!faceRecognitionStatus.enabled || !faceRecognitionStatus.has_descriptors) ? 'Tidak Tersedia' :
+                                   faceRecognitionStatus.enabled && faceRecognitionStatus.has_descriptors && !isFaceCaptured ? 'Tunggu Verifikasi' :
                                    isFaceCaptured && isInRange ? 'Siap Check In!' :
                                    locationStatus === 'error' ? 'Coba Lagi' :
                                    'Check In' }}

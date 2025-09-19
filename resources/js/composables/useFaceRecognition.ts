@@ -11,6 +11,13 @@ interface FaceRecognitionResult {
     error?: string;
 }
 
+interface FaceRecognitionStatus {
+    enabled: boolean;
+    mandatory: boolean;
+    setup_at: string | null;
+    has_descriptors: boolean;
+}
+
 export function useFaceRecognition() {
     const { toast } = useToast();
 
@@ -19,6 +26,14 @@ export function useFaceRecognition() {
     const faceDescriptors = ref<number[][]>([]);
     const isSetupMode = ref(false);
     const verificationResult = ref<FaceRecognitionResult | null>(null);
+
+    // Reactive face recognition status
+    const faceRecognitionStatus = ref<FaceRecognitionStatus>({
+        enabled: false,
+        mandatory: false,
+        setup_at: null,
+        has_descriptors: false,
+    });
 
     const isSetupComplete = computed(() => {
         return faceDescriptors.value.length > 0;
@@ -111,14 +126,26 @@ export function useFaceRecognition() {
                 faceDescriptors.value = descriptors;
                 showFaceCapture.value = false;
 
+                // Update reactive status immediately
+                faceRecognitionStatus.value = {
+                    enabled: true,
+                    mandatory: faceRecognitionStatus.value.mandatory,
+                    setup_at: new Date().toISOString(),
+                    has_descriptors: true,
+                };
+
                 toast({
                     title: '✅ Setup Berhasil!',
-                    description: 'Pengenalan wajah telah berhasil diaktifkan. Halaman akan diperbarui dalam 1 detik.',
+                    description: 'Pengenalan wajah telah berhasil diaktifkan.',
                     variant: 'success',
                 });
 
                 console.log('=== SETUP COMPLETED SUCCESSFULLY ===');
                 console.log('Face recognition enabled in backend:', data.data?.face_recognition_enabled);
+
+                // Refresh the status from server to ensure consistency
+                await refreshStatus();
+
                 return true;
             } else {
                 console.error('Setup failed with response:', data);
@@ -243,17 +270,23 @@ export function useFaceRecognition() {
             if (data.success) {
                 faceDescriptors.value = [];
 
+                // Update reactive status immediately
+                faceRecognitionStatus.value = {
+                    enabled: false,
+                    mandatory: faceRecognitionStatus.value.mandatory,
+                    setup_at: null,
+                    has_descriptors: false,
+                };
+
                 toast({
                     title: '✅ Data Dihapus',
                     description: 'Data pengenalan wajah telah dihapus.',
                     variant: 'success',
                 });
 
-                // Refresh page to update UI state with cache busting
-                router.reload({
-                    preserveState: false, // Don't preserve state to ensure fresh data
-                    preserveScroll: false // Don't preserve scroll to reset view
-                });
+                // Refresh the status from server to ensure consistency
+                await refreshStatus();
+
                 return true;
             } else {
                 throw new Error(data.message || 'Gagal menghapus data');
@@ -295,14 +328,15 @@ export function useFaceRecognition() {
         });
     };
 
-    const checkFaceRecognitionStatus = async () => {
+    const refreshStatus = async () => {
         try {
             const response = await fetch('/api/face-recognition/status', {
                 headers: {
                     'Accept': 'application/json',
                 },
-                credentials: 'include', // Include cookies for session authentication
+                credentials: 'include',
             });
+
             if (!response.ok) {
                 if (response.status === 401) {
                     return { enabled: false, error: 'Not authenticated' };
@@ -313,14 +347,66 @@ export function useFaceRecognition() {
 
             const data = await response.json();
 
-            if (data.enabled) {
-                faceDescriptors.value = data.descriptors || [];
+            // Update reactive status
+            faceRecognitionStatus.value = {
+                enabled: data.enabled || false,
+                mandatory: data.mandatory || false,
+                setup_at: data.setup_at || null,
+                has_descriptors: data.has_descriptors || false,
+            };
+
+            // Update descriptors if available
+            if (data.enabled && data.has_descriptors) {
+                // Fetch descriptors separately for security
+                try {
+                    const descriptorsResponse = await fetch('/api/face-recognition/descriptors', {
+                        headers: {
+                            'Accept': 'application/json',
+                        },
+                        credentials: 'include',
+                    });
+
+                    if (descriptorsResponse.ok) {
+                        const descriptorsData = await descriptorsResponse.json();
+                        if (descriptorsData.success && descriptorsData.descriptors) {
+                            faceDescriptors.value = descriptorsData.descriptors;
+                        }
+                    }
+                } catch (error) {
+                    console.log('Descriptors not available (normal for setup)', error);
+                }
+            } else {
+                faceDescriptors.value = [];
             }
 
             return data;
         } catch (error) {
-            console.error('Face recognition status check error:', error);
+            console.error('Face recognition status refresh error:', error);
             return { enabled: false };
+        }
+    };
+
+    const checkFaceRecognitionStatus = async () => {
+        return await refreshStatus();
+    };
+
+    // Initialize status function for components to call
+    const initializeFaceRecognitionStatus = async (initialData?: any) => {
+        if (initialData) {
+            // Initialize from props/server data
+            faceRecognitionStatus.value = {
+                enabled: initialData.face_recognition_enabled || false,
+                mandatory: initialData.face_recognition_mandatory || false,
+                setup_at: initialData.face_setup_at || null,
+                has_descriptors: !!initialData.face_descriptors,
+            };
+
+            if (initialData.face_descriptors) {
+                faceDescriptors.value = initialData.face_descriptors;
+            }
+        } else {
+            // Fetch from API
+            await refreshStatus();
         }
     };
 
@@ -331,6 +417,7 @@ export function useFaceRecognition() {
         faceDescriptors,
         isSetupMode,
         verificationResult,
+        faceRecognitionStatus,
 
         // Computed
         isSetupComplete,
@@ -344,5 +431,7 @@ export function useFaceRecognition() {
         closeFaceCapture,
         handleFaceCaptureError,
         checkFaceRecognitionStatus,
+        refreshStatus,
+        initializeFaceRecognitionStatus,
     };
 }
