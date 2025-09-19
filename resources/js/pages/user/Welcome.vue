@@ -1012,15 +1012,15 @@ onUnmounted(() => {
                                 </div>
 
                                 <!-- Confidence Badge -->
-                                <div class="absolute top-4 right-4 bg-black/70 backdrop-blur-sm rounded-full px-3 py-1">
-                                    <span class="text-white text-sm font-medium">{{ capturedFaceData?.confidence }}%</span>
+                                <div class="absolute top-6 left-1/2 transform -translate-x-1/2 -translate-y-1/2 backdrop-blur-sm rounded-full px-4 py-1">
+                                    <span class="text-white text-lg font-bold">{{ capturedFaceData?.confidence }}%</span>
                                 </div>
 
                                 <!-- Reset Button -->
                                 <div class="absolute bottom-4 left-1/2 transform -translate-x-1/2">
                                     <button
                                         @click="resetCapture"
-                                        class="bg-black/70 backdrop-blur-sm hover:bg-black/80 text-white px-4 py-2 rounded-full text-sm font-medium transition-colors"
+                                        class="backdrop-blur-sm hover:bg-black/80 text-white px-4 py-2 rounded-full text-sm font-medium transition-colors"
                                     >
                                         Ulangi
                                     </button>
@@ -1100,35 +1100,6 @@ onUnmounted(() => {
 
                         </div>
 
-                        <!-- Face Match Confidence Display - Centered and Prominent -->
-                        <div v-if="faceRecognitionStatus.enabled && faceRecognitionStatus.has_descriptors && faceMatchConfidence > 0" class="mt-8 mb-6 flex justify-center">
-                            <div class="bg-white dark:bg-gray-800 rounded-xl border border-gray-200 dark:border-gray-700 shadow-lg p-6 text-center min-w-[200px]">
-                                <div class="text-sm font-medium text-gray-600 dark:text-gray-400 mb-2">Tingkat Kecocokan Wajah</div>
-                                <div class="text-4xl font-bold mb-2" :class="{
-                                    'text-green-600 dark:text-green-400': faceMatchConfidence >= 70,
-                                    'text-yellow-600 dark:text-yellow-400': faceMatchConfidence >= 40 && faceMatchConfidence < 70,
-                                    'text-red-600 dark:text-red-400': faceMatchConfidence < 40
-                                }">
-                                    {{ Math.round(faceMatchConfidence) }}%
-                                </div>
-                                <div class="text-sm font-medium" :class="{
-                                    'text-green-600 dark:text-green-400': faceMatchConfidence >= 70,
-                                    'text-yellow-600 dark:text-yellow-400': faceMatchConfidence >= 40 && faceMatchConfidence < 70,
-                                    'text-red-600 dark:text-red-400': faceMatchConfidence < 40
-                                }">
-                                    {{ faceMatchConfidence >= 70 ? '✅ Sangat Cocok' :
-                                       faceMatchConfidence >= 40 ? '⚠️ Cukup Cocok' : '❌ Kurang Cocok' }}
-                                </div>
-                                <!-- Progress bar -->
-                                <div class="mt-3 w-full bg-gray-200 dark:bg-gray-700 rounded-full h-2">
-                                    <div class="h-2 rounded-full transition-all duration-300" :class="{
-                                        'bg-green-500': faceMatchConfidence >= 70,
-                                        'bg-yellow-500': faceMatchConfidence >= 40 && faceMatchConfidence < 70,
-                                        'bg-red-500': faceMatchConfidence < 40
-                                    }" :style="{ width: faceMatchConfidence + '%' }"></div>
-                                </div>
-                            </div>
-                        </div>
                     </div>
 
                     <div v-if="todayAttendance?.office_location" class="mt-4 flex items-center gap-2 rounded-md bg-muted p-3">
@@ -1136,6 +1107,36 @@ onUnmounted(() => {
                         <span class="text-sm text-muted-foreground">
                             {{ todayAttendance.office_location.name }}
                         </span>
+                    </div>
+
+                    <!-- Face Match Confidence Display - Centered and Prominent -->
+                    <div v-if="faceRecognitionStatus.enabled && faceRecognitionStatus.has_descriptors && faceMatchConfidence > 0" class="mt-6 mb-6 flex justify-center">
+                        <div class="bg-white dark:bg-gray-800 rounded-xl border border-gray-200 dark:border-gray-700 shadow-lg p-6 text-center min-w-[200px] max-w-[300px] w-full">
+                            <div class="text-sm font-medium text-gray-600 dark:text-gray-400 mb-2">Tingkat Kecocokan Wajah</div>
+                            <div class="text-4xl font-bold mb-2" :class="{
+                                'text-green-600 dark:text-green-400': faceMatchConfidence >= 70,
+                                'text-yellow-600 dark:text-yellow-400': faceMatchConfidence >= 40 && faceMatchConfidence < 70,
+                                'text-red-600 dark:text-red-400': faceMatchConfidence < 40
+                            }">
+                                {{ Math.round(faceMatchConfidence) }}%
+                            </div>
+                            <div class="text-sm font-medium mb-3" :class="{
+                                'text-green-600 dark:text-green-400': faceMatchConfidence >= 70,
+                                'text-yellow-600 dark:text-yellow-400': faceMatchConfidence >= 40 && faceMatchConfidence < 70,
+                                'text-red-600 dark:text-red-400': faceMatchConfidence < 40
+                            }">
+                                {{ faceMatchConfidence >= 70 ? '✅ Sangat Cocok' :
+                                   faceMatchConfidence >= 40 ? '⚠️ Cukup Cocok' : '❌ Kurang Cocok' }}
+                            </div>
+                            <!-- Progress bar -->
+                            <div class="w-full bg-gray-200 dark:bg-gray-700 rounded-full h-2">
+                                <div class="h-2 rounded-full transition-all duration-300" :class="{
+                                    'bg-green-500': faceMatchConfidence >= 70,
+                                    'bg-yellow-500': faceMatchConfidence >= 40 && faceMatchConfidence < 70,
+                                    'bg-red-500': faceMatchConfidence < 40
+                                }" :style="{ width: faceMatchConfidence + '%' }"></div>
+                            </div>
+                        </div>
                     </div>
 
                     <!-- Attendance Actions -->
