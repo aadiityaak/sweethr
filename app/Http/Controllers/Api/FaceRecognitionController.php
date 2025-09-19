@@ -36,12 +36,16 @@ class FaceRecognitionController extends Controller
         $success = $this->faceRecognitionService->storeFaceDescriptors($user, $descriptors);
 
         if ($success) {
+            // Force refresh user data after successful operation
+            $user->refresh();
+            auth()->setUser($user);
+
             return response()->json([
                 'success' => true,
                 'message' => 'Pengenalan wajah berhasil disetup.',
                 'data' => [
-                    'face_recognition_enabled' => true,
-                    'setup_at' => now()->toISOString(),
+                    'face_recognition_enabled' => $user->face_recognition_enabled,
+                    'setup_at' => $user->face_setup_at?->toISOString(),
                 ],
             ]);
         }
@@ -76,7 +80,9 @@ class FaceRecognitionController extends Controller
 
     public function status(): JsonResponse
     {
-        $user = auth()->user();
+        // Get fresh user data from database to avoid cache issues
+        $userId = auth()->id();
+        $user = \App\Models\User::find($userId);
 
         $descriptors = $this->faceRecognitionService->getFaceDescriptors($user);
         $isRequired = $this->faceRecognitionService->isFaceRecognitionRequired($user);
@@ -99,9 +105,17 @@ class FaceRecognitionController extends Controller
         $success = $this->faceRecognitionService->deleteFaceData($user);
 
         if ($success) {
+            // Force refresh user data after successful operation
+            $user->refresh();
+            auth()->setUser($user);
+
             return response()->json([
                 'success' => true,
                 'message' => 'Data pengenalan wajah berhasil dihapus.',
+                'data' => [
+                    'face_recognition_enabled' => $user->face_recognition_enabled,
+                    'face_descriptors' => $user->face_descriptors,
+                ],
             ]);
         }
 
@@ -113,7 +127,9 @@ class FaceRecognitionController extends Controller
 
     public function getDescriptors(): JsonResponse
     {
-        $user = auth()->user();
+        // Get fresh user data from database to avoid cache issues
+        $userId = auth()->id();
+        $user = \App\Models\User::find($userId);
 
         if (!$user->face_recognition_enabled) {
             return response()->json([

@@ -646,7 +646,7 @@ const handleFaceSetup = async (descriptors: number[][]) => {
     console.log('Face setup result:', success);
 
     if (success) {
-        console.log('Setup successful - automatic page refresh will sync data across app');
+        console.log('Face recognition setup completed successfully');
     } else {
         console.error('Setup failed');
     }

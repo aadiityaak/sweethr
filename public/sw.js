@@ -1,4 +1,4 @@
-const CACHE_NAME = 'sweethr-v2'; // Updated to clear face recognition cache
+const CACHE_NAME = 'sweethr-v3'; // Updated to clear face recognition cache
 const urlsToCache = [
   '/',
   '/manifest.json',

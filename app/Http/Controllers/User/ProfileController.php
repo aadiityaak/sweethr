@@ -34,8 +34,22 @@ class ProfileController extends Controller
             'user_attributes' => $user->getAttributes(),
         ]);
 
+        // Prepare fresh user data for frontend
+        $userData = $user->makeVisible(['face_recognition_enabled', 'face_recognition_mandatory', 'face_setup_at'])->toArray();
+
+        // Add explicit face recognition status to ensure fresh data
+        $userData['face_recognition_enabled'] = (bool) $user->face_recognition_enabled;
+        $userData['face_recognition_mandatory'] = (bool) $user->face_recognition_mandatory;
+        $userData['face_setup_at'] = $user->face_setup_at?->toISOString();
+        $userData['has_face_descriptors'] = !empty($user->face_descriptors);
+
+        // Add cache busting timestamp
+        $userData['_cache_buster'] = now()->timestamp;
+
+        \Log::info('Final userData being sent to frontend', $userData);
+
         return Inertia::render('user/Profile', [
-            'user' => $user->makeVisible(['face_recognition_enabled', 'face_recognition_mandatory', 'face_setup_at'])->toArray(),
+            'user' => $userData,
         ]);
     }
 

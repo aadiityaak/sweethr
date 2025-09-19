@@ -155,11 +155,7 @@ export function useFaceRecognition() {
                 // Refresh the status from server to ensure consistency
                 await refreshStatus();
 
-                // Refresh all Inertia pages to sync data across app
-                setTimeout(() => {
-                    console.log('Face recognition setup completed - refreshing pages for global sync');
-                    router.reload({ preserveState: false, preserveScroll: false });
-                }, 500); // Quick refresh after backend session is updated
+                // No need for page reload since backend now returns fresh data
 
                 return true;
             } else {
@@ -314,11 +310,7 @@ export function useFaceRecognition() {
                 // Refresh the status from server to ensure consistency
                 await refreshStatus();
 
-                // Refresh all Inertia pages to sync data across app
-                setTimeout(() => {
-                    console.log('Face recognition deleted - refreshing pages for global sync');
-                    router.reload({ preserveState: false, preserveScroll: false });
-                }, 500); // Quick refresh after backend session is updated
+                // No need for page reload since backend now returns fresh data
 
                 return true;
             } else {
