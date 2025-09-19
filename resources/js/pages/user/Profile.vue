@@ -632,8 +632,7 @@ const handleFaceSetup = async (descriptors: number[][]) => {
     console.log('Face setup result:', success);
 
     if (success) {
-        console.log('Setup successful - status should be updated reactively');
-        // No need to reload page as status is now reactive
+        console.log('Setup successful - automatic page refresh will sync data across app');
     } else {
         console.error('Setup failed');
     }
@@ -643,8 +642,7 @@ const handleDeleteFaceData = async () => {
     if (confirm('Apakah Anda yakin ingin menghapus data face recognition? Anda perlu setup ulang nanti.')) {
         const success = await deleteFaceData();
         if (success) {
-            console.log('Delete successful - status should be updated reactively');
-            // No need to reload page as status is now reactive
+            console.log('Delete successful - automatic page refresh will sync data across app');
         }
     }
 };

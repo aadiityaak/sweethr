@@ -18,22 +18,31 @@ interface FaceRecognitionStatus {
     has_descriptors: boolean;
 }
 
-export function useFaceRecognition() {
-    const { toast } = useToast();
-
-    const isLoading = ref(false);
-    const showFaceCapture = ref(false);
-    const faceDescriptors = ref<number[][]>([]);
-    const isSetupMode = ref(false);
-    const verificationResult = ref<FaceRecognitionResult | null>(null);
-
-    // Reactive face recognition status
-    const faceRecognitionStatus = ref<FaceRecognitionStatus>({
+// Global shared state - singleton pattern
+const globalFaceRecognitionState = {
+    isLoading: ref(false),
+    showFaceCapture: ref(false),
+    faceDescriptors: ref<number[][]>([]),
+    isSetupMode: ref(false),
+    verificationResult: ref<FaceRecognitionResult | null>(null),
+    faceRecognitionStatus: ref<FaceRecognitionStatus>({
         enabled: false,
         mandatory: false,
         setup_at: null,
         has_descriptors: false,
-    });
+    }),
+};
+
+export function useFaceRecognition() {
+    const { toast } = useToast();
+
+    // Use global shared state
+    const isLoading = globalFaceRecognitionState.isLoading;
+    const showFaceCapture = globalFaceRecognitionState.showFaceCapture;
+    const faceDescriptors = globalFaceRecognitionState.faceDescriptors;
+    const isSetupMode = globalFaceRecognitionState.isSetupMode;
+    const verificationResult = globalFaceRecognitionState.verificationResult;
+    const faceRecognitionStatus = globalFaceRecognitionState.faceRecognitionStatus;
 
     const isSetupComplete = computed(() => {
         return faceDescriptors.value.length > 0;
@@ -145,6 +154,12 @@ export function useFaceRecognition() {
 
                 // Refresh the status from server to ensure consistency
                 await refreshStatus();
+
+                // Refresh all Inertia pages to sync data across app
+                setTimeout(() => {
+                    console.log('Face recognition setup completed - refreshing pages for global sync');
+                    router.reload({ preserveState: false, preserveScroll: false });
+                }, 1000);
 
                 return true;
             } else {
@@ -293,6 +308,12 @@ export function useFaceRecognition() {
 
                 // Refresh the status from server to ensure consistency
                 await refreshStatus();
+
+                // Refresh all Inertia pages to sync data across app
+                setTimeout(() => {
+                    console.log('Face recognition deleted - refreshing pages for global sync');
+                    router.reload({ preserveState: false, preserveScroll: false });
+                }, 1000);
 
                 return true;
             } else {
