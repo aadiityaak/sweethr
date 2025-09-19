@@ -1,6 +1,6 @@
 <script setup lang="ts">
 import { Head, Link, useForm } from '@inertiajs/vue3';
-import { ref, onMounted, onUnmounted } from 'vue';
+import { ref, onMounted, onUnmounted, watch } from 'vue';
 import { Clock, Calendar, CheckCircle, User, MapPin, LogOut, UserCircle, BarChart3, Loader2, Eye } from 'lucide-vue-next';
 import { useCompanySettings } from '@/composables/useCompanySettings';
 import { useToast } from '@/components/ui/toast/use-toast';
@@ -96,6 +96,7 @@ const { toast } = useToast();
 // Face recognition composable for reactive status
 const {
     faceRecognitionStatus,
+    faceDescriptors: reactiveFaceDescriptors,
     initializeFaceRecognitionStatus,
     refreshStatus
 } = useFaceRecognition();
@@ -545,7 +546,7 @@ const startDetectionLoop = () => {
 };
 
 const detectFace = async () => {
-    if (!videoElement.value || !canvasElement.value || !faceDescriptors.value) {
+    if (!videoElement.value || !canvasElement.value || !reactiveFaceDescriptors.value || reactiveFaceDescriptors.value.length === 0) {
         return;
     }
 
@@ -564,7 +565,7 @@ const detectFace = async () => {
 
         if (detection) {
             // Compare with stored descriptors
-            const storedDescriptors = faceDescriptors.value.map(desc => new Float32Array(desc));
+            const storedDescriptors = reactiveFaceDescriptors.value.map(desc => new Float32Array(desc));
             const currentDescriptor = detection.descriptor;
 
             let bestMatch = 0;
@@ -765,6 +766,28 @@ const handleCheckOutClick = () => {
         performCheckOut();
     }
 };
+
+// Watch for face recognition status changes
+watch(
+    () => faceRecognitionStatus.value.enabled && faceRecognitionStatus.value.has_descriptors,
+    (newValue, oldValue) => {
+        console.log('Face recognition status changed:', { newValue, oldValue });
+
+        if (!newValue && oldValue) {
+            // Face recognition was disabled or data was deleted - stop detection
+            console.log('Face recognition disabled - stopping detection');
+            stopFaceDetection();
+
+            // Clear any captured data
+            capturedFaceData.value = null;
+            isFaceCaptured.value = false;
+        } else if (newValue && !oldValue && !todayAttendance?.check_in_time) {
+            // Face recognition was enabled - start detection
+            console.log('Face recognition enabled - starting detection');
+            startFaceDetection();
+        }
+    }
+);
 
 onMounted(async () => {
     updateTime();

@@ -1,4 +1,4 @@
-const CACHE_NAME = 'sweethr-v1';
+const CACHE_NAME = 'sweethr-v2'; // Updated to clear face recognition cache
 const urlsToCache = [
   '/',
   '/manifest.json',
@@ -34,20 +34,46 @@ self.addEventListener('install', (event) => {
 // Activate event - clean up old caches
 self.addEventListener('activate', (event) => {
   event.waitUntil(
-    caches.keys().then((cacheNames) => {
-      return Promise.all(
-        cacheNames.map((cacheName) => {
-          if (cacheName !== CACHE_NAME) {
-            console.log('Deleting old cache:', cacheName);
-            return caches.delete(cacheName);
-          }
-        })
-      );
-    })
+    Promise.all([
+      // Delete old caches
+      caches.keys().then((cacheNames) => {
+        return Promise.all(
+          cacheNames.map((cacheName) => {
+            if (cacheName !== CACHE_NAME) {
+              console.log('SW: Deleting old cache:', cacheName);
+              return caches.delete(cacheName);
+            }
+          })
+        );
+      }),
+      // Clear face recognition API cache specifically
+      clearFaceRecognitionCache()
+    ])
   );
   // Claim control of all clients
   self.clients.claim();
 });
+
+// Clear face recognition related cache
+async function clearFaceRecognitionCache() {
+  try {
+    const cache = await caches.open(CACHE_NAME);
+    const requests = await cache.keys();
+
+    const faceRecognitionRequests = requests.filter(request =>
+      request.url.includes('/api/face-recognition/') ||
+      request.url.includes('/user/profile') ||
+      request.url.includes('/api/user/')
+    );
+
+    for (const request of faceRecognitionRequests) {
+      console.log('SW: Clearing face recognition cache:', request.url);
+      await cache.delete(request);
+    }
+  } catch (error) {
+    console.log('SW: Error clearing face recognition cache:', error);
+  }
+}
 
 // Fetch event - serve from cache when offline
 self.addEventListener('fetch', (event) => {
@@ -63,10 +89,43 @@ self.addEventListener('fetch', (event) => {
 
   // Handle API requests differently
   if (event.request.url.includes('/api/')) {
+    // DO NOT cache face recognition or user profile APIs to avoid stale data
+    const sensitiveAPIs = [
+      '/api/face-recognition/',
+      '/api/user/profile',
+      '/user/profile',
+      '/api/attendance',
+      '/api/user/'
+    ];
+
+    const isSensitiveAPI = sensitiveAPIs.some(api => event.request.url.includes(api));
+
+    if (isSensitiveAPI) {
+      // Always fetch fresh data for sensitive APIs, no caching
+      event.respondWith(
+        fetch(event.request).catch(() => {
+          // If network fails, return error without cache fallback
+          return new Response(
+            JSON.stringify({
+              error: 'Offline',
+              message: 'Anda sedang offline. Data terbaru tidak tersedia.'
+            }),
+            {
+              status: 503,
+              statusText: 'Service Unavailable',
+              headers: { 'Content-Type': 'application/json' }
+            }
+          );
+        })
+      );
+      return;
+    }
+
+    // Cache other non-sensitive API requests
     event.respondWith(
       fetch(event.request)
         .then((response) => {
-          // Cache successful responses
+          // Cache successful responses for non-sensitive APIs
           if (response.status === 200) {
             const responseClone = response.clone();
             caches.open(CACHE_NAME).then((cache) => {

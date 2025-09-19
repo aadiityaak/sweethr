@@ -63,6 +63,9 @@ class DashboardController extends Controller
     {
         $user = auth()->user();
 
+        // Force refresh user data from database to ensure fresh face recognition data
+        $user->refresh();
+
         // Get today's attendance
         $todayAttendance = Attendance::where('user_id', $user->id)
                                     ->where('date', Carbon::today())
@@ -88,9 +91,17 @@ class DashboardController extends Controller
         // Get all office locations for check-in functionality
         $officeLocations = OfficeLocation::active()->get();
 
-        // Get face recognition data
+        // Get face recognition data - ensure fresh data from database
         $faceRecognitionEnabled = $user->face_recognition_enabled ?? false;
         $faceDescriptors = null;
+
+        // Debug: Log fresh face recognition data
+        \Log::info('DashboardController welcome() - Face recognition data', [
+            'user_id' => $user->id,
+            'face_recognition_enabled' => $faceRecognitionEnabled,
+            'face_setup_at' => $user->face_setup_at,
+            'has_face_descriptors' => !empty($user->face_descriptors),
+        ]);
 
         if ($faceRecognitionEnabled) {
             $faceDescriptors = $this->faceRecognitionService->getFaceDescriptors($user);
@@ -105,7 +116,7 @@ class DashboardController extends Controller
             ->get();
 
         return Inertia::render('user/Welcome', [
-            'user' => $user->load(['department', 'position']),
+            'user' => $user->load(['department', 'position'])->makeVisible(['face_recognition_enabled', 'face_recognition_mandatory', 'face_setup_at']),
             'todayAttendance' => $todayAttendance,
             'officeLocations' => $officeLocations,
             'stats' => $stats,

@@ -268,6 +268,7 @@ export function useFaceRecognition() {
             const data = await response.json();
 
             if (data.success) {
+                // Clear all face recognition data immediately
                 faceDescriptors.value = [];
 
                 // Update reactive status immediately
@@ -282,6 +283,12 @@ export function useFaceRecognition() {
                     title: '✅ Data Dihapus',
                     description: 'Data pengenalan wajah telah dihapus.',
                     variant: 'success',
+                });
+
+                console.log('Face data deleted - status updated:', {
+                    enabled: faceRecognitionStatus.value.enabled,
+                    has_descriptors: faceRecognitionStatus.value.has_descriptors,
+                    descriptors_length: faceDescriptors.value.length
                 });
 
                 // Refresh the status from server to ensure consistency
