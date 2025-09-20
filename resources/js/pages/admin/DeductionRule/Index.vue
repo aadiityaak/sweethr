@@ -13,7 +13,7 @@
             </p>
           </div>
           <Link
-            :href="route('admin.deduction-rules.create')"
+            :href="create.url()"
             class="inline-flex items-center px-4 py-2 bg-blue-500 hover:bg-blue-600 text-white rounded-lg transition-colors"
           >
             <Plus class="w-4 h-4 mr-2" />
@@ -152,7 +152,7 @@
                 <td class="px-6 py-4 whitespace-nowrap text-sm font-medium">
                   <div class="flex space-x-2">
                     <Link
-                      :href="route('admin.deduction-rules.edit', rule.id)"
+                      :href="edit.url(rule.id)"
                       class="text-blue-600 hover:text-blue-900 dark:text-blue-400 dark:hover:text-blue-300"
                     >
                       <Edit class="w-4 h-4" />
@@ -178,6 +178,8 @@
 import { computed } from 'vue'
 import { Link, router } from '@inertiajs/vue3'
 import AppLayout from '@/Layouts/AppLayout.vue'
+import { dashboard } from '@/routes/admin'
+import { index as deductionRulesIndex, create, edit, destroy } from '@/routes/admin/deduction-rules'
 import { Plus, Clock, UserX, Calendar, Settings, CheckCircle, XCircle, Edit, Trash2 } from 'lucide-vue-next'
 
 interface DeductionRule {
@@ -197,8 +199,8 @@ interface Props {
 const props = defineProps<Props>()
 
 const breadcrumbs = [
-  { name: 'Dashboard', href: route('admin.dashboard') },
-  { name: 'Aturan Potongan', href: route('admin.deduction-rules.index') },
+  { name: 'Dashboard', href: dashboard.url() },
+  { name: 'Aturan Potongan', href: deductionRulesIndex.url() },
 ]
 
 const lateRules = computed(() => {
@@ -271,7 +273,7 @@ const formatAmount = (amount: number, method: string) => {
 
 const confirmDelete = (rule: DeductionRule) => {
   if (confirm(`Apakah Anda yakin ingin menghapus aturan "${rule.name}"?`)) {
-    router.delete(route('admin.deduction-rules.destroy', rule.id))
+    router.delete(destroy.url(rule.id))
   }
 }
 </script>

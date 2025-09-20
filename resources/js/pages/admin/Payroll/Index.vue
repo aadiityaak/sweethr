@@ -185,7 +185,7 @@
                 <td class="px-6 py-4 whitespace-nowrap text-sm font-medium">
                   <div class="flex space-x-2">
                     <Link
-                      :href="route('admin.payrolls.show', payroll.id)"
+                      :href="show.url(payroll.id)"
                       class="text-blue-600 hover:text-blue-900 dark:text-blue-400 dark:hover:text-blue-300"
                     >
                       <Eye class="w-4 h-4" />
@@ -242,6 +242,8 @@
 import { computed, ref } from 'vue'
 import { Link, router } from '@inertiajs/vue3'
 import AppLayout from '@/Layouts/AppLayout.vue'
+import { dashboard } from '@/routes/admin'
+import { index as payrollsIndex, show, generate, regenerate } from '@/routes/admin/payrolls'
 import {
   Plus,
   DollarSign,
@@ -276,8 +278,8 @@ interface Props {
 const props = defineProps<Props>()
 
 const breadcrumbs = [
-  { name: 'Dashboard', href: route('admin.dashboard') },
-  { name: 'Payroll', href: route('admin.payrolls.index') },
+  { name: 'Dashboard', href: dashboard.url() },
+  { name: 'Payroll', href: payrollsIndex.url() },
 ]
 
 const selectedYear = ref(props.currentYear)
@@ -324,14 +326,14 @@ const getCurrentPeriodName = () => {
 }
 
 const changeYear = () => {
-  router.get(route('admin.payrolls.index'), {
+  router.get(payrollsIndex.url(), {
     year: selectedYear.value,
     month: selectedMonth.value
   })
 }
 
 const changeMonth = () => {
-  router.get(route('admin.payrolls.index'), {
+  router.get(payrollsIndex.url(), {
     year: selectedYear.value,
     month: selectedMonth.value
   })
@@ -339,7 +341,7 @@ const changeMonth = () => {
 
 const confirmGenerate = () => {
   generating.value = true
-  router.post(route('admin.payrolls.generate'), {
+  router.post(generate.url(), {
     year: selectedYear.value,
     month: selectedMonth.value
   }, {
@@ -352,7 +354,7 @@ const confirmGenerate = () => {
 
 const regeneratePayroll = (payroll: Payroll) => {
   if (confirm(`Yakin ingin regenerate payroll untuk ${payroll.user.name}?`)) {
-    router.post(route('admin.payrolls.regenerate', payroll.id))
+    router.post(regenerate.url(payroll.id))
   }
 }
 

@@ -157,13 +157,13 @@
                 <td class="px-6 py-4 whitespace-nowrap text-sm font-medium">
                   <div class="flex space-x-2">
                     <Link
-                      :href="route('admin.salary-settings.edit', user.id)"
+                      :href="edit.url(user.id)"
                       class="text-blue-600 hover:text-blue-900 dark:text-blue-400 dark:hover:text-blue-300"
                     >
                       <Edit class="w-4 h-4" />
                     </Link>
                     <Link
-                      :href="route('admin.salary-settings.show', user.id)"
+                      :href="show.url(user.id)"
                       class="text-gray-600 hover:text-gray-900 dark:text-gray-400 dark:hover:text-gray-300"
                     >
                       <Eye class="w-4 h-4" />
@@ -183,6 +183,8 @@
 import { computed } from 'vue'
 import { Link } from '@inertiajs/vue3'
 import AppLayout from '@/Layouts/AppLayout.vue'
+import { dashboard } from '@/routes/admin'
+import { index as salarySettingsIndex, show, edit } from '@/routes/admin/salary-settings'
 import { Users, CheckCircle, AlertCircle, DollarSign, Edit, Eye, XCircle } from 'lucide-vue-next'
 
 interface User {
@@ -203,8 +205,8 @@ interface Props {
 const props = defineProps<Props>()
 
 const breadcrumbs = [
-  { name: 'Dashboard', href: route('admin.dashboard') },
-  { name: 'Pengaturan Gaji', href: route('admin.salary-settings.index') },
+  { name: 'Dashboard', href: dashboard.url() },
+  { name: 'Pengaturan Gaji', href: salarySettingsIndex.url() },
 ]
 
 const usersWithSalary = computed(() => {
