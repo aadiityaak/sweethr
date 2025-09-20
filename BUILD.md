@@ -500,7 +500,7 @@ Create a single ZIP file that can be extracted directly to public_html with a si
 # Build package
 composer run build:package
 
-# Output: dist/wscrm-package.zip
+# Output: dist/laravel-package.zip
 ```
 
 ### Implementation Components
@@ -522,7 +522,7 @@ use ZipArchive;
 
 class BuildPackage extends Command
 {
-    protected $signature = 'build:package {--output=dist/wscrm-package.zip}';
+    protected $signature = 'build:package {--output=dist/laravel-package.zip}';
     protected $description = 'Build aplikasi menjadi package siap deploy (extract dan install)';
 
     public function handle(): int
@@ -634,7 +634,7 @@ class BuildPackage extends Command
         }
 
         // Create README.txt untuk user
-        $readmeContent = "WSCRM - WordPress Style Installation
+        $readmeContent = "laravel - WordPress Style Installation
 
 INSTALASI:
 1. Extract semua file ke folder public_html atau domain folder
@@ -834,7 +834,7 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST') {
 }
 
 function handleEnvironmentSetup() {
-    $appName = $_POST['app_name'] ?? 'WSCRM';
+    $appName = $_POST['app_name'] ?? 'laravel';
     $appUrl = $_POST['app_url'] ?? 'http://localhost';
     $dbConnection = $_POST['db_connection'] ?? 'sqlite';
 
@@ -994,7 +994,7 @@ use ZipArchive;
 
 class UpdateController extends Controller
 {
-    private const GITHUB_REPO = 'your-username/wscrm'; // Ganti dengan repository GitHub Anda
+    private const GITHUB_REPO = 'your-username/laravel'; // Ganti dengan repository GitHub Anda
     private const UPDATE_TEMP_DIR = 'storage/app/updates';
     private const BACKUP_DIR = 'storage/app/backups';
 
@@ -1143,7 +1143,7 @@ Add version to `composer.json`:
 # Build package
 composer run build:package
 
-# Output: dist/wscrm-package.zip
+# Output: dist/laravel-package.zip
 # Upload to GitHub releases
 ```
 

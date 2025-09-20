@@ -131,4 +131,21 @@ class User extends Authenticatable
     {
         return $this->employment_status === 'active';
     }
+
+    public function salarySettings()
+    {
+        return $this->hasMany(SalarySetting::class);
+    }
+
+    public function currentSalarySetting()
+    {
+        return $this->hasOne(SalarySetting::class)
+            ->where('is_active', true)
+            ->orderBy('effective_date', 'desc');
+    }
+
+    public function payrolls()
+    {
+        return $this->hasMany(Payroll::class);
+    }
 }

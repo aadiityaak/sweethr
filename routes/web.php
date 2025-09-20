@@ -8,6 +8,7 @@ Route::get('/', function () {
         if (auth()->user()->is_admin) {
             return redirect()->route('admin.dashboard');
         }
+
         return redirect()->route('welcome');
     }
 
@@ -25,6 +26,7 @@ Route::middleware(['auth', 'verified'])->group(function () {
         if (auth()->user()->is_admin) {
             return redirect()->route('admin.dashboard');
         }
+
         return redirect()->route('welcome');
     })->name('dashboard');
 
@@ -65,6 +67,12 @@ Route::middleware(['auth', 'verified'])->group(function () {
         ->name('user.profile.update-basic');
     Route::put('user/profile/password', [App\Http\Controllers\User\ProfileController::class, 'updatePassword'])
         ->name('user.profile.update-password');
+
+    // Employee Payroll
+    Route::get('payrolls', [App\Http\Controllers\Employee\PayrollController::class, 'index'])
+        ->name('employee.payrolls.index');
+    Route::get('payrolls/{payroll}', [App\Http\Controllers\Employee\PayrollController::class, 'show'])
+        ->name('employee.payrolls.show');
 });
 
 // Admin-only routes
@@ -160,6 +168,36 @@ Route::middleware(['auth', 'verified', 'admin'])->group(function () {
     ]);
     Route::patch('admin/announcements/{announcement}/toggle-status', [App\Http\Controllers\Admin\AnnouncementController::class, 'toggleStatus'])
         ->name('admin.announcements.toggle-status');
+
+    // Admin Payroll Management
+    Route::get('admin/salary-settings', [App\Http\Controllers\Admin\SalarySettingController::class, 'index'])
+        ->name('admin.salary-settings.index');
+    Route::get('admin/salary-settings/{user}', [App\Http\Controllers\Admin\SalarySettingController::class, 'show'])
+        ->name('admin.salary-settings.show');
+    Route::get('admin/salary-settings/{user}/edit', [App\Http\Controllers\Admin\SalarySettingController::class, 'edit'])
+        ->name('admin.salary-settings.edit');
+    Route::put('admin/salary-settings/{user}', [App\Http\Controllers\Admin\SalarySettingController::class, 'update'])
+        ->name('admin.salary-settings.update');
+
+    Route::resource('admin/deduction-rules', App\Http\Controllers\Admin\DeductionRuleController::class, [
+        'names' => [
+            'index' => 'admin.deduction-rules.index',
+            'create' => 'admin.deduction-rules.create',
+            'store' => 'admin.deduction-rules.store',
+            'edit' => 'admin.deduction-rules.edit',
+            'update' => 'admin.deduction-rules.update',
+            'destroy' => 'admin.deduction-rules.destroy',
+        ],
+    ]);
+
+    Route::get('admin/payrolls', [App\Http\Controllers\Admin\PayrollController::class, 'index'])
+        ->name('admin.payrolls.index');
+    Route::get('admin/payrolls/{payroll}', [App\Http\Controllers\Admin\PayrollController::class, 'show'])
+        ->name('admin.payrolls.show');
+    Route::post('admin/payrolls/generate', [App\Http\Controllers\Admin\PayrollController::class, 'generate'])
+        ->name('admin.payrolls.generate');
+    Route::post('admin/payrolls/{payroll}/regenerate', [App\Http\Controllers\Admin\PayrollController::class, 'regenerate'])
+        ->name('admin.payrolls.regenerate');
 });
 
 // PWA routes
