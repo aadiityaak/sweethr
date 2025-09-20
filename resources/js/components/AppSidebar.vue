@@ -6,7 +6,7 @@ import { Sidebar, SidebarContent, SidebarFooter, SidebarHeader, SidebarMenu, Sid
 // import { welcome } from '@/routes';
 import { type NavItem } from '@/types';
 import { Link, usePage } from '@inertiajs/vue3';
-import { BookOpen, LayoutGrid, Clock, Users, Calendar, MapPin, Settings, Shield, Building, UserCheck, Megaphone } from 'lucide-vue-next';
+import { BookOpen, LayoutGrid, Clock, Users, Calendar, MapPin, Settings, Shield, Building, UserCheck, Megaphone, DollarSign, FileText, Wallet, Minus, BriefcaseBusiness, UsersRound } from 'lucide-vue-next';
 import { computed } from 'vue';
 import AppLogo from './AppLogo.vue';
 
@@ -30,6 +30,11 @@ const userNavItems: NavItem[] = [
         href: '/leave-requests',
         icon: Calendar,
     },
+    {
+        title: 'Slip Gaji',
+        href: '/payrolls',
+        icon: FileText,
+    },
 ];
 
 // Menu items for admins
@@ -40,34 +45,62 @@ const adminNavItems: NavItem[] = [
         icon: LayoutGrid,
     },
     {
-        title: 'Kelola Kehadiran',
-        href: '/admin/attendance',
+        title: 'Manajemen Karyawan',
+        icon: UsersRound,
+        items: [
+            {
+                title: 'Data Karyawan',
+                href: '/employees',
+                icon: Users,
+            },
+            {
+                title: 'Departemen',
+                href: '/admin/departments',
+                icon: Building,
+            },
+            {
+                title: 'Manajemen Shift',
+                href: '/admin/work-shifts',
+                icon: UserCheck,
+            },
+        ],
+    },
+    {
+        title: 'Kehadiran & Cuti',
         icon: Clock,
+        items: [
+            {
+                title: 'Kelola Kehadiran',
+                href: '/admin/attendance',
+                icon: Clock,
+            },
+            {
+                title: 'Kelola Cuti',
+                href: '/admin/leave-requests',
+                icon: Calendar,
+            },
+        ],
     },
     {
-        title: 'Karyawan',
-        href: '/employees',
-        icon: Users,
-    },
-    {
-        title: 'Kelola Cuti',
-        href: '/admin/leave-requests',
-        icon: Calendar,
-    },
-    {
-        title: 'Lokasi Kantor',
-        href: '/office-locations',
-        icon: MapPin,
-    },
-    {
-        title: 'Manajemen Shift',
-        href: '/admin/work-shifts',
-        icon: UserCheck,
-    },
-    {
-        title: 'Departemen',
-        href: '/admin/departments',
-        icon: Building,
+        title: 'Penggajian',
+        icon: DollarSign,
+        items: [
+            {
+                title: 'Daftar Payroll',
+                href: '/admin/payrolls',
+                icon: FileText,
+            },
+            {
+                title: 'Pengaturan Gaji',
+                href: '/admin/salary-settings',
+                icon: Wallet,
+            },
+            {
+                title: 'Aturan Potongan',
+                href: '/admin/deduction-rules',
+                icon: Minus,
+            },
+        ],
     },
     {
         title: 'Pengumuman',
@@ -75,9 +108,20 @@ const adminNavItems: NavItem[] = [
         icon: Megaphone,
     },
     {
-        title: 'Pengaturan',
-        href: '/admin/settings',
+        title: 'Pengaturan Sistem',
         icon: Settings,
+        items: [
+            {
+                title: 'Lokasi Kantor',
+                href: '/office-locations',
+                icon: MapPin,
+            },
+            {
+                title: 'Pengaturan Umum',
+                href: '/admin/settings',
+                icon: Settings,
+            },
+        ],
     },
 ];
 
