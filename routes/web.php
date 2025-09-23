@@ -198,6 +198,25 @@ Route::middleware(['auth', 'verified', 'admin'])->group(function () {
         ->name('admin.payrolls.generate');
     Route::post('admin/payrolls/{payroll}/regenerate', [App\Http\Controllers\Admin\PayrollController::class, 'regenerate'])
         ->name('admin.payrolls.regenerate');
+
+    // Admin Document Management
+    Route::resource('admin/documents', App\Http\Controllers\Admin\DocumentController::class, [
+        'names' => [
+            'index' => 'admin.documents.index',
+            'create' => 'admin.documents.create',
+            'store' => 'admin.documents.store',
+            'show' => 'admin.documents.show',
+            'edit' => 'admin.documents.edit',
+            'update' => 'admin.documents.update',
+            'destroy' => 'admin.documents.destroy',
+        ],
+    ]);
+    Route::patch('admin/documents/{document}/approve', [App\Http\Controllers\Admin\DocumentController::class, 'approve'])
+        ->name('admin.documents.approve');
+    Route::patch('admin/documents/{document}/reject', [App\Http\Controllers\Admin\DocumentController::class, 'reject'])
+        ->name('admin.documents.reject');
+    Route::get('admin/documents/{document}/download', [App\Http\Controllers\Admin\DocumentController::class, 'download'])
+        ->name('admin.documents.download');
 });
 
 // PWA routes

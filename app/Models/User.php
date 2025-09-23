@@ -107,6 +107,21 @@ class User extends Authenticatable
         return $this->hasMany(LeaveRequest::class);
     }
 
+    public function documents()
+    {
+        return $this->hasMany(EmployeeDocument::class);
+    }
+
+    public function uploadedDocuments()
+    {
+        return $this->hasMany(EmployeeDocument::class, 'uploaded_by');
+    }
+
+    public function approvedDocuments()
+    {
+        return $this->hasMany(EmployeeDocument::class, 'approved_by');
+    }
+
     public function employeeShifts()
     {
         return $this->hasMany(EmployeeShift::class);

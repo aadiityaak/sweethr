@@ -50,7 +50,7 @@ Daftar lengkap fitur yang akan dikembangkan untuk sistem HR management SweetHR.
 | No | Fitur | Status | Estimasi | Keterangan |
 |----|-------|--------|----------|------------|
 | 27 | Manajemen Karyawan | ✅ | 4 hari | CRUD karyawan dengan role-based access |
-| 28 | Manajemen Dokumen Karyawan | ⏳ | 6 hari | Document management system |
+| 28 | **Manajemen Dokumen Karyawan** | ⏳ | 6 hari | **🔥 HIGH PRIORITY - Document management system** |
 | 29 | Kepesertaan BPJS | ⏳ | 3 hari | BPJS membership tracking |
 | 30 | Pengingatir Masa Berakhir Dokumen Karyawan | ⏳ | 3 hari | Document expiry notifications |
 | 31 | Manajemen Jadwal Hari Kerja & Shift | ✅ | 3 hari | Work schedule management |
@@ -78,54 +78,114 @@ Daftar lengkap fitur yang akan dikembangkan untuk sistem HR management SweetHR.
 
 ---
 
+## 📱 Mobile & PWA
+
+| No | Fitur | Status | Estimasi | Keterangan |
+|----|-------|--------|----------|------------|
+| 51 | **PWA Implementation** | ⏳ | 5 hari | **🔥 HIGH PRIORITY - Service workers, offline, install prompt** |
+| 52 | **Mobile UI Optimization** | ⏳ | 4 hari | **🔥 HIGH PRIORITY - Touch-friendly interface** |
+| 53 | **Push Notifications** | ⏳ | 3 hari | **🔥 HIGH PRIORITY - Real-time notifications** |
+| 54 | Offline Mode | ⏳ | 4 hari | Offline functionality untuk presensi |
+| 55 | App Icon & Splash Screen | ⏳ | 1 hari | PWA branding |
+
+---
+
+## 👤 Employee Self-Service
+
+| No | Fitur | Status | Estimasi | Keterangan |
+|----|-------|--------|----------|------------|
+| 56 | **Employee Directory** | ⏳ | 4 hari | **🟡 MEDIUM PRIORITY - Contact directory & org chart** |
+| 57 | **Performance Reviews** | ⏳ | 8 hari | **🟡 MEDIUM PRIORITY - Evaluation system** |
+| 58 | **Training Management** | ⏳ | 6 hari | **🟡 MEDIUM PRIORITY - Training tracking** |
+| 59 | **Asset Management** | ⏳ | 5 hari | **🟢 LOW PRIORITY - Company equipment tracking** |
+| 60 | **Expense Claims** | ⏳ | 5 hari | **🟡 MEDIUM PRIORITY - Reimbursement system** |
+| 61 | Time Tracking | ⏳ | 4 hari | Project time logging |
+| 62 | Employee Self-Update | ⏳ | 3 hari | Profile & document updates |
+
+---
+
+## 📊 Advanced Analytics
+
+| No | Fitur | Status | Estimasi | Keterangan |
+|----|-------|--------|----------|------------|
+| 63 | **HR Dashboard Analytics** | ⏳ | 6 hari | **🟡 MEDIUM PRIORITY - Advanced reporting** |
+| 64 | **Attendance Analytics** | ⏳ | 4 hari | **🟡 MEDIUM PRIORITY - Trend analysis** |
+| 65 | Export Reports (PDF/Excel) | ⏳ | 3 hari | Report export functionality |
+| 66 | Custom Report Builder | ⏳ | 7 hari | Dynamic report creation |
+
+---
+
 ## 🔔 Notifikasi & Integrasi
 
 | No | Fitur | Status | Estimasi | Keterangan |
 |----|-------|--------|----------|------------|
-| 47 | Notifikasi Presensi via Slack | ⏳ | 3 hari | Slack integration |
-| 48 | Notifikasi Presensi via Telegram | ⏳ | 3 hari | Telegram bot integration |
-| 49 | Webhook Presensi | ⏳ | 4 hari | REST API webhooks |
-| 50 | Open API | ⏳ | 5 hari | Public API documentation |
+| 67 | Notifikasi Presensi via Slack | ⏳ | 3 hari | Slack integration |
+| 68 | Notifikasi Presensi via Telegram | ⏳ | 3 hari | Telegram bot integration |
+| 69 | Webhook Presensi | ⏳ | 4 hari | REST API webhooks |
+| 70 | Open API | ⏳ | 5 hari | Public API documentation |
 
 ---
 
 ## 📈 Summary Progress
 
-**Total Fitur:** 50
-**✅ Sudah Selesai:** 8 fitur (16%) - **24 hari kerja**
+**Total Fitur:** 70
+**✅ Sudah Selesai:** 8 fitur (11%) - **24 hari kerja**
 **🚧 Dalam Pengembangan:** 0 fitur (0%) - **0 hari**
-**⏳ Direncanakan:** 42 fitur (84%) - **135 hari kerja**
+**⏳ Direncanakan:** 62 fitur (89%) - **235 hari kerja**
 
 ### ⏱️ Estimasi Waktu Total
 - **Fitur Selesai**: 24 hari kerja (~5 minggu)
-- **Fitur Tertunda**: 135 hari kerja (~27 minggu)
-- **Total Estimasi**: **159 hari kerja (~32 minggu / 8 bulan)**
+- **Fitur Tertunda**: 235 hari kerja (~47 minggu)
+- **Total Estimasi**: **259 hari kerja (~52 minggu / 12 bulan)**
 
 ### 📊 Breakdown Estimasi per Kategori
-| Kategori | Selesai | Tertunda | Total Hari |
+| Kategori | Selesai | Tertenda | Total Hari |
 |----------|---------|----------|-------------|
 | **📱 Presensi & Kehadiran** | 8 fitur (22 hari) | 18 fitur (58 hari) | **80 hari** |
 | **👥 Manajemen Karyawan** | 2 fitur (7 hari) | 12 fitur (36 hari) | **43 hari** |
 | **📊 Laporan & Analitik** | 2 fitur (4 hari) | 3 fitur (10 hari) | **14 hari** |
+| **📱 Mobile & PWA** | 0 fitur (0 hari) | 5 fitur (17 hari) | **17 hari** |
+| **👤 Employee Self-Service** | 0 fitur (0 hari) | 7 fitur (35 hari) | **35 hari** |
+| **📊 Advanced Analytics** | 0 fitur (0 hari) | 4 fitur (20 hari) | **20 hari** |
 | **🔔 Notifikasi & Integrasi** | 0 fitur (0 hari) | 4 fitur (15 hari) | **15 hari** |
 
-### 🎯 Fitur Prioritas Tinggi (Next Sprint)
+### 🎯 Fitur Prioritas Tinggi - 7 Fitur Utama
 
-1. **Liveness Detection** (4 hari) - Anti-spoofing untuk face recognition
-2. **Kalender Libur** (3 hari) - Company holiday management
-3. **Tukar Jadwal Shift** (4 hari) - Employee shift swap system
-4. **Jadwal Kerja Lembur** (3 hari) - Overtime scheduling
-5. **Manajemen Dokumen Karyawan** (6 hari) - Document management system
+#### 🔥 **HIGH PRIORITY** (Sprint 1-2: 20 hari)
+1. **Manajemen Dokumen Karyawan** (6 hari) - Upload, kelola, monitoring kontrak
+2. **PWA Implementation** (5 hari) - Service workers, offline, install prompt
+3. **Mobile UI Optimization** (4 hari) - Touch-friendly interface
+4. **Push Notifications** (3 hari) - Real-time notifications
+5. **Employee Directory** (4 hari) - Contact directory & org chart
 
-**Total Sprint Berikutnya: 20 hari kerja (~4 minggu)**
+#### 🟡 **MEDIUM PRIORITY** (Sprint 3-4: 22 hari)
+6. **HR Dashboard Analytics** (6 hari) - Advanced reporting dashboard
+7. **Performance Reviews** (8 hari) - Employee evaluation system
+8. **Training Management** (6 hari) - Training tracking & certificates
+9. **Expense Claims** (5 hari) - Reimbursement system
+
+#### 🟢 **LOW PRIORITY** (Sprint 5: 5 hari)
+10. **Asset Management** (5 hari) - Company equipment tracking
+
+**Total 7 Fitur Utama: 47 hari kerja (~9-10 minggu)**
 
 ### 📝 Catatan Implementasi
 
+**Fitur Existing:**
 - **Face Recognition:** Menggunakan face-api.js dengan optimasi mobile
 - **GPS Validation:** Radius-based dengan multiple office locations
 - **Pengumuman:** Banner carousel dengan rich content editor
 - **Leave Management:** Approval workflow dengan email notifications
 - **Dashboard:** Real-time stats dengan charts dan analytics
+
+**Fitur Baru - 7 Prioritas:**
+- **Dokumen Management:** File upload, versioning, expiry tracking
+- **PWA:** Manifest, service workers, offline caching, install prompt
+- **Mobile UI:** Touch gestures, responsive design, bottom navigation
+- **Push Notifications:** FCM integration, real-time alerts
+- **Employee Directory:** Org chart, contact search, team structure
+- **Analytics Dashboard:** Charts.js, KPI widgets, export functionality
+- **Performance Reviews:** Rating system, goal tracking, feedback loops
 
 ---
 
@@ -145,5 +205,5 @@ Daftar lengkap fitur yang akan dikembangkan untuk sistem HR management SweetHR.
 
 ---
 
-*Last Updated: 18 September 2025*
-*Version: 1.1.0 - Added Time Estimates*
+*Last Updated: 23 September 2025*
+*Version: 1.2.0 - Added 7 Priority Features & New Categories*
