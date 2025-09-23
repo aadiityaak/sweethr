@@ -207,7 +207,7 @@
     </div>
 
     <!-- Generate Modal -->
-    <div v-if="showGenerateModal" class="fixed inset-0 bg-black bg-opacity-50 flex items-center justify-center z-50">
+    <div v-if="showGenerateModal" class="fixed inset-0 bg-black/50 flex items-center justify-center z-50">
       <div class="bg-white dark:bg-gray-900 rounded-lg p-6 w-full max-w-md mx-4">
         <h3 class="text-lg font-semibold text-gray-900 dark:text-white mb-4">
           Generate Payroll {{ getCurrentPeriodName() }}

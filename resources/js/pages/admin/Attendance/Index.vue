@@ -623,7 +623,7 @@ onUnmounted(() => {
                                             <div
                                                 v-if="activeDropdown === record.id"
                                                 @click.stop
-                                                class="absolute right-0 top-8 z-10 w-48 rounded-md bg-white py-1 shadow-lg ring-1 ring-black ring-opacity-5 dark:bg-gray-800 dark:ring-gray-700"
+                                                class="absolute right-0 top-8 z-10 w-48 rounded-md bg-white py-1 shadow-lg ring-1 ring-black/5 dark:bg-gray-800 dark:ring-gray-700"
                                             >
                                                 <Link
                                                     :href="`/admin/attendance/${record.id}`"
