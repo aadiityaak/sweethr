@@ -1,117 +1,113 @@
+<template>
+  <div class="fixed inset-0 z-50 overflow-y-auto">
+    <div class="flex min-h-full items-end justify-center p-4 text-center sm:items-center sm:p-0">
+      <div class="fixed inset-0 bg-gray-500 bg-opacity-75 transition-opacity" @click="$emit('cancel')" />
+
+      <div class="relative transform overflow-hidden rounded-lg bg-white text-left shadow-xl transition-all sm:my-8 sm:w-full sm:max-w-lg dark:bg-gray-900">
+        <div class="bg-white px-4 pb-4 pt-5 sm:p-6 sm:pb-4 dark:bg-gray-900">
+          <div class="sm:flex sm:items-start">
+            <div class="mx-auto flex h-12 w-12 flex-shrink-0 items-center justify-center rounded-full sm:mx-0 sm:h-10 sm:w-10" :class="iconBgClass">
+              <component :is="icon" class="h-6 w-6" :class="iconClass" />
+            </div>
+            <div class="mt-3 text-center sm:ml-4 sm:mt-0 sm:text-left">
+              <h3 class="text-base font-semibold leading-6 text-gray-900 dark:text-white">
+                {{ title }}
+              </h3>
+              <div class="mt-2">
+                <p class="text-sm text-gray-500 dark:text-gray-400">
+                  {{ message }}
+                </p>
+                <slot />
+              </div>
+            </div>
+          </div>
+        </div>
+        <div class="bg-gray-50 px-4 py-3 sm:flex sm:flex-row-reverse sm:px-6 dark:bg-gray-800">
+          <button
+            type="button"
+            class="inline-flex w-full justify-center rounded-md px-3 py-2 text-sm font-semibold text-white shadow-sm sm:ml-3 sm:w-auto"
+            :class="confirmButtonClass"
+            @click="$emit('confirm')"
+          >
+            {{ confirmText }}
+          </button>
+          <button
+            type="button"
+            class="mt-3 inline-flex w-full justify-center rounded-md bg-white px-3 py-2 text-sm font-semibold text-gray-900 shadow-sm ring-1 ring-inset ring-gray-300 hover:bg-gray-50 sm:mt-0 sm:w-auto dark:bg-gray-700 dark:text-white dark:ring-gray-600 dark:hover:bg-gray-600"
+            @click="$emit('cancel')"
+          >
+            {{ cancelText }}
+          </button>
+        </div>
+      </div>
+    </div>
+  </div>
+</template>
+
 <script setup lang="ts">
-import { Button } from '@/components/ui/button';
-import { Dialog, DialogContent, DialogDescription, DialogFooter, DialogHeader, DialogTitle } from '@/components/ui/dialog';
-import { AlertTriangle, CheckCircle, Info, XCircle } from 'lucide-vue-next';
+import { computed } from 'vue'
+import { AlertTriangle, Info, CheckCircle } from 'lucide-vue-next'
 
 interface Props {
-  open: boolean;
-  title: string;
-  description?: string;
-  confirmText?: string;
-  cancelText?: string;
-  variant?: 'default' | 'destructive' | 'warning' | 'success';
-  loading?: boolean;
+  title: string
+  message: string
+  confirmText?: string
+  cancelText?: string
+  confirmVariant?: 'primary' | 'danger' | 'success'
 }
 
 const props = withDefaults(defineProps<Props>(), {
-  confirmText: 'Konfirmasi',
-  cancelText: 'Batal',
-  variant: 'default',
-  loading: false,
-});
+  confirmText: 'Confirm',
+  cancelText: 'Cancel',
+  confirmVariant: 'primary'
+})
 
-const emit = defineEmits<{
-  'update:open': [value: boolean];
-  confirm: [];
-  cancel: [];
-}>();
+defineEmits<{
+  confirm: []
+  cancel: []
+}>()
 
-const handleOpenChange = (open: boolean) => {
-  emit('update:open', open);
-  if (!open) {
-    emit('cancel');
-  }
-};
-
-const handleConfirm = () => {
-  emit('confirm');
-};
-
-const handleCancel = () => {
-  emit('cancel');
-  emit('update:open', false);
-};
-
-const getIcon = () => {
-  switch (props.variant) {
-    case 'destructive':
-      return XCircle;
-    case 'warning':
-      return AlertTriangle;
+const icon = computed(() => {
+  switch (props.confirmVariant) {
+    case 'danger':
+      return AlertTriangle
     case 'success':
-      return CheckCircle;
+      return CheckCircle
     default:
-      return Info;
+      return Info
   }
-};
+})
 
-const getIconClass = () => {
-  switch (props.variant) {
-    case 'destructive':
-      return 'text-red-600 dark:text-red-400';
-    case 'warning':
-      return 'text-yellow-600 dark:text-yellow-400';
+const iconBgClass = computed(() => {
+  switch (props.confirmVariant) {
+    case 'danger':
+      return 'bg-red-100 dark:bg-red-900/20'
     case 'success':
-      return 'text-green-600 dark:text-green-400';
+      return 'bg-green-100 dark:bg-green-900/20'
     default:
-      return 'text-blue-600 dark:text-blue-400';
+      return 'bg-blue-100 dark:bg-blue-900/20'
   }
-};
+})
 
-const getConfirmButtonClass = () => {
-  switch (props.variant) {
-    case 'destructive':
-      return 'bg-red-600 hover:bg-red-700';
-    case 'warning':
-      return 'bg-yellow-600 hover:bg-yellow-700';
+const iconClass = computed(() => {
+  switch (props.confirmVariant) {
+    case 'danger':
+      return 'text-red-600 dark:text-red-400'
     case 'success':
-      return 'bg-green-600 hover:bg-green-700';
+      return 'text-green-600 dark:text-green-400'
     default:
-      return '';
+      return 'text-blue-600 dark:text-blue-400'
   }
-};
+})
+
+const confirmButtonClass = computed(() => {
+  switch (props.confirmVariant) {
+    case 'danger':
+      return 'bg-red-600 hover:bg-red-500 focus-visible:outline-red-600'
+    case 'success':
+      return 'bg-green-600 hover:bg-green-500 focus-visible:outline-green-600'
+    default:
+      return 'bg-blue-600 hover:bg-blue-500 focus-visible:outline-blue-600'
+  }
+})
 </script>
-
-<template>
-  <Dialog :open="open" @update:open="handleOpenChange">
-    <DialogContent class="sm:max-w-md">
-      <DialogHeader>
-        <div class="flex items-center gap-3">
-          <div :class="getIconClass()">
-            <component :is="getIcon()" class="h-6 w-6" />
-          </div>
-          <DialogTitle>{{ title }}</DialogTitle>
-        </div>
-        <DialogDescription v-if="description">
-          {{ description }}
-        </DialogDescription>
-      </DialogHeader>
-      <DialogFooter>
-        <Button
-          variant="outline"
-          @click="handleCancel"
-          :disabled="loading"
-        >
-          {{ cancelText }}
-        </Button>
-        <Button
-          @click="handleConfirm"
-          :disabled="loading"
-          :class="getConfirmButtonClass()"
-        >
-          {{ loading ? 'Memproses...' : confirmText }}
-        </Button>
-      </DialogFooter>
-    </DialogContent>
-  </Dialog>
-</template>

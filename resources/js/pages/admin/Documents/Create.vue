@@ -1,0 +1,331 @@
+<template>
+  <AppLayout :breadcrumbs="breadcrumbs">
+    <div class="mx-auto max-w-7xl px-4 py-6 sm:px-6 lg:px-8">
+      <!-- Header -->
+      <div class="mb-8">
+        <div class="flex items-center justify-between">
+          <div>
+            <h1 class="text-3xl font-bold text-gray-900 dark:text-white">
+              Upload Dokumen Karyawan
+            </h1>
+            <p class="mt-1 text-gray-600 dark:text-gray-400">
+              Upload dokumen baru untuk karyawan
+            </p>
+          </div>
+          <div class="flex gap-3">
+            <Link
+              :href="route('admin.documents.index')"
+              class="inline-flex items-center rounded-md bg-white px-3 py-2 text-sm font-semibold text-gray-900 shadow-sm ring-1 ring-inset ring-gray-300 hover:bg-gray-50 dark:bg-gray-800 dark:text-white dark:ring-gray-600 dark:hover:bg-gray-700"
+            >
+              <ArrowLeft class="mr-2 h-4 w-4" />
+              Kembali
+            </Link>
+          </div>
+        </div>
+      </div>
+
+      <!-- Upload Form -->
+      <div class="overflow-hidden rounded-xl bg-white shadow-sm ring-1 ring-gray-900/5 dark:bg-gray-900 dark:ring-white/10">
+        <div class="px-6 py-4 border-b border-gray-200 dark:border-gray-700">
+          <h3 class="text-lg font-semibold text-gray-900 dark:text-white flex items-center">
+            <Upload class="mr-2 h-5 w-5 text-blue-600 dark:text-blue-400" />
+            Upload Dokumen
+          </h3>
+        </div>
+        <div class="p-6">
+          <form @submit.prevent="submitForm" class="space-y-6">
+            <div class="grid grid-cols-1 gap-6 lg:grid-cols-2">
+              <!-- Employee Selection -->
+              <div>
+                <label for="user_id" class="block text-sm font-medium leading-6 text-gray-900 dark:text-white">
+                  Karyawan <span class="text-red-500">*</span>
+                </label>
+                <select
+                  id="user_id"
+                  v-model="form.user_id"
+                  :class="[
+                    'mt-2 block w-full rounded-md border-0 py-1.5 text-gray-900 shadow-sm ring-1 ring-inset focus:ring-2 focus:ring-inset focus:ring-blue-600 dark:bg-gray-800 dark:text-white sm:text-sm sm:leading-6',
+                    form.errors.user_id
+                      ? 'ring-red-300 focus:ring-red-600 dark:ring-red-600'
+                      : 'ring-gray-300 dark:ring-gray-600'
+                  ]"
+                >
+                  <option value="">Pilih Karyawan</option>
+                  <option v-for="user in users" :key="user.id" :value="user.id">
+                    {{ user.name }} ({{ user.employee_id }})
+                  </option>
+                </select>
+                <InputError class="mt-2" :message="form.errors.user_id" />
+              </div>
+
+              <!-- Document Type Selection -->
+              <div>
+                <label for="document_type_id" class="block text-sm font-medium leading-6 text-gray-900 dark:text-white">
+                  Jenis Dokumen <span class="text-red-500">*</span>
+                </label>
+                <select
+                  id="document_type_id"
+                  v-model="form.document_type_id"
+                  :class="[
+                    'mt-2 block w-full rounded-md border-0 py-1.5 text-gray-900 shadow-sm ring-1 ring-inset focus:ring-2 focus:ring-inset focus:ring-blue-600 dark:bg-gray-800 dark:text-white sm:text-sm sm:leading-6',
+                    form.errors.document_type_id
+                      ? 'ring-red-300 focus:ring-red-600 dark:ring-red-600'
+                      : 'ring-gray-300 dark:ring-gray-600'
+                  ]"
+                  @change="handleDocumentTypeChange"
+                >
+                  <option value="">Pilih Jenis Dokumen</option>
+                  <option v-for="docType in documentTypes" :key="docType.id" :value="docType.id">
+                    {{ docType.name }}
+                  </option>
+                </select>
+                <InputError class="mt-2" :message="form.errors.document_type_id" />
+
+                <!-- Document Type Info -->
+                <div v-if="selectedDocumentType" class="mt-2 text-sm text-gray-600 dark:text-gray-400">
+                  <p>
+                    Format: {{ selectedDocumentType.allowed_extensions?.join(', ').toUpperCase() }}
+                    | Maksimal: {{ selectedDocumentType.max_file_size_mb }}MB
+                  </p>
+                  <p v-if="selectedDocumentType.requires_expiry" class="text-orange-600 dark:text-orange-400">
+                    ⚠️ Dokumen ini memerlukan tanggal kadaluarsa
+                  </p>
+                </div>
+              </div>
+            </div>
+
+            <!-- Document Title -->
+            <div>
+              <label for="title" class="block text-sm font-medium leading-6 text-gray-900 dark:text-white">
+                Judul Dokumen <span class="text-red-500">*</span>
+              </label>
+              <Input
+                id="title"
+                v-model="form.title"
+                type="text"
+                class="mt-2"
+                :class="{ 'ring-red-300 focus:ring-red-600 dark:ring-red-600': form.errors.title }"
+                placeholder="Masukkan judul dokumen"
+              />
+              <InputError class="mt-2" :message="form.errors.title" />
+            </div>
+
+            <!-- Description -->
+            <div>
+              <label for="description" class="block text-sm font-medium leading-6 text-gray-900 dark:text-white">
+                Deskripsi
+              </label>
+              <Textarea
+                id="description"
+                v-model="form.description"
+                rows="3"
+                class="mt-2"
+                placeholder="Masukkan deskripsi dokumen (opsional)"
+              />
+              <InputError class="mt-2" :message="form.errors.description" />
+            </div>
+
+            <!-- File Upload -->
+            <div>
+              <label class="block text-sm font-medium leading-6 text-gray-900 dark:text-white">
+                File Dokumen <span class="text-red-500">*</span>
+              </label>
+              <div class="mt-2">
+                <FileUpload
+                  v-model="form.file"
+                  :accepted-formats="selectedDocumentType?.allowed_extensions || []"
+                  :max-size-m-b="selectedDocumentType?.max_file_size_mb || 10"
+                  :uploading="form.processing"
+                  @error="handleUploadError"
+                />
+              </div>
+              <InputError class="mt-2" :message="form.errors.file" />
+            </div>
+
+            <div class="grid grid-cols-1 gap-6 lg:grid-cols-2">
+              <!-- Issued Date -->
+              <div>
+                <label for="issued_date" class="block text-sm font-medium leading-6 text-gray-900 dark:text-white">
+                  Tanggal Terbit
+                </label>
+                <Input
+                  id="issued_date"
+                  v-model="form.issued_date"
+                  type="date"
+                  class="mt-2"
+                  :max="today"
+                />
+                <InputError class="mt-2" :message="form.errors.issued_date" />
+              </div>
+
+              <!-- Expiry Date -->
+              <div v-if="selectedDocumentType?.requires_expiry">
+                <label for="expiry_date" class="block text-sm font-medium leading-6 text-gray-900 dark:text-white">
+                  Tanggal Kadaluarsa <span class="text-red-500">*</span>
+                </label>
+                <Input
+                  id="expiry_date"
+                  v-model="form.expiry_date"
+                  type="date"
+                  class="mt-2"
+                  :min="form.issued_date || today"
+                />
+                <InputError class="mt-2" :message="form.errors.expiry_date" />
+                <p class="mt-1 text-sm text-gray-500 dark:text-gray-400">
+                  Default: {{ defaultExpiryDate }}
+                </p>
+              </div>
+            </div>
+
+            <!-- Notes -->
+            <div>
+              <label for="notes" class="block text-sm font-medium leading-6 text-gray-900 dark:text-white">
+                Catatan
+              </label>
+              <Textarea
+                id="notes"
+                v-model="form.notes"
+                rows="3"
+                class="mt-2"
+                placeholder="Masukkan catatan tambahan (opsional)"
+              />
+              <InputError class="mt-2" :message="form.errors.notes" />
+            </div>
+
+            <!-- Submit Buttons -->
+            <div class="flex items-center justify-end gap-x-6 border-t border-gray-900/10 pt-6 dark:border-white/10">
+              <Link
+                :href="route('admin.documents.index')"
+                class="text-sm font-semibold leading-6 text-gray-900 hover:text-gray-700 dark:text-white dark:hover:text-gray-300"
+              >
+                Batal
+              </Link>
+              <button
+                type="submit"
+                :disabled="form.processing || !form.file"
+                class="inline-flex items-center rounded-md bg-blue-600 px-3 py-2 text-sm font-semibold text-white shadow-sm hover:bg-blue-500 focus-visible:outline focus-visible:outline-2 focus-visible:outline-offset-2 focus-visible:outline-blue-600 disabled:opacity-50 disabled:cursor-not-allowed"
+              >
+                <LoaderCircle v-if="form.processing" class="mr-2 h-4 w-4 animate-spin" />
+                <Upload v-else class="mr-2 h-4 w-4" />
+                {{ form.processing ? 'Mengupload...' : 'Upload Dokumen' }}
+              </button>
+            </div>
+          </form>
+        </div>
+      </div>
+    </div>
+  </AppLayout>
+</template>
+
+<script setup lang="ts">
+import { ref, computed, watch } from 'vue'
+import { useForm, Link } from '@inertiajs/vue3'
+import { ArrowLeft, Upload, LoaderCircle } from 'lucide-vue-next'
+import AppLayout from '@/layouts/AppLayout.vue'
+import FileUpload from '@/components/Documents/FileUpload.vue'
+import Input from '@/components/ui/input/Input.vue'
+import Textarea from '@/components/ui/textarea/Textarea.vue'
+import InputError from '@/components/InputError.vue'
+import { useToast } from '@/components/ui/toast/use-toast'
+
+interface Props {
+  users: any[]
+  documentTypes: any[]
+}
+
+const props = defineProps<Props>()
+const { toast } = useToast()
+
+const breadcrumbs = [
+  { name: 'Dashboard', href: route('admin.dashboard') },
+  { name: 'Dokumen Karyawan', href: route('admin.documents.index') },
+  { name: 'Upload Dokumen', href: route('admin.documents.create'), current: true },
+]
+
+const form = useForm({
+  user_id: '',
+  document_type_id: '',
+  title: '',
+  description: '',
+  file: null as File | null,
+  issued_date: '',
+  expiry_date: '',
+  notes: '',
+})
+
+const selectedDocumentType = ref(null)
+
+const today = computed(() => {
+  return new Date().toISOString().split('T')[0]
+})
+
+const defaultExpiryDate = computed(() => {
+  if (!selectedDocumentType.value?.default_validity_months) return 'Tidak ada default'
+
+  const months = selectedDocumentType.value.default_validity_months
+  const date = new Date()
+  date.setMonth(date.getMonth() + months)
+
+  return date.toLocaleDateString('id-ID', {
+    year: 'numeric',
+    month: 'long',
+    day: 'numeric'
+  })
+})
+
+const handleDocumentTypeChange = () => {
+  selectedDocumentType.value = props.documentTypes.find(
+    type => type.id == form.document_type_id
+  )
+
+  // Auto-set expiry date if document type has default validity
+  if (selectedDocumentType.value?.requires_expiry && selectedDocumentType.value.default_validity_months) {
+    const expiryDate = new Date()
+    expiryDate.setMonth(expiryDate.getMonth() + selectedDocumentType.value.default_validity_months)
+    form.expiry_date = expiryDate.toISOString().split('T')[0]
+  }
+
+  // Clear file if format doesn't match
+  if (form.file && selectedDocumentType.value?.allowed_extensions) {
+    const fileExtension = form.file.name.split('.').pop()?.toLowerCase()
+    if (!selectedDocumentType.value.allowed_extensions.includes(fileExtension)) {
+      form.file = null
+    }
+  }
+}
+
+const handleUploadError = (message: string) => {
+  toast({
+    title: 'Error Upload',
+    description: message,
+    variant: 'destructive',
+  })
+}
+
+// Auto-update expiry date when issued date changes
+watch(() => form.issued_date, (newDate) => {
+  if (newDate && selectedDocumentType.value?.requires_expiry && selectedDocumentType.value.default_validity_months) {
+    const issuedDate = new Date(newDate)
+    issuedDate.setMonth(issuedDate.getMonth() + selectedDocumentType.value.default_validity_months)
+    form.expiry_date = issuedDate.toISOString().split('T')[0]
+  }
+})
+
+const submitForm = () => {
+  form.post(route('admin.documents.store'), {
+    onSuccess: () => {
+      toast({
+        title: 'Berhasil',
+        description: 'Dokumen berhasil diupload',
+      })
+    },
+    onError: () => {
+      toast({
+        title: 'Gagal',
+        description: 'Terjadi kesalahan saat mengupload dokumen',
+        variant: 'destructive',
+      })
+    }
+  })
+}
+</script>
