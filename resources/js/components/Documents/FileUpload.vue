@@ -114,7 +114,16 @@ interface Emits {
 }
 
 const props = withDefaults(defineProps<Props>(), {
-  acceptedFormats: () => ['pdf', 'jpg', 'jpeg', 'png', 'doc', 'docx'],
+  acceptedFormats: () => [
+    // Documents
+    'pdf', 'doc', 'docx', 'xls', 'xlsx', 'ppt', 'pptx', 'txt', 'rtf', 'odt', 'ods', 'odp',
+    // Images
+    'jpg', 'jpeg', 'png', 'gif', 'bmp', 'svg', 'webp',
+    // Archives
+    'zip', 'rar', '7z',
+    // Other formats
+    'csv', 'xml', 'json'
+  ],
   maxSizeMB: 10,
   disabled: false,
   uploading: false,
