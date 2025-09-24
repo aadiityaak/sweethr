@@ -22,7 +22,7 @@
               Refresh
             </button>
             <Link
-              :href="route('admin.documents.create')"
+              :href="create.url()"
               class="inline-flex items-center rounded-md bg-blue-600 px-3 py-2 text-sm font-semibold text-white shadow-sm hover:bg-blue-500 focus-visible:outline focus-visible:outline-2 focus-visible:outline-offset-2 focus-visible:outline-blue-600"
             >
               <Plus class="mr-2 h-4 w-4" />
@@ -287,6 +287,8 @@ import {
 } from 'lucide-vue-next'
 import AppLayout from '@/layouts/AppLayout.vue'
 import DocumentCard from '@/components/Documents/DocumentCard.vue'
+import { dashboard } from '@/routes/admin'
+import { index as documentsIndex, create } from '@/routes/admin/documents'
 import ConfirmationModal from '@/components/ConfirmationModal.vue'
 import Pagination from '@/components/Pagination.vue'
 import { useToast } from '@/components/ui/toast/use-toast'
@@ -315,8 +317,8 @@ const props = defineProps<Props>()
 const { toast } = useToast()
 
 const breadcrumbs = [
-  { name: 'Dashboard', href: route('admin.dashboard') },
-  { name: 'Dokumen Karyawan', href: route('admin.documents.index'), current: true },
+  { name: 'Dashboard', href: dashboard.url() },
+  { name: 'Dokumen Karyawan', href: documentsIndex.url(), current: true },
 ]
 
 const filters = reactive({

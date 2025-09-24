@@ -14,7 +14,7 @@
           </div>
           <div class="flex gap-3">
             <Link
-              :href="route('admin.documents.index')"
+              :href="documentsIndex.url()"
               class="inline-flex items-center rounded-md bg-white px-3 py-2 text-sm font-semibold text-gray-900 shadow-sm ring-1 ring-inset ring-gray-300 hover:bg-gray-50 dark:bg-gray-800 dark:text-white dark:ring-gray-600 dark:hover:bg-gray-700"
             >
               <ArrowLeft class="mr-2 h-4 w-4" />
@@ -195,7 +195,7 @@
             <!-- Submit Buttons -->
             <div class="flex items-center justify-end gap-x-6 border-t border-gray-900/10 pt-6 dark:border-white/10">
               <Link
-                :href="route('admin.documents.index')"
+                :href="documentsIndex.url()"
                 class="text-sm font-semibold leading-6 text-gray-900 hover:text-gray-700 dark:text-white dark:hover:text-gray-300"
               >
                 Batal
@@ -227,6 +227,8 @@ import Input from '@/components/ui/input/Input.vue'
 import Textarea from '@/components/ui/textarea/Textarea.vue'
 import InputError from '@/components/InputError.vue'
 import { useToast } from '@/components/ui/toast/use-toast'
+import { dashboard } from '@/routes/admin'
+import { index as documentsIndex, create, store } from '@/routes/admin/documents'
 
 interface Props {
   users: any[]
@@ -237,9 +239,9 @@ const props = defineProps<Props>()
 const { toast } = useToast()
 
 const breadcrumbs = [
-  { name: 'Dashboard', href: route('admin.dashboard') },
-  { name: 'Dokumen Karyawan', href: route('admin.documents.index') },
-  { name: 'Upload Dokumen', href: route('admin.documents.create'), current: true },
+  { name: 'Dashboard', href: dashboard.url() },
+  { name: 'Dokumen Karyawan', href: documentsIndex.url() },
+  { name: 'Upload Dokumen', href: create.url(), current: true },
 ]
 
 const form = useForm({
@@ -312,7 +314,7 @@ watch(() => form.issued_date, (newDate) => {
 })
 
 const submitForm = () => {
-  form.post(route('admin.documents.store'), {
+  form.post(store.url(), {
     onSuccess: () => {
       toast({
         title: 'Berhasil',
