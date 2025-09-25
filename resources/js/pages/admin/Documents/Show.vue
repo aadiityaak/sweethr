@@ -43,10 +43,15 @@
                   <FileText class="mr-2 h-5 w-5 text-blue-600 dark:text-blue-400" />
                   Informasi Dokumen
                 </h3>
-                <DocumentStatus
-                  :status="document.status"
-                  :is-expiring-soon="isExpiringSoon"
-                />
+                <div v-if="isExpired" class="inline-flex items-center rounded-full bg-red-100 px-2 py-1 text-xs font-medium text-red-800 dark:bg-red-900/20 dark:text-red-400">
+                  Kadaluarsa
+                </div>
+                <div v-else-if="isExpiringSoon" class="inline-flex items-center rounded-full bg-orange-100 px-2 py-1 text-xs font-medium text-orange-800 dark:bg-orange-900/20 dark:text-orange-400">
+                  Akan Kadaluarsa
+                </div>
+                <div v-else class="inline-flex items-center rounded-full bg-green-100 px-2 py-1 text-xs font-medium text-green-800 dark:bg-green-900/20 dark:text-green-400">
+                  Aktif
+                </div>
               </div>
             </div>
             <div class="p-6">
@@ -120,7 +125,7 @@
             </div>
           </div>
 
-          <!-- Upload & Approval Info -->
+          <!-- Upload Info -->
           <div class="overflow-hidden rounded-xl bg-white shadow-sm ring-1 ring-gray-900/5 dark:bg-gray-900 dark:ring-white/10">
             <div class="px-6 py-4 border-b border-gray-200 dark:border-gray-700">
               <h3 class="text-lg font-semibold text-gray-900 dark:text-white flex items-center">
@@ -133,8 +138,7 @@
                 <ul role="list" class="-mb-8">
                   <!-- Upload Event -->
                   <li>
-                    <div class="relative pb-8">
-                      <span class="absolute left-4 top-4 -ml-px h-full w-0.5 bg-gray-200 dark:bg-gray-700" aria-hidden="true"></span>
+                    <div class="relative">
                       <div class="relative flex space-x-3">
                         <div>
                           <span class="h-8 w-8 rounded-full bg-blue-500 flex items-center justify-center ring-8 ring-white dark:ring-gray-900">
@@ -155,56 +159,6 @@
                     </div>
                   </li>
 
-                  <!-- Approval Event -->
-                  <li v-if="document.status === 'approved' && document.approved_by">
-                    <div class="relative">
-                      <div class="relative flex space-x-3">
-                        <div>
-                          <span class="h-8 w-8 rounded-full bg-green-500 flex items-center justify-center ring-8 ring-white dark:ring-gray-900">
-                            <CheckCircle class="h-4 w-4 text-white" />
-                          </span>
-                        </div>
-                        <div class="flex min-w-0 flex-1 justify-between space-x-4 pt-1.5">
-                          <div>
-                            <p class="text-sm text-gray-500 dark:text-gray-400">
-                              Dokumen disetujui oleh <span class="font-medium text-gray-900 dark:text-white">{{ document.approved_by.name }}</span>
-                            </p>
-                          </div>
-                          <div class="whitespace-nowrap text-right text-sm text-gray-500 dark:text-gray-400">
-                            {{ formatDateTime(document.approved_at) }}
-                          </div>
-                        </div>
-                      </div>
-                    </div>
-                  </li>
-
-                  <!-- Rejection Event -->
-                  <li v-if="document.status === 'rejected'">
-                    <div class="relative">
-                      <div class="relative flex space-x-3">
-                        <div>
-                          <span class="h-8 w-8 rounded-full bg-red-500 flex items-center justify-center ring-8 ring-white dark:ring-gray-900">
-                            <XCircle class="h-4 w-4 text-white" />
-                          </span>
-                        </div>
-                        <div class="flex min-w-0 flex-1 justify-between space-x-4 pt-1.5">
-                          <div>
-                            <p class="text-sm text-gray-500 dark:text-gray-400">
-                              Dokumen ditolak
-                            </p>
-                            <div v-if="document.rejection_reason" class="mt-2 rounded-md bg-red-50 p-3 dark:bg-red-900/20">
-                              <p class="text-sm text-red-800 dark:text-red-200">
-                                <strong>Alasan:</strong> {{ document.rejection_reason }}
-                              </p>
-                            </div>
-                          </div>
-                          <div class="whitespace-nowrap text-right text-sm text-gray-500 dark:text-gray-400">
-                            {{ formatDateTime(document.updated_at) }}
-                          </div>
-                        </div>
-                      </div>
-                    </div>
-                  </li>
                 </ul>
               </div>
             </div>
@@ -221,27 +175,7 @@
               </h3>
             </div>
             <div class="p-6 space-y-4">
-              <!-- Approval Actions -->
-              <div v-if="document.status === 'pending'" class="space-y-3">
-                <button
-                  type="button"
-                  class="w-full inline-flex items-center justify-center rounded-md bg-green-600 px-3 py-2 text-sm font-semibold text-white shadow-sm hover:bg-green-500"
-                  @click="approveDocument"
-                >
-                  <CheckCircle class="mr-2 h-4 w-4" />
-                  Setujui Dokumen
-                </button>
-                <button
-                  type="button"
-                  class="w-full inline-flex items-center justify-center rounded-md bg-red-600 px-3 py-2 text-sm font-semibold text-white shadow-sm hover:bg-red-500"
-                  @click="showRejectModal = true"
-                >
-                  <XCircle class="mr-2 h-4 w-4" />
-                  Tolak Dokumen
-                </button>
-              </div>
-
-              <!-- Other Actions -->
+              <!-- Actions -->
               <Link
                 :href="route('admin.documents.edit', document.id)"
                 class="w-full inline-flex items-center justify-center rounded-md bg-white px-3 py-2 text-sm font-semibold text-gray-900 shadow-sm ring-1 ring-inset ring-gray-300 hover:bg-gray-50 dark:bg-gray-800 dark:text-white dark:ring-gray-600 dark:hover:bg-gray-700"
@@ -279,30 +213,6 @@
       </div>
     </div>
 
-    <!-- Rejection Modal -->
-    <ConfirmationModal
-      v-if="showRejectModal"
-      title="Tolak Dokumen"
-      :message="`Apakah Anda yakin ingin menolak dokumen '${document.title}'?`"
-      confirm-text="Tolak"
-      confirm-variant="danger"
-      @confirm="handleRejectDocument"
-      @cancel="showRejectModal = false"
-    >
-      <div class="mt-4">
-        <label for="rejection_reason" class="block text-sm font-medium text-gray-700 dark:text-gray-300">
-          Alasan Penolakan
-        </label>
-        <textarea
-          id="rejection_reason"
-          v-model="rejectionReason"
-          rows="3"
-          class="mt-1 block w-full rounded-md border-0 py-1.5 text-gray-900 shadow-sm ring-1 ring-inset ring-gray-300 placeholder:text-gray-400 focus:ring-2 focus:ring-inset focus:ring-blue-600 dark:bg-gray-800 dark:text-white dark:ring-gray-600 sm:text-sm sm:leading-6"
-          placeholder="Masukkan alasan penolakan..."
-          required
-        />
-      </div>
-    </ConfirmationModal>
 
     <!-- Delete Modal -->
     <ConfirmationModal
@@ -327,13 +237,10 @@ import {
   User,
   Clock,
   Upload,
-  CheckCircle,
-  XCircle,
   SquarePen,
   Trash2
 } from 'lucide-vue-next'
 import AppLayout from '@/layouts/AppLayout.vue'
-import DocumentStatus from '@/components/Documents/DocumentStatus.vue'
 import ConfirmationModal from '@/components/ConfirmationModal.vue'
 import { useToast } from '@/components/ui/toast/use-toast'
 
@@ -344,8 +251,6 @@ interface Props {
 const props = defineProps<Props>()
 const { toast } = useToast()
 
-const showRejectModal = ref(false)
-const rejectionReason = ref('')
 const showDeleteModal = ref(false)
 
 const breadcrumbs = [
@@ -405,54 +310,6 @@ const downloadDocument = () => {
   window.open(route('admin.documents.download', props.document.id), '_blank')
 }
 
-const approveDocument = () => {
-  router.patch(route('admin.documents.approve', props.document.id), {}, {
-    onSuccess: () => {
-      toast({
-        title: 'Berhasil',
-        description: 'Dokumen berhasil disetujui',
-      })
-    },
-    onError: () => {
-      toast({
-        title: 'Gagal',
-        description: 'Terjadi kesalahan saat menyetujui dokumen',
-        variant: 'destructive',
-      })
-    }
-  })
-}
-
-const handleRejectDocument = () => {
-  if (!rejectionReason.value.trim()) {
-    toast({
-      title: 'Error',
-      description: 'Alasan penolakan harus diisi',
-      variant: 'destructive',
-    })
-    return
-  }
-
-  router.patch(route('admin.documents.reject', props.document.id), {
-    rejection_reason: rejectionReason.value
-  }, {
-    onSuccess: () => {
-      toast({
-        title: 'Berhasil',
-        description: 'Dokumen berhasil ditolak',
-      })
-      showRejectModal.value = false
-      rejectionReason.value = ''
-    },
-    onError: () => {
-      toast({
-        title: 'Gagal',
-        description: 'Terjadi kesalahan saat menolak dokumen',
-        variant: 'destructive',
-      })
-    }
-  })
-}
 
 const handleDeleteDocument = () => {
   router.delete(route('admin.documents.destroy', props.document.id), {

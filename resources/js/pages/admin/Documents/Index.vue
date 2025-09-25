@@ -33,7 +33,7 @@
       </div>
 
       <!-- Stats Cards -->
-      <div class="mb-8 grid grid-cols-1 gap-6 sm:grid-cols-2 lg:grid-cols-5">
+      <div class="mb-8 grid grid-cols-1 gap-6 sm:grid-cols-2 lg:grid-cols-4">
         <div class="overflow-hidden rounded-xl bg-white shadow-sm ring-1 ring-gray-900/5 dark:bg-gray-900 dark:ring-white/10">
           <div class="p-6">
             <div class="flex items-center">
@@ -51,26 +51,12 @@
         <div class="overflow-hidden rounded-xl bg-white shadow-sm ring-1 ring-gray-900/5 dark:bg-gray-900 dark:ring-white/10">
           <div class="p-6">
             <div class="flex items-center">
-              <div class="flex h-12 w-12 shrink-0 items-center justify-center rounded-full bg-yellow-500/10">
-                <Clock class="h-6 w-6 text-yellow-600 dark:text-yellow-400" />
-              </div>
-              <div class="ml-4 flex-1">
-                <p class="text-sm font-medium text-gray-600 dark:text-gray-400">Menunggu Persetujuan</p>
-                <p class="text-2xl font-bold text-gray-900 dark:text-white">{{ stats.pending }}</p>
-              </div>
-            </div>
-          </div>
-        </div>
-
-        <div class="overflow-hidden rounded-xl bg-white shadow-sm ring-1 ring-gray-900/5 dark:bg-gray-900 dark:ring-white/10">
-          <div class="p-6">
-            <div class="flex items-center">
               <div class="flex h-12 w-12 shrink-0 items-center justify-center rounded-full bg-green-500/10">
                 <CheckCircle class="h-6 w-6 text-green-600 dark:text-green-400" />
               </div>
               <div class="ml-4 flex-1">
-                <p class="text-sm font-medium text-gray-600 dark:text-gray-400">Disetujui</p>
-                <p class="text-2xl font-bold text-gray-900 dark:text-white">{{ stats.approved }}</p>
+                <p class="text-sm font-medium text-gray-600 dark:text-gray-400">Dokumen Aktif</p>
+                <p class="text-2xl font-bold text-gray-900 dark:text-white">{{ stats.active }}</p>
               </div>
             </div>
           </div>
@@ -108,7 +94,7 @@
       <!-- Filters -->
       <div class="mb-6 overflow-hidden rounded-xl bg-white shadow-sm ring-1 ring-gray-900/5 dark:bg-gray-900 dark:ring-white/10">
         <div class="p-6">
-          <div class="grid grid-cols-1 gap-4 sm:grid-cols-2 lg:grid-cols-4">
+          <div class="grid grid-cols-1 gap-4 sm:grid-cols-2 lg:grid-cols-3">
             <!-- Employee Filter -->
             <div>
               <label for="user_id" class="block text-sm font-medium text-gray-700 dark:text-gray-300">
@@ -145,24 +131,6 @@
               </select>
             </div>
 
-            <!-- Status Filter -->
-            <div>
-              <label for="status" class="block text-sm font-medium text-gray-700 dark:text-gray-300">
-                Status
-              </label>
-              <select
-                id="status"
-                v-model="filters.status"
-                class="mt-1 block w-full rounded-md border-0 py-1.5 text-gray-900 shadow-sm ring-1 ring-inset ring-gray-300 focus:ring-2 focus:ring-inset focus:ring-blue-600 dark:bg-gray-800 dark:text-white dark:ring-gray-600 sm:text-sm sm:leading-6"
-                @change="applyFilters"
-              >
-                <option value="">Semua Status</option>
-                <option value="pending">Menunggu Persetujuan</option>
-                <option value="approved">Disetujui</option>
-                <option value="rejected">Ditolak</option>
-                <option value="expired">Kadaluarsa</option>
-              </select>
-            </div>
 
             <!-- Special Filters -->
             <div>
@@ -213,8 +181,6 @@
           :document="document"
           @view="viewDocument"
           @download="downloadDocument"
-          @approve="approveDocument"
-          @reject="showRejectModal"
           @edit="editDocument"
           @delete="showDeleteModal"
         />
@@ -235,30 +201,6 @@
       </div>
     </div>
 
-    <!-- Rejection Modal -->
-    <ConfirmationModal
-      v-if="showingRejectModal"
-      title="Tolak Dokumen"
-      :message="`Apakah Anda yakin ingin menolak dokumen '${documentToReject?.title}'?`"
-      confirm-text="Tolak"
-      confirm-variant="danger"
-      @confirm="handleRejectDocument"
-      @cancel="hideRejectModal"
-    >
-      <div class="mt-4">
-        <label for="rejection_reason" class="block text-sm font-medium text-gray-700 dark:text-gray-300">
-          Alasan Penolakan
-        </label>
-        <textarea
-          id="rejection_reason"
-          v-model="rejectionReason"
-          rows="3"
-          class="mt-1 block w-full rounded-md border-0 py-1.5 text-gray-900 shadow-sm ring-1 ring-inset ring-gray-300 placeholder:text-gray-400 focus:ring-2 focus:ring-inset focus:ring-blue-600 dark:bg-gray-800 dark:text-white dark:ring-gray-600 sm:text-sm sm:leading-6"
-          placeholder="Masukkan alasan penolakan..."
-          required
-        />
-      </div>
-    </ConfirmationModal>
 
     <!-- Delete Modal -->
     <ConfirmationModal
@@ -274,13 +216,12 @@
 </template>
 
 <script setup lang="ts">
-import { ref, reactive, computed } from 'vue'
+import { ref, reactive } from 'vue'
 import { router, Link } from '@inertiajs/vue3'
 import {
   FileText,
   Plus,
   RefreshCw,
-  Clock,
   CheckCircle,
   XCircle,
   AlertTriangle
@@ -299,15 +240,13 @@ interface Props {
   documentTypes: any[]
   stats: {
     total: number
-    pending: number
-    approved: number
+    active: number
     expiring_soon: number
     expired: number
   }
   filters: {
     user_id?: string
     document_type_id?: string
-    status?: string
     expiring_soon?: boolean
     expired?: boolean
   }
@@ -324,14 +263,10 @@ const breadcrumbs = [
 const filters = reactive({
   user_id: props.filters.user_id || '',
   document_type_id: props.filters.document_type_id || '',
-  status: props.filters.status || '',
   expiring_soon: props.filters.expiring_soon || false,
   expired: props.filters.expired || false,
 })
 
-const showingRejectModal = ref(false)
-const documentToReject = ref(null)
-const rejectionReason = ref('')
 
 const showingDeleteModal = ref(false)
 const documentToDelete = ref(null)
@@ -355,7 +290,6 @@ const applyFilters = () => {
 const clearFilters = () => {
   filters.user_id = ''
   filters.document_type_id = ''
-  filters.status = ''
   filters.expiring_soon = false
   filters.expired = false
   applyFilters()
@@ -373,65 +307,6 @@ const downloadDocument = (document: any) => {
   window.open(route('admin.documents.download', document.id), '_blank')
 }
 
-const approveDocument = (document: any) => {
-  router.patch(route('admin.documents.approve', document.id), {}, {
-    onSuccess: () => {
-      toast({
-        title: 'Berhasil',
-        description: 'Dokumen berhasil disetujui',
-      })
-    },
-    onError: () => {
-      toast({
-        title: 'Gagal',
-        description: 'Terjadi kesalahan saat menyetujui dokumen',
-        variant: 'destructive',
-      })
-    }
-  })
-}
-
-const showRejectModal = (document: any) => {
-  documentToReject.value = document
-  rejectionReason.value = ''
-  showingRejectModal.value = true
-}
-
-const hideRejectModal = () => {
-  showingRejectModal.value = false
-  documentToReject.value = null
-  rejectionReason.value = ''
-}
-
-const handleRejectDocument = () => {
-  if (!rejectionReason.value.trim()) {
-    toast({
-      title: 'Error',
-      description: 'Alasan penolakan harus diisi',
-      variant: 'destructive',
-    })
-    return
-  }
-
-  router.patch(route('admin.documents.reject', documentToReject.value.id), {
-    rejection_reason: rejectionReason.value
-  }, {
-    onSuccess: () => {
-      toast({
-        title: 'Berhasil',
-        description: 'Dokumen berhasil ditolak',
-      })
-      hideRejectModal()
-    },
-    onError: () => {
-      toast({
-        title: 'Gagal',
-        description: 'Terjadi kesalahan saat menolak dokumen',
-        variant: 'destructive',
-      })
-    }
-  })
-}
 
 const editDocument = (document: any) => {
   router.visit(route('admin.documents.edit', document.id))

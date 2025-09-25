@@ -19,7 +19,7 @@ class DocumentController extends Controller
     public function index(Request $request)
     {
         $query = EmployeeDocument::query()
-            ->with(['user:id,name,employee_id', 'documentType:id,name', 'uploadedBy:id,name', 'approvedBy:id,name'])
+            ->with(['user:id,name,employee_id', 'documentType:id,name', 'uploadedBy:id,name'])
             ->latest();
 
         // Filter by employee
@@ -32,10 +32,6 @@ class DocumentController extends Controller
             $query->where('document_type_id', $request->document_type_id);
         }
 
-        // Filter by status
-        if ($request->filled('status')) {
-            $query->where('status', $request->status);
-        }
 
         // Filter expiring soon
         if ($request->boolean('expiring_soon')) {
@@ -56,8 +52,7 @@ class DocumentController extends Controller
         // Get summary stats
         $stats = [
             'total' => EmployeeDocument::count(),
-            'pending' => EmployeeDocument::where('status', 'pending')->count(),
-            'approved' => EmployeeDocument::where('status', 'approved')->count(),
+            'active' => EmployeeDocument::where('is_active', true)->count(),
             'expiring_soon' => EmployeeDocument::expiringSoon()->count(),
             'expired' => EmployeeDocument::expired()->count(),
         ];
@@ -67,7 +62,7 @@ class DocumentController extends Controller
             'users' => $users,
             'documentTypes' => $documentTypes,
             'stats' => $stats,
-            'filters' => $request->only(['user_id', 'document_type_id', 'status', 'expiring_soon', 'expired']),
+            'filters' => $request->only(['user_id', 'document_type_id', 'expiring_soon', 'expired']),
         ]);
     }
 
@@ -130,7 +125,6 @@ class DocumentController extends Controller
             'user:id,name,employee_id',
             'documentType:id,name,description',
             'uploadedBy:id,name',
-            'approvedBy:id,name',
         ]);
 
         return Inertia::render('admin/Documents/Show', [
@@ -175,36 +169,6 @@ class DocumentController extends Controller
             ->with('success', 'Dokumen berhasil diperbarui.');
     }
 
-    /**
-     * Approve document
-     */
-    public function approve(EmployeeDocument $document)
-    {
-        $document->update([
-            'status' => 'approved',
-            'approved_by' => auth()->id(),
-            'approved_at' => now(),
-        ]);
-
-        return back()->with('success', 'Dokumen berhasil disetujui.');
-    }
-
-    /**
-     * Reject document
-     */
-    public function reject(Request $request, EmployeeDocument $document)
-    {
-        $request->validate([
-            'rejection_reason' => ['required', 'string'],
-        ]);
-
-        $document->update([
-            'status' => 'rejected',
-            'rejection_reason' => $request->rejection_reason,
-        ]);
-
-        return back()->with('success', 'Dokumen ditolak.');
-    }
 
     /**
      * Download document file

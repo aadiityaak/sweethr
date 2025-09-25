@@ -21,11 +21,7 @@ class EmployeeDocument extends Model
         'mime_type',
         'issued_date',
         'expiry_date',
-        'status',
         'uploaded_by',
-        'approved_by',
-        'approved_at',
-        'rejection_reason',
         'notes',
         'version',
         'is_active',
@@ -36,7 +32,6 @@ class EmployeeDocument extends Model
         return [
             'issued_date' => 'date',
             'expiry_date' => 'date',
-            'approved_at' => 'datetime',
             'is_active' => 'boolean',
         ];
     }
@@ -56,32 +51,23 @@ class EmployeeDocument extends Model
         return $this->belongsTo(User::class, 'uploaded_by');
     }
 
-    public function approvedBy(): BelongsTo
-    {
-        return $this->belongsTo(User::class, 'approved_by');
-    }
 
     public function scopeActive($query)
     {
         return $query->where('is_active', true);
     }
 
-    public function scopeApproved($query)
-    {
-        return $query->where('status', 'approved');
-    }
-
     public function scopeExpiringSoon($query, int $days = 30)
     {
         return $query->where('expiry_date', '<=', Carbon::now()->addDays($days))
             ->where('expiry_date', '>=', Carbon::now())
-            ->where('status', 'approved');
+            ->where('is_active', true);
     }
 
     public function scopeExpired($query)
     {
         return $query->where('expiry_date', '<', Carbon::now())
-            ->where('status', 'approved');
+            ->where('is_active', true);
     }
 
     public function getIsExpiredAttribute(): bool

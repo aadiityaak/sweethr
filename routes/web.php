@@ -211,10 +211,6 @@ Route::middleware(['auth', 'verified', 'admin'])->group(function () {
             'destroy' => 'admin.documents.destroy',
         ],
     ]);
-    Route::patch('admin/documents/{document}/approve', [App\Http\Controllers\Admin\DocumentController::class, 'approve'])
-        ->name('admin.documents.approve');
-    Route::patch('admin/documents/{document}/reject', [App\Http\Controllers\Admin\DocumentController::class, 'reject'])
-        ->name('admin.documents.reject');
     Route::get('admin/documents/{document}/download', [App\Http\Controllers\Admin\DocumentController::class, 'download'])
         ->name('admin.documents.download');
 });

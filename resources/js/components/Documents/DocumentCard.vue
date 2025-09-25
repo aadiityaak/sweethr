@@ -20,10 +20,17 @@
         </div>
 
         <div class="flex flex-col items-end space-y-2">
-          <DocumentStatus
-            :status="document.status"
-            :is-expiring-soon="isExpiringSoon"
-          />
+          <div class="flex items-center space-x-2">
+            <div v-if="isExpired" class="inline-flex items-center rounded-full bg-red-100 px-2 py-1 text-xs font-medium text-red-800 dark:bg-red-900/20 dark:text-red-400">
+              Kadaluarsa
+            </div>
+            <div v-else-if="isExpiringSoon" class="inline-flex items-center rounded-full bg-orange-100 px-2 py-1 text-xs font-medium text-orange-800 dark:bg-orange-900/20 dark:text-orange-400">
+              Akan Kadaluarsa
+            </div>
+            <div v-else class="inline-flex items-center rounded-full bg-green-100 px-2 py-1 text-xs font-medium text-green-800 dark:bg-green-900/20 dark:text-green-400">
+              Aktif
+            </div>
+          </div>
 
           <!-- Actions Dropdown -->
           <div class="relative">
@@ -58,25 +65,6 @@
                 Download
               </button>
 
-              <button
-                v-if="document.status === 'pending'"
-                type="button"
-                class="flex w-full items-center px-4 py-2 text-sm text-green-700 hover:bg-green-50 dark:text-green-400 dark:hover:bg-green-900/20"
-                @click="$emit('approve', document)"
-              >
-                <CheckCircle class="mr-3 h-4 w-4" />
-                Setujui
-              </button>
-
-              <button
-                v-if="document.status === 'pending'"
-                type="button"
-                class="flex w-full items-center px-4 py-2 text-sm text-red-700 hover:bg-red-50 dark:text-red-400 dark:hover:bg-red-900/20"
-                @click="$emit('reject', document)"
-              >
-                <XCircle class="mr-3 h-4 w-4" />
-                Tolak
-              </button>
 
               <button
                 type="button"
@@ -140,17 +128,6 @@
         <span>{{ formatDateTime(document.created_at) }}</span>
       </div>
 
-      <!-- Approval Info -->
-      <div v-if="document.status === 'approved' && document.approved_by" class="mt-2 text-xs text-gray-500 dark:text-gray-400">
-        Disetujui oleh {{ document.approved_by.name }} pada {{ formatDateTime(document.approved_at) }}
-      </div>
-
-      <!-- Rejection Reason -->
-      <div v-if="document.status === 'rejected' && document.rejection_reason" class="mt-4 rounded-md bg-red-50 p-3 dark:bg-red-900/20">
-        <p class="text-sm text-red-800 dark:text-red-200">
-          <strong>Alasan Penolakan:</strong> {{ document.rejection_reason }}
-        </p>
-      </div>
     </div>
   </div>
 </template>
@@ -162,12 +139,9 @@ import {
   MoreHorizontal,
   Eye,
   Download,
-  CheckCircle,
-  XCircle,
   SquarePen,
   Trash2
 } from 'lucide-vue-next'
-import DocumentStatus from './DocumentStatus.vue'
 
 interface Document {
   id: number
@@ -176,11 +150,9 @@ interface Document {
   file_size: number
   issued_date?: string
   expiry_date?: string
-  status: 'pending' | 'approved' | 'rejected' | 'expired'
+  is_active: boolean
   description?: string
   created_at: string
-  approved_at?: string
-  rejection_reason?: string
   document_type?: {
     id: number
     name: string
@@ -194,10 +166,6 @@ interface Document {
     id: number
     name: string
   }
-  approved_by?: {
-    id: number
-    name: string
-  }
 }
 
 interface Props {
@@ -207,8 +175,6 @@ interface Props {
 interface Emits {
   (e: 'view', document: Document): void
   (e: 'download', document: Document): void
-  (e: 'approve', document: Document): void
-  (e: 'reject', document: Document): void
   (e: 'edit', document: Document): void
   (e: 'delete', document: Document): void
 }
