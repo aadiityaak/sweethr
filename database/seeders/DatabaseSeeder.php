@@ -32,9 +32,13 @@ class DatabaseSeeder extends Seeder
             // Employee Work Assignment (depends on users & work shifts)
             EmployeeShiftSeeder::class,
 
+            // Document Types (independent)
+            DocumentTypeSeeder::class,
+
             // Sample Data (optional for testing)
             LeaveRequestSeeder::class,
             AttendanceSeeder::class,
+            EmployeeDocumentSeeder::class,
         ]);
     }
 }
