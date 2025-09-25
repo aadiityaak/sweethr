@@ -27,8 +27,6 @@ class StoreDocumentRequest extends FormRequest
             'title' => ['required', 'string', 'max:255'],
             'description' => ['nullable', 'string'],
             'file' => ['required', 'file', 'max:'.($this->getDocumentType()?->max_file_size_mb ?? 10) * 1024],
-            'issued_date' => ['nullable', 'date', 'before_or_equal:today'],
-            'expiry_date' => ['nullable', 'date', 'after:issued_date'],
             'notes' => ['nullable', 'string'],
         ];
     }
@@ -48,10 +46,6 @@ class StoreDocumentRequest extends FormRequest
             'file.required' => 'File dokumen harus diupload.',
             'file.file' => 'File yang diupload harus berupa file.',
             'file.max' => 'Ukuran file maksimal :max KB.',
-            'issued_date.date' => 'Tanggal terbit harus berupa tanggal yang valid.',
-            'issued_date.before_or_equal' => 'Tanggal terbit tidak boleh lebih dari hari ini.',
-            'expiry_date.date' => 'Tanggal kadaluarsa harus berupa tanggal yang valid.',
-            'expiry_date.after' => 'Tanggal kadaluarsa harus setelah tanggal terbit.',
         ];
     }
 

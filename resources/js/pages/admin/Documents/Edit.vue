@@ -54,8 +54,8 @@
                 </div>
                 <div>
                   <span class="text-sm text-gray-500 dark:text-gray-400">Status:</span>
-                  <span class="ml-2">
-                    <DocumentStatus :status="document.status" />
+                  <span class="ml-2 inline-flex items-center rounded-full bg-green-100 px-2 py-1 text-xs font-medium text-green-800 dark:bg-green-900/20 dark:text-green-400">
+                    Aktif
                   </span>
                 </div>
               </div>
@@ -92,43 +92,6 @@
               <InputError class="mt-2" :message="form.errors.description" />
             </div>
 
-            <div class="grid grid-cols-1 gap-6 lg:grid-cols-2">
-              <!-- Issued Date -->
-              <div>
-                <label for="issued_date" class="block text-sm font-medium leading-6 text-gray-900 dark:text-white">
-                  Tanggal Terbit
-                </label>
-                <Input
-                  id="issued_date"
-                  v-model="form.issued_date"
-                  type="date"
-                  class="mt-2"
-                  :max="today"
-                />
-                <InputError class="mt-2" :message="form.errors.issued_date" />
-              </div>
-
-              <!-- Expiry Date -->
-              <div>
-                <label for="expiry_date" class="block text-sm font-medium leading-6 text-gray-900 dark:text-white">
-                  Tanggal Kadaluarsa
-                </label>
-                <Input
-                  id="expiry_date"
-                  v-model="form.expiry_date"
-                  type="date"
-                  class="mt-2"
-                  :min="form.issued_date || today"
-                />
-                <InputError class="mt-2" :message="form.errors.expiry_date" />
-                <p v-if="isExpiringSoon" class="mt-1 text-sm text-orange-600 dark:text-orange-400">
-                  ⚠️ Dokumen akan kadaluarsa dalam {{ daysUntilExpiry }} hari
-                </p>
-                <p v-else-if="isExpired" class="mt-1 text-sm text-red-600 dark:text-red-400">
-                  ❌ Dokumen telah kadaluarsa
-                </p>
-              </div>
-            </div>
 
             <!-- Notes -->
             <div>
@@ -233,7 +196,6 @@ import { ref, computed } from 'vue'
 import { useForm, Link } from '@inertiajs/vue3'
 import { ArrowLeft, SquarePen, Save, Upload, LoaderCircle, AlertTriangle } from 'lucide-vue-next'
 import AppLayout from '@/layouts/AppLayout.vue'
-import DocumentStatus from '@/components/Documents/DocumentStatus.vue'
 import FileUpload from '@/components/Documents/FileUpload.vue'
 import Input from '@/components/ui/input/Input.vue'
 import Textarea from '@/components/ui/textarea/Textarea.vue'
@@ -257,38 +219,12 @@ const breadcrumbs = [
 const form = useForm({
   title: props.document.title || '',
   description: props.document.description || '',
-  issued_date: props.document.issued_date || '',
-  expiry_date: props.document.expiry_date || '',
   notes: props.document.notes || '',
 })
 
 const newFile = ref<File | null>(null)
 const uploadingNewFile = ref(false)
 
-const today = computed(() => {
-  return new Date().toISOString().split('T')[0]
-})
-
-const isExpired = computed(() => {
-  if (!form.expiry_date) return false
-  return new Date(form.expiry_date) < new Date()
-})
-
-const isExpiringSoon = computed(() => {
-  if (!form.expiry_date || isExpired.value) return false
-  const expiryDate = new Date(form.expiry_date)
-  const today = new Date()
-  const thirtyDaysFromNow = new Date(today.getTime() + 30 * 24 * 60 * 60 * 1000)
-  return expiryDate <= thirtyDaysFromNow
-})
-
-const daysUntilExpiry = computed(() => {
-  if (!form.expiry_date) return 0
-  const expiryDate = new Date(form.expiry_date)
-  const today = new Date()
-  const diffTime = expiryDate.getTime() - today.getTime()
-  return Math.ceil(diffTime / (1000 * 60 * 60 * 24))
-})
 
 // Get allowed file extensions and max size from document type (if available)
 const allowedExtensions = computed(() => {

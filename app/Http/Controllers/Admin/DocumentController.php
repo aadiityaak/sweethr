@@ -158,8 +158,6 @@ class DocumentController extends Controller
         $validated = $request->validate([
             'title' => ['required', 'string', 'max:255'],
             'description' => ['nullable', 'string'],
-            'issued_date' => ['nullable', 'date', 'before_or_equal:today'],
-            'expiry_date' => ['nullable', 'date', 'after:issued_date'],
             'notes' => ['nullable', 'string'],
         ]);
 

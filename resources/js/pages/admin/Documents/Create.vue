@@ -142,40 +142,6 @@
               <InputError class="mt-2" :message="form.errors.file" />
             </div>
 
-            <div class="grid grid-cols-1 gap-6 lg:grid-cols-2">
-              <!-- Issued Date -->
-              <div>
-                <label for="issued_date" class="block text-sm font-medium leading-6 text-gray-900 dark:text-white">
-                  Tanggal Terbit
-                </label>
-                <Input
-                  id="issued_date"
-                  v-model="form.issued_date"
-                  type="date"
-                  class="mt-2"
-                  :max="today"
-                />
-                <InputError class="mt-2" :message="form.errors.issued_date" />
-              </div>
-
-              <!-- Expiry Date -->
-              <div v-if="selectedDocumentType?.requires_expiry">
-                <label for="expiry_date" class="block text-sm font-medium leading-6 text-gray-900 dark:text-white">
-                  Tanggal Kadaluarsa <span class="text-red-500">*</span>
-                </label>
-                <Input
-                  id="expiry_date"
-                  v-model="form.expiry_date"
-                  type="date"
-                  class="mt-2"
-                  :min="form.issued_date || today"
-                />
-                <InputError class="mt-2" :message="form.errors.expiry_date" />
-                <p class="mt-1 text-sm text-gray-500 dark:text-gray-400">
-                  Default: {{ defaultExpiryDate }}
-                </p>
-              </div>
-            </div>
 
             <!-- Notes -->
             <div>
@@ -250,42 +216,17 @@ const form = useForm({
   title: '',
   description: '',
   file: null as File | null,
-  issued_date: '',
-  expiry_date: '',
   notes: '',
 })
 
 const selectedDocumentType = ref(null)
 
-const today = computed(() => {
-  return new Date().toISOString().split('T')[0]
-})
-
-const defaultExpiryDate = computed(() => {
-  if (!selectedDocumentType.value?.default_validity_months) return 'Tidak ada default'
-
-  const months = selectedDocumentType.value.default_validity_months
-  const date = new Date()
-  date.setMonth(date.getMonth() + months)
-
-  return date.toLocaleDateString('id-ID', {
-    year: 'numeric',
-    month: 'long',
-    day: 'numeric'
-  })
-})
 
 const handleDocumentTypeChange = () => {
   selectedDocumentType.value = props.documentTypes.find(
     type => type.id == form.document_type_id
   )
 
-  // Auto-set expiry date if document type has default validity
-  if (selectedDocumentType.value?.requires_expiry && selectedDocumentType.value.default_validity_months) {
-    const expiryDate = new Date()
-    expiryDate.setMonth(expiryDate.getMonth() + selectedDocumentType.value.default_validity_months)
-    form.expiry_date = expiryDate.toISOString().split('T')[0]
-  }
 
   // Clear file if format doesn't match
   if (form.file && selectedDocumentType.value?.allowed_extensions) {

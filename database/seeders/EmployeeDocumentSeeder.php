@@ -63,9 +63,9 @@ class EmployeeDocumentSeeder extends Seeder
         // Save dummy file
         Storage::disk('private')->put($filePath, $fileContent);
 
-        // Determine dates
-        $issuedDate = $this->getIssuedDate($documentType->code);
-        $expiryDate = $this->getExpiryDate($documentType, $issuedDate);
+        // Simple dates - optional
+        $issuedDate = null;
+        $expiryDate = null;
 
         // Create document record
         EmployeeDocument::create([
@@ -156,44 +156,15 @@ class EmployeeDocumentSeeder extends Seeder
         };
     }
 
-    private function getIssuedDate($documentCode)
-    {
-        return match($documentCode) {
-            'ktp' => Carbon::now()->subYears(rand(1, 5)),
-            'npwp' => Carbon::now()->subYears(rand(1, 3)),
-            'contract' => Carbon::now()->subMonths(rand(1, 24)),
-            'cv' => Carbon::now()->subMonths(rand(1, 6)),
-            'certificate' => Carbon::now()->subYears(rand(2, 10)),
-            default => Carbon::now()->subDays(rand(30, 365)),
-        };
-    }
-
-    private function getExpiryDate($documentType, $issuedDate)
-    {
-        if (!$documentType->requires_expiry) {
-            return null;
-        }
-
-        if ($documentType->default_validity_months) {
-            return $issuedDate->copy()->addMonths($documentType->default_validity_months);
-        }
-
-        // Default expiry logic based on document type
-        return match($documentType->code) {
-            'ktp' => $issuedDate->copy()->addYears(5),
-            'contract' => $issuedDate->copy()->addMonths(12),
-            default => $issuedDate->copy()->addMonths(24),
-        };
-    }
 
     private function getDocumentNotes($documentCode)
     {
         $notes = [
-            'ktp' => ['Dokumen asli tersimpan di HRD', 'Kondisi dokumen baik', 'Perlu diperpanjang tahun depan'],
+            'ktp' => ['Dokumen asli tersimpan di HRD', 'Kondisi dokumen baik', null],
             'npwp' => ['Dokumen original sudah diverifikasi', 'Status pajak aktif', null],
-            'contract' => ['Kontrak periode pertama', 'Sudah ditandatangani kedua belah pihak', 'Akan diperpanjang jika performa baik'],
-            'cv' => ['CV terbaru sesuai posisi yang dilamar', 'Referensi sudah diverifikasi', null],
-            'certificate' => ['Ijazah asli sudah diverifikasi', 'Sesuai dengan kualifikasi posisi', null],
+            'contract' => ['Kontrak sudah ditandatangani', 'Dokumen lengkap', null],
+            'cv' => ['CV sesuai posisi yang dilamar', 'Referensi sudah diverifikasi', null],
+            'certificate' => ['Ijazah sudah diverifikasi', 'Sesuai kualifikasi', null],
         ];
 
         $documentNotes = $notes[$documentCode] ?? [null];
