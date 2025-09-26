@@ -35,9 +35,13 @@ class ShiftSwapSeeder extends Seeder
                 'reason' => 'Ada keperluan keluarga mendadak',
                 'status' => 'pending',
             ],
-            [
+        ];
+
+        // Add second swap only if we have enough users
+        if ($users->count() >= 3) {
+            $sampleSwaps[] = [
                 'requester_id' => $users[1]->id,
-                'target_user_id' => $users[2]->id ?? $users[0]->id,
+                'target_user_id' => $users[2]->id,
                 'requested_date' => now()->addDays(10)->toDateString(),
                 'target_date' => now()->addDays(11)->toDateString(),
                 'requester_shift_id' => $shifts[1]->id,
@@ -45,9 +49,10 @@ class ShiftSwapSeeder extends Seeder
                 'reason' => 'Ingin tukar shift untuk keperluan pribadi',
                 'status' => 'approved',
                 'approved_at' => now()->subDays(1),
-            ],
-            [
-                'requester_id' => $users[2] ?? $users[0]->id,
+            ];
+
+            $sampleSwaps[] = [
+                'requester_id' => $users[2]->id,
                 'target_user_id' => $users[0]->id,
                 'requested_date' => now()->subDays(3)->toDateString(),
                 'target_date' => now()->subDays(2)->toDateString(),
@@ -56,8 +61,8 @@ class ShiftSwapSeeder extends Seeder
                 'reason' => 'Jadwal bentrok dengan pelatihan',
                 'status' => 'rejected',
                 'rejection_reason' => 'Tidak dapat mengakomodasi karena kebutuhan operasional',
-            ],
-        ];
+            ];
+        }
 
         foreach ($sampleSwaps as $swap) {
             ShiftSwap::create($swap);

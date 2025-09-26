@@ -69,7 +69,7 @@ class PayrollSeeder extends Seeder
                 // Create payroll details
                 PayrollDetail::create([
                     'payroll_id' => $payroll->id,
-                    'type' => 'earning',
+                    'type' => 'allowance',
                     'name' => 'Gaji Pokok',
                     'amount' => $baseSalary,
                     'calculation_basis' => ['type' => 'base_salary'],
@@ -78,7 +78,7 @@ class PayrollSeeder extends Seeder
                 foreach ($allowances as $key => $amount) {
                     PayrollDetail::create([
                         'payroll_id' => $payroll->id,
-                        'type' => 'earning',
+                        'type' => 'allowance',
                         'name' => ucfirst($key) . ' Allowance',
                         'amount' => $amount,
                         'calculation_basis' => ['type' => 'allowance', 'key' => $key],
