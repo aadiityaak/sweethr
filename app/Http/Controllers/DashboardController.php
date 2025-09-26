@@ -10,6 +10,7 @@ use App\Models\OfficeLocation;
 use App\Models\User;
 use App\Services\FaceRecognitionService;
 use Carbon\Carbon;
+use Illuminate\Support\Facades\Storage;
 use Inertia\Inertia;
 use Inertia\Response;
 
@@ -50,8 +51,12 @@ class DashboardController extends Controller
             ->limit(3)
             ->get();
 
+        // Prepare user data with avatar URL
+        $userData = $user->load(['department', 'position'])->toArray();
+        $userData['avatar'] = $user->avatar ? Storage::disk('public')->url($user->avatar) : null;
+
         return Inertia::render('admin/Dashboard', [
-            'user' => $user->load(['department', 'position']),
+            'user' => $userData,
             'todayAttendance' => $todayAttendance,
             'pendingLeaves' => $pendingLeaves,
             'stats' => $stats,
@@ -122,6 +127,7 @@ class DashboardController extends Controller
         $userData['face_recognition_enabled'] = (bool) $user->face_recognition_enabled;
         $userData['face_recognition_mandatory'] = (bool) $user->face_recognition_mandatory;
         $userData['face_setup_at'] = $user->face_setup_at?->toISOString();
+        $userData['avatar'] = $user->avatar ? Storage::disk('public')->url($user->avatar) : null;
         $userData['_cache_buster'] = now()->timestamp;
 
         \Log::info('DashboardController welcome() - Final data being sent to frontend', [

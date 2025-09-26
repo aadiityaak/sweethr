@@ -877,8 +877,14 @@ onUnmounted(() => {
                     <div class="text-center space-y-4">
                         <!-- Avatar Section -->
                         <div class="relative mx-auto">
-                            <div class="mx-auto w-16 h-16 rounded-full bg-gradient-to-br from-primary/20 to-primary/10 flex items-center justify-center ring-4 ring-primary/5">
-                                <UserCircle class="h-8 w-8 text-primary" />
+                            <div class="mx-auto w-16 h-16 rounded-full bg-gradient-to-br from-primary/20 to-primary/10 flex items-center justify-center ring-4 ring-primary/5 overflow-hidden">
+                                <img
+                                    v-if="user?.avatar"
+                                    :src="user.avatar"
+                                    :alt="user.name"
+                                    class="h-full w-full object-cover"
+                                />
+                                <UserCircle v-else class="h-8 w-8 text-primary" />
                             </div>
                             <div class="absolute -bottom-1 -right-1 w-6 h-6 bg-green-500 rounded-full border-2 border-background flex items-center justify-center">
                                 <div class="w-2 h-2 bg-white rounded-full animate-pulse"></div>
