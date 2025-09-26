@@ -11,14 +11,32 @@ return new class extends Migration
      */
     public function up(): void
     {
+        // Use raw SQL to safely drop foreign key if it exists
+        $foreignKeyExists = \Illuminate\Support\Facades\DB::select("
+            SELECT COUNT(*) as count
+            FROM information_schema.KEY_COLUMN_USAGE
+            WHERE CONSTRAINT_NAME = 'employee_documents_approved_by_foreign'
+            AND TABLE_SCHEMA = DATABASE()
+        ");
+
+        if ($foreignKeyExists[0]->count > 0) {
+            \Illuminate\Support\Facades\DB::statement('ALTER TABLE employee_documents DROP FOREIGN KEY employee_documents_approved_by_foreign');
+        }
+
         Schema::table('employee_documents', function (Blueprint $table) {
-            $table->dropForeign(['approved_by']);
-            $table->dropColumn([
-                'status',
-                'approved_by',
-                'approved_at',
-                'rejection_reason'
-            ]);
+            // Drop columns if they exist
+            $columnsToRemove = ['status', 'approved_by', 'approved_at', 'rejection_reason'];
+            $existingColumns = [];
+
+            foreach ($columnsToRemove as $column) {
+                if (Schema::hasColumn('employee_documents', $column)) {
+                    $existingColumns[] = $column;
+                }
+            }
+
+            if (! empty($existingColumns)) {
+                $table->dropColumn($existingColumns);
+            }
         });
     }
 
