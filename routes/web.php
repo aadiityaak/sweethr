@@ -67,6 +67,10 @@ Route::middleware(['auth', 'verified'])->group(function () {
         ->name('user.profile.update-basic');
     Route::put('user/profile/password', [App\Http\Controllers\User\ProfileController::class, 'updatePassword'])
         ->name('user.profile.update-password');
+    Route::post('user/profile/avatar', [App\Http\Controllers\User\ProfileController::class, 'uploadAvatar'])
+        ->name('user.profile.upload-avatar');
+    Route::delete('user/profile/avatar', [App\Http\Controllers\User\ProfileController::class, 'deleteAvatar'])
+        ->name('user.profile.delete-avatar');
 
     // Employee Payroll
     Route::get('payrolls', [App\Http\Controllers\Employee\PayrollController::class, 'index'])

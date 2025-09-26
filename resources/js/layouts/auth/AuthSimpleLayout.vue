@@ -9,7 +9,7 @@ defineProps<{
     description?: string;
 }>();
 
-const { companyName } = useCompanySettings();
+const { companyName, companyLogo } = useCompanySettings();
 </script>
 
 <template>
@@ -33,11 +33,14 @@ const { companyName } = useCompanySettings();
                             <div class="flex flex-col items-center gap-6">
                                 <Link :href="home()" class="group flex flex-col items-center gap-3 transition-all duration-300 hover:scale-105">
                                     <!-- Logo Container -->
-                                    <div class="relative flex h-16 w-16 items-center justify-center rounded-2xl bg-gradient-to-br from-primary to-primary/80 shadow-lg transition-all duration-300 group-hover:shadow-xl group-hover:shadow-primary/25">
-                                        <AppLogoIcon class="size-8 fill-white drop-shadow-sm" />
-                                        <!-- Shine Effect -->
-                                        <div class="absolute inset-0 rounded-2xl bg-gradient-to-tr from-white/20 to-transparent opacity-0 transition-opacity duration-300 group-hover:opacity-100" />
-                                    </div>
+                                    <img
+                                        v-if="companyLogo"
+                                        :src="companyLogo"
+                                        :alt="companyName"
+                                        class="h-16 w-16 object-contain drop-shadow-lg"
+                                        @error="console.error('Failed to load logo:', companyLogo)"
+                                    />
+                                    <AppLogoIcon v-else class="size-16 fill-primary drop-shadow-lg" />
                                     <!-- Company Name -->
                                     <div class="text-2xl font-bold bg-gradient-to-r from-foreground to-foreground/80 bg-clip-text text-transparent">
                                         {{ companyName }}

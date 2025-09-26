@@ -7,6 +7,7 @@ use App\Models\User;
 use Illuminate\Http\RedirectResponse;
 use Illuminate\Http\Request;
 use Illuminate\Support\Facades\Hash;
+use Illuminate\Support\Facades\Storage;
 use Illuminate\Validation\Rules\Password;
 use Inertia\Inertia;
 use Inertia\Response;
@@ -42,6 +43,9 @@ class ProfileController extends Controller
         $userData['face_recognition_mandatory'] = (bool) $user->face_recognition_mandatory;
         $userData['face_setup_at'] = $user->face_setup_at?->toISOString();
         $userData['has_face_descriptors'] = !empty($user->face_descriptors);
+
+        // Add avatar URL if exists
+        $userData['avatar'] = $user->avatar ? Storage::disk('public')->url($user->avatar) : null;
 
         // Add cache busting timestamp
         $userData['_cache_buster'] = now()->timestamp;
@@ -89,5 +93,46 @@ class ProfileController extends Controller
         ]);
 
         return back()->with('success', 'Password berhasil diubah!');
+    }
+
+    public function uploadAvatar(Request $request): RedirectResponse
+    {
+        $request->validate([
+            'avatar' => ['required', 'image', 'mimes:jpeg,png,jpg,gif', 'max:2048'], // Max 2MB
+        ]);
+
+        $user = auth()->user();
+
+        // Delete old avatar if exists
+        if ($user->avatar) {
+            Storage::disk('public')->delete($user->avatar);
+        }
+
+        // Store new avatar
+        $avatarPath = $request->file('avatar')->store('avatars', 'public');
+
+        // Update user avatar path
+        $user->update([
+            'avatar' => $avatarPath,
+        ]);
+
+        return back()->with('success', 'Foto profil berhasil diperbarui!');
+    }
+
+    public function deleteAvatar(): RedirectResponse
+    {
+        $user = auth()->user();
+
+        if ($user->avatar) {
+            // Delete avatar file
+            Storage::disk('public')->delete($user->avatar);
+
+            // Remove avatar path from database
+            $user->update([
+                'avatar' => null,
+            ]);
+        }
+
+        return back()->with('success', 'Foto profil berhasil dihapus!');
     }
 }

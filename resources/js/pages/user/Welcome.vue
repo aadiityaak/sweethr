@@ -829,12 +829,12 @@ onUnmounted(() => {
             <div class="mx-auto max-w-[480px] px-4 py-4">
                 <div class="flex items-center justify-between">
                     <div class="flex items-center gap-3">
-                        <div class="rounded-lg bg-primary p-2 overflow-hidden">
+                        <div class="rounded-lg overflow-hidden">
                             <img
                                 v-if="companyLogo"
                                 :src="companyLogo"
                                 :alt="companyName"
-                                class="h-4 w-4 object-contain"
+                                class="h-12 w-12 object-contain"
                             />
                             <User v-else class="h-4 w-4 text-primary-foreground" />
                         </div>

@@ -36,10 +36,19 @@
                     <div class="flex flex-col items-center text-center">
                         <!-- Avatar -->
                         <div class="relative mb-4">
-                            <div class="flex h-20 w-20 items-center justify-center rounded-full bg-primary text-xl font-bold text-primary-foreground">
-                                {{ getInitials(user.name) }}
+                            <div class="flex h-20 w-20 items-center justify-center rounded-full bg-primary text-xl font-bold text-primary-foreground overflow-hidden">
+                                <img
+                                    v-if="user.avatar"
+                                    :src="user.avatar"
+                                    :alt="user.name"
+                                    class="h-full w-full object-cover"
+                                />
+                                <span v-else>{{ getInitials(user.name) }}</span>
                             </div>
-                            <button class="absolute -bottom-1 -right-1 flex h-6 w-6 items-center justify-center rounded-full bg-primary text-primary-foreground">
+                            <button
+                                @click="showAvatarUpload = true"
+                                class="absolute -bottom-1 -right-1 flex h-6 w-6 items-center justify-center rounded-full bg-primary text-primary-foreground hover:bg-primary/90 transition-colors"
+                            >
                                 <Camera class="h-3 w-3" />
                             </button>
                         </div>
@@ -413,6 +422,81 @@
             @close="closeFaceCapture"
             @error="handleFaceCaptureError"
         />
+
+        <!-- Avatar Upload Modal -->
+        <Dialog v-model:open="showAvatarUpload">
+            <DialogContent class="sm:max-w-md">
+                <DialogHeader>
+                    <DialogTitle class="flex items-center gap-2">
+                        <Camera class="h-5 w-5" />
+                        Ubah Foto Profil
+                    </DialogTitle>
+                    <DialogDescription>
+                        Upload foto profil baru. File harus berformat gambar dan maksimal 2MB.
+                    </DialogDescription>
+                </DialogHeader>
+
+                <div class="space-y-4">
+                    <!-- Preview -->
+                    <div class="flex justify-center">
+                        <div class="flex h-32 w-32 items-center justify-center rounded-full bg-primary text-xl font-bold text-primary-foreground overflow-hidden">
+                            <img
+                                v-if="avatarPreview || user.avatar"
+                                :src="avatarPreview || user.avatar"
+                                :alt="user.name"
+                                class="h-full w-full object-cover"
+                            />
+                            <span v-else>{{ getInitials(user.name) }}</span>
+                        </div>
+                    </div>
+
+                    <!-- File Input -->
+                    <div class="space-y-2">
+                        <label class="block text-sm font-medium text-gray-700 dark:text-gray-300">
+                            Pilih Foto
+                        </label>
+                        <input
+                            type="file"
+                            accept="image/*"
+                            @change="handleAvatarUpload"
+                            class="block w-full text-sm text-gray-500 file:mr-4 file:py-2 file:px-4 file:rounded-md file:border-0 file:text-sm file:font-medium file:bg-primary file:text-primary-foreground hover:file:bg-primary/90"
+                        />
+                        <p class="text-xs text-gray-500">
+                            Format: JPG, PNG, GIF. Maksimal 2MB.
+                        </p>
+                    </div>
+
+                    <!-- Actions -->
+                    <div class="flex gap-3 pt-4">
+                        <Button
+                            @click="uploadAvatar"
+                            :disabled="!avatarForm.avatar || isUploadingAvatar"
+                            class="flex-1"
+                        >
+                            <Loader2 v-if="isUploadingAvatar" class="mr-2 h-4 w-4 animate-spin" />
+                            <Upload v-else class="mr-2 h-4 w-4" />
+                            {{ isUploadingAvatar ? 'Mengupload...' : 'Upload' }}
+                        </Button>
+
+                        <Button
+                            v-if="user.avatar && !avatarPreview"
+                            @click="removeAvatar"
+                            variant="destructive"
+                            size="sm"
+                        >
+                            <Trash2 class="h-4 w-4" />
+                        </Button>
+
+                        <Button
+                            @click="cancelAvatarUpload"
+                            variant="outline"
+                        >
+                            Batal
+                        </Button>
+                    </div>
+                </div>
+            </DialogContent>
+        </Dialog>
     </div>
 </template>
 
@@ -446,8 +530,12 @@ import {
     Trash2,
     CheckCircle,
     AlertCircle,
-    Smartphone
+    Smartphone,
+    Upload,
+    Loader2
 } from 'lucide-vue-next';
+import { Dialog, DialogContent, DialogDescription, DialogHeader, DialogTitle } from '@/components/ui/dialog';
+import { Button } from '@/components/ui/button';
 import { ref, computed, onMounted } from 'vue';
 
 interface UserProfile {
@@ -506,6 +594,9 @@ const {
 
 // Edit states
 const isEditingBasic = ref(false);
+const showAvatarUpload = ref(false);
+const avatarPreview = ref<string | null>(null);
+const isUploadingAvatar = ref(false);
 
 const { companyName } = useCompanySettings();
 
@@ -522,6 +613,10 @@ const passwordForm = useForm({
     current_password: '',
     password: '',
     password_confirmation: '',
+});
+
+const avatarForm = useForm({
+    avatar: null as File | null,
 });
 
 // Computed properties
@@ -662,5 +757,73 @@ const handleDeleteFaceData = async () => {
             console.log('Delete successful - automatic page refresh will sync data across app');
         }
     }
+};
+
+// Avatar upload methods
+const handleAvatarUpload = (event: Event) => {
+    const target = event.target as HTMLInputElement;
+    const file = target.files?.[0];
+
+    if (!file) return;
+
+    // Validate file type
+    if (!file.type.startsWith('image/')) {
+        alert('Mohon pilih file gambar yang valid.');
+        return;
+    }
+
+    // Validate file size (max 2MB)
+    if (file.size > 2 * 1024 * 1024) {
+        alert('Ukuran file terlalu besar. Maksimal 2MB.');
+        return;
+    }
+
+    avatarForm.avatar = file;
+
+    // Create preview
+    const reader = new FileReader();
+    reader.onload = (e) => {
+        avatarPreview.value = e.target?.result as string;
+    };
+    reader.readAsDataURL(file);
+};
+
+const uploadAvatar = () => {
+    if (!avatarForm.avatar) return;
+
+    isUploadingAvatar.value = true;
+
+    avatarForm.post('/user/profile/avatar', {
+        onSuccess: () => {
+            showAvatarUpload.value = false;
+            avatarPreview.value = null;
+            avatarForm.reset();
+            // Refresh the page to update the avatar
+            router.reload();
+        },
+        onError: (errors) => {
+            console.error('Avatar upload errors:', errors);
+        },
+        onFinish: () => {
+            isUploadingAvatar.value = false;
+        },
+    });
+};
+
+const cancelAvatarUpload = () => {
+    showAvatarUpload.value = false;
+    avatarPreview.value = null;
+    avatarForm.reset();
+};
+
+const removeAvatar = () => {
+    if (!confirm('Apakah Anda yakin ingin menghapus foto profil?')) return;
+
+    useForm({}).delete('/user/profile/avatar', {
+        onSuccess: () => {
+            // Refresh the page to update the avatar
+            router.reload();
+        },
+    });
 };
 </script>
