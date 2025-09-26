@@ -39,7 +39,8 @@
       "Bash(find:*)",
       "Bash(dir public)",
       "Bash(dir:*)",
-      "Bash(mv:*)"
+      "Bash(mv:*)",
+      "Bash(npm run version:generate:*)"
     ],
     "deny": [],
     "ask": []

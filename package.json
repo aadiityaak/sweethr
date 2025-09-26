@@ -1,11 +1,14 @@
 {
+    "name": "sistem-hr",
+    "version": "1.0.0",
     "private": true,
     "type": "module",
     "scripts": {
-        "build": "vite build",
-        "build:ssr": "vite build && vite build --ssr",
+        "build": "node scripts/generate-version.js && vite build",
+        "build:ssr": "node scripts/generate-version.js && vite build && vite build --ssr",
         "build:clean": "rimraf dist package && npm run build",
-        "dev": "vite",
+        "dev": "node scripts/generate-version.js && vite",
+        "version:generate": "node scripts/generate-version.js",
         "format": "prettier --write resources/",
         "format:check": "prettier --check resources/",
         "lint": "eslint . --fix"
