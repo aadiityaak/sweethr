@@ -35,10 +35,20 @@ class DatabaseSeeder extends Seeder
             // Document Types (independent)
             DocumentTypeSeeder::class,
 
+            // Salary and Payroll (depends on users)
+            DeductionRuleSeeder::class,
+            SalarySettingSeeder::class,
+
+            // Announcement System
+            AnnouncementCategorySeeder::class,
+            AnnouncementSeeder::class,
+
             // Sample Data (optional for testing)
             LeaveRequestSeeder::class,
             AttendanceSeeder::class,
             EmployeeDocumentSeeder::class,
+            ShiftSwapSeeder::class,
+            PayrollSeeder::class,
         ]);
     }
 }

@@ -16,6 +16,7 @@ class PayrollService
     {
         $users = User::with('currentSalarySetting')
             ->active()
+            ->where('is_admin', false) // Exclude admin users from payroll generation
             ->when($userIds, function ($query, $userIds) {
                 return $query->whereIn('id', $userIds);
             })

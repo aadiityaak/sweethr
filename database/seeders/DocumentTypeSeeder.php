@@ -140,7 +140,10 @@ class DocumentTypeSeeder extends Seeder
         ];
 
         foreach ($documentTypes as $type) {
-            \App\Models\DocumentType::create($type);
+            \App\Models\DocumentType::updateOrCreate(
+                ['code' => $type['code']],
+                $type
+            );
         }
     }
 }

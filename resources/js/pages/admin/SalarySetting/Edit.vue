@@ -13,7 +13,7 @@
             </p>
           </div>
           <Link
-            :href="route('admin.salary-settings.index')"
+            :href="salarySettingsIndex.url()"
             class="inline-flex items-center px-4 py-2 bg-gray-300 hover:bg-gray-400 text-gray-700 rounded-lg transition-colors"
           >
             <ArrowLeft class="w-4 h-4 mr-2" />
@@ -218,7 +218,7 @@
           <!-- Submit Button -->
           <div class="flex justify-end space-x-3">
             <Link
-              :href="route('admin.salary-settings.index')"
+              :href="salarySettingsIndex.url()"
               class="px-4 py-2 bg-gray-300 hover:bg-gray-400 text-gray-700 rounded-lg transition-colors"
             >
               Batal
@@ -242,6 +242,8 @@ import { computed, ref } from 'vue'
 import { Link, useForm } from '@inertiajs/vue3'
 import AppLayout from '@/Layouts/AppLayout.vue'
 import { ArrowLeft, DollarSign, Plus, Trash2, Gift, Info as InfoIcon } from 'lucide-vue-next'
+import { dashboard } from '@/routes/admin'
+import { index as salarySettingsIndex, edit, update } from '@/routes/admin/salary-settings'
 
 interface Allowance {
   name: string
@@ -274,9 +276,9 @@ interface Props {
 const props = defineProps<Props>()
 
 const breadcrumbs = [
-  { name: 'Dashboard', href: route('admin.dashboard') },
-  { name: 'Pengaturan Gaji', href: route('admin.salary-settings.index') },
-  { name: props.user.name, href: route('admin.salary-settings.edit', props.user.id) },
+  { name: 'Dashboard', href: dashboard.url() },
+  { name: 'Pengaturan Gaji', href: salarySettingsIndex.url() },
+  { name: props.user.name, href: edit.url(props.user.id) },
 ]
 
 const form = useForm({
@@ -306,7 +308,7 @@ const removeAllowance = (index: number) => {
 
 const submit = () => {
   processing.value = true
-  form.put(route('admin.salary-settings.update', props.user.id), {
+  form.put(update.url(props.user.id), {
     onFinish: () => {
       processing.value = false
     }
