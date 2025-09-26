@@ -14,7 +14,7 @@
           </div>
           <div class="flex gap-3">
             <Link
-              :href="route('admin.documents.index')"
+              :href="documentsIndex.url()"
               class="inline-flex items-center rounded-md bg-white px-3 py-2 text-sm font-semibold text-gray-900 shadow-sm ring-1 ring-inset ring-gray-300 hover:bg-gray-50 dark:bg-gray-800 dark:text-white dark:ring-gray-600 dark:hover:bg-gray-700"
             >
               <ArrowLeft class="mr-2 h-4 w-4" />
@@ -133,9 +133,9 @@
                 Riwayat Dokumen
               </h3>
             </div>
-            <div class="p-6">
+            <div class="p-6 pb-8">
               <div class="flow-root">
-                <ul role="list" class="-mb-8">
+                <ul role="list" class="space-y-6">
                   <!-- Upload Event -->
                   <li>
                     <div class="relative">
@@ -177,7 +177,7 @@
             <div class="p-6 space-y-4">
               <!-- Actions -->
               <Link
-                :href="route('admin.documents.edit', document.id)"
+                :href="edit.url(document.id)"
                 class="w-full inline-flex items-center justify-center rounded-md bg-white px-3 py-2 text-sm font-semibold text-gray-900 shadow-sm ring-1 ring-inset ring-gray-300 hover:bg-gray-50 dark:bg-gray-800 dark:text-white dark:ring-gray-600 dark:hover:bg-gray-700"
               >
                 <SquarePen class="mr-2 h-4 w-4" />
@@ -243,6 +243,8 @@ import {
 import AppLayout from '@/layouts/AppLayout.vue'
 import ConfirmationModal from '@/components/ConfirmationModal.vue'
 import { useToast } from '@/components/ui/toast/use-toast'
+import { dashboard } from '@/routes/admin'
+import { index as documentsIndex, show, edit, destroy, download } from '@/routes/admin/documents'
 
 interface Props {
   document: any
@@ -254,10 +256,10 @@ const { toast } = useToast()
 const showDeleteModal = ref(false)
 
 const breadcrumbs = [
-  { name: 'Dashboard', href: route('admin.dashboard') },
+  { name: 'Dashboard', href: dashboard.url() },
   { name: 'Manajemen Karyawan', href: '#' },
-  { name: 'Dokumen Karyawan', href: route('admin.documents.index') },
-  { name: 'Detail Dokumen', href: route('admin.documents.show', props.document.id), current: true },
+  { name: 'Dokumen Karyawan', href: documentsIndex.url() },
+  { name: 'Detail Dokumen', href: show.url(props.document.id), current: true },
 ]
 
 const isExpired = computed(() => {
@@ -308,12 +310,12 @@ const formatDateTime = (dateString: string): string => {
 }
 
 const downloadDocument = () => {
-  window.open(route('admin.documents.download', props.document.id), '_blank')
+  window.open(download.url(props.document.id), '_blank')
 }
 
 
 const handleDeleteDocument = () => {
-  router.delete(route('admin.documents.destroy', props.document.id), {
+  router.delete(destroy.url(props.document.id), {
     onSuccess: () => {
       toast({
         title: 'Berhasil',

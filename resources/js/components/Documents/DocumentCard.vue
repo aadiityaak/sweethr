@@ -19,7 +19,7 @@
           </div>
         </div>
 
-        <div class="flex flex-col items-end space-y-2">
+        <div class="flex flex-col items-end space-y-3">
           <div class="flex items-center space-x-2">
             <div v-if="isExpired" class="inline-flex items-center rounded-full bg-red-100 px-2 py-1 text-xs font-medium text-red-800 dark:bg-red-900/20 dark:text-red-400">
               Kadaluarsa
@@ -32,15 +32,42 @@
             </div>
           </div>
 
-          <!-- Actions Dropdown -->
-          <div class="relative">
+          <!-- Direct Action Buttons -->
+          <div class="flex items-center space-x-2">
             <button
-              ref="buttonRef"
               type="button"
-              class="flex items-center rounded-full p-1 text-gray-400 hover:text-gray-600 dark:hover:text-gray-300"
-              @click="toggleActions"
+              class="inline-flex items-center rounded-md bg-blue-50 px-2 py-1 text-xs font-medium text-blue-700 hover:bg-blue-100 dark:bg-blue-900/20 dark:text-blue-400 dark:hover:bg-blue-900/30"
+              @click="handleView"
+              title="Lihat Detail"
             >
-              <MoreHorizontal class="h-5 w-5" />
+              <Eye class="h-3 w-3" />
+            </button>
+
+            <button
+              type="button"
+              class="inline-flex items-center rounded-md bg-green-50 px-2 py-1 text-xs font-medium text-green-700 hover:bg-green-100 dark:bg-green-900/20 dark:text-green-400 dark:hover:bg-green-900/30"
+              @click="handleDownload"
+              title="Download"
+            >
+              <Download class="h-3 w-3" />
+            </button>
+
+            <button
+              type="button"
+              class="inline-flex items-center rounded-md bg-gray-50 px-2 py-1 text-xs font-medium text-gray-700 hover:bg-gray-100 dark:bg-gray-900/20 dark:text-gray-400 dark:hover:bg-gray-900/30"
+              @click="handleEdit"
+              title="Edit"
+            >
+              <SquarePen class="h-3 w-3" />
+            </button>
+
+            <button
+              type="button"
+              class="inline-flex items-center rounded-md bg-red-50 px-2 py-1 text-xs font-medium text-red-700 hover:bg-red-100 dark:bg-red-900/20 dark:text-red-400 dark:hover:bg-red-900/30"
+              @click="handleDelete"
+              title="Hapus"
+            >
+              <Trash2 class="h-3 w-3" />
             </button>
           </div>
         </div>
@@ -87,59 +114,13 @@
       </div>
 
     </div>
-
-    <!-- Fixed positioned dropdown using Teleport -->
-    <Teleport to="body">
-      <div
-        v-if="showActions"
-        class="fixed z-50 w-48 rounded-md bg-white py-1 shadow-xl ring-1 ring-black ring-opacity-5 dark:bg-gray-800 dark:ring-white/10"
-        :style="{ top: `${dropdownPosition.top}px`, left: `${dropdownPosition.left}px` }"
-      >
-        <button
-          type="button"
-          class="flex w-full items-center px-4 py-2 text-sm text-gray-700 hover:bg-gray-100 dark:text-gray-300 dark:hover:bg-gray-700"
-          @click="handleView"
-        >
-          <Eye class="mr-3 h-4 w-4" />
-          Lihat Detail
-        </button>
-
-        <button
-          type="button"
-          class="flex w-full items-center px-4 py-2 text-sm text-gray-700 hover:bg-gray-100 dark:text-gray-300 dark:hover:bg-gray-700"
-          @click="handleDownload"
-        >
-          <Download class="mr-3 h-4 w-4" />
-          Download
-        </button>
-
-        <button
-          type="button"
-          class="flex w-full items-center px-4 py-2 text-sm text-gray-700 hover:bg-gray-100 dark:text-gray-300 dark:hover:bg-gray-700"
-          @click="handleEdit"
-        >
-          <SquarePen class="mr-3 h-4 w-4" />
-          Edit
-        </button>
-
-        <button
-          type="button"
-          class="flex w-full items-center px-4 py-2 text-sm text-red-700 hover:bg-red-50 dark:text-red-400 dark:hover:bg-red-900/20"
-          @click="handleDelete"
-        >
-          <Trash2 class="mr-3 h-4 w-4" />
-          Hapus
-        </button>
-      </div>
-    </Teleport>
   </div>
 </template>
 
 <script setup lang="ts">
-import { ref, computed, nextTick, onMounted, onUnmounted } from 'vue'
+import { ref, computed } from 'vue'
 import {
   FileText,
-  MoreHorizontal,
   Eye,
   Download,
   SquarePen,
@@ -185,45 +166,19 @@ interface Emits {
 const props = defineProps<Props>()
 const emit = defineEmits<Emits>()
 
-const showActions = ref(false)
-const buttonRef = ref<HTMLButtonElement>()
-const dropdownPosition = ref({ top: 0, left: 0 })
-
-const calculateDropdownPosition = () => {
-  if (buttonRef.value) {
-    const rect = buttonRef.value.getBoundingClientRect()
-    dropdownPosition.value = {
-      top: rect.bottom + window.scrollY + 4,
-      left: rect.right + window.scrollX - 192 // 192px = w-48 (48 * 4)
-    }
-  }
-}
-
-const toggleActions = async () => {
-  showActions.value = !showActions.value
-  if (showActions.value) {
-    await nextTick()
-    calculateDropdownPosition()
-  }
-}
-
 const handleView = () => {
-  showActions.value = false
   emit('view', props.document)
 }
 
 const handleDownload = () => {
-  showActions.value = false
   emit('download', props.document)
 }
 
 const handleEdit = () => {
-  showActions.value = false
   emit('edit', props.document)
 }
 
 const handleDelete = () => {
-  showActions.value = false
   emit('delete', props.document)
 }
 
@@ -265,20 +220,5 @@ const formatDateTime = (dateString: string): string => {
     minute: '2-digit'
   })
 }
-
-// Close dropdown when clicking outside
-const handleClickOutside = (event: Event) => {
-  if (buttonRef.value && !buttonRef.value.contains(event.target as Node)) {
-    showActions.value = false
-  }
-}
-
-onMounted(() => {
-  document.addEventListener('click', handleClickOutside)
-})
-
-onUnmounted(() => {
-  document.removeEventListener('click', handleClickOutside)
-})
 
 </script>
