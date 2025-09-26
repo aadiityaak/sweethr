@@ -94,7 +94,7 @@
       <!-- Filters -->
       <div class="mb-6 overflow-hidden rounded-xl bg-white shadow-sm ring-1 ring-gray-900/5 dark:bg-gray-900 dark:ring-white/10">
         <div class="p-6">
-          <div class="grid grid-cols-1 gap-4 sm:grid-cols-2 lg:grid-cols-3">
+          <div class="grid grid-cols-1 gap-4 sm:grid-cols-2">
             <!-- Employee Filter -->
             <div>
               <label for="user_id" class="block text-sm font-medium text-gray-700 dark:text-gray-300">
@@ -132,32 +132,6 @@
             </div>
 
 
-            <!-- Special Filters -->
-            <div>
-              <label class="block text-sm font-medium text-gray-700 dark:text-gray-300">
-                Filter Khusus
-              </label>
-              <div class="mt-1 space-y-2">
-                <label class="flex items-center">
-                  <input
-                    v-model="filters.expiring_soon"
-                    type="checkbox"
-                    class="rounded border-gray-300 text-blue-600 focus:ring-blue-600 dark:border-gray-600 dark:bg-gray-800"
-                    @change="applyFilters"
-                  >
-                  <span class="ml-2 text-sm text-gray-900 dark:text-white">Akan Kadaluarsa</span>
-                </label>
-                <label class="flex items-center">
-                  <input
-                    v-model="filters.expired"
-                    type="checkbox"
-                    class="rounded border-gray-300 text-blue-600 focus:ring-blue-600 dark:border-gray-600 dark:bg-gray-800"
-                    @change="applyFilters"
-                  >
-                  <span class="ml-2 text-sm text-gray-900 dark:text-white">Kadaluarsa</span>
-                </label>
-              </div>
-            </div>
           </div>
 
           <!-- Clear Filters -->
@@ -229,7 +203,7 @@ import {
 import AppLayout from '@/layouts/AppLayout.vue'
 import DocumentCard from '@/components/Documents/DocumentCard.vue'
 import { dashboard } from '@/routes/admin'
-import { index as documentsIndex, create } from '@/routes/admin/documents'
+import { index as documentsIndex, create, show, edit, destroy, download } from '@/routes/admin/documents'
 import ConfirmationModal from '@/components/ConfirmationModal.vue'
 import Pagination from '@/components/Pagination.vue'
 import { useToast } from '@/components/ui/toast/use-toast'
@@ -247,8 +221,6 @@ interface Props {
   filters: {
     user_id?: string
     document_type_id?: string
-    expiring_soon?: boolean
-    expired?: boolean
   }
 }
 
@@ -264,8 +236,6 @@ const breadcrumbs = [
 const filters = reactive({
   user_id: props.filters.user_id || '',
   document_type_id: props.filters.document_type_id || '',
-  expiring_soon: props.filters.expiring_soon || false,
-  expired: props.filters.expired || false,
 })
 
 
@@ -277,12 +247,12 @@ const applyFilters = () => {
 
   // Remove empty values
   Object.keys(queryParams).forEach(key => {
-    if (queryParams[key] === '' || queryParams[key] === false) {
+    if (queryParams[key] === '') {
       delete queryParams[key]
     }
   })
 
-  router.get(route('admin.documents.index'), queryParams, {
+  router.get(documentsIndex.url(), queryParams, {
     preserveState: true,
     preserveScroll: true,
   })
@@ -291,8 +261,6 @@ const applyFilters = () => {
 const clearFilters = () => {
   filters.user_id = ''
   filters.document_type_id = ''
-  filters.expiring_soon = false
-  filters.expired = false
   applyFilters()
 }
 
@@ -301,16 +269,16 @@ const refreshData = () => {
 }
 
 const viewDocument = (document: any) => {
-  router.visit(route('admin.documents.show', document.id))
+  router.visit(show.url(document.id))
 }
 
 const downloadDocument = (document: any) => {
-  window.open(route('admin.documents.download', document.id), '_blank')
+  window.open(download.url(document.id), '_blank')
 }
 
 
 const editDocument = (document: any) => {
-  router.visit(route('admin.documents.edit', document.id))
+  router.visit(edit.url(document.id))
 }
 
 const showDeleteModal = (document: any) => {
@@ -324,7 +292,7 @@ const hideDeleteModal = () => {
 }
 
 const handleDeleteDocument = () => {
-  router.delete(route('admin.documents.destroy', documentToDelete.value.id), {
+  router.delete(destroy.url(documentToDelete.value.id), {
     onSuccess: () => {
       toast({
         title: 'Berhasil',
