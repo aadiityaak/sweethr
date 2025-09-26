@@ -13,7 +13,7 @@
             </p>
           </div>
           <Link
-            :href="route('admin.deduction-rules.index')"
+            :href="deductionRulesIndex.url()"
             class="inline-flex items-center px-4 py-2 bg-gray-300 hover:bg-gray-400 text-gray-700 rounded-lg transition-colors"
           >
             <ArrowLeft class="w-4 h-4 mr-2" />
@@ -170,7 +170,7 @@
           <!-- Submit Button -->
           <div class="flex justify-end space-x-3">
             <Link
-              :href="route('admin.deduction-rules.index')"
+              :href="deductionRulesIndex.url()"
               class="px-4 py-2 bg-gray-300 hover:bg-gray-400 text-gray-700 rounded-lg transition-colors"
             >
               Batal
@@ -194,6 +194,8 @@ import { ref } from 'vue'
 import { Link, useForm } from '@inertiajs/vue3'
 import AppLayout from '@/Layouts/AppLayout.vue'
 import { ArrowLeft, Settings } from 'lucide-vue-next'
+import { dashboard } from '@/routes/admin'
+import { index as deductionRulesIndex, create, store } from '@/routes/admin/deduction-rules'
 
 interface Props {
   errors: Record<string, string>
@@ -202,9 +204,9 @@ interface Props {
 const props = defineProps<Props>()
 
 const breadcrumbs = [
-  { name: 'Dashboard', href: route('admin.dashboard') },
-  { name: 'Aturan Potongan', href: route('admin.deduction-rules.index') },
-  { name: 'Tambah Aturan', href: route('admin.deduction-rules.create') },
+  { name: 'Dashboard', href: dashboard.url() },
+  { name: 'Aturan Potongan', href: deductionRulesIndex.url() },
+  { name: 'Tambah Aturan', href: create.url() },
 ]
 
 const form = useForm({
@@ -288,7 +290,7 @@ const formatCurrency = (amount: number) => {
 
 const submit = () => {
   processing.value = true
-  form.post(route('admin.deduction-rules.store'), {
+  form.post(store.url(), {
     onFinish: () => {
       processing.value = false
     }

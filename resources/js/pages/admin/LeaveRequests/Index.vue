@@ -397,12 +397,14 @@
 
         <!-- Approve Confirmation Modal -->
         <ConfirmationModal
-            v-model:open="showApproveModal"
+            v-if="showApproveModal"
             :title="`Setujui Pengajuan Cuti`"
-            :description="`Yakin ingin menyetujui pengajuan cuti ${selectedRequest?.user.name}?`"
+            :message="`Yakin ingin menyetujui pengajuan cuti ${selectedRequest?.user.name}?`"
             confirm-text="Setujui"
-            variant="success"
+            cancel-text="Batal"
+            confirm-variant="success"
             @confirm="confirmApprove"
+            @cancel="showApproveModal = false"
         />
 
         <!-- Reject Modal -->
@@ -638,6 +640,7 @@ const confirmApprove = () => {
                 title: 'Berhasil!',
                 description: `Pengajuan cuti ${selectedRequest.value?.user.name} telah disetujui.`,
                 variant: 'success',
+                duration: 3000,
             });
             showApproveModal.value = false;
             selectedRequest.value = null;
@@ -647,6 +650,7 @@ const confirmApprove = () => {
                 title: 'Gagal!',
                 description: 'Terjadi kesalahan saat menyetujui pengajuan.',
                 variant: 'destructive',
+                duration: 4000,
             });
         },
     });
@@ -667,6 +671,7 @@ const submitReject = () => {
                 title: 'Berhasil!',
                 description: `Pengajuan cuti ${selectedRequest.value?.user.name} telah ditolak.`,
                 variant: 'warning',
+                duration: 3000,
             });
             showRejectModal.value = false;
             selectedRequest.value = null;
@@ -676,6 +681,7 @@ const submitReject = () => {
                 title: 'Gagal!',
                 description: 'Terjadi kesalahan saat menolak pengajuan.',
                 variant: 'destructive',
+                duration: 4000,
             });
         },
     });
