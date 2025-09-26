@@ -63,6 +63,11 @@ const adminNavItems: NavItem[] = [
                 href: '/admin/work-shifts',
                 icon: UserCheck,
             },
+            {
+                title: 'Dokumen Karyawan',
+                href: '/admin/documents',
+                icon: FolderOpen,
+            },
         ],
     },
     {
@@ -106,11 +111,6 @@ const adminNavItems: NavItem[] = [
         title: 'Pengumuman',
         href: '/admin/announcements',
         icon: Megaphone,
-    },
-    {
-        title: 'Dokumen Karyawan',
-        href: '/admin/documents',
-        icon: FolderOpen,
     },
     {
         title: 'Pengaturan Sistem',

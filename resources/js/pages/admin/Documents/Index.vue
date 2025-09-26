@@ -257,6 +257,7 @@ const { toast } = useToast()
 
 const breadcrumbs = [
   { name: 'Dashboard', href: dashboard.url() },
+  { name: 'Manajemen Karyawan', href: '#' },
   { name: 'Dokumen Karyawan', href: documentsIndex.url(), current: true },
 ]
 

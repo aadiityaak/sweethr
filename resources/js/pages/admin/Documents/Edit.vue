@@ -211,6 +211,7 @@ const { toast } = useToast()
 
 const breadcrumbs = [
   { name: 'Dashboard', href: route('admin.dashboard') },
+  { name: 'Manajemen Karyawan', href: '#' },
   { name: 'Dokumen Karyawan', href: route('admin.documents.index') },
   { name: 'Detail Dokumen', href: route('admin.documents.show', props.document.id) },
   { name: 'Edit Dokumen', href: route('admin.documents.edit', props.document.id), current: true },
