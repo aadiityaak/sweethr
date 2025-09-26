@@ -2,6 +2,7 @@
 
 namespace App\Http\Controllers;
 
+use App\Helpers\UrlHelper;
 use App\Models\Announcement;
 use App\Models\Attendance;
 use App\Models\Department;
@@ -53,7 +54,7 @@ class DashboardController extends Controller
 
         // Prepare user data with avatar URL
         $userData = $user->load(['department', 'position'])->toArray();
-        $userData['avatar'] = $user->avatar ? Storage::disk('public')->url($user->avatar) : null;
+        $userData['avatar'] = UrlHelper::avatar($user->avatar);
 
         return Inertia::render('admin/Dashboard', [
             'user' => $userData,
@@ -127,7 +128,7 @@ class DashboardController extends Controller
         $userData['face_recognition_enabled'] = (bool) $user->face_recognition_enabled;
         $userData['face_recognition_mandatory'] = (bool) $user->face_recognition_mandatory;
         $userData['face_setup_at'] = $user->face_setup_at?->toISOString();
-        $userData['avatar'] = $user->avatar ? Storage::disk('public')->url($user->avatar) : null;
+        $userData['avatar'] = UrlHelper::avatar($user->avatar);
         $userData['_cache_buster'] = now()->timestamp;
 
         \Log::info('DashboardController welcome() - Final data being sent to frontend', [
@@ -260,4 +261,5 @@ class DashboardController extends Controller
 
         return max(0, $annualLeaveEntitlement - $usedLeaves);
     }
+
 }

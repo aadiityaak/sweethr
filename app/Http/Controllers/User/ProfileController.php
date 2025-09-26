@@ -2,6 +2,7 @@
 
 namespace App\Http\Controllers\User;
 
+use App\Helpers\UrlHelper;
 use App\Http\Controllers\Controller;
 use App\Models\User;
 use Illuminate\Http\RedirectResponse;
@@ -44,8 +45,8 @@ class ProfileController extends Controller
         $userData['face_setup_at'] = $user->face_setup_at?->toISOString();
         $userData['has_face_descriptors'] = !empty($user->face_descriptors);
 
-        // Add avatar URL if exists
-        $userData['avatar'] = $user->avatar ? Storage::disk('public')->url($user->avatar) : null;
+        // Add avatar URL if exists - use helper for production compatibility
+        $userData['avatar'] = UrlHelper::avatar($user->avatar);
 
         // Add cache busting timestamp
         $userData['_cache_buster'] = now()->timestamp;
@@ -135,4 +136,5 @@ class ProfileController extends Controller
 
         return back()->with('success', 'Foto profil berhasil dihapus!');
     }
+
 }
