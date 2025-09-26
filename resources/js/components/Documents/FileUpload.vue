@@ -31,7 +31,7 @@
             {{ isDragOver ? 'Drop file di sini' : 'Klik atau drag file ke sini' }}
           </p>
           <p class="mt-2 text-xs text-gray-500 dark:text-gray-400">
-            Format yang diizinkan: {{ formattedAcceptedFormats }}
+            <strong>Format yang diizinkan:</strong> {{ formattedAcceptedFormats }}
           </p>
           <p class="text-xs text-gray-500 dark:text-gray-400">
             Maksimal {{ maxSizeMB }}MB
@@ -142,6 +142,9 @@ const acceptedFormats = computed(() => {
 })
 
 const formattedAcceptedFormats = computed(() => {
+  if (!props.acceptedFormats || props.acceptedFormats.length === 0) {
+    return 'Format akan ditampilkan setelah memilih jenis dokumen'
+  }
   return props.acceptedFormats.map(format => format.toUpperCase()).join(', ')
 })
 
@@ -154,8 +157,11 @@ const validateFile = (file: File): string | null => {
 
   // Check file format
   const fileExtension = file.name.split('.').pop()?.toLowerCase()
-  if (!fileExtension || !props.acceptedFormats.includes(fileExtension)) {
-    return `Format file tidak didukung. Gunakan: ${formattedAcceptedFormats.value}`
+  if (!fileExtension || !props.acceptedFormats || props.acceptedFormats.length === 0) {
+    return 'Silahkan pilih jenis dokumen terlebih dahulu untuk melihat format yang diizinkan'
+  }
+  if (!props.acceptedFormats.includes(fileExtension)) {
+    return `Format file tidak didukung. Format yang diizinkan: ${formattedAcceptedFormats.value}`
   }
 
   return null

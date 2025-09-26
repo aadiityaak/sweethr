@@ -132,12 +132,27 @@
               </label>
               <div class="mt-2">
                 <FileUpload
+                  v-if="selectedDocumentType"
                   v-model="form.file"
-                  :accepted-formats="selectedDocumentType?.allowed_extensions || []"
-                  :max-size-m-b="selectedDocumentType?.max_file_size_mb || 10"
+                  :accepted-formats="selectedDocumentType.allowed_extensions || []"
+                  :max-size-m-b="selectedDocumentType.max_file_size_mb || 10"
                   :uploading="form.processing"
                   @error="handleUploadError"
                 />
+                <div
+                  v-else
+                  class="relative rounded-lg border-2 border-dashed border-gray-300 p-6 text-center dark:border-gray-600"
+                >
+                  <div class="text-gray-500 dark:text-gray-400">
+                    <Upload class="mx-auto h-12 w-12 text-gray-400" />
+                    <p class="mt-4 text-sm font-medium">
+                      Silahkan pilih jenis dokumen terlebih dahulu
+                    </p>
+                    <p class="mt-2 text-xs">
+                      Format yang diizinkan akan ditampilkan setelah memilih jenis dokumen
+                    </p>
+                  </div>
+                </div>
               </div>
               <InputError class="mt-2" :message="form.errors.file" />
             </div>

@@ -273,6 +273,10 @@ const viewDocument = (document: any) => {
 }
 
 const downloadDocument = (document: any) => {
+  toast({
+    title: 'Download dimulai',
+    description: `Mengunduh dokumen: ${document.title}`,
+  })
   window.open(download.url(document.id), '_blank')
 }
 

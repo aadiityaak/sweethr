@@ -44,13 +44,12 @@
 
             <div
               v-if="showActions"
-              v-click-outside="() => showActions = false"
               class="absolute right-0 z-10 mt-1 w-48 rounded-md bg-white py-1 shadow-lg ring-1 ring-black ring-opacity-5 dark:bg-gray-800 dark:ring-white/10"
             >
               <button
                 type="button"
                 class="flex w-full items-center px-4 py-2 text-sm text-gray-700 hover:bg-gray-100 dark:text-gray-300 dark:hover:bg-gray-700"
-                @click="$emit('view', document)"
+                @click="handleView"
               >
                 <Eye class="mr-3 h-4 w-4" />
                 Lihat Detail
@@ -59,17 +58,16 @@
               <button
                 type="button"
                 class="flex w-full items-center px-4 py-2 text-sm text-gray-700 hover:bg-gray-100 dark:text-gray-300 dark:hover:bg-gray-700"
-                @click="$emit('download', document)"
+                @click="handleDownload"
               >
                 <Download class="mr-3 h-4 w-4" />
                 Download
               </button>
 
-
               <button
                 type="button"
                 class="flex w-full items-center px-4 py-2 text-sm text-gray-700 hover:bg-gray-100 dark:text-gray-300 dark:hover:bg-gray-700"
-                @click="$emit('edit', document)"
+                @click="handleEdit"
               >
                 <SquarePen class="mr-3 h-4 w-4" />
                 Edit
@@ -78,7 +76,7 @@
               <button
                 type="button"
                 class="flex w-full items-center px-4 py-2 text-sm text-red-700 hover:bg-red-50 dark:text-red-400 dark:hover:bg-red-900/20"
-                @click="$emit('delete', document)"
+                @click="handleDelete"
               >
                 <Trash2 class="mr-3 h-4 w-4" />
                 Hapus
@@ -184,6 +182,26 @@ const emit = defineEmits<Emits>()
 
 const showActions = ref(false)
 
+const handleView = () => {
+  showActions.value = false
+  emit('view', props.document)
+}
+
+const handleDownload = () => {
+  showActions.value = false
+  emit('download', props.document)
+}
+
+const handleEdit = () => {
+  showActions.value = false
+  emit('edit', props.document)
+}
+
+const handleDelete = () => {
+  showActions.value = false
+  emit('delete', props.document)
+}
+
 const isExpired = computed(() => {
   if (!props.document.expiry_date) return false
   return new Date(props.document.expiry_date) < new Date()
@@ -223,18 +241,4 @@ const formatDateTime = (dateString: string): string => {
   })
 }
 
-// Click outside directive
-const vClickOutside = {
-  beforeMount(el: HTMLElement, binding: any) {
-    el.clickOutsideEvent = (event: Event) => {
-      if (!(el === event.target || el.contains(event.target as Node))) {
-        binding.value()
-      }
-    }
-    document.addEventListener('click', el.clickOutsideEvent)
-  },
-  unmounted(el: HTMLElement) {
-    document.removeEventListener('click', el.clickOutsideEvent)
-  }
-}
 </script>
