@@ -276,6 +276,7 @@ const downloadDocument = (document: any) => {
   toast({
     title: 'Download dimulai',
     description: `Mengunduh dokumen: ${document.title}`,
+    duration: 2000,
   })
   window.open(download.url(document.id), '_blank')
 }
@@ -301,6 +302,7 @@ const handleDeleteDocument = () => {
       toast({
         title: 'Berhasil',
         description: 'Dokumen berhasil dihapus',
+        duration: 3000,
       })
       hideDeleteModal()
     },
@@ -309,6 +311,7 @@ const handleDeleteDocument = () => {
         title: 'Gagal',
         description: 'Terjadi kesalahan saat menghapus dokumen',
         variant: 'destructive',
+        duration: 4000,
       })
     }
   })

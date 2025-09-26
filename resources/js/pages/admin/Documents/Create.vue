@@ -258,6 +258,7 @@ const handleUploadError = (message: string) => {
     title: 'Error Upload',
     description: message,
     variant: 'destructive',
+    duration: 4000,
   })
 }
 
@@ -276,6 +277,7 @@ const submitForm = () => {
       toast({
         title: 'Berhasil',
         description: 'Dokumen berhasil diupload',
+        duration: 3000,
       })
     },
     onError: () => {
@@ -283,6 +285,7 @@ const submitForm = () => {
         title: 'Gagal',
         description: 'Terjadi kesalahan saat mengupload dokumen',
         variant: 'destructive',
+        duration: 4000,
       })
     }
   })

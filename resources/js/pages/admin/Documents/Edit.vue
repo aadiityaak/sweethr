@@ -14,7 +14,7 @@
           </div>
           <div class="flex gap-3">
             <Link
-              :href="route('admin.documents.show', document.id)"
+              :href="show.url(document.id)"
               class="inline-flex items-center rounded-md bg-white px-3 py-2 text-sm font-semibold text-gray-900 shadow-sm ring-1 ring-inset ring-gray-300 hover:bg-gray-50 dark:bg-gray-800 dark:text-white dark:ring-gray-600 dark:hover:bg-gray-700"
             >
               <ArrowLeft class="mr-2 h-4 w-4" />
@@ -123,7 +123,7 @@
             <!-- Submit Buttons -->
             <div class="flex items-center justify-end gap-x-6 border-t border-gray-900/10 pt-6 dark:border-white/10">
               <Link
-                :href="route('admin.documents.show', document.id)"
+                :href="show.url(document.id)"
                 class="text-sm font-semibold leading-6 text-gray-900 hover:text-gray-700 dark:text-white dark:hover:text-gray-300"
               >
                 Batal
@@ -201,6 +201,8 @@ import Input from '@/components/ui/input/Input.vue'
 import Textarea from '@/components/ui/textarea/Textarea.vue'
 import InputError from '@/components/InputError.vue'
 import { useToast } from '@/components/ui/toast/use-toast'
+import { dashboard } from '@/routes/admin'
+import { index as documentsIndex, show, edit, update } from '@/routes/admin/documents'
 
 interface Props {
   document: any
@@ -210,11 +212,11 @@ const props = defineProps<Props>()
 const { toast } = useToast()
 
 const breadcrumbs = [
-  { name: 'Dashboard', href: route('admin.dashboard') },
+  { name: 'Dashboard', href: dashboard.url() },
   { name: 'Manajemen Karyawan', href: '#' },
-  { name: 'Dokumen Karyawan', href: route('admin.documents.index') },
-  { name: 'Detail Dokumen', href: route('admin.documents.show', props.document.id) },
-  { name: 'Edit Dokumen', href: route('admin.documents.edit', props.document.id), current: true },
+  { name: 'Dokumen Karyawan', href: documentsIndex.url() },
+  { name: 'Detail Dokumen', href: show.url(props.document.id) },
+  { name: 'Edit Dokumen', href: edit.url(props.document.id), current: true },
 ]
 
 const form = useForm({
@@ -241,15 +243,17 @@ const handleUploadError = (message: string) => {
     title: 'Error Upload',
     description: message,
     variant: 'destructive',
+    duration: 4000,
   })
 }
 
 const submitForm = () => {
-  form.put(route('admin.documents.update', props.document.id), {
+  form.put(update.url(props.document.id), {
     onSuccess: () => {
       toast({
         title: 'Berhasil',
         description: 'Dokumen berhasil diperbarui',
+        duration: 3000,
       })
     },
     onError: () => {
@@ -257,6 +261,7 @@ const submitForm = () => {
         title: 'Gagal',
         description: 'Terjadi kesalahan saat memperbarui dokumen',
         variant: 'destructive',
+        duration: 4000,
       })
     }
   })
@@ -272,7 +277,7 @@ const replaceFile = () => {
   formData.append('_method', 'PUT')
 
   // Use native fetch instead of Inertia for file upload
-  fetch(route('admin.documents.update', props.document.id), {
+  fetch(update.url(props.document.id), {
     method: 'POST',
     body: formData,
     headers: {
@@ -285,6 +290,7 @@ const replaceFile = () => {
       toast({
         title: 'Berhasil',
         description: 'File berhasil diganti',
+        duration: 3000,
       })
       // Reload page to show updated document
       window.location.reload()
@@ -297,6 +303,7 @@ const replaceFile = () => {
       title: 'Gagal',
       description: 'Terjadi kesalahan saat mengganti file',
       variant: 'destructive',
+      duration: 4000,
     })
   })
   .finally(() => {

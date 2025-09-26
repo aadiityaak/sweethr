@@ -320,6 +320,7 @@ const handleDeleteDocument = () => {
       toast({
         title: 'Berhasil',
         description: 'Dokumen berhasil dihapus',
+        duration: 3000,
       })
     },
     onError: () => {
@@ -327,6 +328,7 @@ const handleDeleteDocument = () => {
         title: 'Gagal',
         description: 'Terjadi kesalahan saat menghapus dokumen',
         variant: 'destructive',
+        duration: 4000,
       })
     }
   })
