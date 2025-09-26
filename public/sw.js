@@ -1,4 +1,4 @@
-const CACHE_NAME = 'sweethr-v5'; // No caching for face-api models and sensitive data
+const CACHE_NAME = 'sweethr-v6'; // No caching for face-api models and sensitive data
 const urlsToCache = [
   '/',
   '/manifest.json',
@@ -169,7 +169,11 @@ self.addEventListener('fetch', (event) => {
     '/',
     '/user/profile',
     '/dashboard',
-    '/welcome'
+    '/welcome',
+    '/admin/settings',
+    '/admin/dashboard',
+    '/admin/salary-settings',
+    '/settings/profile'
   ];
 
   const isSensitivePage = sensitivePages.some(page => {

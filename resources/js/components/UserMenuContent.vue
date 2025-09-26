@@ -11,7 +11,31 @@ interface Props {
     user: User;
 }
 
-const handleLogout = () => {
+const handleLogout = async () => {
+    // Clear service worker cache and unregister to prevent stale redirects
+    try {
+        // Clear all caches
+        if ('caches' in window) {
+            const cacheNames = await caches.keys();
+            await Promise.all(
+                cacheNames.map(cacheName => caches.delete(cacheName))
+            );
+            console.log('SW: All caches cleared on logout');
+        }
+
+        // Unregister service worker
+        if ('serviceWorker' in navigator) {
+            const registrations = await navigator.serviceWorker.getRegistrations();
+            await Promise.all(
+                registrations.map(registration => registration.unregister())
+            );
+            console.log('SW: Service worker unregistered on logout');
+        }
+    } catch (error) {
+        console.warn('SW: Failed to clear service worker on logout:', error);
+    }
+
+    // Clear Inertia router cache
     router.flushAll();
 };
 
