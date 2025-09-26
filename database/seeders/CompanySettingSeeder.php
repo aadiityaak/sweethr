@@ -17,7 +17,7 @@ class CompanySettingSeeder extends Seeder
             // Branding & Identity
             [
                 'key' => 'company_name',
-                'value' => 'SweetHR',
+                'value' => 'PT Perusahaan Indonesia',
                 'type' => 'text',
                 'group' => 'branding',
                 'description' => 'Nama resmi perusahaan yang akan ditampilkan di aplikasi',
@@ -59,7 +59,7 @@ class CompanySettingSeeder extends Seeder
             ],
             [
                 'key' => 'company_email',
-                'value' => 'info@sweethr.com',
+                'value' => 'info@perusahaan.co.id',
                 'type' => 'email',
                 'group' => 'company_info',
                 'description' => 'Alamat email resmi perusahaan',
@@ -67,7 +67,7 @@ class CompanySettingSeeder extends Seeder
             ],
             [
                 'key' => 'company_website',
-                'value' => 'https://www.sweethr.com',
+                'value' => 'https://www.perusahaan.co.id',
                 'type' => 'url',
                 'group' => 'company_info',
                 'description' => 'URL website resmi perusahaan',

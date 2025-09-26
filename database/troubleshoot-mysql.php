@@ -1,7 +1,7 @@
 <?php
 
 /**
- * MySQL Troubleshooting Script for SweetHR
+ * MySQL Troubleshooting Script for Sistem HR
  *
  * This script helps diagnose and fix common MySQL issues with Laravel migrations
  * Run with: php database/troubleshoot-mysql.php
@@ -20,7 +20,7 @@ class MySQLTroubleshooter
 {
     public function run()
     {
-        echo "🔍 MySQL Troubleshooting for SweetHR\n";
+        echo "🔍 MySQL Troubleshooting for Sistem HR\n";
         echo "==================================\n\n";
 
         $this->checkConnection();

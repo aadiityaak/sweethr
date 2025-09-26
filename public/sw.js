@@ -1,4 +1,4 @@
-const CACHE_NAME = 'sweethr-v6'; // No caching for face-api models and sensitive data
+const CACHE_NAME = 'sistemhr-v6'; // No caching for face-api models and sensitive data
 const urlsToCache = [
   '/',
   '/manifest.json',
@@ -284,7 +284,7 @@ self.addEventListener('push', (event) => {
       body: data.body,
       icon: '/icons/icon-192x192.png',
       badge: '/icons/badge-72x72.png',
-      tag: data.tag || 'sweethr-notification',
+      tag: data.tag || 'sistemhr-notification',
       requireInteraction: true,
       actions: [
         {

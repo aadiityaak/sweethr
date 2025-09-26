@@ -20,7 +20,7 @@ class CompanySettingController extends Controller
                 'description' => 'Nama resmi perusahaan yang akan ditampilkan di aplikasi',
                 'required' => true,
                 'is_public' => true,
-                'default' => 'SweetHR'
+                'default' => 'PT Perusahaan Indonesia'
             ],
             'company_tagline' => [
                 'type' => 'text',

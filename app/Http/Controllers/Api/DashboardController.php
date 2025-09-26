@@ -35,7 +35,7 @@ class DashboardController extends Controller
         $announcements = [
             [
                 'id' => 1,
-                'title' => 'Welcome to SweetHR',
+                'title' => 'Selamat Datang di Sistem HR',
                 'message' => 'HR Management System is now live!',
                 'created_at' => now()->subDays(1),
             ]

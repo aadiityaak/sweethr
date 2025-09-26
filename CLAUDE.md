@@ -1,4 +1,4 @@
-# SweetHR Project
+# Sistem HR Management Project
 
 ## Project Overview
 Laravel-based HR management system with Vue.js frontend and Inertia.js for seamless SPA experience.

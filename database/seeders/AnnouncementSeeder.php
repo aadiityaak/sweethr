@@ -25,7 +25,7 @@ class AnnouncementSeeder extends Seeder
 
         $announcements = [
             [
-                'title' => 'Selamat Datang di SweetHR!',
+                'title' => 'Selamat Datang di Sistem HR!',
                 'content' => "Kami dengan bangga memperkenalkan sistem HR management yang baru untuk meningkatkan pengalaman kerja kita semua.\n\nFitur-fitur unggulan:\n• Absensi berbasis lokasi dan face recognition\n• Manajemen cuti yang mudah\n• Dashboard yang informatif\n• Notifikasi real-time\n\nMari bersama-sama membangun lingkungan kerja yang lebih baik!",
                 'excerpt' => 'Sistem HR management baru telah diluncurkan dengan fitur-fitur canggih untuk meningkatkan produktivitas dan kenyamanan kerja.',
                 'category_id' => $categories->where('slug', 'umum')->first()?->id ?? $categories->first()->id,
@@ -46,8 +46,8 @@ class AnnouncementSeeder extends Seeder
             ],
             [
                 'title' => 'Company Gathering 2024 - Save the Date!',
-                'content' => "🎉 Kami mengundang seluruh keluarga besar SweetHR untuk menghadiri Company Gathering tahunan!\n\n📅 Sabtu, 15 Oktober 2024\n⏰ 08:00 - 17:00 WIB\n📍 Pantai Ancol, Jakarta Utara\n\nAgenda acara:\n• Welcome breakfast (08:00 - 09:00)\n• Team building activities (09:00 - 12:00)\n• BBQ lunch (12:00 - 14:00)\n• Games & door prizes (14:00 - 16:00)\n• Closing ceremony (16:00 - 17:00)\n\nSetiap karyawan boleh membawa keluarga (maks. 2 orang). Konfirmasi kehadiran paling lambat 1 Oktober 2024.",
-                'excerpt' => 'Company Gathering 2024 di Pantai Ancol! Acara seru dengan keluarga besar SweetHR. Jangan sampai terlewat!',
+                'content' => "🎉 Kami mengundang seluruh keluarga besar perusahaan untuk menghadiri Company Gathering tahunan!\n\n📅 Sabtu, 15 Oktober 2024\n⏰ 08:00 - 17:00 WIB\n📍 Pantai Ancol, Jakarta Utara\n\nAgenda acara:\n• Welcome breakfast (08:00 - 09:00)\n• Team building activities (09:00 - 12:00)\n• BBQ lunch (12:00 - 14:00)\n• Games & door prizes (14:00 - 16:00)\n• Closing ceremony (16:00 - 17:00)\n\nSetiap karyawan boleh membawa keluarga (maks. 2 orang). Konfirmasi kehadiran paling lambat 1 Oktober 2024.",
+                'excerpt' => 'Company Gathering 2024 di Pantai Ancol! Acara seru dengan keluarga besar perusahaan. Jangan sampai terlewat!',
                 'category_id' => $categories->where('slug', 'event')->first()?->id ?? $categories->first()->id,
                 'priority' => 'normal',
                 'is_active' => true,
@@ -56,7 +56,7 @@ class AnnouncementSeeder extends Seeder
             ],
             [
                 'title' => 'Selamat Ulang Tahun Budi Santoso! 🎂',
-                'content' => "Mari kita ucapkan selamat ulang tahun kepada Budi Santoso dari divisi IT yang berulang tahun hari ini!\n\n🎂 Happy Birthday Budi!\n\nTerima kasih atas dedikasi dan kontribusi yang luar biasa selama ini. Semoga di usia yang baru ini semakin sukses dan bahagia.\n\nDari kami semua di SweetHR family! 🎉",
+                'content' => "Mari kita ucapkan selamat ulang tahun kepada Budi Santoso dari divisi IT yang berulang tahun hari ini!\n\n🎂 Happy Birthday Budi!\n\nTerima kasih atas dedikasi dan kontribusi yang luar biasa selama ini. Semoga di usia yang baru ini semakin sukses dan bahagia.\n\nDari kami semua keluarga besar perusahaan! 🎉",
                 'excerpt' => 'Selamat ulang tahun untuk Budi Santoso! Mari doakan yang terbaik untuk rekan kerja kita.',
                 'category_id' => $categories->where('slug', 'ulang-tahun')->first()?->id ?? $categories->first()->id,
                 'priority' => 'low',

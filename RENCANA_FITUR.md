@@ -1,6 +1,6 @@
-# 📋 Rencana Fitur SweetHR
+# 📋 Rencana Fitur Sistem HR Management
 
-Daftar lengkap fitur yang akan dikembangkan untuk sistem HR management SweetHR.
+Daftar lengkap fitur yang akan dikembangkan untuk sistem HR management.
 
 ## ✅ Status Fitur
 

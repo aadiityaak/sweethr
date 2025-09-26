@@ -6,12 +6,12 @@
         <meta name="csrf-token" content="{{ csrf_token() }}">
 
         {{-- PWA Meta Tags --}}
-        <meta name="application-name" content="{{ $companySettings['company_name'] ?? config('app.name', 'SweetHR') }}">
+        <meta name="application-name" content="{{ $companySettings['company_name'] ?? config('app.name', 'Sistem HR') }}">
         <meta name="theme-color" content="#3b82f6">
         <meta name="mobile-web-app-capable" content="yes">
         <meta name="apple-mobile-web-app-capable" content="yes">
         <meta name="apple-mobile-web-app-status-bar-style" content="default">
-        <meta name="apple-mobile-web-app-title" content="{{ $companySettings['company_name'] ?? config('app.name', 'SweetHR') }}">
+        <meta name="apple-mobile-web-app-title" content="{{ $companySettings['company_name'] ?? config('app.name', 'Sistem HR') }}">
         <meta name="msapplication-TileColor" content="#3b82f6">
         <meta name="msapplication-tap-highlight" content="no">
 

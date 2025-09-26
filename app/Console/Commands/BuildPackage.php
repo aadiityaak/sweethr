@@ -175,7 +175,7 @@ if (!defined('INSTALLER_ACCESS')) {
 }
 
 // Application configuration
-define('APP_NAME', 'SweetHR');
+define('APP_NAME', 'Sistem HR');
 define('APP_VERSION', '1.0.0');
 define('MIN_PHP_VERSION', '8.1.0');
 
@@ -267,7 +267,7 @@ function generateAppKey() {
 }
 
 function createEnvFile($config) {
-    $envContent = "APP_NAME=SweetHR
+    $envContent = "APP_NAME=Sistem_HR
 APP_ENV=production
 APP_KEY={$config['app_key']}
 APP_DEBUG=false
@@ -372,7 +372,7 @@ PHP;
         <div class="mb-6">
             <h2 class="text-xl font-semibold mb-4">Welcome to the Installer</h2>
             <p class="text-gray-700 mb-4">
-                This installer will guide you through the setup process for your SweetHR application.
+                This installer will guide you through the setup process for your HR Management application.
             </p>
             <p class="text-gray-700">
                 Please ensure you have your database credentials ready before proceeding.
