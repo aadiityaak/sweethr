@@ -240,9 +240,9 @@
         <ConfirmationModal
             v-model:open="showDeleteModal"
             title="Hapus Departemen"
-            :description="`Yakin ingin menghapus departemen '${selectedDepartment?.name}'? Aksi ini tidak dapat dibatalkan.`"
+            :message="`Yakin ingin menghapus departemen '${selectedDepartment?.name}'? Aksi ini tidak dapat dibatalkan.`"
             confirm-text="Hapus"
-            variant="destructive"
+            confirm-variant="danger"
             @confirm="confirmDelete"
         />
     </AppLayout>

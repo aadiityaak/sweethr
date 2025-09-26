@@ -20,12 +20,24 @@ class PayrollController extends Controller
         $payrolls = Payroll::with(['user:id,name,employee_id'])
             ->forPeriod($year, $month)
             ->orderBy('created_at', 'desc')
-            ->get();
+            ->get()
+            ->map(function ($payroll) {
+                return [
+                    'id' => $payroll->id,
+                    'user' => $payroll->user,
+                    'gross_salary' => (float) $payroll->gross_salary,
+                    'total_deductions' => (float) $payroll->total_deductions,
+                    'net_salary' => (float) $payroll->net_salary,
+                    'working_days' => $payroll->working_days,
+                    'actual_working_days' => $payroll->actual_working_days,
+                    'overtime_hours' => (float) $payroll->overtime_hours,
+                ];
+            });
 
         return Inertia::render('admin/Payroll/Index', [
             'payrolls' => $payrolls,
-            'currentYear' => $year,
-            'currentMonth' => $month,
+            'currentYear' => (int) $year,
+            'currentMonth' => (int) $month,
         ]);
     }
 

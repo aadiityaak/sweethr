@@ -1,7 +1,7 @@
 <template>
-  <div class="fixed inset-0 z-50 overflow-y-auto">
+  <div v-if="open" class="fixed inset-0 z-50 overflow-y-auto">
     <div class="flex min-h-full items-end justify-center p-4 text-center sm:items-center sm:p-0">
-      <div class="fixed inset-0 bg-gray-500/75 transition-opacity" @click="$emit('cancel')" />
+      <div class="fixed inset-0 bg-gray-500/75 transition-opacity" @click="handleCancel" />
 
       <div class="relative transform overflow-hidden rounded-lg bg-white text-left shadow-xl transition-all sm:my-8 sm:w-full sm:max-w-lg dark:bg-gray-900">
         <div class="bg-white px-4 pb-4 pt-5 sm:p-6 sm:pb-4 dark:bg-gray-900">
@@ -27,14 +27,14 @@
             type="button"
             class="inline-flex w-full justify-center rounded-md px-3 py-2 text-sm font-semibold text-white shadow-sm sm:ml-3 sm:w-auto"
             :class="confirmButtonClass"
-            @click="$emit('confirm')"
+            @click="handleConfirm"
           >
             {{ confirmText }}
           </button>
           <button
             type="button"
             class="mt-3 inline-flex w-full justify-center rounded-md bg-white px-3 py-2 text-sm font-semibold text-gray-900 shadow-sm ring-1 ring-inset ring-gray-300 hover:bg-gray-50 sm:mt-0 sm:w-auto dark:bg-gray-700 dark:text-white dark:ring-gray-600 dark:hover:bg-gray-600"
-            @click="$emit('cancel')"
+            @click="handleCancel"
           >
             {{ cancelText }}
           </button>
@@ -49,6 +49,7 @@ import { computed } from 'vue'
 import { AlertTriangle, Info, CheckCircle } from 'lucide-vue-next'
 
 interface Props {
+  open?: boolean
   title: string
   message: string
   confirmText?: string
@@ -57,15 +58,27 @@ interface Props {
 }
 
 const props = withDefaults(defineProps<Props>(), {
+  open: false,
   confirmText: 'Confirm',
   cancelText: 'Cancel',
   confirmVariant: 'primary'
 })
 
-defineEmits<{
+const emit = defineEmits<{
   confirm: []
   cancel: []
+  'update:open': [value: boolean]
 }>()
+
+const handleConfirm = () => {
+  emit('confirm')
+  emit('update:open', false)
+}
+
+const handleCancel = () => {
+  emit('cancel')
+  emit('update:open', false)
+}
 
 const icon = computed(() => {
   switch (props.confirmVariant) {

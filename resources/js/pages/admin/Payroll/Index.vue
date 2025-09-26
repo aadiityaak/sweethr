@@ -308,11 +308,11 @@ const availableYears = computed(() => {
 })
 
 const totalPayroll = computed(() => {
-  return props.payrolls.reduce((sum, p) => sum + p.net_salary, 0)
+  return props.payrolls.reduce((sum, p) => sum + Number(p.net_salary || 0), 0)
 })
 
 const totalDeductions = computed(() => {
-  return props.payrolls.reduce((sum, p) => sum + p.total_deductions, 0)
+  return props.payrolls.reduce((sum, p) => sum + Number(p.total_deductions || 0), 0)
 })
 
 const averagePayroll = computed(() => {
@@ -358,11 +358,14 @@ const regeneratePayroll = (payroll: Payroll) => {
   }
 }
 
-const formatCurrency = (amount: number) => {
+const formatCurrency = (amount: number | string | null | undefined) => {
+  const numAmount = Number(amount || 0)
+  if (isNaN(numAmount)) return 'Rp0'
+
   return new Intl.NumberFormat('id-ID', {
     style: 'currency',
     currency: 'IDR',
     minimumFractionDigits: 0,
-  }).format(amount)
+  }).format(numAmount)
 }
 </script>
