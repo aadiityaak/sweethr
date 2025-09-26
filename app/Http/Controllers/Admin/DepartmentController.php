@@ -113,7 +113,7 @@ class DepartmentController extends Controller
         // Get department employees with their positions
         $employees = User::where('department_id', $department->id)
             ->where('employment_status', 'active')
-            ->with(['position:id,name', 'manager:id,name'])
+            ->with(['position:id,title', 'manager:id,name'])
             ->select('id', 'name', 'employee_id', 'email', 'phone', 'position_id', 'manager_id', 'hire_date')
             ->orderBy('name')
             ->get();

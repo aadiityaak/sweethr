@@ -108,7 +108,7 @@
                                     </div>
                                 </div>
                                 <div class="text-right">
-                                    <p v-if="employee.position" class="text-sm font-medium">{{ employee.position.name }}</p>
+                                    <p v-if="employee.position" class="text-sm font-medium">{{ employee.position.title }}</p>
                                     <p v-if="employee.hire_date" class="text-xs text-muted-foreground">
                                         Bergabung {{ formatDate(employee.hire_date) }}
                                     </p>
@@ -220,7 +220,7 @@ interface Employee {
     hire_date?: string;
     position?: {
         id: number;
-        name: string;
+        title: string;
     };
     manager?: {
         id: number;
