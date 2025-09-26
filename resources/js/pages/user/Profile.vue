@@ -344,7 +344,7 @@
                         </div>
                         <div>
                             <h2 class="text-lg font-semibold">Install Aplikasi</h2>
-                            <p class="text-sm text-muted-foreground">Install SweetHR ke perangkat Anda</p>
+                            <p class="text-sm text-muted-foreground">Install {{ companyName }} ke perangkat Anda</p>
                         </div>
                     </div>
 
@@ -423,6 +423,7 @@ import BottomNavigation from '@/components/BottomNavigation.vue';
 import FaceCapture from '@/components/FaceCapture.vue';
 import PWAInstallButton from '@/components/PWAInstallButton.vue';
 import { useFaceRecognition } from '@/composables/useFaceRecognition';
+import { useCompanySettings } from '@/composables/useCompanySettings';
 import {
     User,
     Mail,
@@ -505,6 +506,8 @@ const {
 
 // Edit states
 const isEditingBasic = ref(false);
+
+const { companyName } = useCompanySettings();
 
 // Forms
 const basicInfoForm = useForm({

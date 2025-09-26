@@ -2,11 +2,14 @@
 import AppLogoIcon from '@/components/AppLogoIcon.vue';
 import { home } from '@/routes';
 import { Link } from '@inertiajs/vue3';
+import { useCompanySettings } from '@/composables/useCompanySettings';
 
 defineProps<{
     title?: string;
     description?: string;
 }>();
+
+const { companyName } = useCompanySettings();
 </script>
 
 <template>
@@ -37,7 +40,7 @@ defineProps<{
                                     </div>
                                     <!-- Company Name -->
                                     <div class="text-2xl font-bold bg-gradient-to-r from-foreground to-foreground/80 bg-clip-text text-transparent">
-                                        SweetHR
+                                        {{ companyName }}
                                     </div>
                                 </Link>
 
@@ -59,7 +62,7 @@ defineProps<{
         <!-- Footer -->
         <div class="absolute bottom-6 left-0 right-0 text-center">
             <p class="text-xs text-muted-foreground">
-                © 2024 SweetHR. Sistem Manajemen SDM Modern
+                © {{ new Date().getFullYear() }} {{ companyName }}. Sistem Manajemen SDM Modern
             </p>
         </div>
     </div>

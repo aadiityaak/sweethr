@@ -113,7 +113,7 @@ export function usePWAInstall() {
         platform: 'Desktop',
         steps: [
           'Klik icon install di address bar browser',
-          'Atau buka menu browser → "Install SweetHR"',
+          'Atau buka menu browser → "Install Aplikasi"',
           'Konfirmasi untuk menginstall aplikasi'
         ]
       }

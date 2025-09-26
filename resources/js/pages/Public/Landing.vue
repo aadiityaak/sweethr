@@ -6,7 +6,7 @@
                 <div class="flex h-16 justify-between items-center">
                     <div class="flex items-center">
                         <h1 class="text-2xl font-bold text-gray-900 dark:text-white">
-                            SweetHR
+                            {{ companyName }}
                         </h1>
                     </div>
                     <div class="flex items-center space-x-4">
@@ -26,7 +26,7 @@
             <div class="text-center">
                 <h1 class="text-4xl font-bold tracking-tight text-gray-900 dark:text-white sm:text-6xl mb-4">
                     Selamat Datang di
-                    <span class="text-indigo-600 dark:text-indigo-400">SweetHR</span>
+                    <span class="text-indigo-600 dark:text-indigo-400">{{ companyName }}</span>
                 </h1>
 
                 <!-- Motivational Quote -->
@@ -49,7 +49,7 @@
                 <div class="border-t border-gray-200 dark:border-gray-700 pt-8">
                     <div class="text-center">
                         <p class="text-sm text-gray-500 dark:text-gray-400">
-                            © {{ new Date().getFullYear() }} SweetHR. All rights reserved.
+                            © {{ new Date().getFullYear() }} {{ companyName }}. All rights reserved.
                         </p>
                     </div>
                 </div>
@@ -61,11 +61,14 @@
 <script setup lang="ts">
 import { Link } from '@inertiajs/vue3'
 import { onMounted, ref } from 'vue'
+import { useCompanySettings } from '@/composables/useCompanySettings'
 
 // Define the component meta
 defineOptions({
     layout: null, // No layout for public pages
 })
+
+const { companyName } = useCompanySettings()
 
 // Motivational quotes
 const quotes = [

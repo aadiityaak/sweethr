@@ -821,7 +821,7 @@ onUnmounted(() => {
 </script>
 
 <template>
-    <Head title="SweetHR - Employee Portal" />
+    <Head :title="`${companyName} - Employee Portal`" />
 
     <div class="min-h-screen bg-background">
         <!-- Mobile Header - Full Width -->

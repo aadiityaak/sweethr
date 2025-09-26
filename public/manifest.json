@@ -1,6 +1,6 @@
 {
-  "name": "SweetHR - HR Management System",
-  "short_name": "SweetHR",
+  "name": "HR Management System",
+  "short_name": "HRM",
   "description": "Complete HR management system for employee attendance, leave management, and more",
   "start_url": "/",
   "display": "standalone",

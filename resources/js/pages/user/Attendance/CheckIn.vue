@@ -285,7 +285,7 @@ const handleFaceVerification = async (confidence: number) => {
 </script>
 
 <template>
-    <Head title="Check In - SweetHR" />
+    <Head :title="`Check In - ${companyName}`" />
 
     <div class="min-h-screen bg-background">
         <!-- Mobile Header - Full Width -->
