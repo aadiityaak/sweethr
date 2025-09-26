@@ -1,5 +1,5 @@
 <template>
-  <div class="overflow-hidden rounded-xl bg-white shadow-sm ring-1 ring-gray-900/5 dark:bg-gray-900 dark:ring-white/10">
+  <div class="relative rounded-xl bg-white shadow-sm ring-1 ring-gray-900/5 dark:bg-gray-900 dark:ring-white/10">
     <div class="p-6">
       <div class="flex items-start justify-between">
         <div class="flex items-start space-x-4">
@@ -35,53 +35,13 @@
           <!-- Actions Dropdown -->
           <div class="relative">
             <button
+              ref="buttonRef"
               type="button"
               class="flex items-center rounded-full p-1 text-gray-400 hover:text-gray-600 dark:hover:text-gray-300"
-              @click="showActions = !showActions"
+              @click="toggleActions"
             >
               <MoreHorizontal class="h-5 w-5" />
             </button>
-
-            <div
-              v-if="showActions"
-              class="absolute right-0 z-10 mt-1 w-48 rounded-md bg-white py-1 shadow-lg ring-1 ring-black ring-opacity-5 dark:bg-gray-800 dark:ring-white/10"
-            >
-              <button
-                type="button"
-                class="flex w-full items-center px-4 py-2 text-sm text-gray-700 hover:bg-gray-100 dark:text-gray-300 dark:hover:bg-gray-700"
-                @click="handleView"
-              >
-                <Eye class="mr-3 h-4 w-4" />
-                Lihat Detail
-              </button>
-
-              <button
-                type="button"
-                class="flex w-full items-center px-4 py-2 text-sm text-gray-700 hover:bg-gray-100 dark:text-gray-300 dark:hover:bg-gray-700"
-                @click="handleDownload"
-              >
-                <Download class="mr-3 h-4 w-4" />
-                Download
-              </button>
-
-              <button
-                type="button"
-                class="flex w-full items-center px-4 py-2 text-sm text-gray-700 hover:bg-gray-100 dark:text-gray-300 dark:hover:bg-gray-700"
-                @click="handleEdit"
-              >
-                <SquarePen class="mr-3 h-4 w-4" />
-                Edit
-              </button>
-
-              <button
-                type="button"
-                class="flex w-full items-center px-4 py-2 text-sm text-red-700 hover:bg-red-50 dark:text-red-400 dark:hover:bg-red-900/20"
-                @click="handleDelete"
-              >
-                <Trash2 class="mr-3 h-4 w-4" />
-                Hapus
-              </button>
-            </div>
           </div>
         </div>
       </div>
@@ -127,11 +87,56 @@
       </div>
 
     </div>
+
+    <!-- Fixed positioned dropdown using Teleport -->
+    <Teleport to="body">
+      <div
+        v-if="showActions"
+        class="fixed z-50 w-48 rounded-md bg-white py-1 shadow-xl ring-1 ring-black ring-opacity-5 dark:bg-gray-800 dark:ring-white/10"
+        :style="{ top: `${dropdownPosition.top}px`, left: `${dropdownPosition.left}px` }"
+      >
+        <button
+          type="button"
+          class="flex w-full items-center px-4 py-2 text-sm text-gray-700 hover:bg-gray-100 dark:text-gray-300 dark:hover:bg-gray-700"
+          @click="handleView"
+        >
+          <Eye class="mr-3 h-4 w-4" />
+          Lihat Detail
+        </button>
+
+        <button
+          type="button"
+          class="flex w-full items-center px-4 py-2 text-sm text-gray-700 hover:bg-gray-100 dark:text-gray-300 dark:hover:bg-gray-700"
+          @click="handleDownload"
+        >
+          <Download class="mr-3 h-4 w-4" />
+          Download
+        </button>
+
+        <button
+          type="button"
+          class="flex w-full items-center px-4 py-2 text-sm text-gray-700 hover:bg-gray-100 dark:text-gray-300 dark:hover:bg-gray-700"
+          @click="handleEdit"
+        >
+          <SquarePen class="mr-3 h-4 w-4" />
+          Edit
+        </button>
+
+        <button
+          type="button"
+          class="flex w-full items-center px-4 py-2 text-sm text-red-700 hover:bg-red-50 dark:text-red-400 dark:hover:bg-red-900/20"
+          @click="handleDelete"
+        >
+          <Trash2 class="mr-3 h-4 w-4" />
+          Hapus
+        </button>
+      </div>
+    </Teleport>
   </div>
 </template>
 
 <script setup lang="ts">
-import { ref, computed } from 'vue'
+import { ref, computed, nextTick, onMounted, onUnmounted } from 'vue'
 import {
   FileText,
   MoreHorizontal,
@@ -181,6 +186,26 @@ const props = defineProps<Props>()
 const emit = defineEmits<Emits>()
 
 const showActions = ref(false)
+const buttonRef = ref<HTMLButtonElement>()
+const dropdownPosition = ref({ top: 0, left: 0 })
+
+const calculateDropdownPosition = () => {
+  if (buttonRef.value) {
+    const rect = buttonRef.value.getBoundingClientRect()
+    dropdownPosition.value = {
+      top: rect.bottom + window.scrollY + 4,
+      left: rect.right + window.scrollX - 192 // 192px = w-48 (48 * 4)
+    }
+  }
+}
+
+const toggleActions = async () => {
+  showActions.value = !showActions.value
+  if (showActions.value) {
+    await nextTick()
+    calculateDropdownPosition()
+  }
+}
 
 const handleView = () => {
   showActions.value = false
@@ -240,5 +265,20 @@ const formatDateTime = (dateString: string): string => {
     minute: '2-digit'
   })
 }
+
+// Close dropdown when clicking outside
+const handleClickOutside = (event: Event) => {
+  if (buttonRef.value && !buttonRef.value.contains(event.target as Node)) {
+    showActions.value = false
+  }
+}
+
+onMounted(() => {
+  document.addEventListener('click', handleClickOutside)
+})
+
+onUnmounted(() => {
+  document.removeEventListener('click', handleClickOutside)
+})
 
 </script>
