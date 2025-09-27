@@ -5,6 +5,7 @@ import { DatePicker } from '@/components/ui/date-picker';
 import { Form, Head } from '@inertiajs/vue3';
 import { Calendar, ArrowLeft, AlertCircle, RefreshCw } from 'lucide-vue-next';
 import { ref } from 'vue';
+import BottomNavigation from '@/components/BottomNavigation.vue';
 
 interface Props {
     monthlyCount: number;
@@ -149,5 +150,10 @@ const requestedDate = ref('');
                 </div>
             </Form>
         </div>
+
+        <BottomNavigation current-route="/shift-change-requests" />
+
+        <!-- Bottom padding to prevent content hiding behind fixed nav -->
+        <div class="h-16"></div>
     </div>
 </template>
