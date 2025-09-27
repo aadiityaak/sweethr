@@ -46,7 +46,7 @@ defineProps<{
                             :tabindex="1"
                             autocomplete="email"
                             placeholder="Masukkan email Anda"
-                            class="h-12 rounded-lg border-2 bg-background/50 backdrop-blur-sm transition-all duration-200 placeholder:text-muted-foreground/70 focus:border-primary focus:bg-background focus:ring-2 focus:ring-primary/20"
+                            class="min-h-[48px] h-12 rounded-lg border-2 bg-background/50 backdrop-blur-sm transition-all duration-200 placeholder:text-muted-foreground/70 focus:border-primary focus:bg-background focus:ring-2 focus:ring-primary/20 touch-manipulation"
                         />
                     </div>
                     <InputError :message="errors.email" class="text-xs" />
@@ -74,7 +74,7 @@ defineProps<{
                             :tabindex="2"
                             autocomplete="current-password"
                             placeholder="Masukkan password Anda"
-                            class="h-12 rounded-lg border-2 bg-background/50 backdrop-blur-sm transition-all duration-200 placeholder:text-muted-foreground/70 focus:border-primary focus:bg-background focus:ring-2 focus:ring-primary/20"
+                            class="min-h-[48px] h-12 rounded-lg border-2 bg-background/50 backdrop-blur-sm transition-all duration-200 placeholder:text-muted-foreground/70 focus:border-primary focus:bg-background focus:ring-2 focus:ring-primary/20 touch-manipulation"
                         />
                     </div>
                     <InputError :message="errors.password" class="text-xs" />
@@ -96,7 +96,7 @@ defineProps<{
                 <!-- Login Button -->
                 <Button
                     type="submit"
-                    class="h-12 w-full rounded-lg bg-gradient-to-r from-primary to-primary/90 font-semibold text-primary-foreground shadow-lg transition-all duration-200 hover:shadow-xl hover:shadow-primary/25 hover:scale-[1.02] disabled:scale-100 disabled:opacity-70"
+                    class="min-h-[48px] h-12 w-full rounded-lg bg-gradient-to-r from-primary to-primary/90 font-semibold text-primary-foreground shadow-lg transition-all duration-200 hover:shadow-xl hover:shadow-primary/25 disabled:scale-100 disabled:opacity-70 touch-manipulation"
                     :tabindex="4"
                     :disabled="processing"
                     data-test="login-button"

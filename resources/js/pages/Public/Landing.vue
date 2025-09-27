@@ -1,18 +1,19 @@
 <template>
-    <div class="min-h-screen bg-gradient-to-br from-blue-50 to-indigo-100 dark:from-gray-900 dark:to-gray-800 flex flex-col">
+    <!-- Mobile-only Layout -->
+    <div class="mx-auto max-w-[480px] bg-gradient-to-br from-blue-50 to-indigo-100 dark:from-gray-900 dark:to-gray-800 min-h-screen flex flex-col">
         <!-- Navigation -->
         <nav class="bg-white/80 backdrop-blur-md border-b border-gray-200 dark:bg-gray-900/80 dark:border-gray-700">
-            <div class="mx-auto max-w-7xl px-4 sm:px-6 lg:px-8">
-                <div class="flex h-16 justify-between items-center">
+            <div class="px-4 py-4">
+                <div class="flex justify-between items-center">
                     <div class="flex items-center">
-                        <h1 class="text-2xl font-bold text-gray-900 dark:text-white">
+                        <h1 class="text-xl font-bold text-gray-900 dark:text-white">
                             {{ companyName }}
                         </h1>
                     </div>
-                    <div class="flex items-center space-x-4">
+                    <div class="flex items-center">
                         <Link
                             href="/login"
-                            class="inline-flex items-center px-4 py-2 border border-transparent text-sm font-medium rounded-md text-white bg-indigo-600 hover:bg-indigo-700 focus:outline-none focus:ring-2 focus:ring-offset-2 focus:ring-indigo-500 transition-colors"
+                            class="inline-flex items-center px-3 py-2 border border-transparent text-sm font-medium rounded-md text-white bg-indigo-600 hover:bg-indigo-700 focus:outline-none focus:ring-2 focus:ring-offset-2 focus:ring-indigo-500 transition-colors"
                         >
                             Login
                         </Link>
@@ -22,16 +23,16 @@
         </nav>
 
         <!-- Hero Section -->
-        <main class="mx-auto max-w-7xl px-4 sm:px-6 lg:px-8 py-20 flex-1 flex items-center justify-center">
+        <main class="px-4 py-12 flex-1 flex items-center justify-center">
             <div class="text-center">
-                <h1 class="text-4xl font-bold tracking-tight text-gray-900 dark:text-white sm:text-6xl mb-4">
+                <h1 class="text-3xl font-bold tracking-tight text-gray-900 dark:text-white mb-4">
                     Selamat Datang di
                     <span class="text-indigo-600 dark:text-indigo-400">{{ companyName }}</span>
                 </h1>
 
                 <!-- Motivational Quote -->
-                <div class="mt-8 mb-12">
-                    <p class="text-2xl font-medium text-indigo-600 dark:text-indigo-400 mb-2 transition-all duration-500">
+                <div class="mt-6 mb-8">
+                    <p class="text-lg font-medium text-indigo-600 dark:text-indigo-400 mb-2 transition-all duration-500 px-4">
                         "{{ currentQuote.text }}"
                     </p>
                     <p class="text-sm text-gray-500 dark:text-gray-400 transition-all duration-500">
@@ -45,8 +46,8 @@
 
         <!-- Footer -->
         <footer class="bg-white dark:bg-gray-900 mt-auto">
-            <div class="mx-auto max-w-7xl px-4 pb-12 sm:px-6 lg:px-8">
-                <div class="border-t border-gray-200 dark:border-gray-700 pt-8">
+            <div class="px-4 pb-8">
+                <div class="border-t border-gray-200 dark:border-gray-700 pt-6">
                     <div class="text-center">
                         <p class="text-sm text-gray-500 dark:text-gray-400">
                             © {{ new Date().getFullYear() }} {{ companyName }}. All rights reserved.

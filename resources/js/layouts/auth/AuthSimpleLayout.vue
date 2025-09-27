@@ -13,13 +13,13 @@ const { companyName, companyLogo } = useCompanySettings();
 </script>
 
 <template>
-    <div class="relative flex min-h-svh overflow-hidden bg-gradient-to-br from-background via-background to-muted/20">
+    <div class="mx-auto max-w-[480px] bg-gradient-to-br from-background via-background to-muted/20 min-h-screen">
         <!-- Background Pattern -->
         <div class="absolute inset-0 bg-grid-white/[0.02] bg-[size:60px_60px]" />
         <div class="absolute inset-0 bg-gradient-to-t from-transparent via-background/50 to-background" />
 
         <!-- Main Content -->
-        <div class="relative flex flex-1 items-center justify-center p-6 md:p-10">
+        <div class="relative flex flex-1 items-center justify-center p-6">
             <div class="w-full max-w-md">
                 <!-- Card Container -->
                 <div class="relative">
@@ -31,7 +31,7 @@ const { companyName, companyLogo } = useCompanySettings();
                         <div class="flex flex-col gap-8">
                             <!-- Logo and Branding -->
                             <div class="flex flex-col items-center gap-6">
-                                <Link :href="home()" class="group flex flex-col items-center gap-3 transition-all duration-300 hover:scale-105">
+                                <Link :href="home()" class="group flex flex-col items-center gap-3 transition-all duration-300">
                                     <!-- Logo Container -->
                                     <img
                                         v-if="companyLogo"
@@ -42,14 +42,14 @@ const { companyName, companyLogo } = useCompanySettings();
                                     />
                                     <AppLogoIcon v-else class="size-16 fill-primary drop-shadow-lg" />
                                     <!-- Company Name -->
-                                    <div class="text-2xl font-bold bg-gradient-to-r from-foreground to-foreground/80 bg-clip-text text-transparent">
+                                    <div class="text-xl font-bold bg-gradient-to-r from-foreground to-foreground/80 bg-clip-text text-transparent">
                                         {{ companyName }}
                                     </div>
                                 </Link>
 
                                 <!-- Title and Description -->
                                 <div class="space-y-2 text-center">
-                                    <h1 class="text-2xl font-semibold text-foreground">{{ title }}</h1>
+                                    <h1 class="text-xl font-semibold text-foreground">{{ title }}</h1>
                                     <p class="text-sm text-muted-foreground leading-relaxed">{{ description }}</p>
                                 </div>
                             </div>

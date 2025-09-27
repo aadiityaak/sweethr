@@ -823,80 +823,95 @@ onUnmounted(() => {
 <template>
     <Head :title="`${companyName} - Employee Portal`" />
 
-    <div class="min-h-screen bg-background">
-        <!-- Mobile Header - Full Width -->
-        <div class="bg-background/95 backdrop-blur-sm border-b sticky top-0 z-40">
-            <div class="mx-auto max-w-[480px] px-4 py-4">
-                <div class="flex items-center justify-between">
-                    <div class="flex items-center gap-3">
-                        <div class="rounded-lg overflow-hidden">
-                            <img
-                                v-if="companyLogo"
-                                :src="companyLogo"
-                                :alt="companyName"
-                                class="h-12 w-12 object-contain"
-                            />
-                            <User v-else class="h-4 w-4 text-primary-foreground" />
-                        </div>
-                        <div>
-                            <h1 class="text-lg font-semibold">{{ companyName }}</h1>
-                            <p class="text-sm text-muted-foreground">{{ user?.name || 'Guest' }}</p>
-                        </div>
+    <!-- Mobile-only Layout -->
+    <div class="mx-auto max-w-[480px] bg-background min-h-screen">
+        <!-- Header -->
+        <div class="sticky top-0 z-50 bg-background/95 backdrop-blur supports-[backdrop-filter]:bg-background/60 border-b border-border">
+            <div class="flex items-center justify-between p-4">
+                <div class="flex items-center gap-3">
+                    <div class="rounded-lg overflow-hidden">
+                        <img
+                            v-if="companyLogo"
+                            :src="companyLogo"
+                            :alt="companyName"
+                            class="h-12 w-12 object-contain"
+                        />
+                        <User v-else class="h-4 w-4 text-primary-foreground" />
                     </div>
-                    <div class="flex items-center gap-2">
-                        <!-- Admin Dashboard Button - Only show for admin -->
-                        <Link
-                            v-if="user?.is_admin"
-                            href="/admin/dashboard"
-                            class="rounded-md bg-primary p-2 text-primary-foreground hover:bg-primary/90 transition-colors"
-                            title="Admin Dashboard"
-                        >
-                            <UserCircle class="h-4 w-4" />
-                        </Link>
-                        <Link
-                            href="/logout"
-                            method="post"
-                            as="button"
-                            class="rounded-md bg-secondary p-2 text-secondary-foreground hover:bg-secondary/80 transition-colors"
-                            title="Logout"
-                        >
-                            <LogOut class="h-4 w-4" />
-                        </Link>
+                    <div>
+                        <h1 class="text-lg font-semibold">{{ companyName }}</h1>
+                        <p class="text-sm text-muted-foreground">{{ user?.name || 'Guest' }}</p>
                     </div>
+                </div>
+                <div class="flex items-center gap-2">
+                    <!-- Admin Dashboard Button - Only show for admin -->
+                    <Link
+                        v-if="user?.is_admin"
+                        href="/admin/dashboard"
+                        class="rounded-md bg-primary p-2 text-primary-foreground hover:bg-primary/90 transition-colors"
+                        title="Admin Dashboard"
+                    >
+                        <UserCircle class="h-4 w-4" />
+                    </Link>
+                    <Link
+                        href="/logout"
+                        method="post"
+                        as="button"
+                        class="rounded-md bg-secondary p-2 text-secondary-foreground hover:bg-secondary/80 transition-colors"
+                        title="Logout"
+                    >
+                        <LogOut class="h-4 w-4" />
+                    </Link>
                 </div>
             </div>
         </div>
 
-        <!-- Mobile Container for Content -->
-        <div class="mx-auto max-w-[480px] bg-background min-h-screen relative">
+        <!-- Announcements Section (moved to top) -->
+        <div v-if="announcements && announcements.length > 0" class="px-4 pt-4 pb-2">
+            <div class="mb-4 flex items-center gap-3">
+                <div class="flex h-8 w-8 items-center justify-center rounded-lg bg-blue-500/10 ring-1 ring-blue-500/20">
+                    <Calendar class="h-4 w-4 text-blue-600 dark:text-blue-400" />
+                </div>
+                <div>
+                    <h2 class="text-lg font-semibold text-gray-900 dark:text-white">Pengumuman Terbaru</h2>
+                    <p class="text-sm text-gray-600 dark:text-gray-400">Informasi penting dari perusahaan</p>
+                </div>
+            </div>
+            <AnnouncementCarousel
+                :announcements="announcements"
+                :auto-play="true"
+                :auto-play-interval="6000"
+                @announcement-click="handleAnnouncementClick"
+            />
+        </div>
 
-            <!-- Main Content -->
-            <div class="px-4 py-6 pb-20">
-                <!-- Welcome Section -->
-                <div class="mb-6 rounded-xl border bg-gradient-to-br from-card via-card to-card/80 p-6 shadow-sm">
-                    <div class="text-center space-y-4">
-                        <!-- Avatar Section -->
-                        <div class="relative mx-auto">
-                            <div class="mx-auto w-16 h-16 rounded-full bg-gradient-to-br from-primary/20 to-primary/10 flex items-center justify-center ring-4 ring-primary/5 overflow-hidden">
+        <!-- Main Content -->
+        <div class="px-4 py-4 pb-20">
+            <!-- Welcome Section -->
+            <div class="mb-4 rounded-xl border bg-gradient-to-br from-card via-card to-card/80 p-4 shadow-sm">
+                <div class="text-center space-y-3">
+                    <!-- Avatar Section -->
+                    <div class="relative mx-auto">
+                            <div class="mx-auto w-14 h-14 rounded-full bg-gradient-to-br from-primary/20 to-primary/10 flex items-center justify-center ring-4 ring-primary/5 overflow-hidden">
                                 <img
                                     v-if="user?.avatar"
                                     :src="user.avatar"
                                     :alt="user.name"
                                     class="h-full w-full object-cover"
                                 />
-                                <UserCircle v-else class="h-8 w-8 text-primary" />
+                                <UserCircle v-else class="h-7 w-7 text-primary" />
                             </div>
-                            <div class="absolute -bottom-1 -right-1 w-6 h-6 bg-green-500 rounded-full border-2 border-background flex items-center justify-center">
-                                <div class="w-2 h-2 bg-white rounded-full animate-pulse"></div>
+                            <div class="absolute -bottom-1 -right-1 w-5 h-5 bg-green-500 rounded-full border-2 border-background flex items-center justify-center">
+                                <div class="w-1.5 h-1.5 bg-white rounded-full animate-pulse"></div>
                             </div>
                         </div>
 
                         <!-- Greeting -->
                         <div class="space-y-2">
-                            <h2 class="text-2xl font-bold bg-gradient-to-r from-foreground to-foreground/80 bg-clip-text">
+                            <h2 class="text-xl font-bold bg-gradient-to-r from-foreground to-foreground/80 bg-clip-text">
                                 Halo, {{ user?.name?.split(' ')[0] || 'Guest' }}! 👋
                             </h2>
-                            <div class="flex items-center justify-center gap-2 text-muted-foreground">
+                            <div class="flex items-center justify-center gap-2 text-muted-foreground flex-wrap">
                                 <div class="w-1.5 h-1.5 rounded-full bg-primary"></div>
                                 <p class="text-sm font-medium">
                                     {{ user?.department?.name || 'No Department' }}
@@ -909,10 +924,10 @@ onUnmounted(() => {
                         </div>
 
                         <!-- Date & Time Display -->
-                        <div class="bg-gradient-to-r from-muted/50 to-muted/30 rounded-lg p-4 border border-border/50">
-                            <div class="flex items-center justify-center gap-3 mb-2">
+                        <div class="bg-gradient-to-r from-muted/50 to-muted/30 rounded-lg p-3 border border-border/50">
+                            <div class="flex items-center justify-center gap-2 mb-2">
                                 <Calendar class="h-4 w-4 text-primary" />
-                                <p class="text-sm font-semibold text-foreground">
+                                <p class="text-xs font-semibold text-foreground text-center">
                                     {{ currentDate }}
                                 </p>
                             </div>
@@ -926,8 +941,8 @@ onUnmounted(() => {
                     </div>
                 </div>
 
-                <!-- Today's Attendance -->
-                <div class="mb-6 rounded-lg border bg-card p-6">
+            <!-- Today's Attendance -->
+                <div class="mb-4 rounded-lg border bg-card p-4">
                     <h3 class="mb-4 text-lg font-semibold flex items-center gap-2">
                         <Clock class="h-4 w-4" />
                         Absensi Hari Ini
@@ -1001,7 +1016,7 @@ onUnmounted(() => {
                     <div v-if="faceRecognitionStatus.enabled && faceRecognitionStatus.has_descriptors && !todayAttendance?.check_in_time" class="mt-4 flex justify-center">
                         <div class="relative">
                             <!-- Face Captured State -->
-                            <div v-if="isFaceCaptured" class="w-64 h-64 sm:w-80 sm:h-80 rounded-full overflow-hidden border-4 border-green-500 relative bg-gray-900">
+                            <div v-if="isFaceCaptured" class="w-48 h-48 rounded-full overflow-hidden border-4 border-green-500 relative bg-gray-900">
                                 <!-- Captured Face Image (Full Circle) -->
                                 <img
                                     v-if="capturedFaceData?.imageDataUrl"
@@ -1012,21 +1027,21 @@ onUnmounted(() => {
 
                                 <!-- Success Overlay -->
                                 <div class="absolute inset-0 bg-green-500/20 flex items-center justify-center">
-                                    <div class="bg-green-500 rounded-full p-3 shadow-lg">
-                                        <CheckCircle class="h-8 w-8 text-white" />
+                                    <div class="bg-green-500 rounded-full p-2 shadow-lg">
+                                        <CheckCircle class="h-6 w-6 text-white" />
                                     </div>
                                 </div>
 
                                 <!-- Confidence Badge -->
-                                <div class="absolute top-6 left-1/2 transform -translate-x-1/2 -translate-y-1/2 backdrop-blur-sm rounded-full px-4 py-1">
-                                    <span class="text-white text-lg font-bold">{{ capturedFaceData?.confidence }}%</span>
+                                <div class="absolute top-4 left-1/2 transform -translate-x-1/2 -translate-y-1/2 backdrop-blur-sm rounded-full px-3 py-1">
+                                    <span class="text-white text-base font-bold">{{ capturedFaceData?.confidence }}%</span>
                                 </div>
 
                                 <!-- Reset Button -->
-                                <div class="absolute bottom-4 left-1/2 transform -translate-x-1/2">
+                                <div class="absolute bottom-3 left-1/2 transform -translate-x-1/2">
                                     <button
                                         @click="resetCapture"
-                                        class="backdrop-blur-sm hover:bg-black/80 text-white px-4 py-2 rounded-full text-sm font-medium transition-colors"
+                                        class="backdrop-blur-sm hover:bg-black/80 text-white px-3 py-1.5 rounded-full text-xs font-medium transition-colors"
                                     >
                                         Ulangi
                                     </button>
@@ -1034,11 +1049,8 @@ onUnmounted(() => {
                             </div>
 
                             <!-- Active Detection State -->
-                            <div v-else class="relative bg-gray-900 rounded-full overflow-hidden border-4"
-                                 :class="[
-                                     faceDetectionActive ? (isFaceMatched ? 'border-green-500' : 'border-red-500') : 'border-gray-300',
-                                     'w-64 h-64 sm:w-80 sm:h-80'
-                                 ]">
+                            <div v-else class="relative bg-gray-900 rounded-full overflow-hidden border-4 w-48 h-48"
+                                 :class="faceDetectionActive ? (isFaceMatched ? 'border-green-500' : 'border-red-500') : 'border-gray-300'">
 
                                 <!-- Video Element (Circular) -->
                                 <video
@@ -1064,33 +1076,32 @@ onUnmounted(() => {
                                 <div v-if="faceDetectionActive && !isCapturing" class="absolute inset-0 rounded-full overflow-hidden">
                                     <!-- Vertical Scanning Line (like barcode scanner) -->
                                     <div class="absolute inset-0">
-                                        <div class="absolute left-0 right-0 h-1 bg-gradient-to-r from-transparent via-white via-white to-transparent opacity-80 shadow-lg scan-line">
+                                        <div class="absolute left-0 right-0 h-0.5 bg-gradient-to-r from-transparent via-white via-white to-transparent opacity-80 shadow-lg scan-line">
                                         </div>
                                     </div>
 
                                     <!-- Pulsing Rings -->
-                                    <div class="absolute inset-2 rounded-full border-2 border-green-400/30 animate-pulse"></div>
-                                    <div class="absolute inset-6 rounded-full border border-green-400/20 animate-ping" style="animation-duration: 2s;"></div>
+                                    <div class="absolute inset-1 rounded-full border-2 border-green-400/30 animate-pulse"></div>
+                                    <div class="absolute inset-4 rounded-full border border-green-400/20 animate-ping" style="animation-duration: 2s;"></div>
 
                                     <!-- Corner Markers -->
-                                    <div class="absolute top-8 left-8 w-6 h-6 border-l-2 border-t-2 border-green-400 rounded-tl-lg opacity-60"></div>
-                                    <div class="absolute top-8 right-8 w-6 h-6 border-r-2 border-t-2 border-green-400 rounded-tr-lg opacity-60"></div>
-                                    <div class="absolute bottom-8 left-8 w-6 h-6 border-l-2 border-b-2 border-green-400 rounded-bl-lg opacity-60"></div>
-                                    <div class="absolute bottom-8 right-8 w-6 h-6 border-r-2 border-b-2 border-green-400 rounded-br-lg opacity-60"></div>
+                                    <div class="absolute top-4 left-4 w-4 h-4 border-l-2 border-t-2 border-green-400 rounded-tl-lg opacity-60"></div>
+                                    <div class="absolute top-4 right-4 w-4 h-4 border-r-2 border-t-2 border-green-400 rounded-tr-lg opacity-60"></div>
+                                    <div class="absolute bottom-4 left-4 w-4 h-4 border-l-2 border-b-2 border-green-400 rounded-bl-lg opacity-60"></div>
+                                    <div class="absolute bottom-4 right-4 w-4 h-4 border-r-2 border-b-2 border-green-400 rounded-br-lg opacity-60"></div>
                                 </div>
 
                                 <!-- Loading/Status Overlay -->
                                 <div v-if="!faceDetectionActive" class="absolute inset-0 rounded-full bg-gray-800/80 flex items-center justify-center">
                                     <div class="text-center text-white">
-                                        <Loader2 class="h-8 w-8 animate-spin mx-auto mb-2" />
-                                        <p class="text-sm">Memuat kamera...</p>
+                                        <Loader2 class="h-6 w-6 animate-spin mx-auto mb-2" />
+                                        <p class="text-xs">Memuat kamera...</p>
                                     </div>
                                 </div>
 
-
                                 <!-- Face Match Status (Circular) -->
-                                <div class="absolute bottom-0 left-1/2 transform -translate-x-1/2 translate-y-full mt-2">
-                                    <div v-if="faceDetectionActive && !isCapturing" class="bg-black/70 rounded-full px-4 py-2 text-white text-sm text-center whitespace-nowrap">
+                                <div class="absolute bottom-0 left-1/2 transform -translate-x-1/2 translate-y-full mt-1">
+                                    <div v-if="faceDetectionActive && !isCapturing" class="bg-black/70 rounded-full px-3 py-1 text-white text-xs text-center whitespace-nowrap">
                                         <span v-if="isFaceMatched" class="text-green-400">
                                             ✅ Terverifikasi ({{ Math.round(faceMatchConfidence) }}%)
                                         </span>
@@ -1146,25 +1157,25 @@ onUnmounted(() => {
                     </div>
 
                     <!-- Attendance Actions -->
-                    <div class="mt-6 grid gap-3 grid-cols-2">
+                    <div class="mt-4 grid gap-3 grid-cols-2">
                         <!-- Check In Button -->
                         <button
                             v-if="!todayAttendance?.check_in_time"
                             @click="handleCheckInClick"
                             :disabled="isCheckingIn || (locationStatus === 'success' && !isInRange) || (faceRecognitionStatus.enabled && faceRecognitionStatus.has_descriptors && !isFaceCaptured) || (!faceRecognitionStatus.enabled || !faceRecognitionStatus.has_descriptors)"
-                            class="flex items-center justify-center gap-2 rounded-md px-4 py-4 text-white font-medium transition-colors shadow-sm disabled:opacity-50 disabled:cursor-not-allowed"
+                            class="flex items-center justify-center gap-2 rounded-lg px-3 py-3 text-white font-medium transition-colors shadow-sm disabled:opacity-50 disabled:cursor-not-allowed min-h-[48px] touch-manipulation"
                             :class="{
-                                'bg-green-600 hover:bg-green-700': (locationStatus === 'idle' || locationStatus === 'error' || (locationStatus === 'success' && isInRange)) && faceRecognitionStatus.enabled && faceRecognitionStatus.has_descriptors && isFaceCaptured,
-                                'bg-blue-600 hover:bg-blue-700': locationStatus === 'loading',
+                                'bg-green-600 hover:bg-green-700 active:bg-green-800': (locationStatus === 'idle' || locationStatus === 'error' || (locationStatus === 'success' && isInRange)) && faceRecognitionStatus.enabled && faceRecognitionStatus.has_descriptors && isFaceCaptured,
+                                'bg-blue-600 hover:bg-blue-700 active:bg-blue-800': locationStatus === 'loading',
                                 'bg-gray-500': (locationStatus === 'success' && !isInRange) || (faceRecognitionStatus.enabled && faceRecognitionStatus.has_descriptors && !isFaceCaptured) || (!faceRecognitionStatus.enabled || !faceRecognitionStatus.has_descriptors),
-                                'bg-orange-500': faceRecognitionStatus.enabled && faceRecognitionStatus.has_descriptors && faceMatchConfidence > 0 && !isFaceCaptured
+                                'bg-orange-500 hover:bg-orange-600 active:bg-orange-700': faceRecognitionStatus.enabled && faceRecognitionStatus.has_descriptors && faceMatchConfidence > 0 && !isFaceCaptured
                             }"
                         >
-                            <Loader2 v-if="locationStatus === 'loading' || isCheckingIn" class="h-5 w-5 animate-spin" />
-                            <CheckCircle v-else-if="isFaceCaptured && isInRange" class="h-5 w-5" />
-                            <Eye v-else-if="faceRecognitionStatus.enabled && faceRecognitionStatus.has_descriptors && !isFaceCaptured" class="h-5 w-5" />
-                            <Clock v-else class="h-5 w-5" />
-                            <span class="text-sm">
+                            <Loader2 v-if="locationStatus === 'loading' || isCheckingIn" class="h-4 w-4 animate-spin" />
+                            <CheckCircle v-else-if="isFaceCaptured && isInRange" class="h-4 w-4" />
+                            <Eye v-else-if="faceRecognitionStatus.enabled && faceRecognitionStatus.has_descriptors && !isFaceCaptured" class="h-4 w-4" />
+                            <Clock v-else class="h-4 w-4" />
+                            <span class="text-xs font-medium">
                                 {{ isCheckingIn ? 'Sedang Check In...' :
                                    locationStatus === 'loading' ? 'Mencari Lokasi...' :
                                    locationStatus === 'success' && !isInRange ? 'Di Luar Area' :
@@ -1177,10 +1188,10 @@ onUnmounted(() => {
                         </button>
                         <div
                             v-else
-                            class="flex items-center justify-center gap-2 rounded-md bg-green-100 dark:bg-green-900/20 px-4 py-4 text-green-800 dark:text-green-200 font-medium"
+                            class="flex items-center justify-center gap-2 rounded-lg bg-green-100 dark:bg-green-900/20 px-3 py-3 text-green-800 dark:text-green-200 font-medium min-h-[48px]"
                         >
-                            <CheckCircle class="h-5 w-5" />
-                            <span class="text-sm">Sudah Masuk</span>
+                            <CheckCircle class="h-4 w-4" />
+                            <span class="text-xs font-medium">Sudah Masuk</span>
                         </div>
 
                         <!-- Check Out Button -->
@@ -1188,15 +1199,15 @@ onUnmounted(() => {
                             v-if="todayAttendance?.check_in_time && !todayAttendance?.check_out_time"
                             @click="handleCheckOutClick"
                             :disabled="isCheckingOut"
-                            class="flex items-center justify-center gap-2 rounded-md px-4 py-4 text-white font-medium transition-colors shadow-sm disabled:opacity-50 disabled:cursor-not-allowed"
+                            class="flex items-center justify-center gap-2 rounded-lg px-3 py-3 text-white font-medium transition-colors shadow-sm disabled:opacity-50 disabled:cursor-not-allowed min-h-[48px] touch-manipulation"
                             :class="{
-                                'bg-red-600 hover:bg-red-700': locationStatus === 'idle' || locationStatus === 'error' || locationStatus === 'success',
-                                'bg-blue-600 hover:bg-blue-700': locationStatus === 'loading'
+                                'bg-red-600 hover:bg-red-700 active:bg-red-800': locationStatus === 'idle' || locationStatus === 'error' || locationStatus === 'success',
+                                'bg-blue-600 hover:bg-blue-700 active:bg-blue-800': locationStatus === 'loading'
                             }"
                         >
-                            <Loader2 v-if="locationStatus === 'loading' || isCheckingOut" class="h-5 w-5 animate-spin" />
-                            <Clock v-else class="h-5 w-5" />
-                            <span class="text-sm">
+                            <Loader2 v-if="locationStatus === 'loading' || isCheckingOut" class="h-4 w-4 animate-spin" />
+                            <Clock v-else class="h-4 w-4" />
+                            <span class="text-xs font-medium">
                                 {{ isCheckingOut ? 'Sedang Check Out...' :
                                    locationStatus === 'loading' ? 'Mencari Lokasi...' :
                                    locationStatus === 'error' ? 'Coba Lagi' :
@@ -1205,17 +1216,17 @@ onUnmounted(() => {
                         </button>
                         <div
                             v-else-if="todayAttendance?.check_out_time"
-                            class="flex items-center justify-center gap-2 rounded-md bg-red-100 dark:bg-red-900/20 px-4 py-4 text-red-800 dark:text-red-200 font-medium"
+                            class="flex items-center justify-center gap-2 rounded-lg bg-red-100 dark:bg-red-900/20 px-3 py-3 text-red-800 dark:text-red-200 font-medium min-h-[48px]"
                         >
-                            <CheckCircle class="h-5 w-5" />
-                            <span class="text-sm">Sudah Keluar</span>
+                            <CheckCircle class="h-4 w-4" />
+                            <span class="text-xs font-medium">Sudah Keluar</span>
                         </div>
                         <div
                             v-else
-                            class="flex items-center justify-center gap-2 rounded-md bg-muted px-4 py-4 text-muted-foreground font-medium"
+                            class="flex items-center justify-center gap-2 rounded-lg bg-muted px-3 py-3 text-muted-foreground font-medium min-h-[48px]"
                         >
-                            <Clock class="h-5 w-5" />
-                            <span class="text-sm">Belum Waktunya</span>
+                            <Clock class="h-4 w-4" />
+                            <span class="text-xs font-medium">Belum Waktunya</span>
                         </div>
                     </div>
 
@@ -1223,53 +1234,52 @@ onUnmounted(() => {
                     <div class="mt-3">
                         <Link
                             href="/attendance"
-                            class="flex w-full items-center justify-center gap-2 rounded-md border-2 border-dashed border-muted-foreground/20 bg-background px-4 py-3 font-medium hover:bg-accent hover:text-accent-foreground hover:border-muted-foreground/40 transition-all"
+                            class="flex w-full items-center justify-center gap-2 rounded-lg border-2 border-dashed border-muted-foreground/20 bg-background px-3 py-3 font-medium hover:bg-accent hover:text-accent-foreground hover:border-muted-foreground/40 transition-all min-h-[48px] touch-manipulation"
                         >
                             <Calendar class="h-4 w-4" />
-                            Lihat Riwayat Absensi
+                            <span class="text-sm">Lihat Riwayat Absensi</span>
                         </Link>
                     </div>
                 </div>
 
-                <!-- Monthly Stats -->
-                <div class="rounded-lg border bg-card p-6">
-                    <h3 class="mb-4 text-lg font-semibold flex items-center gap-2">
-                        <BarChart3 class="h-4 w-4" />
-                        Statistik Bulan Ini
-                    </h3>
+            <!-- Monthly Stats -->
+            <div class="rounded-lg border bg-card p-4">
+                <h3 class="mb-4 text-lg font-semibold flex items-center gap-2">
+                    <BarChart3 class="h-4 w-4" />
+                    Statistik Bulan Ini
+                </h3>
 
-                    <div class="grid gap-4 grid-cols-2">
-                        <div class="rounded-md border bg-card p-4 text-center">
-                            <div class="mx-auto mb-2 w-10 h-10 rounded-md bg-muted flex items-center justify-center">
-                                <Calendar class="h-5 w-5 text-muted-foreground" />
-                            </div>
-                            <p class="text-2xl font-bold">{{ stats?.monthly_attendance_days || 0 }}</p>
-                            <p class="text-xs text-muted-foreground font-medium">Hari Masuk</p>
+                <div class="grid gap-3 grid-cols-2">
+                    <div class="rounded-md border bg-card p-3 text-center">
+                        <div class="mx-auto mb-2 w-8 h-8 rounded-md bg-muted flex items-center justify-center">
+                            <Calendar class="h-4 w-4 text-muted-foreground" />
                         </div>
+                        <p class="text-xl font-bold">{{ stats?.monthly_attendance_days || 0 }}</p>
+                        <p class="text-xs text-muted-foreground font-medium">Hari Masuk</p>
+                    </div>
 
-                        <div class="rounded-md border bg-card p-4 text-center">
-                            <div class="mx-auto mb-2 w-10 h-10 rounded-md bg-muted flex items-center justify-center">
-                                <Clock class="h-5 w-5 text-muted-foreground" />
-                            </div>
-                            <p class="text-2xl font-bold">{{ stats?.monthly_late_days || 0 }}</p>
-                            <p class="text-xs text-muted-foreground font-medium">Hari Terlambat</p>
+                    <div class="rounded-md border bg-card p-3 text-center">
+                        <div class="mx-auto mb-2 w-8 h-8 rounded-md bg-muted flex items-center justify-center">
+                            <Clock class="h-4 w-4 text-muted-foreground" />
                         </div>
+                        <p class="text-xl font-bold">{{ stats?.monthly_late_days || 0 }}</p>
+                        <p class="text-xs text-muted-foreground font-medium">Hari Terlambat</p>
+                    </div>
 
-                        <div class="rounded-md border bg-card p-4 text-center">
-                            <div class="mx-auto mb-2 w-10 h-10 rounded-md bg-muted flex items-center justify-center">
-                                <Clock class="h-5 w-5 text-muted-foreground" />
-                            </div>
-                            <p class="text-2xl font-bold">{{ stats?.monthly_work_hours || 0 }}</p>
-                            <p class="text-xs text-muted-foreground font-medium">Jam Kerja</p>
+                    <div class="rounded-md border bg-card p-3 text-center">
+                        <div class="mx-auto mb-2 w-8 h-8 rounded-md bg-muted flex items-center justify-center">
+                            <Clock class="h-4 w-4 text-muted-foreground" />
                         </div>
+                        <p class="text-xl font-bold">{{ stats?.monthly_work_hours || 0 }}</p>
+                        <p class="text-xs text-muted-foreground font-medium">Jam Kerja</p>
+                    </div>
 
-                        <div class="rounded-md border bg-card p-4 text-center">
-                            <div class="mx-auto mb-2 w-10 h-10 rounded-md bg-muted flex items-center justify-center">
-                                <Calendar class="h-5 w-5 text-muted-foreground" />
-                            </div>
-                            <p class="text-2xl font-bold">{{ stats?.leave_balance || 0 }}</p>
-                            <p class="text-xs text-muted-foreground font-medium">Sisa Cuti</p>
+                    <div class="rounded-md border bg-card p-3 text-center">
+                        <div class="mx-auto mb-2 w-8 h-8 rounded-md bg-muted flex items-center justify-center">
+                            <Calendar class="h-4 w-4 text-muted-foreground" />
                         </div>
+                        <p class="text-xl font-bold">{{ stats?.leave_balance || 0 }}</p>
+                        <p class="text-xs text-muted-foreground font-medium">Sisa Cuti</p>
                     </div>
                 </div>
             </div>
@@ -1305,24 +1315,6 @@ onUnmounted(() => {
         />
     </div>
 
-    <!-- Announcements Carousel (Outside main container for full width) -->
-    <div v-if="announcements && announcements.length > 0" class="mx-auto max-w-[480px] px-4 mb-8">
-        <div class="mb-4 flex items-center gap-3">
-            <div class="flex h-8 w-8 items-center justify-center rounded-lg bg-blue-500/10 ring-1 ring-blue-500/20">
-                <Calendar class="h-4 w-4 text-blue-600 dark:text-blue-400" />
-            </div>
-            <div>
-                <h2 class="text-lg font-semibold text-gray-900 dark:text-white">Pengumuman Terbaru</h2>
-                <p class="text-sm text-gray-600 dark:text-gray-400">Informasi penting dari perusahaan</p>
-            </div>
-        </div>
-        <AnnouncementCarousel
-            :announcements="announcements"
-            :auto-play="true"
-            :auto-play-interval="6000"
-            @announcement-click="handleAnnouncementClick"
-        />
-    </div>
 </template>
 
 <style scoped>
