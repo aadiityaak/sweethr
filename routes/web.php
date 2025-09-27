@@ -170,6 +170,8 @@ Route::middleware(['auth', 'verified', 'admin'])->group(function () {
             'destroy' => 'admin.announcements.destroy',
         ],
     ]);
+    Route::post('admin/announcements/{announcement}/update', [App\Http\Controllers\Admin\AnnouncementController::class, 'updateWithFiles'])
+        ->name('admin.announcements.update-with-files');
     Route::patch('admin/announcements/{announcement}/toggle-status', [App\Http\Controllers\Admin\AnnouncementController::class, 'toggleStatus'])
         ->name('admin.announcements.toggle-status');
 

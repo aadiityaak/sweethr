@@ -2,7 +2,7 @@
 import AppLayout from '@/layouts/AppLayout.vue';
 import { type BreadcrumbItem } from '@/types';
 import { Head, Link, useForm } from '@inertiajs/vue3';
-import { Plus, Edit, Trash2, Eye, ToggleLeft, Calendar, User, Tag } from 'lucide-vue-next';
+import { Plus, Edit, Trash2, Eye, ToggleRight, ToggleLeft, Calendar, User, Tag } from 'lucide-vue-next';
 
 interface AnnouncementCategory {
     id: number;
@@ -170,19 +170,20 @@ const formatDate = (dateString: string) => {
                                     <div class="flex items-start gap-4">
                                         <div
                                             v-if="announcement.image_url"
-                                            class="h-12 w-12 flex-shrink-0 overflow-hidden rounded-lg"
+                                            class="h-16 w-16 flex-shrink-0 overflow-hidden rounded-lg shadow-sm ring-1 ring-gray-900/5 dark:ring-white/10"
                                         >
                                             <img
                                                 :src="announcement.image_url"
                                                 :alt="announcement.title"
-                                                class="h-full w-full object-cover"
+                                                class="h-full w-full object-cover transition-transform hover:scale-105"
+                                                loading="lazy"
                                             />
                                         </div>
                                         <div
                                             v-else
-                                            class="flex h-12 w-12 flex-shrink-0 items-center justify-center rounded-lg bg-gray-100 dark:bg-gray-800"
+                                            class="flex h-16 w-16 flex-shrink-0 items-center justify-center rounded-lg bg-gray-100 shadow-sm ring-1 ring-gray-900/5 dark:bg-gray-800 dark:ring-white/10"
                                         >
-                                            <Calendar class="h-6 w-6 text-gray-400" />
+                                            <Calendar class="h-8 w-8 text-gray-400" />
                                         </div>
                                         <div class="min-w-0 flex-1">
                                             <p class="font-medium text-gray-900 dark:text-white">
@@ -232,7 +233,7 @@ const formatDate = (dateString: string) => {
                                             : 'bg-gray-100 text-gray-700 hover:bg-gray-200 dark:bg-gray-800 dark:text-gray-300 dark:hover:bg-gray-700'"
                                     >
                                         <component
-                                            :is="announcement.is_active ? Toggle : ToggleLeft"
+                                            :is="announcement.is_active ? ToggleRight : ToggleLeft"
                                             class="h-4 w-4"
                                         />
                                         {{ announcement.is_active ? 'Aktif' : 'Nonaktif' }}

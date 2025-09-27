@@ -53,6 +53,7 @@ const form = useForm({
     excerpt: announcement.excerpt,
     category_id: announcement.category.id,
     image: null as File | null,
+    remove_image: false,
     priority: announcement.priority,
     is_active: announcement.is_active,
     published_at: announcement.published_at,
@@ -67,6 +68,7 @@ const handleImageChange = (event: Event) => {
 
     if (file) {
         form.image = file;
+        form.remove_image = false; // Reset remove flag when new image is selected
         const reader = new FileReader();
         reader.onload = (e) => {
             imagePreview.value = e.target?.result as string;
@@ -77,6 +79,7 @@ const handleImageChange = (event: Event) => {
 
 const removeImage = () => {
     form.image = null;
+    form.remove_image = true;
     imagePreview.value = null;
     // Reset file input
     const input = document.querySelector('input[type="file"]') as HTMLInputElement;
@@ -84,7 +87,10 @@ const removeImage = () => {
 };
 
 const submit = () => {
-    form.patch(`/admin/announcements/${announcement.id}`);
+    // Use dedicated POST route for file uploads
+    form.post(`/admin/announcements/${announcement.id}/update`, {
+        forceFormData: true,
+    });
 };
 
 const getCategoryColor = (color: string) => {
