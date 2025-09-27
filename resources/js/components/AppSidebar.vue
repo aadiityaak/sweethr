@@ -6,7 +6,7 @@ import { Sidebar, SidebarContent, SidebarFooter, SidebarHeader, SidebarMenu, Sid
 // import { welcome } from '@/routes';
 import { type NavItem } from '@/types';
 import { Link, usePage } from '@inertiajs/vue3';
-import { BookOpen, LayoutGrid, Clock, Users, Calendar, MapPin, Settings, Shield, Building, UserCheck, Megaphone, DollarSign, FileText, Wallet, Minus, BriefcaseBusiness, UsersRound, FolderOpen } from 'lucide-vue-next';
+import { BookOpen, LayoutGrid, Clock, Users, Calendar, MapPin, Settings, Shield, Building, UserCheck, Megaphone, DollarSign, FileText, Wallet, Minus, BriefcaseBusiness, UsersRound, FolderOpen, RefreshCw } from 'lucide-vue-next';
 import { computed } from 'vue';
 import AppLogo from './AppLogo.vue';
 
@@ -83,6 +83,11 @@ const adminNavItems: NavItem[] = [
                 title: 'Kelola Cuti',
                 href: '/admin/leave-requests',
                 icon: Calendar,
+            },
+            {
+                title: 'Request Tukar Libur',
+                href: '/admin/shift-change-requests',
+                icon: RefreshCw,
             },
         ],
     },

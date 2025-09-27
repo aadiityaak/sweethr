@@ -4,7 +4,6 @@ import { Button } from '@/components/ui/button';
 import { Badge } from '@/components/ui/badge';
 import { Input } from '@/components/ui/input';
 import { DatePicker } from '@/components/ui/date-picker';
-import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from '@/components/ui/select';
 import { type BreadcrumbItem } from '@/types';
 import { Head, Link, router } from '@inertiajs/vue3';
 import { Calendar, Clock, Eye, CheckCircle, XCircle, AlertCircle, Filter, Search, Download } from 'lucide-vue-next';
@@ -228,17 +227,15 @@ const rejectRequest = (requestId: number) => {
                 <div class="grid gap-4 md:grid-cols-4">
                     <div>
                         <label class="block text-sm font-medium text-gray-700 dark:text-gray-300 mb-2">Status</label>
-                        <Select v-model="statusFilter">
-                            <SelectTrigger>
-                                <SelectValue placeholder="Semua Status" />
-                            </SelectTrigger>
-                            <SelectContent>
-                                <SelectItem value="">Semua Status</SelectItem>
-                                <SelectItem value="pending">Menunggu</SelectItem>
-                                <SelectItem value="approved">Disetujui</SelectItem>
-                                <SelectItem value="rejected">Ditolak</SelectItem>
-                            </SelectContent>
-                        </Select>
+                        <select
+                            v-model="statusFilter"
+                            class="w-full rounded-lg border border-gray-300 px-3 py-2 text-sm dark:border-gray-600 dark:bg-gray-800"
+                        >
+                            <option value="">Semua Status</option>
+                            <option value="pending">Menunggu</option>
+                            <option value="approved">Disetujui</option>
+                            <option value="rejected">Ditolak</option>
+                        </select>
                     </div>
 
                     <div>
