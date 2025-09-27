@@ -278,15 +278,6 @@ const generateMockAttendanceData = () => {
                         </div>
                     </div>
 
-                    <div class="mt-4">
-                        <Link
-                            href="/admin/employees"
-                            class="inline-flex w-full items-center justify-center rounded-lg bg-emerald-600 px-4 py-2.5 text-sm font-medium text-white shadow-sm transition-colors hover:bg-emerald-700 focus:outline-none focus:ring-2 focus:ring-emerald-500 focus:ring-offset-2"
-                        >
-                            <Users class="mr-2 h-4 w-4" />
-                            Kelola Karyawan
-                        </Link>
-                    </div>
 
                     <!-- Hover effect overlay -->
                     <div class="absolute inset-0 rounded-xl bg-gradient-to-br from-emerald-500/5 to-teal-500/5 opacity-0 transition-opacity group-hover:opacity-100"></div>
@@ -557,30 +548,6 @@ const generateMockAttendanceData = () => {
                     </div>
                     <div class="space-y-3">
                         <Link
-                            href="/leave-requests/create"
-                            class="group flex w-full items-center gap-3 rounded-lg border border-gray-200/50 bg-white p-4 shadow-sm transition-all hover:shadow-md hover:border-blue-300 dark:border-gray-700/50 dark:bg-gray-950 dark:hover:border-blue-600"
-                        >
-                            <div class="flex h-8 w-8 items-center justify-center rounded-lg bg-blue-500/10 ring-1 ring-blue-500/20 group-hover:bg-blue-500/20">
-                                <Calendar class="h-4 w-4 text-blue-600 dark:text-blue-400" />
-                            </div>
-                            <div class="flex-1">
-                                <p class="font-medium text-gray-900 dark:text-white">Ajukan Cuti</p>
-                                <p class="text-sm text-gray-600 dark:text-gray-400">Buat permintaan cuti baru</p>
-                            </div>
-                        </Link>
-                        <Link
-                            href="/attendance"
-                            class="group flex w-full items-center gap-3 rounded-lg border border-gray-200/50 bg-white p-4 shadow-sm transition-all hover:shadow-md hover:border-emerald-300 dark:border-gray-700/50 dark:bg-gray-950 dark:hover:border-emerald-600"
-                        >
-                            <div class="flex h-8 w-8 items-center justify-center rounded-lg bg-emerald-500/10 ring-1 ring-emerald-500/20 group-hover:bg-emerald-500/20">
-                                <Clock class="h-4 w-4 text-emerald-600 dark:text-emerald-400" />
-                            </div>
-                            <div class="flex-1">
-                                <p class="font-medium text-gray-900 dark:text-white">Lihat Kehadiran</p>
-                                <p class="text-sm text-gray-600 dark:text-gray-400">Riwayat kehadiran Anda</p>
-                            </div>
-                        </Link>
-                        <Link
                             v-if="user.is_admin"
                             href="/admin/leave-requests"
                             class="group flex w-full items-center gap-3 rounded-lg border border-gray-200/50 bg-white p-4 shadow-sm transition-all hover:shadow-md hover:border-amber-300 dark:border-gray-700/50 dark:bg-gray-950 dark:hover:border-amber-600"
@@ -595,7 +562,7 @@ const generateMockAttendanceData = () => {
                         </Link>
                         <Link
                             v-if="user.is_admin"
-                            href="/admin/employees"
+                            href="/employees"
                             class="group flex w-full items-center gap-3 rounded-lg border border-gray-200/50 bg-white p-4 shadow-sm transition-all hover:shadow-md hover:border-purple-300 dark:border-gray-700/50 dark:bg-gray-950 dark:hover:border-purple-600"
                         >
                             <div class="flex h-8 w-8 items-center justify-center rounded-lg bg-purple-500/10 ring-1 ring-purple-500/20 group-hover:bg-purple-500/20">
@@ -608,7 +575,7 @@ const generateMockAttendanceData = () => {
                         </Link>
                         <Link
                             v-if="user.is_admin"
-                            href="/admin/office-locations"
+                            href="/office-locations"
                             class="group flex w-full items-center gap-3 rounded-lg border border-gray-200/50 bg-white p-4 shadow-sm transition-all hover:shadow-md hover:border-green-300 dark:border-gray-700/50 dark:bg-gray-950 dark:hover:border-green-600"
                         >
                             <div class="flex h-8 w-8 items-center justify-center rounded-lg bg-green-500/10 ring-1 ring-green-500/20 group-hover:bg-green-500/20">
