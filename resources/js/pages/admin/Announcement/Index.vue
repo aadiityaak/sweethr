@@ -35,7 +35,14 @@ interface Props {
     announcements: {
         data: Announcement[];
         links: any[];
-        meta: any;
+        meta?: {
+            from?: number;
+            to?: number;
+            total?: number;
+            current_page?: number;
+            last_page?: number;
+            per_page?: number;
+        };
     };
 }
 
@@ -315,11 +322,11 @@ const formatDate = (dateString: string) => {
                             <div>
                                 <p class="text-sm text-gray-700 dark:text-gray-300">
                                     Menampilkan
-                                    <span class="font-medium">{{ announcements.meta.from || 0 }}</span>
+                                    <span class="font-medium">{{ announcements.meta?.from || 0 }}</span>
                                     hingga
-                                    <span class="font-medium">{{ announcements.meta.to || 0 }}</span>
+                                    <span class="font-medium">{{ announcements.meta?.to || 0 }}</span>
                                     dari
-                                    <span class="font-medium">{{ announcements.meta.total }}</span>
+                                    <span class="font-medium">{{ announcements.meta?.total || 0 }}</span>
                                     hasil
                                 </p>
                             </div>

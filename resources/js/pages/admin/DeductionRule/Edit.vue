@@ -259,9 +259,9 @@ interface Props {
 const props = defineProps<Props>()
 
 const breadcrumbs = [
-  { name: 'Dashboard', href: '/admin/dashboard' },
-  { name: 'Aturan Potongan', href: '/admin/deduction-rules' },
-  { name: 'Edit', href: `/admin/deduction-rules/${props.deductionRule.id}/edit` },
+  { title: 'Dashboard', href: '/admin/dashboard' },
+  { title: 'Aturan Potongan', href: '/admin/deduction-rules' },
+  { title: 'Edit', href: `/admin/deduction-rules/${props.deductionRule.id}/edit` },
 ]
 
 const form = useForm({

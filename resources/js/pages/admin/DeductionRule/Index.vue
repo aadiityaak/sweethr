@@ -13,7 +13,7 @@
             </p>
           </div>
           <Link
-            :href="create.url()"
+            href="/admin/deduction-rules/create"
             class="inline-flex items-center px-4 py-2 bg-blue-500 hover:bg-blue-600 text-white rounded-lg transition-colors"
           >
             <Plus class="w-4 h-4 mr-2" />
@@ -152,16 +152,20 @@
                 <td class="px-6 py-4 whitespace-nowrap text-sm font-medium">
                   <div class="flex space-x-2">
                     <Link
-                      :href="edit.url(rule.id)"
-                      class="text-blue-600 hover:text-blue-900 dark:text-blue-400 dark:hover:text-blue-300"
+                      :href="`/admin/deduction-rules/${rule.id}/edit`"
+                      class="inline-flex items-center px-3 py-1.5 bg-blue-500 hover:bg-blue-600 text-white text-xs rounded-md transition-colors"
+                      title="Edit aturan"
                     >
-                      <Edit class="w-4 h-4" />
+                      <Edit class="w-3 h-3 mr-1" />
+                      Edit
                     </Link>
                     <button
                       @click="confirmDelete(rule)"
-                      class="text-red-600 hover:text-red-900 dark:text-red-400 dark:hover:text-red-300"
+                      class="inline-flex items-center px-3 py-1.5 bg-red-500 hover:bg-red-600 text-white text-xs rounded-md transition-colors"
+                      title="Hapus aturan"
                     >
-                      <Trash2 class="w-4 h-4" />
+                      <Trash2 class="w-3 h-3 mr-1" />
+                      Hapus
                     </button>
                   </div>
                 </td>
@@ -178,8 +182,6 @@
 import { computed } from 'vue'
 import { Link, router } from '@inertiajs/vue3'
 import AppLayout from '@/Layouts/AppLayout.vue'
-import { dashboard } from '@/routes/admin'
-import { index as deductionRulesIndex, create, edit, destroy } from '@/routes/admin/deduction-rules'
 import { Plus, Clock, UserX, Calendar, Settings, CheckCircle, XCircle, Edit, Trash2 } from 'lucide-vue-next'
 
 interface DeductionRule {
@@ -199,8 +201,8 @@ interface Props {
 const props = defineProps<Props>()
 
 const breadcrumbs = [
-  { name: 'Dashboard', href: dashboard.url() },
-  { name: 'Aturan Potongan', href: deductionRulesIndex.url() },
+  { title: 'Dashboard', href: '/admin/dashboard' },
+  { title: 'Aturan Potongan', href: '/admin/deduction-rules' },
 ]
 
 const lateRules = computed(() => {
@@ -273,7 +275,7 @@ const formatAmount = (amount: number, method: string) => {
 
 const confirmDelete = (rule: DeductionRule) => {
   if (confirm(`Apakah Anda yakin ingin menghapus aturan "${rule.name}"?`)) {
-    router.delete(destroy.url(rule.id))
+    router.delete(`/admin/deduction-rules/${rule.id}`)
   }
 }
 </script>
