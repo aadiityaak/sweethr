@@ -1,6 +1,7 @@
 <script setup lang="ts">
 import { Label } from '@/components/ui/label';
 import { Textarea } from '@/components/ui/textarea';
+import { DatePicker } from '@/components/ui/date-picker';
 import { Form, Head } from '@inertiajs/vue3';
 import { Calendar, ArrowLeft, AlertCircle, RefreshCw } from 'lucide-vue-next';
 import { ref } from 'vue';
@@ -61,15 +62,14 @@ const requestedDate = ref('');
                 <!-- Original Date -->
                 <div class="space-y-2">
                     <Label for="original_date">Tanggal Libur Saat Ini</Label>
-                    <input
-                        id="original_date"
-                        type="date"
-                        name="original_date"
+                    <DatePicker
                         v-model="originalDate"
+                        placeholder="Pilih tanggal libur saat ini"
                         required
                         :disabled="isLimitReached"
-                        class="w-full px-3 py-2 border border-input rounded-md bg-background text-foreground focus:outline-none focus:ring-2 focus:ring-ring focus:border-transparent"
+                        class="w-full"
                     />
+                    <input type="hidden" name="original_date" :value="originalDate" />
                     <div v-if="errors.original_date" class="text-sm text-destructive">
                         {{ errors.original_date }}
                     </div>
@@ -78,15 +78,14 @@ const requestedDate = ref('');
                 <!-- Requested Date -->
                 <div class="space-y-2">
                     <Label for="requested_date">Tanggal Ganti Kerja</Label>
-                    <input
-                        id="requested_date"
-                        type="date"
-                        name="requested_date"
+                    <DatePicker
                         v-model="requestedDate"
+                        placeholder="Pilih tanggal ganti kerja"
                         required
                         :disabled="isLimitReached"
-                        class="w-full px-3 py-2 border border-input rounded-md bg-background text-foreground focus:outline-none focus:ring-2 focus:ring-ring focus:border-transparent"
+                        class="w-full"
                     />
+                    <input type="hidden" name="requested_date" :value="requestedDate" />
                     <div v-if="errors.requested_date" class="text-sm text-destructive">
                         {{ errors.requested_date }}
                     </div>

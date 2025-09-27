@@ -408,6 +408,19 @@
                         </div>
                     </div>
                 </div>
+
+                <!-- Logout Section -->
+                <div class="mt-8 mb-6">
+                    <div class="rounded-lg border bg-card p-4">
+                        <button
+                            @click="logout"
+                            class="w-full flex items-center justify-center gap-3 rounded-md bg-destructive px-4 py-3 text-sm font-medium text-destructive-foreground hover:bg-destructive/90 transition-colors"
+                        >
+                            <LogOut class="h-4 w-4" />
+                            Keluar dari Akun
+                        </button>
+                    </div>
+                </div>
             </div>
             </div>
 
@@ -532,7 +545,8 @@ import {
     AlertCircle,
     Smartphone,
     Upload,
-    Loader2
+    Loader2,
+    LogOut
 } from 'lucide-vue-next';
 import { Dialog, DialogContent, DialogDescription, DialogHeader, DialogTitle } from '@/components/ui/dialog';
 import { Button } from '@/components/ui/button';
@@ -639,6 +653,12 @@ const formattedDateOfBirth = computed(() => {
 });
 
 // Methods
+const logout = () => {
+    if (confirm('Apakah Anda yakin ingin keluar?')) {
+        router.post('/logout');
+    }
+};
+
 const updateBasicInfo = () => {
     basicInfoForm.put('/user/profile/basic', {
         onSuccess: () => {

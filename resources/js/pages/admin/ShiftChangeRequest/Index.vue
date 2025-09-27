@@ -3,6 +3,7 @@ import AppLayout from '@/layouts/AppLayout.vue';
 import { Button } from '@/components/ui/button';
 import { Badge } from '@/components/ui/badge';
 import { Input } from '@/components/ui/input';
+import { DatePicker } from '@/components/ui/date-picker';
 import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from '@/components/ui/select';
 import { type BreadcrumbItem } from '@/types';
 import { Head, Link, router } from '@inertiajs/vue3';
@@ -242,18 +243,18 @@ const rejectRequest = (requestId: number) => {
 
                     <div>
                         <label class="block text-sm font-medium text-gray-700 dark:text-gray-300 mb-2">Dari Tanggal</label>
-                        <Input
-                            type="date"
+                        <DatePicker
                             v-model="fromDate"
+                            placeholder="Pilih tanggal mulai"
                             class="h-10"
                         />
                     </div>
 
                     <div>
                         <label class="block text-sm font-medium text-gray-700 dark:text-gray-300 mb-2">Sampai Tanggal</label>
-                        <Input
-                            type="date"
+                        <DatePicker
                             v-model="toDate"
+                            placeholder="Pilih tanggal akhir"
                             class="h-10"
                         />
                     </div>

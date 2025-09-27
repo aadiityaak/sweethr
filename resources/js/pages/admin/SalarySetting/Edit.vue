@@ -115,11 +115,10 @@
             <label for="effective_date" class="block text-sm font-medium text-gray-700 dark:text-gray-300 mb-2">
               Tanggal Berlaku <span class="text-red-500">*</span>
             </label>
-            <input
-              id="effective_date"
+            <DatePicker
               v-model="form.effective_date"
-              type="date"
-              class="block w-full py-2 px-3 border border-gray-300 rounded-lg focus:ring-2 focus:ring-blue-500 focus:border-blue-500 dark:bg-gray-800 dark:border-gray-600 dark:text-white"
+              placeholder="Pilih tanggal berlaku"
+              class="w-full"
               required
             />
             <div v-if="errors.effective_date" class="mt-1 text-sm text-red-600 dark:text-red-400">
@@ -241,6 +240,7 @@
 import { computed, ref } from 'vue'
 import { Link, useForm } from '@inertiajs/vue3'
 import AppLayout from '@/Layouts/AppLayout.vue'
+import { DatePicker } from '@/components/ui/date-picker'
 import { ArrowLeft, DollarSign, Plus, Trash2, Gift, Info as InfoIcon } from 'lucide-vue-next'
 import { dashboard } from '@/routes/admin'
 import { index as salarySettingsIndex, edit, update } from '@/routes/admin/salary-settings'

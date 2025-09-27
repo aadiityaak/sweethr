@@ -2,6 +2,7 @@
 import AppLayout from '@/layouts/AppLayout.vue';
 import { type BreadcrumbItem } from '@/types';
 import { Head, Form } from '@inertiajs/vue3';
+import { DatePicker } from '@/components/ui/date-picker';
 import { ref } from 'vue';
 import {
     User,
@@ -53,6 +54,8 @@ interface Props {
 }
 
 const { attendance, officeLocations } = defineProps<Props>();
+
+const attendanceDate = ref(formatDateForInput(attendance.date));
 
 const breadcrumbs: BreadcrumbItem[] = [
     { title: 'Dasbor', href: '/dashboard' },
@@ -140,13 +143,12 @@ const formatDateForInput = (date: string) => {
                                     <Calendar class="inline h-4 w-4 mr-1" />
                                     Tanggal
                                 </label>
-                                <input
-                                    type="date"
-                                    name="date"
-                                    :value="formatDateForInput(attendance.date)"
-                                    class="w-full rounded-lg border border-gray-300 bg-white px-3 py-2 text-sm focus:border-blue-500 focus:outline-none focus:ring-1 focus:ring-blue-500 dark:border-gray-600 dark:bg-gray-800 dark:text-gray-300 dark:focus:border-blue-400"
-                                    :class="{ 'border-red-500 focus:border-red-500 focus:ring-red-500': errors.date }"
+                                <DatePicker
+                                    v-model="attendanceDate"
+                                    placeholder="Pilih tanggal kehadiran"
+                                    class="w-full"
                                 />
+                                <input type="hidden" name="date" :value="attendanceDate" />
                                 <div v-if="errors.date" class="mt-1 text-sm text-red-600 dark:text-red-400">
                                     {{ errors.date }}
                                 </div>
