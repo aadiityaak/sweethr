@@ -1,0 +1,39 @@
+<svg width="400" height="300" viewBox="0 0 400 300" fill="none" xmlns="http://www.w3.org/2000/svg">
+  <!-- Background -->
+  <rect width="400" height="300" fill="#F3F4F6"/>
+
+  <!-- Grid pattern -->
+  <defs>
+    <pattern id="grid" width="20" height="20" patternUnits="userSpaceOnUse">
+      <path d="M 20 0 L 0 0 0 20" fill="none" stroke="#E5E7EB" stroke-width="1" opacity="0.5"/>
+    </pattern>
+  </defs>
+  <rect width="400" height="300" fill="url(#grid)"/>
+
+  <!-- Main content area -->
+  <rect x="40" y="40" width="320" height="220" rx="12" fill="white" stroke="#E5E7EB" stroke-width="2"/>
+
+  <!-- Megaphone icon -->
+  <g transform="translate(180, 120)">
+    <path d="M25 15L40 10V30L25 25V27C25 28.6569 23.6569 30 22 30H18C16.3431 30 15 28.6569 15 27V25L10 23V17L15 15V13C15 11.3431 16.3431 10 18 10H22C23.6569 10 25 11.3431 25 13V15Z"
+          fill="#3B82F6" stroke="#2563EB" stroke-width="2" stroke-linejoin="round"/>
+    <path d="M35 25L42 30" stroke="#3B82F6" stroke-width="2" stroke-linecap="round"/>
+    <path d="M35 20L45 20" stroke="#3B82F6" stroke-width="2" stroke-linecap="round"/>
+    <path d="M35 15L42 10" stroke="#3B82F6" stroke-width="2" stroke-linecap="round"/>
+  </g>
+
+  <!-- Text lines -->
+  <rect x="80" y="180" width="120" height="4" rx="2" fill="#D1D5DB"/>
+  <rect x="80" y="190" width="180" height="4" rx="2" fill="#D1D5DB"/>
+  <rect x="80" y="200" width="140" height="4" rx="2" fill="#D1D5DB"/>
+
+  <!-- Decorative elements -->
+  <circle cx="320" cy="80" r="3" fill="#F59E0B"/>
+  <circle cx="340" cy="100" r="2" fill="#EF4444"/>
+  <circle cx="360" cy="70" r="2.5" fill="#10B981"/>
+
+  <!-- Title -->
+  <text x="200" y="50" text-anchor="middle" font-family="system-ui, -apple-system, sans-serif" font-size="14" font-weight="600" fill="#6B7280">
+    Announcement Placeholder
+  </text>
+</svg>

@@ -48,6 +48,14 @@ interface Props {
 
 const { announcements } = defineProps<Props>();
 
+// Temporary debugging - akan dihapus setelah issue solved
+console.log('DEBUG [' + new Date().toISOString() + '] announcements data:', announcements.data.map(a => ({
+    id: a.id,
+    title: a.title,
+    image_url: a.image_url,
+    hasImageUrl: !!a.image_url
+})));
+
 const breadcrumbs: BreadcrumbItem[] = [
     { title: 'Dashboard', href: '/admin/dashboard' },
     { title: 'Pengumuman', href: '/admin/announcements' },
