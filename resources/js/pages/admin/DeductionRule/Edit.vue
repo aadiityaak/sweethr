@@ -13,7 +13,7 @@
             </p>
           </div>
           <Link
-            :href="route('admin.deduction-rules.index')"
+            href="/admin/deduction-rules"
             class="inline-flex items-center px-4 py-2 bg-gray-300 hover:bg-gray-400 text-gray-700 rounded-lg transition-colors"
           >
             <ArrowLeft class="w-4 h-4 mr-2" />
@@ -133,7 +133,7 @@
                 v-model="form.amount"
                 type="number"
                 min="0"
-                :step="form.calculation_method === 'percentage' ? '0.1' : '1000'"
+                :step="form.calculation_method === 'percentage' ? '0.1' : '1'"
                 :class="[
                   'block w-full py-2 px-3 border border-gray-300 rounded-lg focus:ring-2 focus:ring-blue-500 focus:border-blue-500 dark:bg-gray-800 dark:border-gray-600 dark:text-white',
                   form.calculation_method !== 'percentage' ? 'pl-12 pr-3' : 'pr-8'
@@ -216,7 +216,7 @@
           <!-- Submit Button -->
           <div class="flex justify-end space-x-3">
             <Link
-              :href="route('admin.deduction-rules.index')"
+              href="/admin/deduction-rules"
               class="px-4 py-2 bg-gray-300 hover:bg-gray-400 text-gray-700 rounded-lg transition-colors"
             >
               Batal
@@ -259,9 +259,9 @@ interface Props {
 const props = defineProps<Props>()
 
 const breadcrumbs = [
-  { name: 'Dashboard', href: route('admin.dashboard') },
-  { name: 'Aturan Potongan', href: route('admin.deduction-rules.index') },
-  { name: 'Edit', href: route('admin.deduction-rules.edit', props.deductionRule.id) },
+  { name: 'Dashboard', href: '/admin/dashboard' },
+  { name: 'Aturan Potongan', href: '/admin/deduction-rules' },
+  { name: 'Edit', href: `/admin/deduction-rules/${props.deductionRule.id}/edit` },
 ]
 
 const form = useForm({
@@ -378,7 +378,7 @@ const formatAmount = (amount: number, method: string) => {
 
 const submit = () => {
   processing.value = true
-  form.put(route('admin.deduction-rules.update', props.deductionRule.id), {
+  form.put(`/admin/deduction-rules/${props.deductionRule.id}`, {
     onFinish: () => {
       processing.value = false
     }
