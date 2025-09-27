@@ -1,4 +1,4 @@
-const CACHE_NAME = 'sistemhr-v6'; // No caching for face-api models and sensitive data
+const CACHE_NAME = 'sistemhr-v7'; // Updated to force cache refresh for image uploads
 const urlsToCache = [
   '/',
   '/manifest.json',
@@ -160,6 +160,21 @@ self.addEventListener('fetch', (event) => {
             );
           });
         })
+    );
+    return;
+  }
+
+  // Handle image requests - always fetch fresh for uploaded images
+  if (event.request.url.includes('/storage/') ||
+      event.request.url.includes('/uploads/') ||
+      event.request.url.includes('/announcements/')) {
+    event.respondWith(
+      fetch(event.request, {
+        cache: 'no-cache'
+      }).catch(() => {
+        // If network fails, try cache as fallback
+        return caches.match(event.request);
+      })
     );
     return;
   }
