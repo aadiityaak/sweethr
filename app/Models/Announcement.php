@@ -27,6 +27,10 @@ class Announcement extends Model
         'expires_at' => 'datetime',
     ];
 
+    protected $appends = [
+        'image_url',
+    ];
+
     protected static function boot(): void
     {
         parent::boot();
