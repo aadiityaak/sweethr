@@ -185,7 +185,7 @@
                 <td class="px-6 py-4 whitespace-nowrap text-sm font-medium">
                   <div class="flex space-x-2">
                     <Link
-                      :href="show.url(payroll.id)"
+                      :href="`/admin/payrolls/${payroll.id}`"
                       class="text-blue-600 hover:text-blue-900 dark:text-blue-400 dark:hover:text-blue-300"
                     >
                       <Eye class="w-4 h-4" />
@@ -235,6 +235,20 @@
         </div>
       </div>
     </div>
+
+    <!-- Toast Notification -->
+    <div v-if="showToast"
+         :class="[
+           'fixed top-4 right-4 z-50 flex items-center p-4 rounded-lg shadow-lg transition-all duration-300',
+           toastType === 'success' ? 'bg-green-500 text-white' : 'bg-red-500 text-white'
+         ]">
+      <CheckCircle v-if="toastType === 'success'" class="w-5 h-5 mr-2" />
+      <AlertCircle v-if="toastType === 'error'" class="w-5 h-5 mr-2" />
+      <span class="mr-2">{{ toastMessage }}</span>
+      <button @click="hideToast" class="ml-auto">
+        <X class="w-4 h-4" />
+      </button>
+    </div>
   </AppLayout>
 </template>
 
@@ -242,8 +256,6 @@
 import { computed, ref } from 'vue'
 import { Link, router } from '@inertiajs/vue3'
 import AppLayout from '@/Layouts/AppLayout.vue'
-import { dashboard } from '@/routes/admin'
-import { index as payrollsIndex, show, generate, regenerate } from '@/routes/admin/payrolls'
 import {
   Plus,
   DollarSign,
@@ -252,7 +264,10 @@ import {
   Clock,
   FileText,
   Eye,
-  RotateCcw
+  RotateCcw,
+  CheckCircle,
+  AlertCircle,
+  X
 } from 'lucide-vue-next'
 
 interface Payroll {
@@ -278,14 +293,19 @@ interface Props {
 const props = defineProps<Props>()
 
 const breadcrumbs = [
-  { name: 'Dashboard', href: dashboard.url() },
-  { name: 'Payroll', href: payrollsIndex.url() },
+  { name: 'Dashboard', href: '/admin/dashboard' },
+  { name: 'Payroll', href: '/admin/payrolls' },
 ]
 
 const selectedYear = ref(props.currentYear)
 const selectedMonth = ref(props.currentMonth)
 const showGenerateModal = ref(false)
 const generating = ref(false)
+
+// Toast state
+const showToast = ref(false)
+const toastMessage = ref('')
+const toastType = ref<'success' | 'error'>('success')
 
 const months = [
   { value: 1, label: 'Januari' },
@@ -326,25 +346,52 @@ const getCurrentPeriodName = () => {
 }
 
 const changeYear = () => {
-  router.get(payrollsIndex.url(), {
+  router.get('/admin/payrolls', {
     year: selectedYear.value,
     month: selectedMonth.value
   })
 }
 
 const changeMonth = () => {
-  router.get(payrollsIndex.url(), {
+  router.get('/admin/payrolls', {
     year: selectedYear.value,
     month: selectedMonth.value
   })
 }
 
+// Toast functions
+const showToastMessage = (message: string, type: 'success' | 'error') => {
+  toastMessage.value = message
+  toastType.value = type
+  showToast.value = true
+
+  // Auto hide after 5 seconds
+  setTimeout(() => {
+    showToast.value = false
+  }, 5000)
+}
+
+const hideToast = () => {
+  showToast.value = false
+}
+
 const confirmGenerate = () => {
   generating.value = true
-  router.post(generate.url(), {
+  router.post('/admin/payrolls/generate', {
     year: selectedYear.value,
     month: selectedMonth.value
   }, {
+    onSuccess: () => {
+      generating.value = false
+      showGenerateModal.value = false
+      showToastMessage('Payroll berhasil digenerate untuk semua karyawan!', 'success')
+    },
+    onError: (errors) => {
+      generating.value = false
+      showGenerateModal.value = false
+      const errorMessage = Object.values(errors).flat().join(', ') || 'Terjadi kesalahan saat generate payroll'
+      showToastMessage(errorMessage, 'error')
+    },
     onFinish: () => {
       generating.value = false
       showGenerateModal.value = false
@@ -354,7 +401,15 @@ const confirmGenerate = () => {
 
 const regeneratePayroll = (payroll: Payroll) => {
   if (confirm(`Yakin ingin regenerate payroll untuk ${payroll.user.name}?`)) {
-    router.post(regenerate.url(payroll.id))
+    router.post(`/admin/payrolls/${payroll.id}/regenerate`, {}, {
+      onSuccess: () => {
+        showToastMessage(`Payroll ${payroll.user.name} berhasil diregenerate!`, 'success')
+      },
+      onError: (errors) => {
+        const errorMessage = Object.values(errors).flat().join(', ') || 'Terjadi kesalahan saat regenerate payroll'
+        showToastMessage(errorMessage, 'error')
+      }
+    })
   }
 }
 

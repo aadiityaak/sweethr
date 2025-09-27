@@ -72,10 +72,12 @@ class PayrollController extends Controller
 
     public function regenerate(Payroll $payroll)
     {
-        $this->payrollService->regeneratePayroll($payroll);
+        try {
+            $this->payrollService->regeneratePayroll($payroll);
 
-        return redirect()
-            ->route('admin.payrolls.show', $payroll)
-            ->with('success', 'Payroll berhasil digenerate ulang');
+            return back()->with('success', 'Payroll berhasil digenerate ulang');
+        } catch (\Exception $e) {
+            return back()->withErrors(['error' => 'Terjadi kesalahan: ' . $e->getMessage()]);
+        }
     }
 }

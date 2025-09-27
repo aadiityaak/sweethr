@@ -12,9 +12,9 @@
               {{ payroll.period_name }} • ID: {{ payroll.user.employee_id }} • {{ formatDate(payroll.created_at) }}
             </p>
           </div>
-          <div class="flex space-x-3">
+          <div class="flex space-x-3 no-print">
             <Link
-              :href="route('admin.payrolls.index')"
+              href="/admin/payrolls"
               class="inline-flex items-center px-4 py-2 bg-gray-300 hover:bg-gray-400 text-gray-700 rounded-lg transition-colors"
             >
               <ArrowLeft class="w-4 h-4 mr-2" />
@@ -22,10 +22,16 @@
             </Link>
             <button
               @click="regeneratePayroll"
-              class="inline-flex items-center px-4 py-2 bg-orange-500 hover:bg-orange-600 text-white rounded-lg transition-colors"
+              :disabled="isRegenerating"
+              :class="[
+                'inline-flex items-center px-4 py-2 text-white rounded-lg transition-colors',
+                isRegenerating
+                  ? 'bg-orange-400 cursor-not-allowed'
+                  : 'bg-orange-500 hover:bg-orange-600'
+              ]"
             >
-              <RotateCcw class="w-4 h-4 mr-2" />
-              Regenerate
+              <RotateCcw :class="['w-4 h-4 mr-2', isRegenerating ? 'animate-spin' : '']" />
+              {{ isRegenerating ? 'Regenerating...' : 'Regenerate' }}
             </button>
             <button
               @click="printPayroll"
@@ -39,7 +45,7 @@
       </div>
 
       <!-- Salary Summary -->
-      <div class="mb-8 overflow-hidden rounded-xl bg-gradient-to-r from-green-50 to-emerald-50 border border-green-200 dark:from-green-900/20 dark:to-emerald-900/20 dark:border-green-800">
+      <div class="mb-8 overflow-hidden rounded-xl bg-gradient-to-r from-green-50 to-emerald-50 border border-green-200 dark:from-green-900/20 dark:to-emerald-900/20 dark:border-green-800 no-print">
         <div class="p-8">
           <div class="grid grid-cols-1 md:grid-cols-3 gap-8">
             <div class="text-center">
@@ -100,39 +106,80 @@
               </h3>
             </div>
             <div class="p-6">
-              <div class="grid grid-cols-2 gap-4">
-                <div class="text-center p-4 bg-green-50 dark:bg-green-900/20 rounded-lg">
-                  <p class="text-2xl font-bold text-green-600 dark:text-green-400">{{ payroll.actual_working_days }}</p>
-                  <p class="text-sm text-green-700 dark:text-green-300">Hari Masuk</p>
-                  <p class="text-xs text-gray-500 dark:text-gray-400">dari {{ payroll.working_days }} hari</p>
+              <!-- Desktop Grid View -->
+              <div class="hidden md:block">
+                <div class="grid grid-cols-2 gap-4">
+                  <div class="text-center p-4 bg-green-50 dark:bg-green-900/20 rounded-lg">
+                    <p class="text-2xl font-bold text-green-600 dark:text-green-400">{{ payroll.actual_working_days }}</p>
+                    <p class="text-sm text-green-700 dark:text-green-300">Hari Masuk</p>
+                    <p class="text-xs text-gray-500 dark:text-gray-400">dari {{ payroll.working_days }} hari</p>
+                  </div>
+                  <div class="text-center p-4 bg-blue-50 dark:bg-blue-900/20 rounded-lg">
+                    <p class="text-2xl font-bold text-blue-600 dark:text-blue-400">{{ payroll.overtime_hours }}</p>
+                    <p class="text-sm text-blue-700 dark:text-blue-300">Jam Lembur</p>
+                  </div>
+                  <div class="text-center p-4 bg-orange-50 dark:bg-orange-900/20 rounded-lg">
+                    <p class="text-2xl font-bold text-orange-600 dark:text-orange-400">{{ Math.round(payroll.late_minutes) }}</p>
+                    <p class="text-sm text-orange-700 dark:text-orange-300">Menit Telat</p>
+                  </div>
+                  <div class="text-center p-4 bg-red-50 dark:bg-red-900/20 rounded-lg">
+                    <p class="text-2xl font-bold text-red-600 dark:text-red-400">{{ payroll.absent_days }}</p>
+                    <p class="text-sm text-red-700 dark:text-red-300">Hari Alfa</p>
+                  </div>
                 </div>
-                <div class="text-center p-4 bg-blue-50 dark:bg-blue-900/20 rounded-lg">
-                  <p class="text-2xl font-bold text-blue-600 dark:text-blue-400">{{ payroll.overtime_hours }}</p>
-                  <p class="text-sm text-blue-700 dark:text-blue-300">Jam Lembur</p>
-                </div>
-                <div class="text-center p-4 bg-orange-50 dark:bg-orange-900/20 rounded-lg">
-                  <p class="text-2xl font-bold text-orange-600 dark:text-orange-400">{{ Math.round(payroll.late_minutes) }}</p>
-                  <p class="text-sm text-orange-700 dark:text-orange-300">Menit Telat</p>
-                </div>
-                <div class="text-center p-4 bg-red-50 dark:bg-red-900/20 rounded-lg">
-                  <p class="text-2xl font-bold text-red-600 dark:text-red-400">{{ payroll.absent_days }}</p>
-                  <p class="text-sm text-red-700 dark:text-red-300">Hari Alfa</p>
+
+                <!-- Attendance Percentage -->
+                <div class="mt-6">
+                  <div class="flex justify-between text-sm text-gray-600 dark:text-gray-400 mb-2">
+                    <span>Tingkat Kehadiran</span>
+                    <span>{{ attendancePercentage }}%</span>
+                  </div>
+                  <div class="w-full bg-gray-200 dark:bg-gray-700 rounded-full h-2">
+                    <div
+                      class="h-2 rounded-full transition-all duration-300"
+                      :class="attendancePercentage >= 90 ? 'bg-green-500' : attendancePercentage >= 80 ? 'bg-yellow-500' : 'bg-red-500'"
+                      :style="{ width: attendancePercentage + '%' }"
+                    ></div>
+                  </div>
                 </div>
               </div>
 
-              <!-- Attendance Percentage -->
-              <div class="mt-6">
-                <div class="flex justify-between text-sm text-gray-600 dark:text-gray-400 mb-2">
-                  <span>Tingkat Kehadiran</span>
-                  <span>{{ attendancePercentage }}%</span>
-                </div>
-                <div class="w-full bg-gray-200 dark:bg-gray-700 rounded-full h-2">
-                  <div
-                    class="h-2 rounded-full transition-all duration-300"
-                    :class="attendancePercentage >= 90 ? 'bg-green-500' : attendancePercentage >= 80 ? 'bg-yellow-500' : 'bg-red-500'"
-                    :style="{ width: attendancePercentage + '%' }"
-                  ></div>
-                </div>
+              <!-- Print Table View -->
+              <div class="md:hidden print:block">
+                <table class="w-full border-collapse border border-gray-300">
+                  <thead>
+                    <tr class="bg-gray-50">
+                      <th class="border border-gray-300 px-4 py-2 text-left font-semibold">Keterangan</th>
+                      <th class="border border-gray-300 px-4 py-2 text-right font-semibold">Jumlah</th>
+                    </tr>
+                  </thead>
+                  <tbody>
+                    <tr>
+                      <td class="border border-gray-300 px-4 py-2">Hari Kerja</td>
+                      <td class="border border-gray-300 px-4 py-2 text-right font-medium">{{ payroll.working_days }} hari</td>
+                    </tr>
+                    <tr>
+                      <td class="border border-gray-300 px-4 py-2">Hari Masuk</td>
+                      <td class="border border-gray-300 px-4 py-2 text-right font-medium">{{ payroll.actual_working_days }} hari</td>
+                    </tr>
+                    <tr>
+                      <td class="border border-gray-300 px-4 py-2">Jam Lembur</td>
+                      <td class="border border-gray-300 px-4 py-2 text-right font-medium">{{ payroll.overtime_hours }} jam</td>
+                    </tr>
+                    <tr>
+                      <td class="border border-gray-300 px-4 py-2">Menit Telat</td>
+                      <td class="border border-gray-300 px-4 py-2 text-right font-medium">{{ Math.round(payroll.late_minutes) }} menit</td>
+                    </tr>
+                    <tr>
+                      <td class="border border-gray-300 px-4 py-2">Hari Alfa</td>
+                      <td class="border border-gray-300 px-4 py-2 text-right font-medium">{{ payroll.absent_days }} hari</td>
+                    </tr>
+                    <tr class="bg-gray-50">
+                      <td class="border border-gray-300 px-4 py-2 font-semibold">Tingkat Kehadiran</td>
+                      <td class="border border-gray-300 px-4 py-2 text-right font-bold">{{ attendancePercentage }}%</td>
+                    </tr>
+                  </tbody>
+                </table>
               </div>
             </div>
           </div>
@@ -209,27 +256,6 @@
             </div>
           </div>
 
-          <!-- Admin Actions -->
-          <div class="overflow-hidden rounded-xl bg-white shadow-sm ring-1 ring-gray-900/5 dark:bg-gray-900 dark:ring-white/10">
-            <div class="px-6 py-4 border-b border-gray-200 dark:border-gray-700">
-              <h3 class="text-lg font-semibold text-gray-900 dark:text-white flex items-center">
-                <Settings class="mr-2 h-5 w-5 text-purple-600 dark:text-purple-400" />
-                Admin Actions
-              </h3>
-            </div>
-            <div class="p-6 space-y-3">
-              <button
-                @click="regeneratePayroll"
-                class="w-full flex items-center justify-center px-4 py-2 bg-orange-500 hover:bg-orange-600 text-white rounded-lg transition-colors"
-              >
-                <RotateCcw class="w-4 h-4 mr-2" />
-                Regenerate Payroll
-              </button>
-              <p class="text-xs text-gray-500 dark:text-gray-400">
-                Menghitung ulang payroll berdasarkan data attendance dan aturan terbaru
-              </p>
-            </div>
-          </div>
         </div>
       </div>
 
@@ -246,11 +272,28 @@
         </div>
       </div>
     </div>
+
+    <!-- Toast Notification -->
+    <div v-if="showToast"
+         :class="[
+           'fixed top-4 right-4 z-[9999] flex items-center p-4 rounded-lg shadow-xl border-2 transition-all duration-300 no-print min-w-[300px]',
+           toastType === 'success'
+             ? 'bg-green-500 text-white border-green-600'
+             : 'bg-red-500 text-white border-red-600'
+         ]"
+         style="z-index: 9999;">
+      <CheckCircle v-if="toastType === 'success'" class="w-5 h-5 mr-3 flex-shrink-0" />
+      <AlertCircle v-if="toastType === 'error'" class="w-5 h-5 mr-3 flex-shrink-0" />
+      <span class="flex-1 font-medium">{{ toastMessage }}</span>
+      <button @click="hideToast" class="ml-3 p-1 hover:bg-black/20 rounded">
+        <X class="w-4 h-4" />
+      </button>
+    </div>
   </AppLayout>
 </template>
 
 <script setup lang="ts">
-import { computed } from 'vue'
+import { computed, ref } from 'vue'
 import { Link, router } from '@inertiajs/vue3'
 import AppLayout from '@/Layouts/AppLayout.vue'
 import {
@@ -261,7 +304,10 @@ import {
   Clock,
   DollarSign,
   Minus,
-  Settings
+  Settings,
+  CheckCircle,
+  AlertCircle,
+  X
 } from 'lucide-vue-next'
 
 interface PayrollDetail {
@@ -300,10 +346,19 @@ interface Props {
 
 const props = defineProps<Props>()
 
+// Toast state
+const showToast = ref(false)
+const toastMessage = ref('')
+const toastType = ref<'success' | 'error'>('success')
+
+// Loading state
+const isRegenerating = ref(false)
+const lastClickTime = ref(0)
+
 const breadcrumbs = [
-  { name: 'Dashboard', href: route('admin.dashboard') },
-  { name: 'Payroll', href: route('admin.payrolls.index') },
-  { name: props.payroll.user.name, href: route('admin.payrolls.show', props.payroll.id) },
+  { name: 'Dashboard', href: '/admin/dashboard' },
+  { name: 'Payroll', href: '/admin/payrolls' },
+  { name: props.payroll.user.name, href: `/admin/payrolls/${props.payroll.id}` },
 ]
 
 const allowanceDetails = computed(() => {
@@ -339,9 +394,91 @@ const formatDate = (dateString: string) => {
   })
 }
 
+// Toast functions
+const showToastMessage = (message: string, type: 'success' | 'error') => {
+  toastMessage.value = message
+  toastType.value = type
+  showToast.value = true
+
+  console.log('Toast shown:', { message, type, show: showToast.value })
+
+  // Auto hide after 5 seconds
+  setTimeout(() => {
+    showToast.value = false
+  }, 5000)
+}
+
+const hideToast = () => {
+  showToast.value = false
+}
+
 const regeneratePayroll = () => {
+  // Prevent double-click and rapid clicks
+  const now = Date.now()
+  if (isRegenerating.value || (now - lastClickTime.value < 2000)) {
+    console.log('Request blocked - too frequent or already processing')
+    return
+  }
+  lastClickTime.value = now
+
   if (confirm(`Yakin ingin regenerate payroll untuk ${props.payroll.user.name}? Data lama akan diganti dengan perhitungan terbaru.`)) {
-    router.post(route('admin.payrolls.regenerate', props.payroll.id))
+    isRegenerating.value = true
+
+    // Set timeout to prevent infinite loading
+    const timeoutId = setTimeout(() => {
+      if (isRegenerating.value) {
+        isRegenerating.value = false
+        showToastMessage('Request timeout - coba lagi nanti', 'error')
+      }
+    }, 30000) // 30 seconds timeout
+
+    router.post(`/admin/payrolls/${props.payroll.id}/regenerate`, {}, {
+      preserveState: false,
+      preserveScroll: true,
+      onBefore: () => {
+        console.log('Starting regenerate request...')
+        return true
+      },
+      onStart: () => {
+        console.log('Request started')
+      },
+      onProgress: (progress) => {
+        console.log('Progress:', progress)
+      },
+      onSuccess: (page) => {
+        clearTimeout(timeoutId)
+        console.log('Regenerate success:', page)
+        isRegenerating.value = false
+
+        // Check for flash messages
+        if (page.props.flash?.success) {
+          showToastMessage(page.props.flash.success, 'success')
+        } else {
+          showToastMessage(`Payroll ${props.payroll.user.name} berhasil diregenerate!`, 'success')
+        }
+      },
+      onError: (errors) => {
+        clearTimeout(timeoutId)
+        console.error('Regenerate error:', errors)
+        isRegenerating.value = false
+
+        let errorMessage = 'Terjadi kesalahan saat regenerate payroll'
+
+        // Check for validation errors
+        if (errors.error) {
+          errorMessage = errors.error
+        } else if (Object.keys(errors).length > 0) {
+          errorMessage = Object.values(errors).flat().join(', ')
+        }
+
+        showToastMessage(errorMessage, 'error')
+      },
+      onFinish: () => {
+        clearTimeout(timeoutId)
+        isRegenerating.value = false
+        console.log('Request finished')
+      }
+    })
   }
 }
 
@@ -352,14 +489,250 @@ const printPayroll = () => {
 
 <style>
 @media print {
-  .no-print {
+  /* Hide elements that shouldn't be printed */
+  .no-print,
+  nav,
+  .breadcrumb,
+  button,
+  .flex.space-x-3,
+  .bg-gradient-to-r {
     display: none !important;
   }
 
-  body {
-    font-size: 12px;
+  /* Reset everything to black and white */
+  * {
+    -webkit-print-color-adjust: exact !important;
+    color-adjust: exact !important;
+    color: #000 !important;
+    background: white !important;
+    border-color: #000 !important;
   }
 
+  body {
+    font-family: 'Times New Roman', serif !important;
+    font-size: 12px;
+    line-height: 1.5;
+    color: #000 !important;
+    background: white !important;
+    margin: 0;
+    padding: 0;
+  }
+
+  /* Page layout */
+  .mx-auto {
+    max-width: 100% !important;
+    margin: 0 !important;
+    padding: 20px !important;
+  }
+
+  /* Header styling - slip gaji style */
+  h1 {
+    font-size: 16px !important;
+    font-weight: bold !important;
+    color: #000 !important;
+    margin: 0 0 20px 0 !important;
+    text-align: center;
+    text-transform: uppercase;
+    letter-spacing: 1px;
+  }
+
+  /* Salary summary - traditional slip format */
+  .mb-8.overflow-hidden.rounded-xl {
+    border: 2px solid #000 !important;
+    border-radius: 0 !important;
+    margin: 20px 0 !important;
+    background: white !important;
+  }
+
+  .p-8 {
+    padding: 15px !important;
+    text-align: center;
+  }
+
+  .grid.grid-cols-1.md\\:grid-cols-3 {
+    display: block !important;
+    text-align: center;
+  }
+
+  .grid.grid-cols-1.md\\:grid-cols-3 > div {
+    display: inline-block;
+    width: 32%;
+    margin: 0 0.5%;
+    vertical-align: top;
+    border: 1px solid #000;
+    padding: 10px 5px;
+    margin-bottom: 10px;
+  }
+
+  /* Remove all background colors and gradients */
+  .bg-gradient-to-r,
+  .from-green-50,
+  .to-emerald-50,
+  .border-green-200,
+  .dark\\:from-green-900\\/20,
+  .dark\\:to-emerald-900\\/20,
+  .dark\\:border-green-800 {
+    background: white !important;
+    border-color: #000 !important;
+  }
+
+  /* Cards styling - simple black borders */
+  .overflow-hidden {
+    border: 1px solid #000 !important;
+    border-radius: 0 !important;
+    box-shadow: none !important;
+    margin-bottom: 15px !important;
+    background: white !important;
+  }
+
+  .px-6.py-4 {
+    background: white !important;
+    border-bottom: 1px solid #000 !important;
+    padding: 8px 12px !important;
+  }
+
+  .text-lg.font-semibold {
+    font-size: 14px !important;
+    font-weight: bold !important;
+    color: #000 !important;
+    text-transform: uppercase;
+  }
+
+  .p-6 {
+    padding: 12px !important;
+  }
+
+  /* Table styling - simple lines */
+  table {
+    width: 100% !important;
+    border-collapse: collapse !important;
+    margin: 10px 0 !important;
+    border: 1px solid #000 !important;
+  }
+
+  th, td {
+    border: 1px solid #000 !important;
+    padding: 8px !important;
+    text-align: left !important;
+    font-size: 11px !important;
+    color: #000 !important;
+    background: white !important;
+  }
+
+  th {
+    font-weight: bold !important;
+    text-align: center !important;
+    text-transform: uppercase;
+  }
+
+  /* Grid layout adjustments */
+  .grid {
+    display: block !important;
+  }
+
+  .grid.grid-cols-1.lg\\:grid-cols-2 > div {
+    margin-bottom: 15px !important;
+    display: block !important;
+    width: 100% !important;
+  }
+
+  .grid.grid-cols-2 {
+    display: block !important;
+  }
+
+  .grid.grid-cols-2 > div {
+    display: inline-block !important;
+    width: 48% !important;
+    margin-right: 2% !important;
+    vertical-align: top !important;
+  }
+
+  /* Text styling - all black */
+  .text-sm, .text-lg, .text-3xl, .text-4xl {
+    color: #000 !important;
+  }
+
+  .text-sm {
+    font-size: 10px !important;
+  }
+
+  .text-lg {
+    font-size: 12px !important;
+  }
+
+  .text-3xl, .text-4xl {
+    font-size: 16px !important;
+    font-weight: bold !important;
+  }
+
+  /* Remove all colored text */
+  .text-green-900,
+  .text-green-600,
+  .text-red-900,
+  .text-red-600,
+  .text-blue-900,
+  .text-blue-600,
+  .text-gray-500,
+  .text-gray-600,
+  .text-gray-900,
+  .dark\\:text-green-100,
+  .dark\\:text-green-400,
+  .dark\\:text-red-100,
+  .dark\\:text-red-400,
+  .dark\\:text-blue-100,
+  .dark\\:text-blue-400,
+  .dark\\:text-gray-400,
+  .dark\\:text-white {
+    color: #000 !important;
+  }
+
+  /* Icons - hide completely */
+  svg {
+    display: none !important;
+  }
+
+  /* Currency and numbers */
+  .font-bold {
+    font-weight: bold !important;
+  }
+
+  /* Remove all spacing that might cause issues */
+  .space-y-4 > * + *,
+  .space-y-6 > * + * {
+    margin-top: 10px !important;
+  }
+
+  .mb-8 {
+    margin-bottom: 15px !important;
+  }
+
+  .mt-1 {
+    margin-top: 5px !important;
+  }
+
+  /* Slip header info */
+  .mt-1.text-gray-600 {
+    font-size: 11px !important;
+    color: #000 !important;
+    text-align: center !important;
+    margin-bottom: 15px !important;
+  }
+
+  /* Print Table Specific Styles */
+  .print\\:block {
+    display: block !important;
+  }
+
+  .hidden.md\\:block {
+    display: none !important;
+  }
+
+  /* Force table visibility in print */
+  .md\\:hidden.print\\:block {
+    display: block !important;
+  }
+
+  /* Page breaks */
   .print-break {
     page-break-before: always;
   }

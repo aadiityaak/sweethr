@@ -27,15 +27,17 @@ class PayrollService
         }
     }
 
-    public function generatePayrollForUser(User $user, int $year, int $month): Payroll
+    public function generatePayrollForUser(User $user, int $year, int $month, bool $skipExistingCheck = false): Payroll
     {
-        // Check if payroll already exists
-        $existingPayroll = Payroll::forUser($user->id)
-            ->forPeriod($year, $month)
-            ->first();
+        // Check if payroll already exists (skip when regenerating)
+        if (!$skipExistingCheck) {
+            $existingPayroll = Payroll::forUser($user->id)
+                ->forPeriod($year, $month)
+                ->first();
 
-        if ($existingPayroll) {
-            return $this->regeneratePayroll($existingPayroll);
+            if ($existingPayroll) {
+                return $this->regeneratePayroll($existingPayroll);
+            }
         }
 
         $salarySetting = $user->currentSalarySetting;
@@ -81,12 +83,12 @@ class PayrollService
 
             // Create allowance details
             if ($salarySetting->allowances) {
-                foreach ($salarySetting->allowances as $allowance) {
+                foreach ($salarySetting->allowances as $name => $amount) {
                     PayrollDetail::create([
                         'payroll_id' => $payroll->id,
                         'type' => 'allowance',
-                        'name' => $allowance['name'],
-                        'amount' => $allowance['amount'],
+                        'name' => $name,
+                        'amount' => $amount,
                         'calculation_basis' => ['type' => 'fixed'],
                     ]);
                 }
@@ -127,11 +129,12 @@ class PayrollService
         // Delete existing details
         $payroll->details()->delete();
 
-        // Generate new payroll for same period
+        // Generate new payroll for same period (skip existing check to prevent recursion)
         $newPayroll = $this->generatePayrollForUser(
             $payroll->user,
             $payroll->period_year,
-            $payroll->period_month
+            $payroll->period_month,
+            true // Skip existing check to prevent infinite loop
         );
 
         // Delete old payroll
