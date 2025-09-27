@@ -60,6 +60,18 @@ Route::middleware(['auth', 'verified'])->group(function () {
     Route::delete('leave-requests/{leave_request}', [App\Http\Controllers\LeaveRequestController::class, 'destroy'])
         ->name('leave-requests.destroy');
 
+    // Shift Change Requests (accessible by all employees)
+    Route::get('shift-change-requests', [App\Http\Controllers\ShiftChangeRequestController::class, 'index'])
+        ->name('shift-change-requests.index');
+    Route::get('shift-change-requests/create', [App\Http\Controllers\ShiftChangeRequestController::class, 'create'])
+        ->name('shift-change-requests.create');
+    Route::post('shift-change-requests', [App\Http\Controllers\ShiftChangeRequestController::class, 'store'])
+        ->name('shift-change-requests.store');
+    Route::get('shift-change-requests/{shiftChangeRequest}', [App\Http\Controllers\ShiftChangeRequestController::class, 'show'])
+        ->name('shift-change-requests.show');
+    Route::delete('shift-change-requests/{shiftChangeRequest}', [App\Http\Controllers\ShiftChangeRequestController::class, 'destroy'])
+        ->name('shift-change-requests.destroy');
+
     // User Profile Settings
     Route::get('user/profile', [App\Http\Controllers\User\ProfileController::class, 'show'])
         ->name('user.profile.show');
@@ -219,6 +231,18 @@ Route::middleware(['auth', 'verified', 'admin'])->group(function () {
     ]);
     Route::get('admin/documents/{document}/download', [App\Http\Controllers\Admin\DocumentController::class, 'download'])
         ->name('admin.documents.download');
+
+    // Admin Shift Change Requests Management
+    Route::get('admin/shift-change-requests', [App\Http\Controllers\Admin\ShiftChangeRequestController::class, 'index'])
+        ->name('admin.shift-change-requests.index');
+    Route::get('admin/shift-change-requests/{shiftChangeRequest}', [App\Http\Controllers\Admin\ShiftChangeRequestController::class, 'show'])
+        ->name('admin.shift-change-requests.show');
+    Route::patch('admin/shift-change-requests/{shiftChangeRequest}/approve', [App\Http\Controllers\Admin\ShiftChangeRequestController::class, 'approve'])
+        ->name('admin.shift-change-requests.approve');
+    Route::patch('admin/shift-change-requests/{shiftChangeRequest}/reject', [App\Http\Controllers\Admin\ShiftChangeRequestController::class, 'reject'])
+        ->name('admin.shift-change-requests.reject');
+    Route::delete('admin/shift-change-requests/{shiftChangeRequest}', [App\Http\Controllers\Admin\ShiftChangeRequestController::class, 'destroy'])
+        ->name('admin.shift-change-requests.destroy');
 });
 
 // PWA routes

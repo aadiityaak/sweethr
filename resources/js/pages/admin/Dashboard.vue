@@ -586,6 +586,19 @@ const generateMockAttendanceData = () => {
                                 <p class="text-sm text-gray-600 dark:text-gray-400">Kelola lokasi dan radius</p>
                             </div>
                         </Link>
+                        <Link
+                            v-if="user.is_admin"
+                            href="/admin/shift-change-requests"
+                            class="group flex w-full items-center gap-3 rounded-lg border border-gray-200/50 bg-white p-4 shadow-sm transition-all hover:shadow-md hover:border-orange-300 dark:border-gray-700/50 dark:bg-gray-950 dark:hover:border-orange-600"
+                        >
+                            <div class="flex h-8 w-8 items-center justify-center rounded-lg bg-orange-500/10 ring-1 ring-orange-500/20 group-hover:bg-orange-500/20">
+                                <Calendar class="h-4 w-4 text-orange-600 dark:text-orange-400" />
+                            </div>
+                            <div class="flex-1">
+                                <p class="font-medium text-gray-900 dark:text-white">Request Tukar Libur</p>
+                                <p class="text-sm text-gray-600 dark:text-gray-400">Kelola permintaan tukar jadwal</p>
+                            </div>
+                        </Link>
                     </div>
                 </div>
             </div>

@@ -164,4 +164,14 @@ class User extends Authenticatable
     {
         return $this->hasMany(Payroll::class);
     }
+
+    public function shiftChangeRequests()
+    {
+        return $this->hasMany(ShiftChangeRequest::class);
+    }
+
+    public function reviewedShiftChangeRequests()
+    {
+        return $this->hasMany(ShiftChangeRequest::class, 'reviewed_by');
+    }
 }
