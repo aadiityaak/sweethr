@@ -19,7 +19,7 @@ class ShiftChangeRequestController extends Controller
             ->orderBy('requested_at', 'desc')
             ->paginate(10);
 
-        return Inertia::render('ShiftChangeRequest/Index', [
+        return Inertia::render('user/ShiftChangeRequest/Index', [
             'requests' => $requests,
             'monthlyCount' => $this->getMonthlyRequestCount(),
             'monthlyLimit' => 5,
@@ -31,7 +31,7 @@ class ShiftChangeRequestController extends Controller
      */
     public function create(): Response
     {
-        return Inertia::render('ShiftChangeRequest/Create', [
+        return Inertia::render('user/ShiftChangeRequest/Create', [
             'monthlyCount' => $this->getMonthlyRequestCount(),
             'monthlyLimit' => 5,
         ]);
@@ -100,7 +100,7 @@ class ShiftChangeRequestController extends Controller
 
         $shiftChangeRequest->load('reviewer');
 
-        return Inertia::render('ShiftChangeRequest/Show', [
+        return Inertia::render('user/ShiftChangeRequest/Show', [
             'request' => $shiftChangeRequest,
         ]);
     }

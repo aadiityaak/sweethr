@@ -1,7 +1,7 @@
 <script setup lang="ts">
 import { Link } from '@inertiajs/vue3';
 import { computed } from 'vue';
-import { Home, Clock, Calendar, Settings } from 'lucide-vue-next';
+import { Home, Clock, Calendar, Settings, RefreshCw } from 'lucide-vue-next';
 
 interface Props {
     currentRoute?: string;
@@ -31,6 +31,12 @@ const navigationItems = [
         key: 'leave-requests'
     },
     {
+        href: '/shift-change-requests',
+        icon: RefreshCw,
+        label: 'Tukar Libur',
+        key: 'shift-change-requests'
+    },
+    {
         href: '/user/profile',
         icon: Settings,
         label: 'Profil',
@@ -53,6 +59,10 @@ const isActive = (href: string) => {
         return current.includes('/leave-request');
     }
 
+    if (href === '/shift-change-requests') {
+        return current.includes('/shift-change-request');
+    }
+
     if (href === '/attendance') {
         return current.includes('/attendance');
     }
@@ -65,7 +75,7 @@ const isActive = (href: string) => {
     <!-- Fixed Bottom Navigation - Full Width -->
     <div class="fixed bottom-0 left-0 right-0 bg-background/95 backdrop-blur-md border-t border-border/50 z-50">
         <div class="mx-auto max-w-[480px]">
-            <div class="grid grid-cols-4 px-2 py-1">
+            <div class="grid grid-cols-5 px-2 py-1">
                 <Link
                     v-for="item in navigationItems"
                     :key="item.key"
