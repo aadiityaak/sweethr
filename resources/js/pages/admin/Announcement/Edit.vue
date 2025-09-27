@@ -13,31 +13,53 @@ interface AnnouncementCategory {
     icon: string;
 }
 
+interface User {
+    id: number;
+    name: string;
+    employee_id: string;
+}
+
+interface Announcement {
+    id: number;
+    title: string;
+    content: string;
+    excerpt: string;
+    category: AnnouncementCategory;
+    author: User;
+    priority: 'low' | 'normal' | 'high' | 'urgent';
+    is_active: boolean;
+    published_at: string;
+    expires_at: string | null;
+    created_at: string;
+    image_url: string | null;
+}
+
 interface Props {
+    announcement: Announcement;
     categories: AnnouncementCategory[];
 }
 
-const { categories } = defineProps<Props>();
+const { announcement, categories } = defineProps<Props>();
 
 const breadcrumbs: BreadcrumbItem[] = [
     { title: 'Dashboard', href: '/admin/dashboard' },
     { title: 'Pengumuman', href: '/admin/announcements' },
-    { title: 'Buat Baru', href: '/admin/announcements/create' },
+    { title: 'Edit', href: `/admin/announcements/${announcement.id}/edit` },
 ];
 
 const form = useForm({
-    title: '',
-    content: '',
-    excerpt: '',
-    category_id: '',
+    title: announcement.title,
+    content: announcement.content || '',
+    excerpt: announcement.excerpt,
+    category_id: announcement.category.id,
     image: null as File | null,
-    priority: 'normal' as 'low' | 'normal' | 'high' | 'urgent',
-    is_active: true,
-    published_at: '',
-    expires_at: '',
+    priority: announcement.priority,
+    is_active: announcement.is_active,
+    published_at: announcement.published_at,
+    expires_at: announcement.expires_at || '',
 });
 
-const imagePreview = ref<string | null>(null);
+const imagePreview = ref<string | null>(announcement.image_url);
 
 const handleImageChange = (event: Event) => {
     const target = event.target as HTMLInputElement;
@@ -62,7 +84,7 @@ const removeImage = () => {
 };
 
 const submit = () => {
-    form.post('/admin/announcements');
+    form.patch(`/admin/announcements/${announcement.id}`);
 };
 
 const getCategoryColor = (color: string) => {
@@ -80,7 +102,7 @@ const getCategoryColor = (color: string) => {
 </script>
 
 <template>
-    <Head title="Buat Pengumuman" />
+    <Head :title="`Edit Pengumuman: ${announcement.title}`" />
 
     <AppLayout :breadcrumbs="breadcrumbs">
         <div class="mx-auto max-w-4xl px-4 py-6 sm:px-6 lg:px-8">
@@ -96,10 +118,10 @@ const getCategoryColor = (color: string) => {
                     </a>
                     <div>
                         <h1 class="text-3xl font-bold text-gray-900 dark:text-white">
-                            Buat Pengumuman Baru
+                            Edit Pengumuman
                         </h1>
                         <p class="mt-1 text-gray-600 dark:text-gray-400">
-                            Buat pengumuman untuk semua karyawan
+                            {{ announcement.title }}
                         </p>
                     </div>
                 </div>
@@ -225,7 +247,7 @@ const getCategoryColor = (color: string) => {
                         </h3>
 
                         <div class="space-y-4">
-                            <!-- Image Preview -->
+                            <!-- Current/Preview Image -->
                             <div v-if="imagePreview" class="relative inline-block">
                                 <img
                                     :src="imagePreview"
@@ -244,7 +266,7 @@ const getCategoryColor = (color: string) => {
                             <!-- File Input -->
                             <div>
                                 <label class="block text-sm font-medium text-gray-700 dark:text-gray-300">
-                                    Upload Gambar
+                                    {{ imagePreview ? 'Ganti Gambar' : 'Upload Gambar' }}
                                 </label>
                                 <div class="mt-1 flex justify-center rounded-lg border-2 border-dashed border-gray-300 px-6 py-10 dark:border-gray-600">
                                     <div class="text-center">
@@ -346,7 +368,7 @@ const getCategoryColor = (color: string) => {
                             class="inline-flex items-center rounded-lg bg-blue-600 px-4 py-2 text-sm font-medium text-white shadow-sm transition-colors hover:bg-blue-700 focus:outline-none focus:ring-2 focus:ring-blue-500 focus:ring-offset-2 disabled:opacity-50"
                         >
                             <Save class="mr-2 h-4 w-4" />
-                            {{ form.processing ? 'Menyimpan...' : 'Simpan Pengumuman' }}
+                            {{ form.processing ? 'Menyimpan...' : 'Simpan Perubahan' }}
                         </button>
                     </div>
                 </form>
