@@ -34,6 +34,12 @@ class LeaveRequest extends Model
         ];
     }
 
+    // Accessor untuk compatibility dengan frontend
+    public function getDurationAttribute()
+    {
+        return $this->total_days;
+    }
+
     public function user()
     {
         return $this->belongsTo(User::class);
