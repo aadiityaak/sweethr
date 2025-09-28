@@ -281,9 +281,21 @@ const breadcrumbs = [
   { name: props.user.name, href: edit.url(props.user.id) },
 ]
 
+// Convert allowances object to array format for editing
+const convertAllowancesToArray = (allowances: any) => {
+  if (!allowances) return []
+  if (Array.isArray(allowances)) return allowances
+
+  // Convert object format {transport: 500000, meal: 300000} to array format
+  return Object.entries(allowances).map(([name, amount]) => ({
+    name,
+    amount: Number(amount)
+  }))
+}
+
 const form = useForm({
   base_salary: props.currentSetting?.base_salary || 0,
-  allowances: props.currentSetting?.allowances || [],
+  allowances: convertAllowancesToArray(props.currentSetting?.allowances),
   overtime_rate: props.currentSetting?.overtime_rate || 1.5,
   effective_date: new Date().toISOString().split('T')[0],
 })
@@ -308,7 +320,24 @@ const removeAllowance = (index: number) => {
 
 const submit = () => {
   processing.value = true
-  form.put(update.url(props.user.id), {
+
+  // Convert allowances array back to object format for server
+  const allowancesObject = form.allowances.reduce((acc: any, allowance: any) => {
+    if (allowance.name && allowance.amount) {
+      acc[allowance.name] = allowance.amount
+    }
+    return acc
+  }, {})
+
+  // Create data to send with converted allowances
+  const formData = {
+    base_salary: form.base_salary,
+    allowances: allowancesObject,
+    overtime_rate: form.overtime_rate,
+    effective_date: form.effective_date
+  }
+
+  form.transform((data) => formData).put(update.url(props.user.id), {
     onFinish: () => {
       processing.value = false
     }
