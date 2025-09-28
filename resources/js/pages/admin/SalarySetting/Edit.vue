@@ -1,6 +1,6 @@
 <template>
   <AppLayout :breadcrumbs="breadcrumbs">
-    <div class="mx-auto max-w-4xl px-4 py-6 sm:px-6 lg:px-8">
+    <div class="mx-auto max-w-7xl px-4 py-6 sm:px-6 lg:px-8">
       <!-- Header -->
       <div class="mb-8">
         <div class="flex items-center justify-between">
@@ -276,9 +276,10 @@ interface Props {
 const props = defineProps<Props>()
 
 const breadcrumbs = [
-  { name: 'Dashboard', href: dashboard.url() },
-  { name: 'Pengaturan Gaji', href: salarySettingsIndex.url() },
-  { name: props.user.name, href: edit.url(props.user.id) },
+  { title: 'Dashboard', href: '/admin/dashboard' },
+  { title: 'Pengaturan Gaji', href: '/admin/salary-settings' },
+  { title: props.user.name, href: `/admin/salary-settings/${props.user.id}` },
+  { title: 'Edit', href: `/admin/salary-settings/${props.user.id}/edit` },
 ]
 
 // Convert allowances object to array format for editing

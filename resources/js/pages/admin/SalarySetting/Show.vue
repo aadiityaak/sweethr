@@ -285,9 +285,9 @@ interface Props {
 const props = defineProps<Props>()
 
 const breadcrumbs = [
-  { name: 'Dashboard', href: '/admin/dashboard' },
-  { name: 'Pengaturan Gaji', href: '/admin/salary-settings' },
-  { name: props.user.name, href: `/admin/salary-settings/${props.user.id}` },
+  { title: 'Dashboard', href: '/admin/dashboard' },
+  { title: 'Pengaturan Gaji', href: '/admin/salary-settings' },
+  { title: props.user.name, href: `/admin/salary-settings/${props.user.id}` },
 ]
 
 const currentSetting = computed(() => {
