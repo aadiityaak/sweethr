@@ -3,23 +3,12 @@
     <div class="mx-auto max-w-7xl px-4 py-6 sm:px-6 lg:px-8">
       <!-- Header -->
       <div class="mb-8">
-        <div class="flex items-center justify-between">
-          <div>
-            <h1 class="text-3xl font-bold text-gray-900 dark:text-white">
-              Pengaturan Gaji - {{ user.name }}
-            </h1>
-            <p class="mt-1 text-gray-600 dark:text-gray-400">
-              ID: {{ user.employee_id }} • {{ user.department?.name }} • {{ user.position?.name }}
-            </p>
-          </div>
-          <Link
-            :href="salarySettingsIndex.url()"
-            class="inline-flex items-center px-4 py-2 bg-gray-300 hover:bg-gray-400 text-gray-700 rounded-lg transition-colors"
-          >
-            <ArrowLeft class="w-4 h-4 mr-2" />
-            Kembali
-          </Link>
-        </div>
+        <h1 class="text-3xl font-bold text-gray-900 dark:text-white">
+          Pengaturan Gaji - {{ user.name }}
+        </h1>
+        <p class="mt-1 text-gray-600 dark:text-gray-400">
+          ID: {{ user.employee_id }} • {{ user.department?.name }} • {{ user.position?.name }}
+        </p>
       </div>
 
       <!-- Current Setting Info -->
