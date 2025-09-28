@@ -14,14 +14,14 @@
           </div>
           <div class="flex space-x-3">
             <Link
-              :href="route('admin.salary-settings.index')"
+              href="/admin/salary-settings"
               class="inline-flex items-center px-4 py-2 bg-gray-300 hover:bg-gray-400 text-gray-700 rounded-lg transition-colors"
             >
               <ArrowLeft class="w-4 h-4 mr-2" />
               Kembali
             </Link>
             <Link
-              :href="route('admin.salary-settings.edit', user.id)"
+              :href="`/admin/salary-settings/${user.id}/edit`"
               class="inline-flex items-center px-4 py-2 bg-blue-500 hover:bg-blue-600 text-white rounded-lg transition-colors"
             >
               <Edit class="w-4 h-4 mr-2" />
@@ -285,9 +285,9 @@ interface Props {
 const props = defineProps<Props>()
 
 const breadcrumbs = [
-  { name: 'Dashboard', href: route('admin.dashboard') },
-  { name: 'Pengaturan Gaji', href: route('admin.salary-settings.index') },
-  { name: props.user.name, href: route('admin.salary-settings.show', props.user.id) },
+  { name: 'Dashboard', href: '/admin/dashboard' },
+  { name: 'Pengaturan Gaji', href: '/admin/salary-settings' },
+  { name: props.user.name, href: `/admin/salary-settings/${props.user.id}` },
 ]
 
 const currentSetting = computed(() => {

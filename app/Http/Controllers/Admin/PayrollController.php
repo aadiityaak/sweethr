@@ -63,11 +63,31 @@ class PayrollController extends Controller
         $month = $validated['month'];
         $userIds = $validated['user_ids'] ?? null;
 
-        $this->payrollService->generatePayrolls($year, $month, $userIds);
+        // Validasi prerequisite sebelum generate
+        $validationResult = $this->payrollService->validatePayrollPrerequisites($year, $month, $userIds);
 
-        return redirect()
-            ->route('admin.payrolls.index', ['year' => $year, 'month' => $month])
-            ->with('success', 'Payroll berhasil digenerate');
+        if (!$validationResult['valid']) {
+            return back()->withErrors([
+                'validation' => $validationResult['message']
+            ])->with('validation_details', $validationResult['details'] ?? []);
+        }
+
+        try {
+            $result = $this->payrollService->generatePayrolls($year, $month, $userIds);
+
+            $message = 'Payroll berhasil digenerate';
+            if ($result['skipped'] > 0) {
+                $message .= ". {$result['generated']} berhasil, {$result['skipped']} dilewati (sudah ada).";
+            } else {
+                $message .= ". Total {$result['generated']} payroll berhasil dibuat.";
+            }
+
+            return redirect()
+                ->route('admin.payrolls.index', ['year' => $year, 'month' => $month])
+                ->with('success', $message);
+        } catch (\Exception $e) {
+            return back()->withErrors(['error' => 'Terjadi kesalahan: ' . $e->getMessage()]);
+        }
     }
 
     public function regenerate(Payroll $payroll)

@@ -12,7 +12,66 @@ use Illuminate\Support\Facades\DB;
 
 class PayrollService
 {
-    public function generatePayrolls(int $year, int $month, ?array $userIds = null): void
+    public function validatePayrollPrerequisites(int $year, int $month, ?array $userIds = null): array
+    {
+        $users = User::with('currentSalarySetting')
+            ->active()
+            ->where('is_admin', false)
+            ->when($userIds, function ($query, $userIds) {
+                return $query->whereIn('id', $userIds);
+            })
+            ->get();
+
+        if ($users->isEmpty()) {
+            return [
+                'valid' => false,
+                'message' => 'Tidak ada karyawan aktif yang ditemukan untuk di-generate payroll.',
+                'details' => []
+            ];
+        }
+
+        $usersWithoutSalary = [];
+        $usersWithInvalidSalary = [];
+
+        foreach ($users as $user) {
+            $salarySetting = $user->currentSalarySetting;
+
+            if (!$salarySetting) {
+                $usersWithoutSalary[] = $user->name;
+            } elseif ($salarySetting->base_salary <= 0) {
+                $usersWithInvalidSalary[] = $user->name;
+            }
+        }
+
+        if (!empty($usersWithoutSalary) || !empty($usersWithInvalidSalary)) {
+            $details = [];
+            $message = 'Tidak dapat generate payroll karena ada masalah:';
+
+            if (!empty($usersWithoutSalary)) {
+                $details['missing_salary'] = $usersWithoutSalary;
+                $message .= "\n• Karyawan belum memiliki pengaturan gaji: " . implode(', ', $usersWithoutSalary);
+            }
+
+            if (!empty($usersWithInvalidSalary)) {
+                $details['invalid_salary'] = $usersWithInvalidSalary;
+                $message .= "\n• Karyawan dengan gaji tidak valid: " . implode(', ', $usersWithInvalidSalary);
+            }
+
+            return [
+                'valid' => false,
+                'message' => $message,
+                'details' => $details
+            ];
+        }
+
+        return [
+            'valid' => true,
+            'message' => 'Semua prerequisite terpenuhi',
+            'users_count' => $users->count()
+        ];
+    }
+
+    public function generatePayrolls(int $year, int $month, ?array $userIds = null): array
     {
         $users = User::with('currentSalarySetting')
             ->active()
@@ -22,9 +81,35 @@ class PayrollService
             })
             ->get();
 
+        $generated = 0;
+        $skipped = 0;
+        $errors = [];
+
         foreach ($users as $user) {
-            $this->generatePayrollForUser($user, $year, $month);
+            try {
+                // Check if payroll already exists
+                $existingPayroll = Payroll::forUser($user->id)
+                    ->forPeriod($year, $month)
+                    ->first();
+
+                if ($existingPayroll) {
+                    $skipped++;
+                    continue;
+                }
+
+                $this->generatePayrollForUser($user, $year, $month);
+                $generated++;
+            } catch (\Exception $e) {
+                $errors[] = "Error untuk {$user->name}: " . $e->getMessage();
+            }
         }
+
+        return [
+            'generated' => $generated,
+            'skipped' => $skipped,
+            'errors' => $errors,
+            'total_users' => $users->count()
+        ];
     }
 
     public function generatePayrollForUser(User $user, int $year, int $month, bool $skipExistingCheck = false): Payroll
@@ -126,21 +211,17 @@ class PayrollService
 
     public function regeneratePayroll(Payroll $payroll): Payroll
     {
-        // Delete existing details
-        $payroll->details()->delete();
+        $user = $payroll->user;
+        $year = $payroll->period_year;
+        $month = $payroll->period_month;
 
-        // Generate new payroll for same period (skip existing check to prevent recursion)
-        $newPayroll = $this->generatePayrollForUser(
-            $payroll->user,
-            $payroll->period_year,
-            $payroll->period_month,
-            true // Skip existing check to prevent infinite loop
-        );
+        return DB::transaction(function () use ($payroll, $user, $year, $month) {
+            // Delete existing payroll and its details (cascade will handle details)
+            $payroll->delete();
 
-        // Delete old payroll
-        $payroll->delete();
-
-        return $newPayroll;
+            // Generate new payroll for same period
+            return $this->generatePayrollForUser($user, $year, $month, true);
+        });
     }
 
     private function calculateAttendanceData(User $user, int $year, int $month): array

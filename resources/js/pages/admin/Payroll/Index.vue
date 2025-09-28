@@ -239,15 +239,28 @@
     <!-- Toast Notification -->
     <div v-if="showToast"
          :class="[
-           'fixed top-4 right-4 z-50 flex items-center p-4 rounded-lg shadow-lg transition-all duration-300',
+           'fixed top-4 right-4 z-50 p-4 rounded-lg shadow-lg transition-all duration-300 max-w-md',
            toastType === 'success' ? 'bg-green-500 text-white' : 'bg-red-500 text-white'
          ]">
-      <CheckCircle v-if="toastType === 'success'" class="w-5 h-5 mr-2" />
-      <AlertCircle v-if="toastType === 'error'" class="w-5 h-5 mr-2" />
-      <span class="mr-2">{{ toastMessage }}</span>
-      <button @click="hideToast" class="ml-auto">
-        <X class="w-4 h-4" />
-      </button>
+      <div class="flex items-start">
+        <CheckCircle v-if="toastType === 'success'" class="w-5 h-5 mr-2 mt-0.5 flex-shrink-0" />
+        <AlertCircle v-if="toastType === 'error'" class="w-5 h-5 mr-2 mt-0.5 flex-shrink-0" />
+        <div class="flex-1">
+          <div class="font-medium text-sm mb-1">
+            {{ toastType === 'success' ? 'Berhasil!' : 'Error!' }}
+          </div>
+          <div class="text-sm whitespace-pre-line">{{ toastMessage }}</div>
+          <div v-if="toastDetails.length > 0" class="mt-2 text-xs opacity-90">
+            <div class="font-medium mb-1">Detail:</div>
+            <ul class="list-disc list-inside space-y-1">
+              <li v-for="detail in toastDetails" :key="detail">{{ detail }}</li>
+            </ul>
+          </div>
+        </div>
+        <button @click="hideToast" class="ml-2 flex-shrink-0">
+          <X class="w-4 h-4" />
+        </button>
+      </div>
     </div>
   </AppLayout>
 </template>
@@ -306,6 +319,7 @@ const generating = ref(false)
 const showToast = ref(false)
 const toastMessage = ref('')
 const toastType = ref<'success' | 'error'>('success')
+const toastDetails = ref<string[]>([])
 
 const months = [
   { value: 1, label: 'Januari' },
@@ -360,19 +374,21 @@ const changeMonth = () => {
 }
 
 // Toast functions
-const showToastMessage = (message: string, type: 'success' | 'error') => {
+const showToastMessage = (message: string, type: 'success' | 'error', details: string[] = []) => {
   toastMessage.value = message
   toastType.value = type
+  toastDetails.value = details
   showToast.value = true
 
-  // Auto hide after 5 seconds
+  // Auto hide after 8 seconds for errors (longer for reading), 5 seconds for success
   setTimeout(() => {
     showToast.value = false
-  }, 5000)
+  }, type === 'error' ? 8000 : 5000)
 }
 
 const hideToast = () => {
   showToast.value = false
+  toastDetails.value = []
 }
 
 const confirmGenerate = () => {
@@ -381,16 +397,45 @@ const confirmGenerate = () => {
     year: selectedYear.value,
     month: selectedMonth.value
   }, {
-    onSuccess: () => {
+    onSuccess: (page) => {
       generating.value = false
       showGenerateModal.value = false
-      showToastMessage('Payroll berhasil digenerate untuk semua karyawan!', 'success')
+      // Use success message from server if available
+      const successMessage = page.props?.flash?.success || 'Payroll berhasil digenerate!'
+      showToastMessage(successMessage, 'success')
     },
-    onError: (errors) => {
+    onError: (errors, page) => {
       generating.value = false
       showGenerateModal.value = false
-      const errorMessage = Object.values(errors).flat().join(', ') || 'Terjadi kesalahan saat generate payroll'
-      showToastMessage(errorMessage, 'error')
+
+      // Handle different types of errors
+      let errorMessage = 'Terjadi kesalahan saat generate payroll'
+      let errorDetails: string[] = []
+
+      if (errors.validation) {
+        errorMessage = errors.validation
+
+        // Extract details from flash data
+        const validationDetails = page?.props?.flash?.validation_details
+        if (validationDetails) {
+          if (validationDetails.missing_salary) {
+            errorDetails.push(`Belum ada pengaturan gaji: ${validationDetails.missing_salary.join(', ')}`)
+          }
+          if (validationDetails.invalid_salary) {
+            errorDetails.push(`Gaji tidak valid: ${validationDetails.invalid_salary.join(', ')}`)
+          }
+        }
+      } else if (errors.error) {
+        errorMessage = errors.error
+      } else {
+        // Handle other error formats
+        const errorValues = Object.values(errors).flat()
+        if (errorValues.length > 0) {
+          errorMessage = errorValues.join(', ')
+        }
+      }
+
+      showToastMessage(errorMessage, 'error', errorDetails)
     },
     onFinish: () => {
       generating.value = false
