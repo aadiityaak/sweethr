@@ -30,9 +30,10 @@ interface Props {
     };
     monthlyCount: number;
     monthlyLimit: number;
+    error?: string;
 }
 
-const { requests, monthlyCount, monthlyLimit } = defineProps<Props>();
+const { requests, monthlyCount, monthlyLimit, error } = defineProps<Props>();
 
 const selectedStatus = ref('');
 
@@ -139,6 +140,27 @@ const isLimitReached = monthlyCount >= monthlyLimit;
 
             <!-- Main Content -->
             <div class="px-4 py-6 pb-24">
+                <!-- Error Notification -->
+                <div v-if="error" class="mb-6 rounded-lg border border-red-200 bg-red-50 p-4 dark:border-red-800 dark:bg-red-950/30">
+                    <div class="flex items-center gap-3">
+                        <AlertCircle class="h-5 w-5 text-red-600 dark:text-red-400" />
+                        <div class="flex-1">
+                            <h3 class="text-sm font-medium text-red-800 dark:text-red-200">
+                                Terjadi Masalah Koneksi
+                            </h3>
+                            <p class="text-sm text-red-700 dark:text-red-300 mt-1">
+                                {{ error }}
+                            </p>
+                        </div>
+                        <button
+                            @click="$inertia.reload()"
+                            class="rounded-md bg-red-100 p-2 text-red-600 hover:bg-red-200 transition-colors dark:bg-red-900 dark:text-red-400 dark:hover:bg-red-800"
+                        >
+                            <RefreshCw class="h-4 w-4" />
+                        </button>
+                    </div>
+                </div>
+
                 <!-- Stats -->
                 <div class="mb-6 grid gap-3 grid-cols-2">
                     <div class="rounded-lg border bg-card p-4 text-center">
@@ -153,7 +175,7 @@ const isLimitReached = monthlyCount >= monthlyLimit;
                         <div class="mx-auto mb-2 w-10 h-10 rounded-md bg-orange-100 dark:bg-orange-900/20 flex items-center justify-center">
                             <AlertCircle class="h-5 w-5 text-orange-600 dark:text-orange-400" />
                         </div>
-                        <p class="text-2xl font-bold">{{ requests.data.filter(r => r.status === 'pending').length }}</p>
+                        <p class="text-2xl font-bold">{{ requests?.data?.filter(r => r.status === 'pending').length || 0 }}</p>
                         <p class="text-xs text-muted-foreground font-medium">Menunggu</p>
                     </div>
 
@@ -161,7 +183,7 @@ const isLimitReached = monthlyCount >= monthlyLimit;
                         <div class="mx-auto mb-2 w-10 h-10 rounded-md bg-green-100 dark:bg-green-900/20 flex items-center justify-center">
                             <CheckCircle class="h-5 w-5 text-green-600 dark:text-green-400" />
                         </div>
-                        <p class="text-2xl font-bold">{{ requests.data.filter(r => r.status === 'approved').length }}</p>
+                        <p class="text-2xl font-bold">{{ requests?.data?.filter(r => r.status === 'approved').length || 0 }}</p>
                         <p class="text-xs text-muted-foreground font-medium">Disetujui</p>
                     </div>
 
@@ -169,7 +191,7 @@ const isLimitReached = monthlyCount >= monthlyLimit;
                         <div class="mx-auto mb-2 w-10 h-10 rounded-md bg-red-100 dark:bg-red-900/20 flex items-center justify-center">
                             <XCircle class="h-5 w-5 text-red-600 dark:text-red-400" />
                         </div>
-                        <p class="text-2xl font-bold">{{ requests.data.filter(r => r.status === 'rejected').length }}</p>
+                        <p class="text-2xl font-bold">{{ requests?.data?.filter(r => r.status === 'rejected').length || 0 }}</p>
                         <p class="text-xs text-muted-foreground font-medium">Ditolak</p>
                     </div>
                 </div>
@@ -198,7 +220,7 @@ const isLimitReached = monthlyCount >= monthlyLimit;
                     </div>
 
                     <div class="divide-y">
-                        <div v-if="requests.data.length === 0" class="p-8 text-center">
+                        <div v-if="!requests?.data?.length && !error" class="p-8 text-center">
                             <RefreshCw class="h-12 w-12 mx-auto mb-4 text-muted-foreground" />
                             <p class="text-muted-foreground">Belum ada request tukar libur</p>
                             <Link
@@ -211,8 +233,20 @@ const isLimitReached = monthlyCount >= monthlyLimit;
                             </Link>
                         </div>
 
+                        <div v-else-if="error && !requests?.data?.length" class="p-8 text-center">
+                            <AlertCircle class="h-12 w-12 mx-auto mb-4 text-red-500" />
+                            <p class="text-muted-foreground mb-4">Data tidak dapat dimuat</p>
+                            <button
+                                @click="$inertia.reload()"
+                                class="inline-flex items-center gap-2 rounded-md bg-primary px-4 py-2 text-sm font-medium text-primary-foreground hover:bg-primary/90 transition-colors"
+                            >
+                                <RefreshCw class="h-4 w-4" />
+                                Coba Lagi
+                            </button>
+                        </div>
+
                         <div
-                            v-for="request in requests.data"
+                            v-for="request in requests?.data || []"
                             :key="request.id"
                             class="p-4 hover:bg-muted/50 transition-colors"
                         >

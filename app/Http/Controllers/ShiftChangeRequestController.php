@@ -3,7 +3,10 @@
 namespace App\Http\Controllers;
 
 use App\Models\ShiftChangeRequest;
+use App\Services\DatabaseHealthService;
 use Illuminate\Http\Request;
+use Illuminate\Database\QueryException;
+use Illuminate\Support\Facades\Log;
 use Inertia\Inertia;
 use Inertia\Response;
 
@@ -14,16 +17,62 @@ class ShiftChangeRequestController extends Controller
      */
     public function index(): Response
     {
-        $requests = auth()->user()->shiftChangeRequests()
-            ->with('reviewer')
-            ->orderBy('requested_at', 'desc')
-            ->paginate(10);
+        try {
+            $requests = auth()->user()->shiftChangeRequests()
+                ->with('reviewer')
+                ->orderBy('requested_at', 'desc')
+                ->paginate(10);
 
-        return Inertia::render('user/ShiftChangeRequest/Index', [
-            'requests' => $requests,
-            'monthlyCount' => $this->getMonthlyRequestCount(),
-            'monthlyLimit' => 5,
-        ]);
+            $monthlyCount = $this->getMonthlyRequestCount();
+
+            return Inertia::render('user/ShiftChangeRequest/Index', [
+                'requests' => $requests,
+                'monthlyCount' => $monthlyCount,
+                'monthlyLimit' => 5,
+            ]);
+        } catch (QueryException $e) {
+            Log::error('Database error in ShiftChangeRequestController@index', [
+                'user_id' => auth()->id(),
+                'error' => $e->getMessage(),
+                'code' => $e->getCode(),
+                'db_health' => DatabaseHealthService::getConnectionInfo()
+            ]);
+
+            // Attempt to reconnect and retry
+            if (DatabaseHealthService::reconnect()) {
+                try {
+                    $requests = auth()->user()->shiftChangeRequests()
+                        ->with('reviewer')
+                        ->orderBy('requested_at', 'desc')
+                        ->paginate(10);
+
+                    $monthlyCount = $this->getMonthlyRequestCount();
+
+                    Log::info('Database reconnection successful in ShiftChangeRequestController@index', [
+                        'user_id' => auth()->id()
+                    ]);
+
+                    return Inertia::render('user/ShiftChangeRequest/Index', [
+                        'requests' => $requests,
+                        'monthlyCount' => $monthlyCount,
+                        'monthlyLimit' => 5,
+                    ]);
+                } catch (QueryException $retryError) {
+                    Log::error('Database retry failed after reconnection in ShiftChangeRequestController@index', [
+                        'user_id' => auth()->id(),
+                        'retry_error' => $retryError->getMessage()
+                    ]);
+                }
+            }
+
+            // Return graceful fallback
+            return Inertia::render('user/ShiftChangeRequest/Index', [
+                'requests' => collect([]),
+                'monthlyCount' => 0,
+                'monthlyLimit' => 5,
+                'error' => 'Terjadi masalah koneksi database. Silakan refresh halaman atau coba lagi nanti.'
+            ]);
+        }
     }
 
     /**
@@ -126,8 +175,16 @@ class ShiftChangeRequestController extends Controller
      */
     private function getMonthlyRequestCount(): int
     {
-        return auth()->user()->shiftChangeRequests()
-            ->forMonth(now()->year, now()->month)
-            ->count();
+        try {
+            return auth()->user()->shiftChangeRequests()
+                ->forMonth(now()->year, now()->month)
+                ->count();
+        } catch (QueryException $e) {
+            Log::error('Database error in getMonthlyRequestCount', [
+                'user_id' => auth()->id(),
+                'error' => $e->getMessage()
+            ]);
+            return 0;
+        }
     }
 }

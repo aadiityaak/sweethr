@@ -44,7 +44,8 @@
       "Bash(netstat:*)",
       "Bash(findstr:*)",
       "Bash(taskkill:*)",
-      "Bash(tasklist:*)"
+      "Bash(tasklist:*)",
+      "mcp__laravel-boost__database-connections"
     ],
     "deny": [],
     "ask": []
