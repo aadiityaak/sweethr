@@ -4,7 +4,7 @@ import AppLayout from '@/layouts/AppLayout.vue';
 import { type BreadcrumbItem } from '@/types';
 import { Head, useForm } from '@inertiajs/vue3';
 import { MapPin, Navigation, Save, Target } from 'lucide-vue-next';
-import { computed, nextTick, onMounted, ref, watch } from 'vue';
+import { computed, nextTick, onMounted, onUnmounted, ref, watch } from 'vue';
 
 interface OfficeLocation {
     id: number;
@@ -39,14 +39,17 @@ const breadcrumbs: BreadcrumbItem[] = [
     },
 ];
 
+// Create a deep copy to prevent reactive mutation of original data
 const form = useForm({
-    name: officeLocation.name,
-    address: officeLocation.address,
-    latitude: officeLocation.latitude,
-    longitude: officeLocation.longitude,
-    radius_meters: officeLocation.radius_meters,
-    is_active: officeLocation.is_active,
+    name: String(officeLocation.name),
+    address: String(officeLocation.address),
+    latitude: Number(officeLocation.latitude),
+    longitude: Number(officeLocation.longitude),
+    radius_meters: Number(officeLocation.radius_meters),
+    is_active: Boolean(officeLocation.is_active),
 });
+
+console.log('Form initialized with data:', form.data());
 
 const selectedLocation = ref<{ latitude: number; longitude: number } | null>(null);
 const currentLocation = ref<{ latitude: number; longitude: number } | null>(null);
@@ -58,12 +61,12 @@ const mapLocations = computed(() => {
     return [
         {
             id: officeLocation.id,
-            name: form.name || 'Location',
-            address: form.address || '',
+            name: String(form.name || 'Location'),
+            address: String(form.address || ''),
             latitude: Number(form.latitude),
             longitude: Number(form.longitude),
-            radius_meters: form.radius_meters,
-            is_active: form.is_active,
+            radius_meters: Number(form.radius_meters),
+            is_active: Boolean(form.is_active),
         },
     ];
 });
@@ -73,13 +76,14 @@ const getCurrentLocation = () => {
         navigator.geolocation.getCurrentPosition(
             (position) => {
                 const coords = {
-                    latitude: position.coords.latitude,
-                    longitude: position.coords.longitude,
+                    latitude: Number(position.coords.latitude.toFixed(8)),
+                    longitude: Number(position.coords.longitude.toFixed(8)),
                 };
                 currentLocation.value = coords;
                 form.latitude = coords.latitude;
                 form.longitude = coords.longitude;
                 selectedLocation.value = coords;
+                console.log('Current location updated:', coords);
             },
             (error) => {
                 console.error('Error getting location:', error);
@@ -109,12 +113,40 @@ const onMapClick = async (coordinates: { latitude: number; longitude: number }) 
 
     console.log('Updated form coordinates:', { lat: form.latitude, lng: form.longitude });
     console.log('Updated selectedLocation:', selectedLocation.value);
+    console.log('Current form data after map click:', form.data());
 };
 
 const submit = () => {
+    console.log('Submit called - form data:', form.data());
+    console.log('Form processing state:', form.processing);
+
+    // Ensure numeric fields are properly converted
+    const formData = {
+        name: form.name,
+        address: form.address,
+        latitude: Number(form.latitude),
+        longitude: Number(form.longitude),
+        radius_meters: Number(form.radius_meters),
+        is_active: Boolean(form.is_active),
+    };
+
+    console.log('Processed form data for submission:', formData);
+
     form.put(`/office-locations/${officeLocation.id}`, {
-        onSuccess: () => {
-            // Will redirect to index page
+        data: formData,
+        onStart: () => {
+            console.log('Form submission started');
+        },
+        onSuccess: (response) => {
+            console.log('Form submission successful:', response);
+            // Force fresh data load by reloading the page instead of navigation
+            window.location.href = '/office-locations';
+        },
+        onError: (errors) => {
+            console.error('Form submission errors:', errors);
+        },
+        onFinish: () => {
+            console.log('Form submission finished');
         },
     });
 };
@@ -134,11 +166,17 @@ watch(
 );
 
 onMounted(() => {
-    // Set initial coordinates from office location
+    // Set initial coordinates from office location (using original data, not form data)
     selectedLocation.value = {
-        latitude: officeLocation.latitude,
-        longitude: officeLocation.longitude,
+        latitude: Number(officeLocation.latitude),
+        longitude: Number(officeLocation.longitude),
     };
+});
+
+onUnmounted(() => {
+    // Reset form to prevent data leaking to other components
+    form.reset();
+    console.log('Form reset on unmount to prevent data mutation');
 });
 </script>
 
