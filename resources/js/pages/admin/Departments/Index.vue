@@ -239,12 +239,13 @@
 
         <!-- Delete Confirmation Modal -->
         <ConfirmationModal
-            v-model:open="showDeleteModal"
+            :show="showDeleteModal"
             title="Hapus Departemen"
             :message="`Yakin ingin menghapus departemen '${selectedDepartment?.name}'? Aksi ini tidak dapat dibatalkan.`"
             confirm-text="Hapus"
-            confirm-variant="danger"
+            type="danger"
             @confirm="confirmDelete"
+            @cancel="showDeleteModal = false; selectedDepartment = null;"
         />
     </AppLayout>
 </template>
@@ -370,16 +371,20 @@ const confirmDelete = () => {
                 description: `Departemen "${selectedDepartment.value?.name}" berhasil dihapus.`,
                 variant: 'success',
             });
-            showDeleteModal.value = false;
-            selectedDepartment.value = null;
         },
-        onError: () => {
+        onError: (errors) => {
+            console.error('Delete department error:', errors);
+            const errorMessage = errors.message || 'Terjadi kesalahan saat menghapus departemen.';
             toast({
                 title: 'Gagal!',
-                description: 'Terjadi kesalahan saat menghapus departemen.',
+                description: errorMessage,
                 variant: 'destructive',
             });
         },
+        onFinish: () => {
+            showDeleteModal.value = false;
+            selectedDepartment.value = null;
+        }
     });
 };
 </script>
