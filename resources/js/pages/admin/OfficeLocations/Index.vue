@@ -376,7 +376,9 @@ const closeMapModal = () => {
                                             <Map class="h-4 w-4" />
                                         </button>
                                         <Link
-                                            :href="`/office-locations/${location.id}/edit`"
+                                            :href="`/office-locations/${location.id}/edit?v=${Date.now()}`"
+                                            :preserve-state="false"
+                                            :preserve-scroll="false"
                                             class="rounded-lg bg-blue-100 p-2 text-blue-600 hover:bg-blue-200 dark:bg-blue-900/30 dark:text-blue-400 dark:hover:bg-blue-900/50"
                                         >
                                             <Edit class="h-4 w-4" />
