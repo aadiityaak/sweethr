@@ -37,9 +37,68 @@
                                 </div>
                                 <div class="space-y-2">
                                     <Label for="employee_id">ID Karyawan *</Label>
-                                    <Input id="employee_id" v-model="form.employee_id" placeholder="e.g. EMP001" :error="form.errors.employee_id" />
+                                    <div class="relative">
+                                        <Input
+                                            id="employee_id"
+                                            v-model="form.employee_id"
+                                            placeholder="e.g. EMP001"
+                                            :error="form.errors.employee_id || employeeIdValidation.status === 'taken'"
+                                            :class="{
+                                                'border-green-500 focus:border-green-500': employeeIdValidation.status === 'available',
+                                                'border-red-500 focus:border-red-500': employeeIdValidation.status === 'taken',
+                                            }"
+                                        />
+                                        <!-- Icon Status -->
+                                        <div
+                                            v-if="employeeIdValidation.status !== 'idle'"
+                                            class="absolute top-1/2 right-3 -translate-y-1/2 transform"
+                                        >
+                                            <!-- Loading -->
+                                            <div
+                                                v-if="employeeIdValidation.status === 'checking'"
+                                                class="h-4 w-4 animate-spin rounded-full border-2 border-blue-500 border-t-transparent"
+                                            ></div>
+                                            <!-- Available -->
+                                            <svg
+                                                v-else-if="employeeIdValidation.status === 'available'"
+                                                class="h-4 w-4 text-green-500"
+                                                fill="none"
+                                                stroke="currentColor"
+                                                viewBox="0 0 24 24"
+                                            >
+                                                <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M5 13l4 4L19 7"></path>
+                                            </svg>
+                                            <!-- Taken -->
+                                            <svg
+                                                v-else-if="employeeIdValidation.status === 'taken'"
+                                                class="h-4 w-4 text-red-500"
+                                                fill="none"
+                                                stroke="currentColor"
+                                                viewBox="0 0 24 24"
+                                            >
+                                                <path
+                                                    stroke-linecap="round"
+                                                    stroke-linejoin="round"
+                                                    stroke-width="2"
+                                                    d="M6 18L18 6M6 6l12 12"
+                                                ></path>
+                                            </svg>
+                                        </div>
+                                    </div>
+                                    <!-- Validation Messages -->
                                     <p v-if="form.errors.employee_id" class="mt-1 text-sm text-red-600">
                                         {{ form.errors.employee_id }}
+                                    </p>
+                                    <p
+                                        v-else-if="employeeIdValidation.message"
+                                        :class="{
+                                            'text-green-600': employeeIdValidation.status === 'available',
+                                            'text-red-600': employeeIdValidation.status === 'taken',
+                                            'text-blue-600': employeeIdValidation.status === 'checking',
+                                        }"
+                                        class="mt-1 text-sm"
+                                    >
+                                        {{ employeeIdValidation.message }}
                                     </p>
                                 </div>
                             </div>
@@ -60,17 +119,29 @@
                                 </div>
                                 <div class="space-y-2">
                                     <Label for="phone">Nomor Telepon</Label>
-                                    <Input id="phone" v-model="form.phone" placeholder="e.g. 08123456789" :error="form.errors.phone" />
+                                    <Input
+                                        id="phone"
+                                        type="tel"
+                                        v-model="form.phone"
+                                        placeholder="e.g. 08123456789"
+                                        :error="form.errors.phone"
+                                    />
                                     <p v-if="form.errors.phone" class="mt-1 text-sm text-red-600">
                                         {{ form.errors.phone }}
                                     </p>
                                 </div>
                             </div>
 
+
                             <div class="grid gap-6 md:grid-cols-2">
                                 <div class="space-y-2">
                                     <Label for="date_of_birth">Tanggal Lahir</Label>
-                                    <DatePicker v-model="form.date_of_birth" placeholder="Pilih tanggal lahir" />
+                                    <DatePicker
+                                        v-model="form.date_of_birth"
+                                        placeholder="Pilih tanggal lahir"
+                                        :birth-date="true"
+                                        :default-year="1993"
+                                    />
                                     <p v-if="form.errors.date_of_birth" class="mt-1 text-sm text-red-600">
                                         {{ form.errors.date_of_birth }}
                                     </p>
@@ -189,6 +260,46 @@
                                 </div>
                             </div>
 
+                            <!-- Password Reset -->
+                            <div class="border-t pt-6">
+                                <h4 class="text-md mb-4 font-semibold">Reset Password</h4>
+                                <p class="mb-4 text-sm text-gray-600 dark:text-gray-400">
+                                    Kosongkan field password jika tidak ingin mengubah password
+                                </p>
+
+                                <div class="grid gap-6 md:grid-cols-2">
+                                    <div class="space-y-2">
+                                        <Label for="new_password">Password Baru</Label>
+                                        <Input
+                                            id="new_password"
+                                            v-model="form.password"
+                                            type="password"
+                                            placeholder="Kosongkan jika tidak ingin mengubah"
+                                            :error="form.errors.password"
+                                        />
+                                        <p v-if="form.errors.password" class="mt-1 text-sm text-red-600">
+                                            {{ form.errors.password }}
+                                        </p>
+                                        <p class="mt-1 text-xs text-muted-foreground">
+                                            Minimal 8 karakter. Kosongkan jika tidak ingin mengubah password.
+                                        </p>
+                                    </div>
+                                    <div class="space-y-2">
+                                        <Label for="new_password_confirmation">Konfirmasi Password Baru</Label>
+                                        <Input
+                                            id="new_password_confirmation"
+                                            v-model="form.password_confirmation"
+                                            type="password"
+                                            placeholder="Konfirmasi password baru"
+                                            :error="form.errors.password_confirmation"
+                                        />
+                                        <p v-if="form.errors.password_confirmation" class="mt-1 text-sm text-red-600">
+                                            {{ form.errors.password_confirmation }}
+                                        </p>
+                                    </div>
+                                </div>
+                            </div>
+
                             <!-- Emergency Contact -->
                             <div class="border-t pt-6">
                                 <h4 class="text-md mb-4 font-semibold">Kontak Darurat</h4>
@@ -200,7 +311,7 @@
                                     </div>
                                     <div class="space-y-2">
                                         <Label for="emergency_phone">Nomor Telepon</Label>
-                                        <Input id="emergency_phone" v-model="form.emergency_contact.phone" placeholder="08123456789" />
+                                        <Input id="emergency_phone" type="tel" v-model="form.emergency_contact.phone" placeholder="08123456789" />
                                     </div>
                                     <div class="space-y-2">
                                         <Label for="emergency_relationship">Hubungan</Label>
@@ -250,7 +361,15 @@
 
                             <!-- Submit Button -->
                             <div class="flex gap-2 border-t pt-6">
-                                <Button type="submit" :disabled="form.processing">
+                                <Button
+                                    type="submit"
+                                    :disabled="
+                                        form.processing || employeeIdValidation.status === 'taken' || employeeIdValidation.status === 'checking'
+                                    "
+                                    :class="{
+                                        'cursor-not-allowed opacity-50': employeeIdValidation.status === 'taken',
+                                    }"
+                                >
                                     {{ form.processing ? 'Menyimpan...' : 'Simpan Perubahan' }}
                                 </Button>
                                 <Button type="button" variant="outline" @click="router.visit('/employees')"> Batal </Button>
@@ -331,7 +450,8 @@
                     <div class="rounded-lg border bg-blue-50 p-4 dark:bg-blue-950/20">
                         <h4 class="mb-2 font-medium text-blue-900 dark:text-blue-400">Tips:</h4>
                         <ul class="space-y-1 text-sm text-blue-700 dark:text-blue-300">
-                            <li>• Pastikan email tetap unik dalam sistem</li>
+                            <li>• ID karyawan akan divalidasi secara real-time</li>
+                            <li>• Email harus tetap unik dalam sistem</li>
                             <li>• Perubahan departemen akan mempengaruhi akses karyawan</li>
                             <li>• Status admin memberikan akses penuh ke sistem</li>
                             <li>• Kontak darurat penting untuk keadaan mendesak</li>
@@ -350,11 +470,13 @@ import DatePicker from '@/components/ui/date-picker/DatePicker.vue';
 import { Input } from '@/components/ui/input';
 import { Label } from '@/components/ui/label';
 import { Textarea } from '@/components/ui/textarea';
+import { useToast } from '@/components/ui/toast/use-toast';
 import AppLayout from '@/layouts/AppLayout.vue';
 import { type BreadcrumbItem } from '@/types';
 import { Head, Link, router, useForm } from '@inertiajs/vue3';
+import { useDebounceFn } from '@vueuse/core';
 import { ArrowLeft } from 'lucide-vue-next';
-import { computed, watch } from 'vue';
+import { computed, watch, ref, onMounted } from 'vue';
 
 interface Employee {
     id: number;
@@ -408,6 +530,8 @@ interface Props {
 
 const props = defineProps<Props>();
 
+const { toast } = useToast();
+
 const breadcrumbs: BreadcrumbItem[] = [
     {
         title: 'Dasbor',
@@ -436,6 +560,8 @@ const form = useForm({
     position_id: props.employee.position_id || '',
     manager_id: props.employee.manager_id || '',
     employment_status: props.employee.employment_status,
+    password: '',
+    password_confirmation: '',
     emergency_contact: {
         name: props.employee.emergency_contact?.name || '',
         phone: props.employee.emergency_contact?.phone || '',
@@ -444,6 +570,66 @@ const form = useForm({
     is_admin: props.employee.is_admin,
     allow_outside_radius: props.employee.allow_outside_radius,
 });
+
+// State untuk validasi employee_id
+const employeeIdValidation = ref<{
+    status: 'idle' | 'checking' | 'available' | 'taken';
+    message: string;
+}>({
+    status: 'idle',
+    message: '',
+});
+
+// Fungsi untuk cek employee_id ke API (exclude current employee)
+const checkEmployeeId = async (employeeId: string) => {
+    if (!employeeId || employeeId.length < 2) {
+        employeeIdValidation.value = {
+            status: 'idle',
+            message: '',
+        };
+        return;
+    }
+
+    // Skip validation if it's the same as original employee_id
+    if (employeeId === props.employee.employee_id) {
+        employeeIdValidation.value = {
+            status: 'available',
+            message: 'ID karyawan saat ini',
+        };
+        return;
+    }
+
+    employeeIdValidation.value = {
+        status: 'checking',
+        message: 'Mengecek ketersediaan...',
+    };
+
+    try {
+        const response = await fetch('/api/employees/validate/employee-id', {
+            method: 'POST',
+            headers: {
+                'Content-Type': 'application/json',
+                'X-CSRF-TOKEN': document.querySelector('meta[name="csrf-token"]')?.getAttribute('content') || '',
+            },
+            body: JSON.stringify({ employee_id: employeeId }),
+        });
+
+        const data = await response.json();
+
+        employeeIdValidation.value = {
+            status: data.available ? 'available' : 'taken',
+            message: data.message,
+        };
+    } catch (error) {
+        employeeIdValidation.value = {
+            status: 'idle',
+            message: 'Gagal mengecek ID karyawan',
+        };
+    }
+};
+
+// Debounced function untuk mencegah terlalu banyak request
+const debouncedCheckEmployeeId = useDebounceFn(checkEmployeeId, 500);
 
 const filteredPositions = computed(() => {
     if (!form.department_id) return props.positions;
@@ -463,6 +649,22 @@ watch(
         }
     },
 );
+
+// Watch for employee_id changes and validate
+watch(
+    () => form.employee_id,
+    (newEmployeeId) => {
+        debouncedCheckEmployeeId(newEmployeeId);
+    },
+);
+
+// Set initial validation status
+onMounted(() => {
+    employeeIdValidation.value = {
+        status: 'available',
+        message: 'ID karyawan saat ini',
+    };
+});
 
 const selectedDepartmentName = computed(() => {
     if (!form.department_id) return null;
@@ -484,7 +686,106 @@ const formatDate = (dateString: string) => {
     });
 };
 
+// Validasi field wajib
+const validateRequiredFields = () => {
+    const requiredFields = [
+        { field: 'name', label: 'Nama Lengkap' },
+        { field: 'email', label: 'Email' },
+        { field: 'employee_id', label: 'ID Karyawan' },
+        { field: 'hire_date', label: 'Tanggal Masuk' },
+    ];
+
+    const missingFields = requiredFields.filter(({ field }) => {
+        const value = form[field as keyof typeof form];
+        return !value || String(value).trim() === '';
+    });
+
+    return missingFields;
+};
+
 const submit = () => {
-    form.put(`/employees/${props.employee.id}`);
+    // Cek field wajib yang kosong
+    const missingFields = validateRequiredFields();
+    if (missingFields.length > 0) {
+        const fieldList = missingFields.map((f) => f.label).join(', ');
+
+        toast({
+            title: 'Field Wajib Belum Lengkap',
+            description: `Mohon lengkapi field berikut: ${fieldList}`,
+            variant: 'destructive',
+            duration: 5000,
+        });
+        return;
+    }
+
+    // Validasi password jika diisi
+    if (form.password || form.password_confirmation) {
+        // Cek jika password tidak sama
+        if (form.password !== form.password_confirmation) {
+            toast({
+                title: 'Password Tidak Sama',
+                description: 'Password baru dan konfirmasi password harus sama.',
+                variant: 'destructive',
+                duration: 5000,
+            });
+            return;
+        }
+
+        // Cek panjang password minimum
+        if (form.password.length < 8) {
+            toast({
+                title: 'Password Terlalu Pendek',
+                description: 'Password baru minimal harus 8 karakter.',
+                variant: 'destructive',
+                duration: 5000,
+            });
+            return;
+        }
+    }
+
+    // Cek jika employee_id sudah digunakan, jangan submit
+    if (employeeIdValidation.value.status === 'taken') {
+        toast({
+            title: 'ID Karyawan Sudah Digunakan',
+            description: 'Silakan gunakan ID karyawan yang lain.',
+            variant: 'destructive',
+            duration: 5000,
+        });
+        return;
+    }
+
+    // Cek jika masih dalam proses validasi
+    if (employeeIdValidation.value.status === 'checking') {
+        toast({
+            title: 'Mohon Tunggu',
+            description: 'Proses validasi ID karyawan masih berlangsung.',
+            variant: 'warning',
+            duration: 3000,
+        });
+        return;
+    }
+
+    form.put(`/employees/${props.employee.id}`, {
+        onSuccess: () => {
+            toast({
+                title: 'Data Karyawan Berhasil Diperbarui',
+                description: 'Perubahan data karyawan telah berhasil disimpan.',
+                variant: 'success',
+                duration: 4000,
+            });
+        },
+        onError: (errors) => {
+            // Toast untuk error dari server
+            const errorMessages = Object.values(errors).flat();
+            if (errorMessages.length > 0) {
+                toast({
+                    title: 'Gagal Menyimpan Data',
+                    description: (errorMessages[0] as string) || 'Terjadi kesalahan saat menyimpan data karyawan.',
+                    variant: 'destructive',
+                    duration: 5000,
+                });
+            }
+        },
+    });
 };
 </script>

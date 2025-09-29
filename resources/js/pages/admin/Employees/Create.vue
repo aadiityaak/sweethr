@@ -140,7 +140,13 @@
                                 </div>
                                 <div class="space-y-2">
                                     <Label for="phone">Nomor Telepon</Label>
-                                    <Input id="phone" v-model="form.phone" placeholder="e.g. 08123456789" :error="form.errors.phone" />
+                                    <Input
+                                        id="phone"
+                                        type="tel"
+                                        v-model="form.phone"
+                                        placeholder="e.g. 08123456789"
+                                        :error="form.errors.phone"
+                                    />
                                     <p v-if="form.errors.phone" class="mt-1 text-sm text-red-600">
                                         {{ form.errors.phone }}
                                     </p>
@@ -297,7 +303,7 @@
                                     </div>
                                     <div class="space-y-2">
                                         <Label for="emergency_phone">Nomor Telepon</Label>
-                                        <Input id="emergency_phone" v-model="form.emergency_contact.phone" placeholder="08123456789" />
+                                        <Input id="emergency_phone" type="tel" v-model="form.emergency_contact.phone" placeholder="08123456789" />
                                     </div>
                                     <div class="space-y-2">
                                         <Label for="emergency_relationship">Hubungan</Label>
