@@ -117,7 +117,9 @@ self.addEventListener('fetch', (event) => {
       '/api/user/profile',
       '/user/profile',
       '/api/attendance',
-      '/api/user/'
+      '/api/user/',
+      '/api/employees',
+      '/employees'
     ];
 
     const isSensitiveAPI = sensitiveAPIs.some(api => event.request.url.includes(api));
@@ -204,7 +206,9 @@ self.addEventListener('fetch', (event) => {
     '/admin/settings',
     '/admin/dashboard',
     '/admin/salary-settings',
-    '/settings/profile'
+    '/settings/profile',
+    '/employees',
+    '/admin/employees'
   ];
 
   const isSensitivePage = sensitivePages.some(page => {

@@ -19,7 +19,7 @@ class DepartmentManagerSeeder extends Seeder
         // Map managers to their respective departments
         $managerAssignments = [
             'HR' => 'EMP001',      // Budi Santoso - HR Manager
-            'IT' => 'EMP002',      // Siti Nurhaliza - IT Manager
+            'IT' => 'EMP007',      // Eko Prasetyo - IT Staff (temporary)
             'FINANCE' => 'EMP003', // Ahmad Wijaya - Finance Manager
             'MKT' => 'EMP004',     // Dewi Kartika - Marketing Manager
             'OPS' => 'EMP005',     // Roni Setiawan - Operations Manager

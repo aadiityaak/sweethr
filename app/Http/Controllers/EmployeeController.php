@@ -13,6 +13,9 @@ class EmployeeController extends Controller
 {
     public function index(Request $request): Response
     {
+        // Force fresh data from database, clear any caching
+        \Cache::forget('employees_index');
+
         $query = User::with(['department', 'position']);
 
         // Apply filters
@@ -86,6 +89,8 @@ class EmployeeController extends Controller
                 'success' => session('success'),
                 'error' => session('error'),
             ],
+            // Add timestamp to force fresh data
+            'timestamp' => now()->timestamp,
         ]);
     }
 
@@ -201,8 +206,89 @@ class EmployeeController extends Controller
             return back()->with('error', 'Anda tidak dapat menghapus akun Anda sendiri.');
         }
 
-        $employee->delete();
-        \Log::info('Employee deleted successfully', ['employee_id' => $employee->id]);
+        // Check if employee exists before deletion
+        $employeeExists = User::find($employee->id);
+        if (!$employeeExists) {
+            \Log::warning('Attempted to delete non-existent employee', ['employee_id' => $employee->id]);
+            return back()->with('error', 'Karyawan tidak ditemukan.');
+        }
+
+        try {
+            // Use database transaction for safety
+            \DB::transaction(function () use ($employee) {
+                \Log::info('Starting employee deletion transaction', ['employee_id' => $employee->id]);
+
+                // Check if employee is referenced by other records that would prevent deletion
+                $constraintChecks = [
+                    'departments as manager' => \DB::table('departments')->where('manager_id', $employee->id)->exists(),
+                    'announcements created by' => \DB::table('announcements')->where('created_by', $employee->id)->exists(),
+                    'leave_requests approved by' => \DB::table('leave_requests')->where('approved_by', $employee->id)->exists(),
+                    'shift_change_requests reviewed by' => \DB::table('shift_change_requests')->where('reviewed_by', $employee->id)->exists(),
+                    'shift_swaps approved by' => \DB::table('shift_swaps')->where('approved_by', $employee->id)->exists(),
+                    'users managed by' => \DB::table('users')->where('manager_id', $employee->id)->exists(),
+                ];
+
+                $hasConstraints = false;
+                $constraintMessages = [];
+                foreach ($constraintChecks as $description => $exists) {
+                    if ($exists) {
+                        $hasConstraints = true;
+                        $constraintMessages[] = $description;
+                    }
+                }
+
+                if ($hasConstraints) {
+                    throw new \Exception('Cannot delete employee: still referenced by ' . implode(', ', $constraintMessages));
+                }
+
+                // Delete related records that can be safely deleted
+                $employee->attendances()->delete();
+                $employee->leaveRequests()->where('approved_by', '!=', $employee->id)->delete();
+                $employee->employeeShifts()->delete();
+                $employee->salarySettings()->delete();
+                $employee->payrolls()->delete();
+                $employee->documents()->delete();
+                $employee->uploadedDocuments()->update(['uploaded_by' => null]);
+                $employee->shiftChangeRequests()->where('reviewed_by', '!=', $employee->id)->delete();
+                $employee->shiftSwapsAsRequester()->delete();
+                $employee->shiftSwapsAsTarget()->delete();
+
+                // Delete the employee
+                $result = $employee->delete();
+
+                \Log::info('Employee deletion result', [
+                    'employee_id' => $employee->id,
+                    'deletion_result' => $result
+                ]);
+
+                if (!$result) {
+                    throw new \Exception('Employee deletion failed');
+                }
+            });
+
+            \Log::info('Employee deleted successfully', ['employee_id' => $employee->id]);
+
+            // Verify deletion
+            $stillExists = User::find($employee->id);
+            if ($stillExists) {
+                \Log::error('Employee still exists after deletion!', [
+                    'employee_id' => $employee->id,
+                    'still_exists' => true
+                ]);
+                return back()->with('error', 'Gagal menghapus karyawan dari sistem.');
+            }
+
+            \Log::info('Employee deletion verified - record no longer exists', ['employee_id' => $employee->id]);
+
+        } catch (\Exception $e) {
+            \Log::error('Employee deletion failed', [
+                'employee_id' => $employee->id,
+                'error' => $e->getMessage(),
+                'trace' => $e->getTraceAsString()
+            ]);
+
+            return back()->with('error', 'Gagal menghapus karyawan: ' . $e->getMessage());
+        }
 
         return to_route('employees.index')
             ->with('success', 'Karyawan berhasil dihapus dari sistem.');

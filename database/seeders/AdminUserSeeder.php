@@ -63,24 +63,6 @@ class AdminUserSeeder extends Seeder
                 ],
             ],
             [
-                'name' => 'Siti Nurhaliza',
-                'email' => 'siti@example.com',
-                'employee_id' => 'EMP002',
-                'phone' => '08123456791',
-                'date_of_birth' => '1992-07-20',
-                'gender' => 'female',
-                'address' => 'Jl. Sudirman No. 25, Jakarta',
-                'hire_date' => now()->subMonths(14),
-                'department_code' => 'IT',
-                'position_code' => 'ITM001',
-                'employment_status' => 'active',
-                'emergency_contact' => [
-                    'name' => 'Ahmad Nurhaliza',
-                    'phone' => '08111111113',
-                    'relationship' => 'spouse'
-                ],
-            ],
-            [
                 'name' => 'Ahmad Wijaya',
                 'email' => 'ahmad@example.com',
                 'employee_id' => 'EMP003',
