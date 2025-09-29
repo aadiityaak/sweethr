@@ -85,11 +85,11 @@ class OfficeLocationController extends Controller
 
     public function edit(OfficeLocation $officeLocation): Response
     {
-        // Refresh the model to ensure we get the latest data from database
-        $officeLocation->refresh();
+        // Get fresh data from database to avoid any caching issues
+        $freshOfficeLocation = OfficeLocation::findOrFail($officeLocation->id);
 
         return Inertia::render('admin/OfficeLocations/Edit', [
-            'officeLocation' => $officeLocation,
+            'officeLocation' => $freshOfficeLocation,
         ]);
     }
 

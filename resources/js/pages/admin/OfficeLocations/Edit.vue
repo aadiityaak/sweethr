@@ -24,6 +24,8 @@ interface Props {
 
 const { officeLocation } = defineProps<Props>();
 
+console.log('Office location received in Edit component:', officeLocation);
+
 const breadcrumbs: BreadcrumbItem[] = [
     {
         title: 'Dashboard',
@@ -139,8 +141,8 @@ const submit = () => {
         },
         onSuccess: (response) => {
             console.log('Form submission successful:', response);
-            // Force fresh data load by reloading the page instead of navigation
-            window.location.href = '/office-locations';
+            // Force fresh data load with cache busting
+            window.location.href = '/office-locations?v=' + Date.now();
         },
         onError: (errors) => {
             console.error('Form submission errors:', errors);
