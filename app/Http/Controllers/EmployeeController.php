@@ -150,14 +150,23 @@ class EmployeeController extends Controller
 
     public function destroy(User $employee)
     {
+        \Log::info('Delete employee request received', [
+            'employee_id' => $employee->id,
+            'employee_name' => $employee->name,
+            'current_user_id' => auth()->id(),
+            'current_user_is_admin' => auth()->user()?->is_admin,
+        ]);
+
         // Prevent self-deletion
         if ($employee->id === auth()->id()) {
-            return back()->with('error', 'You cannot delete your own account.');
+            \Log::warning('Self-deletion attempt blocked', ['employee_id' => $employee->id]);
+            return back()->with('error', 'Anda tidak dapat menghapus akun Anda sendiri.');
         }
 
         $employee->delete();
+        \Log::info('Employee deleted successfully', ['employee_id' => $employee->id]);
 
-        return redirect()->route('employees.index')
-            ->with('success', 'Employee deleted successfully.');
+        return to_route('employees.index')
+            ->with('success', 'Karyawan berhasil dihapus dari sistem.');
     }
 }

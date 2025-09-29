@@ -3,7 +3,7 @@ import AppLayout from '@/layouts/AppLayout.vue';
 import { useToast } from '@/components/ui/toast/use-toast';
 import { type BreadcrumbItem } from '@/types';
 import { Head, Link, router } from '@inertiajs/vue3';
-import { Edit, Mail, Phone, Plus, Search, Trash2, UserCheck, Users } from 'lucide-vue-next';
+import { ArrowDown, ArrowUp, ArrowUpDown, Edit, Mail, Phone, Plus, Search, Trash2, UserCheck, Users } from 'lucide-vue-next';
 import { ref, onMounted } from 'vue';
 
 interface Department {
@@ -44,6 +44,8 @@ interface Props {
         department?: string;
         position?: string;
         status?: string;
+        sort?: string;
+        direction?: string;
     };
     flash?: {
         success?: string;
@@ -92,6 +94,14 @@ const selectedDepartment = ref(filters.department || '');
 const selectedPosition = ref(filters.position || '');
 const selectedStatus = ref(filters.status || '');
 
+// Delete functionality
+const employeeToDelete = ref<Employee | null>(null);
+const showDeleteDialog = ref(false);
+
+// Sorting functionality
+const sortField = ref(filters.sort || '');
+const sortDirection = ref(filters.direction || 'asc');
+
 const filterEmployees = () => {
     router.get(
         '/employees',
@@ -100,6 +110,8 @@ const filterEmployees = () => {
             department: selectedDepartment.value || undefined,
             position: selectedPosition.value || undefined,
             status: selectedStatus.value || undefined,
+            sort: sortField.value || undefined,
+            direction: sortDirection.value || undefined,
         },
         {
             preserveState: true,
@@ -108,10 +120,73 @@ const filterEmployees = () => {
     );
 };
 
+// Sorting function
+const sortBy = (field: string) => {
+    if (sortField.value === field) {
+        // Toggle direction if same field
+        sortDirection.value = sortDirection.value === 'asc' ? 'desc' : 'asc';
+    } else {
+        // Set new field and default to ascending
+        sortField.value = field;
+        sortDirection.value = 'asc';
+    }
+
+    filterEmployees();
+};
+
+// Get sort icon for column header
+const getSortIcon = (field: string) => {
+    if (sortField.value !== field) {
+        return ArrowUpDown;
+    }
+    return sortDirection.value === 'asc' ? ArrowUp : ArrowDown;
+};
+
 const getStatusBadge = (employmentStatus: string) => {
     return employmentStatus === 'active'
         ? 'bg-green-100 text-green-800 border-green-200 dark:bg-green-900/30 dark:text-green-400 dark:border-green-600'
         : 'bg-red-100 text-red-800 border-red-200 dark:bg-red-900/30 dark:text-red-400 dark:border-red-600';
+};
+
+// Delete functions
+const confirmDelete = (employee: Employee) => {
+    employeeToDelete.value = employee;
+    showDeleteDialog.value = true;
+};
+
+const cancelDelete = () => {
+    employeeToDelete.value = null;
+    showDeleteDialog.value = false;
+};
+
+const deleteEmployee = () => {
+    if (!employeeToDelete.value) return;
+
+    console.log('Attempting to delete employee:', employeeToDelete.value);
+
+    router.delete(`/employees/${employeeToDelete.value.id}`, {
+        onStart: () => {
+            console.log('Delete request started');
+        },
+        onSuccess: () => {
+            console.log('Delete request successful');
+            // Server will redirect to employees.index with flash message
+            // No need for manual toast since it will be handled by flash message
+            cancelDelete();
+        },
+        onError: (errors) => {
+            console.error('Delete request failed:', errors);
+            toast({
+                title: 'Error!',
+                description: 'Gagal menghapus karyawan. Silakan coba lagi.',
+                variant: 'destructive',
+                duration: 5000,
+            });
+        },
+        onFinish: () => {
+            console.log('Delete request finished');
+        },
+    });
 };
 
 const getInitials = (name: string) => {
@@ -353,6 +428,7 @@ const formatDate = (dateString: string) => {
                                             <Edit class="h-4 w-4" />
                                         </Link>
                                         <button
+                                            @click="confirmDelete(employee)"
                                             class="rounded-lg bg-red-100 p-2 text-red-600 hover:bg-red-200 dark:bg-red-900/30 dark:text-red-400 dark:hover:bg-red-900/50"
                                         >
                                             <Trash2 class="h-4 w-4" />
@@ -386,6 +462,53 @@ const formatDate = (dateString: string) => {
                             />
                         </div>
                     </div>
+                </div>
+            </div>
+        </div>
+
+        <!-- Delete Confirmation Dialog -->
+        <div
+            v-if="showDeleteDialog"
+            class="fixed inset-0 z-50 flex items-center justify-center bg-black/50"
+            @click="cancelDelete"
+        >
+            <div
+                class="mx-4 w-full max-w-md rounded-lg bg-white p-6 shadow-lg dark:bg-gray-800"
+                @click.stop
+            >
+                <div class="mb-4 flex items-center gap-3">
+                    <div class="flex h-12 w-12 items-center justify-center rounded-full bg-red-100 dark:bg-red-900/30">
+                        <Trash2 class="h-6 w-6 text-red-600 dark:text-red-400" />
+                    </div>
+                    <div>
+                        <h3 class="text-lg font-semibold text-gray-900 dark:text-white">Konfirmasi Hapus Karyawan</h3>
+                        <p class="text-sm text-gray-600 dark:text-gray-400">Tindakan ini tidak dapat dibatalkan</p>
+                    </div>
+                </div>
+
+                <div class="mb-6">
+                    <p class="text-gray-700 dark:text-gray-300">
+                        Apakah Anda yakin ingin menghapus karyawan
+                        <span class="font-semibold">{{ employeeToDelete?.name }}</span>?
+                    </p>
+                    <p class="mt-2 text-sm text-gray-600 dark:text-gray-400">
+                        Semua data yang terkait dengan karyawan ini akan terhapus secara permanen.
+                    </p>
+                </div>
+
+                <div class="flex justify-end gap-3">
+                    <button
+                        @click="cancelDelete"
+                        class="rounded-lg border border-gray-300 px-4 py-2 text-sm font-medium text-gray-700 hover:bg-gray-50 dark:border-gray-600 dark:text-gray-300 dark:hover:bg-gray-700"
+                    >
+                        Batal
+                    </button>
+                    <button
+                        @click="deleteEmployee"
+                        class="rounded-lg bg-red-600 px-4 py-2 text-sm font-medium text-white hover:bg-red-700 dark:bg-red-700 dark:hover:bg-red-800"
+                    >
+                        Hapus Karyawan
+                    </button>
                 </div>
             </div>
         </div>
