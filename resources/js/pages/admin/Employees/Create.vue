@@ -149,6 +149,35 @@
 
                             <div class="grid gap-6 md:grid-cols-2">
                                 <div class="space-y-2">
+                                    <Label for="password">Password *</Label>
+                                    <Input
+                                        id="password"
+                                        type="password"
+                                        v-model="form.password"
+                                        placeholder="Minimal 8 karakter"
+                                        :error="form.errors.password"
+                                    />
+                                    <p v-if="form.errors.password" class="mt-1 text-sm text-red-600">
+                                        {{ form.errors.password }}
+                                    </p>
+                                </div>
+                                <div class="space-y-2">
+                                    <Label for="password_confirmation">Konfirmasi Password *</Label>
+                                    <Input
+                                        id="password_confirmation"
+                                        type="password"
+                                        v-model="form.password_confirmation"
+                                        placeholder="Ketik ulang password"
+                                        :error="form.errors.password_confirmation"
+                                    />
+                                    <p v-if="form.errors.password_confirmation" class="mt-1 text-sm text-red-600">
+                                        {{ form.errors.password_confirmation }}
+                                    </p>
+                                </div>
+                            </div>
+
+                            <div class="grid gap-6 md:grid-cols-2">
+                                <div class="space-y-2">
                                     <Label for="date_of_birth">Tanggal Lahir</Label>
                                     <DatePicker
                                         v-model="form.date_of_birth"
@@ -195,62 +224,64 @@
                             <div class="border-t pt-6">
                                 <h4 class="text-md mb-4 font-semibold">Informasi Pekerjaan</h4>
 
-                                <div class="grid gap-6 md:grid-cols-2">
-                                    <div class="space-y-2">
-                                        <Label for="hire_date">Tanggal Masuk *</Label>
-                                        <DatePicker v-model="form.hire_date" placeholder="Pilih tanggal masuk" />
-                                        <p v-if="form.errors.hire_date" class="mt-1 text-sm text-red-600">
-                                            {{ form.errors.hire_date }}
-                                        </p>
+                                <div class="space-y-6">
+                                    <div class="grid gap-6 md:grid-cols-2">
+                                        <div class="space-y-2">
+                                            <Label for="hire_date">Tanggal Masuk *</Label>
+                                            <DatePicker v-model="form.hire_date" placeholder="Pilih tanggal masuk" />
+                                            <p v-if="form.errors.hire_date" class="mt-1 text-sm text-red-600">
+                                                {{ form.errors.hire_date }}
+                                            </p>
+                                        </div>
+                                        <div class="space-y-2">
+                                            <Label for="employment_status">Status Karyawan</Label>
+                                            <select
+                                                id="employment_status"
+                                                v-model="form.employment_status"
+                                                class="w-full rounded-md border border-input bg-background px-3 py-2 text-sm"
+                                            >
+                                                <option value="active">Aktif</option>
+                                                <option value="inactive">Tidak Aktif</option>
+                                            </select>
+                                            <p v-if="form.errors.employment_status" class="mt-1 text-sm text-red-600">
+                                                {{ form.errors.employment_status }}
+                                            </p>
+                                        </div>
                                     </div>
-                                    <div class="space-y-2">
-                                        <Label for="employment_status">Status Karyawan</Label>
-                                        <select
-                                            id="employment_status"
-                                            v-model="form.employment_status"
-                                            class="w-full rounded-md border border-input bg-background px-3 py-2 text-sm"
-                                        >
-                                            <option value="active">Aktif</option>
-                                            <option value="inactive">Tidak Aktif</option>
-                                        </select>
-                                        <p v-if="form.errors.employment_status" class="mt-1 text-sm text-red-600">
-                                            {{ form.errors.employment_status }}
-                                        </p>
-                                    </div>
-                                </div>
 
-                                <div class="grid gap-6 md:grid-cols-2">
-                                    <div class="space-y-2">
-                                        <Label for="department_id">Departemen</Label>
-                                        <select
-                                            id="department_id"
-                                            v-model="form.department_id"
-                                            class="w-full rounded-md border border-input bg-background px-3 py-2 text-sm"
-                                        >
-                                            <option value="">Pilih departemen</option>
-                                            <option v-for="dept in departments" :key="dept.id" :value="dept.id">
-                                                {{ dept.name }}
-                                            </option>
-                                        </select>
-                                        <p v-if="form.errors.department_id" class="mt-1 text-sm text-red-600">
-                                            {{ form.errors.department_id }}
-                                        </p>
-                                    </div>
-                                    <div class="space-y-2">
-                                        <Label for="position_id">Posisi (Opsional)</Label>
-                                        <select
-                                            id="position_id"
-                                            v-model="form.position_id"
-                                            class="w-full rounded-md border border-input bg-background px-3 py-2 text-sm"
-                                        >
-                                            <option value="">Pilih posisi (opsional)</option>
-                                            <option v-for="pos in filteredPositions" :key="pos.id" :value="pos.id">
-                                                {{ pos.title }}
-                                            </option>
-                                        </select>
-                                        <p v-if="form.errors.position_id" class="mt-1 text-sm text-red-600">
-                                            {{ form.errors.position_id }}
-                                        </p>
+                                    <div class="grid gap-6 md:grid-cols-2">
+                                        <div class="space-y-2">
+                                            <Label for="department_id">Departemen</Label>
+                                            <select
+                                                id="department_id"
+                                                v-model="form.department_id"
+                                                class="w-full rounded-md border border-input bg-background px-3 py-2 text-sm"
+                                            >
+                                                <option value="">Pilih departemen</option>
+                                                <option v-for="dept in departments" :key="dept.id" :value="dept.id">
+                                                    {{ dept.name }}
+                                                </option>
+                                            </select>
+                                            <p v-if="form.errors.department_id" class="mt-1 text-sm text-red-600">
+                                                {{ form.errors.department_id }}
+                                            </p>
+                                        </div>
+                                        <div class="space-y-2">
+                                            <Label for="position_id">Posisi (Opsional)</Label>
+                                            <select
+                                                id="position_id"
+                                                v-model="form.position_id"
+                                                class="w-full rounded-md border border-input bg-background px-3 py-2 text-sm"
+                                            >
+                                                <option value="">Pilih posisi (opsional)</option>
+                                                <option v-for="pos in filteredPositions" :key="pos.id" :value="pos.id">
+                                                    {{ pos.title }}
+                                                </option>
+                                            </select>
+                                            <p v-if="form.errors.position_id" class="mt-1 text-sm text-red-600">
+                                                {{ form.errors.position_id }}
+                                            </p>
+                                        </div>
                                     </div>
                                 </div>
                             </div>
@@ -378,9 +409,10 @@
                     <div class="rounded-lg border bg-blue-50 p-4 dark:bg-blue-950/20">
                         <h4 class="mb-2 font-medium text-blue-900 dark:text-blue-400">Tips:</h4>
                         <ul class="space-y-1 text-sm text-blue-700 dark:text-blue-300">
-                            <li>• ID karyawan harus unik dan mudah diingat</li>
+                            <li>• ID karyawan akan otomatis di-generate secara urut</li>
                             <li>• Email akan digunakan untuk login sistem</li>
-                            <li>• Password default adalah "password" (dapat diubah nanti)</li>
+                            <li>• Password minimal 8 karakter dan harus dikonfirmasi</li>
+                            <li>• Karyawan dapat mengubah password setelah login pertama</li>
                             <li>• Departemen dan posisi dapat diubah setelah dibuat</li>
                             <li>• Kontak darurat penting untuk keadaan mendesak</li>
                         </ul>
@@ -454,6 +486,8 @@ const form = useForm({
     department_id: '',
     position_id: '',
     employment_status: 'active',
+    password: '',
+    password_confirmation: '',
     emergency_contact: {
         name: '',
         phone: '',
@@ -590,6 +624,8 @@ const validateRequiredFields = () => {
         { field: 'email', label: 'Email' },
         { field: 'employee_id', label: 'ID Karyawan' },
         { field: 'hire_date', label: 'Tanggal Masuk' },
+        { field: 'password', label: 'Password' },
+        { field: 'password_confirmation', label: 'Konfirmasi Password' },
     ];
 
     const missingFields = requiredFields.filter(({ field }) => {
@@ -609,6 +645,28 @@ const submit = () => {
         toast({
             title: 'Field Wajib Belum Lengkap',
             description: `Mohon lengkapi field berikut: ${fieldList}`,
+            variant: 'destructive',
+            duration: 5000,
+        });
+        return;
+    }
+
+    // Cek jika password tidak sama
+    if (form.password !== form.password_confirmation) {
+        toast({
+            title: 'Password Tidak Sama',
+            description: 'Password dan konfirmasi password harus sama.',
+            variant: 'destructive',
+            duration: 5000,
+        });
+        return;
+    }
+
+    // Cek panjang password minimum
+    if (form.password.length < 8) {
+        toast({
+            title: 'Password Terlalu Pendek',
+            description: 'Password minimal harus 8 karakter.',
             variant: 'destructive',
             duration: 5000,
         });
