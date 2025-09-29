@@ -1,10 +1,10 @@
 <script setup lang="ts">
-import AppLayout from '@/layouts/AppLayout.vue';
 import AttendanceChart from '@/components/AttendanceChart.vue';
+import AppLayout from '@/layouts/AppLayout.vue';
 // Admin dashboard uses direct URL
 import { type BreadcrumbItem } from '@/types';
 import { Head, Link, useForm } from '@inertiajs/vue3';
-import { Clock, Users, Calendar, CheckCircle, XCircle, AlertCircle } from 'lucide-vue-next';
+import { AlertCircle, Calendar, CheckCircle, Clock, Users, XCircle } from 'lucide-vue-next';
 
 interface User {
     id: number;
@@ -107,7 +107,7 @@ const formatDate = (dateString: string) => {
     return new Date(dateString).toLocaleDateString('id-ID', {
         year: 'numeric',
         month: 'short',
-        day: 'numeric'
+        day: 'numeric',
     });
 };
 
@@ -136,14 +136,14 @@ const approveLeave = (leaveId: number) => {
     form.patch(`/leave-requests/${leaveId}/approve`, {
         onSuccess: () => {
             // Remove from pending leaves list
-            const index = pendingLeaves.findIndex(leave => leave.id === leaveId);
+            const index = pendingLeaves.findIndex((leave) => leave.id === leaveId);
             if (index > -1) {
                 pendingLeaves.splice(index, 1);
             }
         },
         onError: (errors) => {
             console.error('Error approving leave:', errors);
-        }
+        },
     });
 };
 
@@ -152,14 +152,14 @@ const rejectLeave = (leaveId: number) => {
     form.patch(`/leave-requests/${leaveId}/reject`, {
         onSuccess: () => {
             // Remove from pending leaves list
-            const index = pendingLeaves.findIndex(leave => leave.id === leaveId);
+            const index = pendingLeaves.findIndex((leave) => leave.id === leaveId);
             if (index > -1) {
                 pendingLeaves.splice(index, 1);
             }
         },
         onError: (errors) => {
             console.error('Error rejecting leave:', errors);
-        }
+        },
     });
 };
 
@@ -192,11 +192,13 @@ const generateMockAttendanceData = () => {
     <Head title="Dasbor" />
 
     <AppLayout :breadcrumbs="breadcrumbs">
-        <div class="mx-auto max-w-[1200px] w-full px-4 py-6 sm:px-6 lg:px-8">
+        <div class="mx-auto w-full max-w-[1200px] px-4 py-6 sm:px-6 lg:px-8">
             <!-- Welcome Hero Section -->
-            <div class="mb-8 relative overflow-hidden rounded-xl border border-gray-200/50 bg-gradient-to-br from-blue-50 via-indigo-50/80 to-purple-50/60 p-8 shadow-sm dark:border-gray-800/50 dark:from-blue-950/20 dark:via-indigo-950/20 dark:to-purple-950/20">
+            <div
+                class="relative mb-8 overflow-hidden rounded-xl border border-gray-200/50 bg-gradient-to-br from-blue-50 via-indigo-50/80 to-purple-50/60 p-8 shadow-sm dark:border-gray-800/50 dark:from-blue-950/20 dark:via-indigo-950/20 dark:to-purple-950/20"
+            >
                 <div class="relative z-10">
-                    <div class="flex items-center gap-3 mb-2">
+                    <div class="mb-2 flex items-center gap-3">
                         <div class="flex h-10 w-10 items-center justify-center rounded-full bg-blue-500/10 backdrop-blur-sm">
                             <Users class="h-5 w-5 text-blue-600 dark:text-blue-400" />
                         </div>
@@ -204,11 +206,11 @@ const generateMockAttendanceData = () => {
                             {{ new Date().toLocaleDateString('id-ID', { weekday: 'long', year: 'numeric', month: 'long', day: 'numeric' }) }}
                         </div>
                     </div>
-                    <h1 class="text-3xl font-bold tracking-tight text-gray-900 dark:text-white">
-                        Selamat datang, {{ user.name }}!
-                    </h1>
+                    <h1 class="text-3xl font-bold tracking-tight text-gray-900 dark:text-white">Selamat datang, {{ user.name }}!</h1>
                     <p class="mt-2 flex items-center gap-2 text-gray-600 dark:text-gray-300">
-                        <span class="inline-flex items-center rounded-full bg-white/60 px-2.5 py-0.5 text-xs font-medium text-gray-700 backdrop-blur-sm dark:bg-gray-900/60 dark:text-gray-300">
+                        <span
+                            class="inline-flex items-center rounded-full bg-white/60 px-2.5 py-0.5 text-xs font-medium text-gray-700 backdrop-blur-sm dark:bg-gray-900/60 dark:text-gray-300"
+                        >
                             {{ user.employee_id }}
                         </span>
                         <span class="text-gray-400">•</span>
@@ -218,12 +220,15 @@ const generateMockAttendanceData = () => {
                     </p>
                 </div>
                 <!-- Decorative elements -->
-                <div class="absolute -right-4 -top-4 h-24 w-24 rounded-full bg-blue-400/10 blur-3xl"></div>
+                <div class="absolute -top-4 -right-4 h-24 w-24 rounded-full bg-blue-400/10 blur-3xl"></div>
                 <div class="absolute -bottom-8 -left-4 h-32 w-32 rounded-full bg-indigo-400/10 blur-3xl"></div>
             </div>
 
             <!-- 30-Day Attendance Trend (Admin Only) -->
-            <div v-if="user.is_admin" class="mb-8 rounded-xl border border-gray-200/50 bg-gradient-to-br from-white to-gray-50/30 p-6 shadow-sm dark:border-gray-800/50 dark:from-gray-950 dark:to-gray-900/30">
+            <div
+                v-if="user.is_admin"
+                class="mb-8 rounded-xl border border-gray-200/50 bg-gradient-to-br from-white to-gray-50/30 p-6 shadow-sm dark:border-gray-800/50 dark:from-gray-950 dark:to-gray-900/30"
+            >
                 <div class="mb-6 flex items-center gap-3">
                     <div class="flex h-8 w-8 items-center justify-center rounded-lg bg-purple-500/10 ring-1 ring-purple-500/20">
                         <CheckCircle class="h-4 w-4 text-purple-600 dark:text-purple-400" />
@@ -238,7 +243,7 @@ const generateMockAttendanceData = () => {
                         type="line"
                         :monthly-data="{
                             labels: generateLast30Days(),
-                            data: generateMockAttendanceData()
+                            data: generateMockAttendanceData(),
                         }"
                     />
                 </div>
@@ -247,7 +252,10 @@ const generateMockAttendanceData = () => {
             <!-- Key Metrics Grid -->
             <div class="mb-8 grid gap-6 md:grid-cols-2 lg:grid-cols-4">
                 <!-- Company Overview Card (Admin Only) -->
-                <div v-if="user.is_admin" class="group relative overflow-hidden rounded-xl border border-gray-200/50 bg-gradient-to-br from-white to-gray-50/50 p-6 shadow-sm transition-all hover:shadow-md dark:border-gray-800/50 dark:from-gray-950 dark:to-gray-900/50">
+                <div
+                    v-if="user.is_admin"
+                    class="group relative overflow-hidden rounded-xl border border-gray-200/50 bg-gradient-to-br from-white to-gray-50/50 p-6 shadow-sm transition-all hover:shadow-md dark:border-gray-800/50 dark:from-gray-950 dark:to-gray-900/50"
+                >
                     <div class="flex items-start justify-between">
                         <div class="flex items-center gap-3">
                             <div class="flex h-10 w-10 items-center justify-center rounded-full bg-emerald-500/10 ring-1 ring-emerald-500/20">
@@ -270,21 +278,29 @@ const generateMockAttendanceData = () => {
                         </div>
                         <div class="flex items-center justify-between rounded-lg bg-amber-50/50 px-3 py-2 dark:bg-amber-950/30">
                             <span class="text-sm font-medium text-amber-700 dark:text-amber-400">Tidak Hadir</span>
-                            <span class="text-sm font-semibold text-amber-800 dark:text-amber-300">{{ (stats.total_employees || 0) - (stats.today_present || 0) }}</span>
+                            <span class="text-sm font-semibold text-amber-800 dark:text-amber-300">{{
+                                (stats.total_employees || 0) - (stats.today_present || 0)
+                            }}</span>
                         </div>
                         <div class="flex items-center justify-between rounded-lg bg-blue-50/50 px-3 py-2 dark:bg-blue-950/30">
                             <span class="text-sm font-medium text-blue-700 dark:text-blue-400">Tingkat Kehadiran</span>
-                            <span class="text-sm font-semibold text-blue-800 dark:text-blue-300">{{ Math.round(((stats.today_present || 0) / (stats.total_employees || 1)) * 100) }}%</span>
+                            <span class="text-sm font-semibold text-blue-800 dark:text-blue-300"
+                                >{{ Math.round(((stats.today_present || 0) / (stats.total_employees || 1)) * 100) }}%</span
+                            >
                         </div>
                     </div>
 
-
                     <!-- Hover effect overlay -->
-                    <div class="absolute inset-0 rounded-xl bg-gradient-to-br from-emerald-500/5 to-teal-500/5 opacity-0 transition-opacity group-hover:opacity-100"></div>
+                    <div
+                        class="absolute inset-0 rounded-xl bg-gradient-to-br from-emerald-500/5 to-teal-500/5 opacity-0 transition-opacity group-hover:opacity-100"
+                    ></div>
                 </div>
 
                 <!-- Personal Attendance Card (Non-Admin Only) -->
-                <div v-else class="group relative overflow-hidden rounded-xl border border-gray-200/50 bg-gradient-to-br from-white to-gray-50/50 p-6 shadow-sm transition-all hover:shadow-md dark:border-gray-800/50 dark:from-gray-950 dark:to-gray-900/50">
+                <div
+                    v-else
+                    class="group relative overflow-hidden rounded-xl border border-gray-200/50 bg-gradient-to-br from-white to-gray-50/50 p-6 shadow-sm transition-all hover:shadow-md dark:border-gray-800/50 dark:from-gray-950 dark:to-gray-900/50"
+                >
                     <div class="flex items-start justify-between">
                         <div class="flex items-center gap-3">
                             <div class="flex h-10 w-10 items-center justify-center rounded-full bg-emerald-500/10 ring-1 ring-emerald-500/20">
@@ -311,7 +327,9 @@ const generateMockAttendanceData = () => {
                         </div>
                         <div class="flex items-center justify-between rounded-lg bg-emerald-50/50 px-3 py-2 dark:bg-emerald-950/30">
                             <span class="text-sm font-medium text-emerald-700 dark:text-emerald-400">Durasi</span>
-                            <span class="text-sm font-semibold text-emerald-800 dark:text-emerald-300">{{ formatDuration(todayAttendance?.work_duration) }}</span>
+                            <span class="text-sm font-semibold text-emerald-800 dark:text-emerald-300">{{
+                                formatDuration(todayAttendance?.work_duration)
+                            }}</span>
                         </div>
                     </div>
 
@@ -319,7 +337,7 @@ const generateMockAttendanceData = () => {
                         <Link
                             v-if="!todayAttendance?.check_in_time"
                             href="/home"
-                            class="inline-flex w-full items-center justify-center rounded-lg bg-emerald-600 px-4 py-2.5 text-sm font-medium text-white shadow-sm transition-colors hover:bg-emerald-700 focus:outline-none focus:ring-2 focus:ring-emerald-500 focus:ring-offset-2"
+                            class="inline-flex w-full items-center justify-center rounded-lg bg-emerald-600 px-4 py-2.5 text-sm font-medium text-white shadow-sm transition-colors hover:bg-emerald-700 focus:ring-2 focus:ring-emerald-500 focus:ring-offset-2 focus:outline-none"
                         >
                             <Clock class="mr-2 h-4 w-4" />
                             Masuk Sekarang
@@ -327,7 +345,7 @@ const generateMockAttendanceData = () => {
                         <Link
                             v-else-if="todayAttendance?.check_in_time && !todayAttendance?.check_out_time"
                             href="/attendance"
-                            class="inline-flex w-full items-center justify-center rounded-lg bg-red-600 px-4 py-2.5 text-sm font-medium text-white shadow-sm transition-colors hover:bg-red-700 focus:outline-none focus:ring-2 focus:ring-red-500 focus:ring-offset-2"
+                            class="inline-flex w-full items-center justify-center rounded-lg bg-red-600 px-4 py-2.5 text-sm font-medium text-white shadow-sm transition-colors hover:bg-red-700 focus:ring-2 focus:ring-red-500 focus:ring-offset-2 focus:outline-none"
                         >
                             <XCircle class="mr-2 h-4 w-4" />
                             Keluar Sekarang
@@ -342,12 +360,17 @@ const generateMockAttendanceData = () => {
                     </div>
 
                     <!-- Hover effect overlay -->
-                    <div class="absolute inset-0 rounded-xl bg-gradient-to-br from-emerald-500/5 to-teal-500/5 opacity-0 transition-opacity group-hover:opacity-100"></div>
+                    <div
+                        class="absolute inset-0 rounded-xl bg-gradient-to-br from-emerald-500/5 to-teal-500/5 opacity-0 transition-opacity group-hover:opacity-100"
+                    ></div>
                 </div>
 
                 <!-- Attendance Chart (Admin) / Leave Balance (User) -->
-                <div v-if="user.is_admin" class="group relative overflow-hidden rounded-xl border border-gray-200/50 bg-gradient-to-br from-white to-blue-50/30 p-6 shadow-sm transition-all hover:shadow-md dark:border-gray-800/50 dark:from-gray-950 dark:to-blue-950/30">
-                    <div class="flex items-center justify-between mb-4">
+                <div
+                    v-if="user.is_admin"
+                    class="group relative overflow-hidden rounded-xl border border-gray-200/50 bg-gradient-to-br from-white to-blue-50/30 p-6 shadow-sm transition-all hover:shadow-md dark:border-gray-800/50 dark:from-gray-950 dark:to-blue-950/30"
+                >
+                    <div class="mb-4 flex items-center justify-between">
                         <div class="flex items-center gap-3">
                             <div class="flex h-10 w-10 items-center justify-center rounded-full bg-blue-500/10 ring-1 ring-blue-500/20">
                                 <CheckCircle class="h-5 w-5 text-blue-600 dark:text-blue-400" />
@@ -365,15 +388,20 @@ const generateMockAttendanceData = () => {
                             :attendance-data="{
                                 present: stats.today_present || 0,
                                 absent: (stats.total_employees || 0) - (stats.today_present || 0),
-                                late: 0
+                                late: 0,
                             }"
                         />
                     </div>
 
-                    <div class="absolute inset-0 rounded-xl bg-gradient-to-br from-blue-500/5 to-indigo-500/5 opacity-0 transition-opacity group-hover:opacity-100"></div>
+                    <div
+                        class="absolute inset-0 rounded-xl bg-gradient-to-br from-blue-500/5 to-indigo-500/5 opacity-0 transition-opacity group-hover:opacity-100"
+                    ></div>
                 </div>
 
-                <div v-else class="group relative overflow-hidden rounded-xl border border-gray-200/50 bg-gradient-to-br from-white to-blue-50/30 p-6 shadow-sm transition-all hover:shadow-md dark:border-gray-800/50 dark:from-gray-950 dark:to-blue-950/30">
+                <div
+                    v-else
+                    class="group relative overflow-hidden rounded-xl border border-gray-200/50 bg-gradient-to-br from-white to-blue-50/30 p-6 shadow-sm transition-all hover:shadow-md dark:border-gray-800/50 dark:from-gray-950 dark:to-blue-950/30"
+                >
                     <div class="flex items-center justify-between">
                         <div class="flex h-10 w-10 items-center justify-center rounded-full bg-blue-500/10 ring-1 ring-blue-500/20">
                             <Calendar class="h-5 w-5 text-blue-600 dark:text-blue-400" />
@@ -386,11 +414,15 @@ const generateMockAttendanceData = () => {
                     <div class="mt-4 rounded-lg bg-blue-50/50 p-3 dark:bg-blue-950/30">
                         <div class="text-xs font-medium text-blue-700 dark:text-blue-300">Hari tersisa tahun ini</div>
                     </div>
-                    <div class="absolute inset-0 rounded-xl bg-gradient-to-br from-blue-500/5 to-indigo-500/5 opacity-0 transition-opacity group-hover:opacity-100"></div>
+                    <div
+                        class="absolute inset-0 rounded-xl bg-gradient-to-br from-blue-500/5 to-indigo-500/5 opacity-0 transition-opacity group-hover:opacity-100"
+                    ></div>
                 </div>
 
                 <!-- Monthly Performance -->
-                <div class="group relative overflow-hidden rounded-xl border border-gray-200/50 bg-gradient-to-br from-white to-purple-50/30 p-6 shadow-sm transition-all hover:shadow-md dark:border-gray-800/50 dark:from-gray-950 dark:to-purple-950/30">
+                <div
+                    class="group relative overflow-hidden rounded-xl border border-gray-200/50 bg-gradient-to-br from-white to-purple-50/30 p-6 shadow-sm transition-all hover:shadow-md dark:border-gray-800/50 dark:from-gray-950 dark:to-purple-950/30"
+                >
                     <div class="flex items-center justify-between">
                         <div class="flex h-10 w-10 items-center justify-center rounded-full bg-purple-500/10 ring-1 ring-purple-500/20">
                             <CheckCircle class="h-5 w-5 text-purple-600 dark:text-purple-400" />
@@ -407,11 +439,15 @@ const generateMockAttendanceData = () => {
                             {{ user.is_admin ? 'Tingkat kehadiran' : 'Hari hadir' }}
                         </div>
                     </div>
-                    <div class="absolute inset-0 rounded-xl bg-gradient-to-br from-purple-500/5 to-violet-500/5 opacity-0 transition-opacity group-hover:opacity-100"></div>
+                    <div
+                        class="absolute inset-0 rounded-xl bg-gradient-to-br from-purple-500/5 to-violet-500/5 opacity-0 transition-opacity group-hover:opacity-100"
+                    ></div>
                 </div>
 
                 <!-- Pending Requests -->
-                <div class="group relative overflow-hidden rounded-xl border border-gray-200/50 bg-gradient-to-br from-white to-amber-50/30 p-6 shadow-sm transition-all hover:shadow-md dark:border-gray-800/50 dark:from-gray-950 dark:to-amber-950/30">
+                <div
+                    class="group relative overflow-hidden rounded-xl border border-gray-200/50 bg-gradient-to-br from-white to-amber-50/30 p-6 shadow-sm transition-all hover:shadow-md dark:border-gray-800/50 dark:from-gray-950 dark:to-amber-950/30"
+                >
                     <div class="flex items-center justify-between">
                         <div class="flex h-10 w-10 items-center justify-center rounded-full bg-amber-500/10 ring-1 ring-amber-500/20">
                             <AlertCircle class="h-5 w-5 text-amber-600 dark:text-amber-400" />
@@ -426,12 +462,17 @@ const generateMockAttendanceData = () => {
                             {{ user.is_admin ? 'Pengajuan cuti untuk ditinjau' : 'Pengajuan cuti Anda' }}
                         </div>
                     </div>
-                    <div class="absolute inset-0 rounded-xl bg-gradient-to-br from-amber-500/5 to-orange-500/5 opacity-0 transition-opacity group-hover:opacity-100"></div>
+                    <div
+                        class="absolute inset-0 rounded-xl bg-gradient-to-br from-amber-500/5 to-orange-500/5 opacity-0 transition-opacity group-hover:opacity-100"
+                    ></div>
                 </div>
             </div>
 
             <!-- Pending Leave Requests Section -->
-            <div v-if="pendingLeaves.length > 0" class="mb-8 rounded-xl border border-gray-200/50 bg-gradient-to-br from-white to-gray-50/30 p-6 shadow-sm dark:border-gray-800/50 dark:from-gray-950 dark:to-gray-900/30">
+            <div
+                v-if="pendingLeaves.length > 0"
+                class="mb-8 rounded-xl border border-gray-200/50 bg-gradient-to-br from-white to-gray-50/30 p-6 shadow-sm dark:border-gray-800/50 dark:from-gray-950 dark:to-gray-900/30"
+            >
                 <div class="mb-6 flex items-center gap-3">
                     <div class="flex h-8 w-8 items-center justify-center rounded-lg bg-amber-500/10 ring-1 ring-amber-500/20">
                         <AlertCircle class="h-4 w-4 text-amber-600 dark:text-amber-400" />
@@ -451,8 +492,10 @@ const generateMockAttendanceData = () => {
                     >
                         <div class="flex items-start justify-between">
                             <div class="flex-1">
-                                <div class="flex items-center gap-2 mb-2">
-                                    <div class="flex h-8 w-8 items-center justify-center rounded-full bg-gray-100 text-sm font-medium text-gray-700 dark:bg-gray-800 dark:text-gray-300">
+                                <div class="mb-2 flex items-center gap-2">
+                                    <div
+                                        class="flex h-8 w-8 items-center justify-center rounded-full bg-gray-100 text-sm font-medium text-gray-700 dark:bg-gray-800 dark:text-gray-300"
+                                    >
                                         {{ leave.user.name.charAt(0) }}
                                     </div>
                                     <div>
@@ -461,7 +504,9 @@ const generateMockAttendanceData = () => {
                                     </div>
                                 </div>
                                 <div class="ml-10 space-y-1">
-                                    <div class="inline-flex items-center rounded-full bg-blue-50 px-2.5 py-0.5 text-xs font-medium text-blue-700 dark:bg-blue-950/50 dark:text-blue-300">
+                                    <div
+                                        class="inline-flex items-center rounded-full bg-blue-50 px-2.5 py-0.5 text-xs font-medium text-blue-700 dark:bg-blue-950/50 dark:text-blue-300"
+                                    >
                                         {{ leave.leave_type.name }}
                                     </div>
                                     <p class="text-sm text-gray-600 dark:text-gray-400">
@@ -487,7 +532,9 @@ const generateMockAttendanceData = () => {
                                 </button>
                             </div>
                         </div>
-                        <div class="absolute inset-0 rounded-lg bg-gradient-to-r from-amber-500/5 to-orange-500/5 opacity-0 transition-opacity group-hover:opacity-100"></div>
+                        <div
+                            class="absolute inset-0 rounded-lg bg-gradient-to-r from-amber-500/5 to-orange-500/5 opacity-0 transition-opacity group-hover:opacity-100"
+                        ></div>
                     </div>
                 </div>
             </div>
@@ -495,7 +542,9 @@ const generateMockAttendanceData = () => {
             <!-- Enhanced Content Grid -->
             <div class="grid gap-6 lg:grid-cols-2">
                 <!-- Recent Announcements -->
-                <div class="rounded-xl border border-gray-200/50 bg-gradient-to-br from-white to-gray-50/30 p-6 shadow-sm dark:border-gray-800/50 dark:from-gray-950 dark:to-gray-900/30">
+                <div
+                    class="rounded-xl border border-gray-200/50 bg-gradient-to-br from-white to-gray-50/30 p-6 shadow-sm dark:border-gray-800/50 dark:from-gray-950 dark:to-gray-900/30"
+                >
                     <div class="mb-6 flex items-center gap-3">
                         <div class="flex h-8 w-8 items-center justify-center rounded-lg bg-blue-500/10 ring-1 ring-blue-500/20">
                             <Calendar class="h-4 w-4 text-blue-600 dark:text-blue-400" />
@@ -512,12 +561,14 @@ const generateMockAttendanceData = () => {
                             class="group relative overflow-hidden rounded-lg border border-gray-200/50 bg-white p-4 shadow-sm transition-all hover:shadow-md dark:border-gray-700/50 dark:bg-gray-950"
                         >
                             <div class="flex items-start gap-3">
-                                <div class="flex h-8 w-8 items-center justify-center rounded-full bg-blue-100 text-xs font-medium text-blue-700 dark:bg-blue-900/30 dark:text-blue-300">
+                                <div
+                                    class="flex h-8 w-8 items-center justify-center rounded-full bg-blue-100 text-xs font-medium text-blue-700 dark:bg-blue-900/30 dark:text-blue-300"
+                                >
                                     <Calendar class="h-3 w-3" />
                                 </div>
-                                <div class="flex-1 min-w-0">
-                                    <h3 class="font-medium text-gray-900 dark:text-white truncate">{{ announcement.title }}</h3>
-                                    <p class="mt-1 text-sm text-gray-600 dark:text-gray-400 line-clamp-2">{{ announcement.message }}</p>
+                                <div class="min-w-0 flex-1">
+                                    <h3 class="truncate font-medium text-gray-900 dark:text-white">{{ announcement.title }}</h3>
+                                    <p class="mt-1 line-clamp-2 text-sm text-gray-600 dark:text-gray-400">{{ announcement.message }}</p>
                                     <div class="mt-2 flex items-center gap-2">
                                         <div class="flex h-5 w-5 items-center justify-center rounded-full bg-gray-100 dark:bg-gray-800">
                                             <Clock class="h-2.5 w-2.5 text-gray-500 dark:text-gray-400" />
@@ -526,9 +577,14 @@ const generateMockAttendanceData = () => {
                                     </div>
                                 </div>
                             </div>
-                            <div class="absolute inset-0 rounded-lg bg-gradient-to-r from-blue-500/5 to-indigo-500/5 opacity-0 transition-opacity group-hover:opacity-100"></div>
+                            <div
+                                class="absolute inset-0 rounded-lg bg-gradient-to-r from-blue-500/5 to-indigo-500/5 opacity-0 transition-opacity group-hover:opacity-100"
+                            ></div>
                         </div>
-                        <div v-if="announcements.length === 0" class="flex flex-col items-center justify-center py-8 text-gray-500 dark:text-gray-400">
+                        <div
+                            v-if="announcements.length === 0"
+                            class="flex flex-col items-center justify-center py-8 text-gray-500 dark:text-gray-400"
+                        >
                             <Calendar class="mb-3 h-8 w-8 opacity-50" />
                             <p class="text-sm">Belum ada pengumuman</p>
                         </div>
@@ -536,7 +592,9 @@ const generateMockAttendanceData = () => {
                 </div>
 
                 <!-- Quick Actions -->
-                <div class="rounded-xl border border-gray-200/50 bg-gradient-to-br from-white to-gray-50/30 p-6 shadow-sm dark:border-gray-800/50 dark:from-gray-950 dark:to-gray-900/30">
+                <div
+                    class="rounded-xl border border-gray-200/50 bg-gradient-to-br from-white to-gray-50/30 p-6 shadow-sm dark:border-gray-800/50 dark:from-gray-950 dark:to-gray-900/30"
+                >
                     <div class="mb-6 flex items-center gap-3">
                         <div class="flex h-8 w-8 items-center justify-center rounded-lg bg-emerald-500/10 ring-1 ring-emerald-500/20">
                             <CheckCircle class="h-4 w-4 text-emerald-600 dark:text-emerald-400" />
@@ -550,9 +608,11 @@ const generateMockAttendanceData = () => {
                         <Link
                             v-if="user.is_admin"
                             href="/admin/leave-requests"
-                            class="group flex w-full items-center gap-3 rounded-lg border border-gray-200/50 bg-white p-4 shadow-sm transition-all hover:shadow-md hover:border-amber-300 dark:border-gray-700/50 dark:bg-gray-950 dark:hover:border-amber-600"
+                            class="group flex w-full items-center gap-3 rounded-lg border border-gray-200/50 bg-white p-4 shadow-sm transition-all hover:border-amber-300 hover:shadow-md dark:border-gray-700/50 dark:bg-gray-950 dark:hover:border-amber-600"
                         >
-                            <div class="flex h-8 w-8 items-center justify-center rounded-lg bg-amber-500/10 ring-1 ring-amber-500/20 group-hover:bg-amber-500/20">
+                            <div
+                                class="flex h-8 w-8 items-center justify-center rounded-lg bg-amber-500/10 ring-1 ring-amber-500/20 group-hover:bg-amber-500/20"
+                            >
                                 <Users class="h-4 w-4 text-amber-600 dark:text-amber-400" />
                             </div>
                             <div class="flex-1">
@@ -563,9 +623,11 @@ const generateMockAttendanceData = () => {
                         <Link
                             v-if="user.is_admin"
                             href="/employees"
-                            class="group flex w-full items-center gap-3 rounded-lg border border-gray-200/50 bg-white p-4 shadow-sm transition-all hover:shadow-md hover:border-purple-300 dark:border-gray-700/50 dark:bg-gray-950 dark:hover:border-purple-600"
+                            class="group flex w-full items-center gap-3 rounded-lg border border-gray-200/50 bg-white p-4 shadow-sm transition-all hover:border-purple-300 hover:shadow-md dark:border-gray-700/50 dark:bg-gray-950 dark:hover:border-purple-600"
                         >
-                            <div class="flex h-8 w-8 items-center justify-center rounded-lg bg-purple-500/10 ring-1 ring-purple-500/20 group-hover:bg-purple-500/20">
+                            <div
+                                class="flex h-8 w-8 items-center justify-center rounded-lg bg-purple-500/10 ring-1 ring-purple-500/20 group-hover:bg-purple-500/20"
+                            >
                                 <Users class="h-4 w-4 text-purple-600 dark:text-purple-400" />
                             </div>
                             <div class="flex-1">
@@ -576,9 +638,11 @@ const generateMockAttendanceData = () => {
                         <Link
                             v-if="user.is_admin"
                             href="/office-locations"
-                            class="group flex w-full items-center gap-3 rounded-lg border border-gray-200/50 bg-white p-4 shadow-sm transition-all hover:shadow-md hover:border-green-300 dark:border-gray-700/50 dark:bg-gray-950 dark:hover:border-green-600"
+                            class="group flex w-full items-center gap-3 rounded-lg border border-gray-200/50 bg-white p-4 shadow-sm transition-all hover:border-green-300 hover:shadow-md dark:border-gray-700/50 dark:bg-gray-950 dark:hover:border-green-600"
                         >
-                            <div class="flex h-8 w-8 items-center justify-center rounded-lg bg-green-500/10 ring-1 ring-green-500/20 group-hover:bg-green-500/20">
+                            <div
+                                class="flex h-8 w-8 items-center justify-center rounded-lg bg-green-500/10 ring-1 ring-green-500/20 group-hover:bg-green-500/20"
+                            >
                                 <CheckCircle class="h-4 w-4 text-green-600 dark:text-green-400" />
                             </div>
                             <div class="flex-1">
@@ -589,9 +653,11 @@ const generateMockAttendanceData = () => {
                         <Link
                             v-if="user.is_admin"
                             href="/admin/shift-change-requests"
-                            class="group flex w-full items-center gap-3 rounded-lg border border-gray-200/50 bg-white p-4 shadow-sm transition-all hover:shadow-md hover:border-orange-300 dark:border-gray-700/50 dark:bg-gray-950 dark:hover:border-orange-600"
+                            class="group flex w-full items-center gap-3 rounded-lg border border-gray-200/50 bg-white p-4 shadow-sm transition-all hover:border-orange-300 hover:shadow-md dark:border-gray-700/50 dark:bg-gray-950 dark:hover:border-orange-600"
                         >
-                            <div class="flex h-8 w-8 items-center justify-center rounded-lg bg-orange-500/10 ring-1 ring-orange-500/20 group-hover:bg-orange-500/20">
+                            <div
+                                class="flex h-8 w-8 items-center justify-center rounded-lg bg-orange-500/10 ring-1 ring-orange-500/20 group-hover:bg-orange-500/20"
+                            >
                                 <Calendar class="h-4 w-4 text-orange-600 dark:text-orange-400" />
                             </div>
                             <div class="flex-1">

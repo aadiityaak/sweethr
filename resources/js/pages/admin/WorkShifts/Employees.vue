@@ -22,12 +22,7 @@
             <div class="rounded-lg border bg-card p-6">
                 <div class="grid gap-4 md:grid-cols-3">
                     <div>
-                        <Input
-                            v-model="search"
-                            placeholder="Cari karyawan..."
-                            class="w-full"
-                            @input="debouncedSearch"
-                        />
+                        <Input v-model="search" placeholder="Cari karyawan..." class="w-full" @input="debouncedSearch" />
                     </div>
                     <div>
                         <select
@@ -36,9 +31,7 @@
                             @change="applyFilters"
                         >
                             <option value="">Semua Shift</option>
-                            <option v-for="shift in shifts" :key="shift.id" :value="shift.id">
-                                {{ shift.name }} ({{ shift.code }})
-                            </option>
+                            <option v-for="shift in shifts" :key="shift.id" :value="shift.id">{{ shift.name }} ({{ shift.code }})</option>
                         </select>
                     </div>
                     <div>
@@ -73,7 +66,9 @@
                             <tr v-for="employee in employees.data" :key="employee.id" class="border-b hover:bg-muted/50">
                                 <td class="p-4">
                                     <div class="flex items-center gap-3">
-                                        <div class="flex h-8 w-8 items-center justify-center rounded-full bg-primary text-xs font-medium text-primary-foreground">
+                                        <div
+                                            class="flex h-8 w-8 items-center justify-center rounded-full bg-primary text-xs font-medium text-primary-foreground"
+                                        >
                                             {{ getInitials(employee.name) }}
                                         </div>
                                         <div>
@@ -84,10 +79,12 @@
                                 </td>
                                 <td class="p-4">
                                     <div v-if="getCurrentShift(employee)">
-                                        <span class="inline-flex items-center rounded-full bg-blue-100 px-2.5 py-0.5 text-xs font-medium text-blue-800 dark:bg-blue-900/20 dark:text-blue-400">
+                                        <span
+                                            class="inline-flex items-center rounded-full bg-blue-100 px-2.5 py-0.5 text-xs font-medium text-blue-800 dark:bg-blue-900/20 dark:text-blue-400"
+                                        >
                                             {{ getCurrentShift(employee).work_shift.name }}
                                         </span>
-                                        <p class="text-xs text-muted-foreground mt-1">
+                                        <p class="mt-1 text-xs text-muted-foreground">
                                             {{ formatTime(getCurrentShift(employee).work_shift.start_time) }} -
                                             {{ formatTime(getCurrentShift(employee).work_shift.end_time) }}
                                         </p>
@@ -95,7 +92,7 @@
                                     <span v-else class="text-sm text-muted-foreground">Belum ada shift</span>
                                 </td>
                                 <td class="p-4">
-                                    <span v-if="getCurrentShift(employee)" class="capitalize text-sm">
+                                    <span v-if="getCurrentShift(employee)" class="text-sm capitalize">
                                         {{ getCurrentShift(employee).assignment_type }}
                                     </span>
                                     <span v-else class="text-sm text-muted-foreground">-</span>
@@ -110,8 +107,9 @@
                                     <span
                                         v-if="getCurrentShift(employee)"
                                         :class="{
-                                            'bg-green-100 text-green-800 dark:bg-green-900/20 dark:text-green-400': getCurrentShift(employee).is_active,
-                                            'bg-red-100 text-red-800 dark:bg-red-900/20 dark:text-red-400': !getCurrentShift(employee).is_active
+                                            'bg-green-100 text-green-800 dark:bg-green-900/20 dark:text-green-400':
+                                                getCurrentShift(employee).is_active,
+                                            'bg-red-100 text-red-800 dark:bg-red-900/20 dark:text-red-400': !getCurrentShift(employee).is_active,
                                         }"
                                         class="inline-flex items-center rounded-full px-2.5 py-0.5 text-xs font-medium"
                                     >
@@ -121,11 +119,7 @@
                                 </td>
                                 <td class="p-4">
                                     <div class="flex items-center gap-2">
-                                        <Button
-                                            size="sm"
-                                            @click="openAssignModal(employee)"
-                                            variant="ghost"
-                                        >
+                                        <Button size="sm" @click="openAssignModal(employee)" variant="ghost">
                                             <UserPlus class="h-4 w-4" />
                                         </Button>
                                         <Button
@@ -145,7 +139,7 @@
                 </div>
 
                 <!-- Pagination -->
-                <div class="flex items-center justify-between p-4 border-t">
+                <div class="flex items-center justify-between border-t p-4">
                     <div class="text-sm text-muted-foreground">
                         Menampilkan {{ employees.from || 0 }}-{{ employees.to || 0 }} dari {{ employees.total }} hasil
                     </div>
@@ -170,9 +164,7 @@
             <DialogContent>
                 <DialogHeader>
                     <DialogTitle>Tugaskan Shift ke {{ selectedEmployee?.name }}</DialogTitle>
-                    <DialogDescription>
-                        Pilih shift dan atur penugasan untuk karyawan ini
-                    </DialogDescription>
+                    <DialogDescription> Pilih shift dan atur penugasan untuk karyawan ini </DialogDescription>
                 </DialogHeader>
 
                 <form @submit.prevent="assignEmployee" class="space-y-4">
@@ -194,18 +186,11 @@
                     <div class="grid gap-4 md:grid-cols-2">
                         <div>
                             <Label for="effective_date">Tanggal Efektif *</Label>
-                            <DatePicker
-                                v-model="assignForm.effective_date"
-                                placeholder="Pilih tanggal efektif"
-                                required
-                            />
+                            <DatePicker v-model="assignForm.effective_date" placeholder="Pilih tanggal efektif" required />
                         </div>
                         <div>
                             <Label for="end_date">Tanggal Berakhir</Label>
-                            <DatePicker
-                                v-model="assignForm.end_date"
-                                placeholder="Pilih tanggal berakhir (opsional)"
-                            />
+                            <DatePicker v-model="assignForm.end_date" placeholder="Pilih tanggal berakhir (opsional)" />
                         </div>
                     </div>
 
@@ -225,9 +210,7 @@
                     </div>
 
                     <DialogFooter>
-                        <Button type="button" variant="outline" @click="showAssignModal = false">
-                            Batal
-                        </Button>
+                        <Button type="button" variant="outline" @click="showAssignModal = false"> Batal </Button>
                         <Button type="submit" :disabled="assignForm.processing">
                             {{ assignForm.processing ? 'Menugaskan...' : 'Tugaskan' }}
                         </Button>
@@ -239,21 +222,16 @@
 </template>
 
 <script setup lang="ts">
-import { Head, Link, router, useForm } from '@inertiajs/vue3';
-import { ref } from 'vue';
-import AppLayout from '@/layouts/AppLayout.vue';
-import { Input } from '@/components/ui/input';
-import DatePicker from '@/components/ui/date-picker/DatePicker.vue';
 import { Button } from '@/components/ui/button';
+import DatePicker from '@/components/ui/date-picker/DatePicker.vue';
+import { Dialog, DialogContent, DialogDescription, DialogFooter, DialogHeader, DialogTitle } from '@/components/ui/dialog';
+import { Input } from '@/components/ui/input';
 import { Label } from '@/components/ui/label';
-import { Dialog, DialogContent, DialogHeader, DialogTitle, DialogDescription, DialogFooter } from '@/components/ui/dialog';
-import {
-    ArrowLeft,
-    FilterX,
-    UserPlus,
-    UserMinus,
-} from 'lucide-vue-next';
+import AppLayout from '@/layouts/AppLayout.vue';
+import { Head, Link, router, useForm } from '@inertiajs/vue3';
 import { debounce } from 'lodash';
+import { ArrowLeft, FilterX, UserMinus, UserPlus } from 'lucide-vue-next';
+import { ref } from 'vue';
 
 interface Employee {
     id: number;
@@ -334,11 +312,15 @@ const formatDate = (dateString: string) => {
 };
 
 const getInitials = (name: string) => {
-    return name.split(' ').map(n => n[0]).join('').toUpperCase();
+    return name
+        .split(' ')
+        .map((n) => n[0])
+        .join('')
+        .toUpperCase();
 };
 
 const getCurrentShift = (employee: Employee): EmployeeShift | null => {
-    return employee.employee_shifts.find(shift => shift.is_active) || null;
+    return employee.employee_shifts.find((shift) => shift.is_active) || null;
 };
 
 const debouncedSearch = debounce(() => {
@@ -346,13 +328,17 @@ const debouncedSearch = debounce(() => {
 }, 300);
 
 const applyFilters = () => {
-    router.get('/admin/work-shifts-employees', {
-        search: search.value,
-        shift: selectedShift.value,
-    }, {
-        preserveState: true,
-        replace: true,
-    });
+    router.get(
+        '/admin/work-shifts-employees',
+        {
+            search: search.value,
+            shift: selectedShift.value,
+        },
+        {
+            preserveState: true,
+            replace: true,
+        },
+    );
 };
 
 const clearFilters = () => {
@@ -372,10 +358,10 @@ const assignEmployee = () => {
     if (!selectedEmployee.value) return;
 
     // Find the shift to get the correct route
-    const shift = props.shifts.find(s => s.id == assignForm.shift_id);
+    const shift = props.shifts.find((s) => s.id == assignForm.shift_id);
     if (!shift) return;
 
-    assignForm.transform(data => ({
+    assignForm.transform((data) => ({
         ...data,
         employee_ids: [selectedEmployee.value!.id],
     }));

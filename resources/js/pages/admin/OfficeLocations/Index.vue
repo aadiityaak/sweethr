@@ -1,10 +1,10 @@
 <script setup lang="ts">
+import LeafletMap from '@/components/LeafletMap.vue';
 import AppLayout from '@/layouts/AppLayout.vue';
 import { type BreadcrumbItem } from '@/types';
 import { Head, Link, router } from '@inertiajs/vue3';
-import { Search, Plus, MapPin, Clock, Users, Edit, Trash2, Map, Navigation, Target } from 'lucide-vue-next';
+import { Clock, Edit, Map, MapPin, Navigation, Plus, Search, Target, Trash2, Users } from 'lucide-vue-next';
 import { ref } from 'vue';
-import LeafletMap from '@/components/LeafletMap.vue';
 
 interface OfficeLocation {
     id: number;
@@ -55,13 +55,17 @@ const searchQuery = ref(filters.search || '');
 const selectedStatus = ref(filters.status || '');
 
 const filterLocations = () => {
-    router.get('/office-locations', {
-        search: searchQuery.value || undefined,
-        status: selectedStatus.value || undefined,
-    }, {
-        preserveState: true,
-        replace: true,
-    });
+    router.get(
+        '/office-locations',
+        {
+            search: searchQuery.value || undefined,
+            status: selectedStatus.value || undefined,
+        },
+        {
+            preserveState: true,
+            replace: true,
+        },
+    );
 };
 
 const getStatusBadge = (isActive: boolean) => {
@@ -96,9 +100,8 @@ const calculateDistance = (lat1: number, lng1: number, lat2: number, lng2: numbe
     const deltaLat = lat2Rad - lat1Rad;
     const deltaLng = lng2Rad - lng1Rad;
 
-    const a = Math.sin(deltaLat / 2) * Math.sin(deltaLat / 2) +
-              Math.cos(lat1Rad) * Math.cos(lat2Rad) *
-              Math.sin(deltaLng / 2) * Math.sin(deltaLng / 2);
+    const a =
+        Math.sin(deltaLat / 2) * Math.sin(deltaLat / 2) + Math.cos(lat1Rad) * Math.cos(lat2Rad) * Math.sin(deltaLng / 2) * Math.sin(deltaLng / 2);
     const c = 2 * Math.atan2(Math.sqrt(a), Math.sqrt(1 - a));
 
     return earthRadius * c;
@@ -127,17 +130,13 @@ const closeMapModal = () => {
             <div class="mb-8">
                 <div class="flex items-center justify-between">
                     <div>
-                        <h1 class="text-3xl font-bold text-gray-900 dark:text-white">
-                            Lokasi Kantor
-                        </h1>
-                        <p class="mt-1 text-gray-600 dark:text-gray-400">
-                            Kelola lokasi kantor dan zona absensi
-                        </p>
+                        <h1 class="text-3xl font-bold text-gray-900 dark:text-white">Lokasi Kantor</h1>
+                        <p class="mt-1 text-gray-600 dark:text-gray-400">Kelola lokasi kantor dan zona absensi</p>
                     </div>
                     <div class="flex gap-3">
                         <Link
                             href="/office-locations/create"
-                            class="inline-flex items-center gap-2 rounded-lg bg-blue-600 px-4 py-2 text-sm font-medium text-white shadow-sm hover:bg-blue-700 focus:outline-none focus:ring-2 focus:ring-blue-500 focus:ring-offset-2 transition-colors"
+                            class="inline-flex items-center gap-2 rounded-lg bg-blue-600 px-4 py-2 text-sm font-medium text-white shadow-sm transition-colors hover:bg-blue-700 focus:ring-2 focus:ring-blue-500 focus:ring-offset-2 focus:outline-none"
                         >
                             <Plus class="h-4 w-4" />
                             Tambah Lokasi
@@ -214,13 +213,13 @@ const closeMapModal = () => {
                 <div class="p-6">
                     <div class="grid gap-4 md:grid-cols-3">
                         <div class="relative">
-                            <Search class="absolute left-3 top-1/2 h-4 w-4 -translate-y-1/2 text-gray-400" />
+                            <Search class="absolute top-1/2 left-3 h-4 w-4 -translate-y-1/2 text-gray-400" />
                             <input
                                 v-model="searchQuery"
                                 @input="filterLocations"
                                 type="text"
                                 placeholder="Cari lokasi..."
-                                class="w-full rounded-lg border border-gray-300 pl-10 pr-3 py-2 text-sm dark:border-gray-600 dark:bg-gray-800 dark:text-white"
+                                class="w-full rounded-lg border border-gray-300 py-2 pr-3 pl-10 text-sm dark:border-gray-600 dark:bg-gray-800 dark:text-white"
                             />
                         </div>
                         <select
@@ -246,8 +245,8 @@ const closeMapModal = () => {
 
             <!-- Map Overview -->
             <div class="mb-8 overflow-hidden rounded-xl bg-white shadow-sm ring-1 ring-gray-900/5 dark:bg-gray-900 dark:ring-white/10">
-                <div class="px-6 py-4 border-b border-gray-200 dark:border-gray-700">
-                    <h3 class="text-lg font-semibold text-gray-900 dark:text-white flex items-center">
+                <div class="border-b border-gray-200 px-6 py-4 dark:border-gray-700">
+                    <h3 class="flex items-center text-lg font-semibold text-gray-900 dark:text-white">
                         <Map class="mr-2 h-5 w-5 text-blue-600 dark:text-blue-400" />
                         Peta Lokasi Kantor
                     </h3>
@@ -262,9 +261,12 @@ const closeMapModal = () => {
                         :show-radius="true"
                         :interactive="true"
                     />
-                    <div v-else class="flex items-center justify-center h-64 bg-gray-50 dark:bg-gray-800 rounded-lg border-2 border-dashed border-gray-300 dark:border-gray-600">
+                    <div
+                        v-else
+                        class="flex h-64 items-center justify-center rounded-lg border-2 border-dashed border-gray-300 bg-gray-50 dark:border-gray-600 dark:bg-gray-800"
+                    >
                         <div class="text-center">
-                            <MapPin class="h-12 w-12 text-gray-400 mx-auto mb-4" />
+                            <MapPin class="mx-auto mb-4 h-12 w-12 text-gray-400" />
                             <p class="text-gray-500 dark:text-gray-400">Tidak ada lokasi kantor ditemukan</p>
                             <Link
                                 href="/office-locations/create"
@@ -280,8 +282,8 @@ const closeMapModal = () => {
 
             <!-- Office Locations List -->
             <div class="overflow-hidden rounded-xl bg-white shadow-sm ring-1 ring-gray-900/5 dark:bg-gray-900 dark:ring-white/10">
-                <div class="px-6 py-4 border-b border-gray-200 dark:border-gray-700">
-                    <h3 class="text-lg font-semibold text-gray-900 dark:text-white flex items-center">
+                <div class="border-b border-gray-200 px-6 py-4 dark:border-gray-700">
+                    <h3 class="flex items-center text-lg font-semibold text-gray-900 dark:text-white">
                         <MapPin class="mr-2 h-5 w-5 text-blue-600 dark:text-blue-400" />
                         Daftar Lokasi Kantor
                     </h3>
@@ -319,7 +321,7 @@ const closeMapModal = () => {
                                 </td>
                                 <td class="px-6 py-4">
                                     <div class="max-w-xs">
-                                        <p class="text-sm text-gray-600 dark:text-gray-300 line-clamp-2">
+                                        <p class="line-clamp-2 text-sm text-gray-600 dark:text-gray-300">
                                             {{ location.address }}
                                         </p>
                                     </div>
@@ -336,7 +338,9 @@ const closeMapModal = () => {
                                     </div>
                                 </td>
                                 <td class="px-6 py-4 text-sm text-gray-600 dark:text-gray-300">
-                                    <span class="inline-flex items-center rounded-full bg-gray-100 px-2 py-1 text-xs font-medium text-gray-700 dark:bg-gray-800 dark:text-gray-300">
+                                    <span
+                                        class="inline-flex items-center rounded-full bg-gray-100 px-2 py-1 text-xs font-medium text-gray-700 dark:bg-gray-800 dark:text-gray-300"
+                                    >
                                         {{ location.radius_meters }}m
                                     </span>
                                 </td>
@@ -344,9 +348,7 @@ const closeMapModal = () => {
                                     <div class="space-y-1">
                                         <div class="flex items-center gap-2 text-sm">
                                             <Users class="h-3 w-3 text-gray-400" />
-                                            <span class="text-gray-600 dark:text-gray-300">
-                                                {{ location.employees_count || 0 }} karyawan
-                                            </span>
+                                            <span class="text-gray-600 dark:text-gray-300"> {{ location.employees_count || 0 }} karyawan </span>
                                         </div>
                                         <div class="flex items-center gap-2 text-sm">
                                             <Clock class="h-3 w-3 text-gray-400" />
@@ -379,7 +381,9 @@ const closeMapModal = () => {
                                         >
                                             <Edit class="h-4 w-4" />
                                         </Link>
-                                        <button class="rounded-lg bg-red-100 p-2 text-red-600 hover:bg-red-200 dark:bg-red-900/30 dark:text-red-400 dark:hover:bg-red-900/50">
+                                        <button
+                                            class="rounded-lg bg-red-100 p-2 text-red-600 hover:bg-red-200 dark:bg-red-900/30 dark:text-red-400 dark:hover:bg-red-900/50"
+                                        >
                                             <Trash2 class="h-4 w-4" />
                                         </button>
                                     </div>
@@ -390,10 +394,10 @@ const closeMapModal = () => {
                 </div>
 
                 <!-- Empty State -->
-                <div v-if="!officeLocations?.data?.length" class="flex items-center justify-center h-64 bg-gray-50 dark:bg-gray-800/50">
+                <div v-if="!officeLocations?.data?.length" class="flex h-64 items-center justify-center bg-gray-50 dark:bg-gray-800/50">
                     <div class="text-center">
-                        <MapPin class="h-12 w-12 text-gray-400 mx-auto mb-4" />
-                        <p class="text-gray-500 dark:text-gray-400 mb-2">Tidak ada lokasi kantor ditemukan</p>
+                        <MapPin class="mx-auto mb-4 h-12 w-12 text-gray-400" />
+                        <p class="mb-2 text-gray-500 dark:text-gray-400">Tidak ada lokasi kantor ditemukan</p>
                         <Link
                             href="/office-locations/create"
                             class="inline-flex items-center gap-2 rounded-lg bg-blue-600 px-4 py-2 text-sm font-medium text-white hover:bg-blue-700"
@@ -408,7 +412,8 @@ const closeMapModal = () => {
                 <div v-if="officeLocations?.meta?.total > officeLocations?.meta?.per_page" class="border-t border-gray-200 p-4 dark:border-gray-700">
                     <div class="flex items-center justify-between">
                         <p class="text-sm text-gray-500 dark:text-gray-400">
-                            Menampilkan {{ officeLocations.meta.from }} sampai {{ officeLocations.meta.to }} dari {{ officeLocations.meta.total }} hasil
+                            Menampilkan {{ officeLocations.meta.from }} sampai {{ officeLocations.meta.to }} dari
+                            {{ officeLocations.meta.total }} hasil
                         </p>
                         <div class="flex gap-2">
                             <Link
@@ -417,10 +422,10 @@ const closeMapModal = () => {
                                 :href="link.url"
                                 v-html="link.label"
                                 :class="[
-                                    'px-3 py-1 text-sm border rounded',
+                                    'rounded border px-3 py-1 text-sm',
                                     link.active
-                                        ? 'bg-blue-600 text-white border-blue-600'
-                                        : 'text-gray-600 border-gray-300 hover:bg-gray-50 dark:text-gray-300 dark:border-gray-600 dark:hover:bg-gray-800'
+                                        ? 'border-blue-600 bg-blue-600 text-white'
+                                        : 'border-gray-300 text-gray-600 hover:bg-gray-50 dark:border-gray-600 dark:text-gray-300 dark:hover:bg-gray-800',
                                 ]"
                                 :disabled="!link.url"
                             />
@@ -431,16 +436,9 @@ const closeMapModal = () => {
         </div>
 
         <!-- Map Modal -->
-        <div
-            v-if="showMapModal && selectedLocation"
-            class="fixed inset-0 z-50 flex items-center justify-center bg-black/50"
-            @click="closeMapModal"
-        >
-            <div
-                class="w-full max-w-4xl rounded-xl border-0 bg-white p-6 dark:bg-gray-950"
-                @click.stop
-            >
-                <div class="flex items-center justify-between mb-4">
+        <div v-if="showMapModal && selectedLocation" class="fixed inset-0 z-50 flex items-center justify-center bg-black/50" @click="closeMapModal">
+            <div class="w-full max-w-4xl rounded-xl border-0 bg-white p-6 dark:bg-gray-950" @click.stop>
+                <div class="mb-4 flex items-center justify-between">
                     <div>
                         <h3 class="text-lg font-semibold text-gray-900 dark:text-white">{{ selectedLocation.name }}</h3>
                         <p class="text-sm text-gray-600 dark:text-gray-300">{{ selectedLocation.address }}</p>

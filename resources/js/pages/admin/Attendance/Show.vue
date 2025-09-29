@@ -1,21 +1,8 @@
 <script setup lang="ts">
 import AppLayout from '@/layouts/AppLayout.vue';
 import { type BreadcrumbItem } from '@/types';
-import { Head, Link } from '@inertiajs/vue3';
-import {
-    Clock,
-    MapPin,
-    User,
-    Building,
-    Calendar,
-    CheckCircle,
-    XCircle,
-    AlertCircle,
-    ArrowLeft,
-    Timer,
-    Briefcase,
-    Shield
-} from 'lucide-vue-next';
+import { Head } from '@inertiajs/vue3';
+import { AlertCircle, Briefcase, Building, Calendar, CheckCircle, Clock, MapPin, Shield, Timer, User, XCircle } from 'lucide-vue-next';
 
 interface User {
     id: number;
@@ -75,14 +62,14 @@ const { attendance } = defineProps<Props>();
 const breadcrumbs: BreadcrumbItem[] = [
     { title: 'Dasbor', href: '/dashboard' },
     { title: 'Kelola Kehadiran', href: '/admin/attendance' },
-    { title: 'Detail Kehadiran', href: `/admin/attendance/${attendance.id}` }
+    { title: 'Detail Kehadiran', href: `/admin/attendance/${attendance.id}` },
 ];
 
 const formatTime = (time: string | null) => {
     if (!time) return '--:--';
     return new Date(`2000-01-01T${time}`).toLocaleTimeString('id-ID', {
         hour: '2-digit',
-        minute: '2-digit'
+        minute: '2-digit',
     });
 };
 
@@ -98,7 +85,7 @@ const formatDate = (dateString: string) => {
         weekday: 'long',
         day: 'numeric',
         month: 'long',
-        year: 'numeric'
+        year: 'numeric',
     });
 };
 
@@ -108,7 +95,7 @@ const formatDateTime = (dateTimeString: string) => {
         month: 'short',
         year: 'numeric',
         hour: '2-digit',
-        minute: '2-digit'
+        minute: '2-digit',
     });
 };
 
@@ -117,7 +104,7 @@ const getStatusBadge = (status: string) => {
         present: 'bg-emerald-50 text-emerald-700 ring-emerald-600/20 dark:bg-emerald-950/50 dark:text-emerald-400',
         late: 'bg-amber-50 text-amber-700 ring-amber-600/20 dark:bg-amber-950/50 dark:text-amber-400',
         absent: 'bg-red-50 text-red-700 ring-red-600/20 dark:bg-red-950/50 dark:text-red-400',
-        half_day: 'bg-blue-50 text-blue-700 ring-blue-600/20 dark:bg-blue-950/50 dark:text-blue-400'
+        half_day: 'bg-blue-50 text-blue-700 ring-blue-600/20 dark:bg-blue-950/50 dark:text-blue-400',
     };
     return badges[status as keyof typeof badges] || badges.absent;
 };
@@ -127,18 +114,23 @@ const getStatusText = (status: string) => {
         present: 'Hadir',
         late: 'Terlambat',
         absent: 'Tidak Hadir',
-        half_day: 'Setengah Hari'
+        half_day: 'Setengah Hari',
     };
     return statusMap[status as keyof typeof statusMap] || 'Tidak Diketahui';
 };
 
 const getStatusIcon = (status: string) => {
     switch (status) {
-        case 'present': return CheckCircle;
-        case 'late': return AlertCircle;
-        case 'absent': return XCircle;
-        case 'half_day': return Clock;
-        default: return XCircle;
+        case 'present':
+            return CheckCircle;
+        case 'late':
+            return AlertCircle;
+        case 'absent':
+            return XCircle;
+        case 'half_day':
+            return Clock;
+        default:
+            return XCircle;
     }
 };
 
@@ -171,7 +163,6 @@ const getConfidenceLabel = (score: number | null) => {
     else if (score >= 0.4) return 'Kurang Cocok';
     else return 'Tidak Cocok';
 };
-
 </script>
 
 <template>
@@ -183,12 +174,8 @@ const getConfidenceLabel = (score: number | null) => {
             <div class="mb-8">
                 <div class="flex items-center justify-between">
                     <div>
-                        <h1 class="text-3xl font-bold text-gray-900 dark:text-white">
-                            Detail Kehadiran
-                        </h1>
-                        <p class="mt-1 text-gray-600 dark:text-gray-400">
-                            {{ attendance.user.name }} • {{ formatDate(attendance.date) }}
-                        </p>
+                        <h1 class="text-3xl font-bold text-gray-900 dark:text-white">Detail Kehadiran</h1>
+                        <p class="mt-1 text-gray-600 dark:text-gray-400">{{ attendance.user.name }} • {{ formatDate(attendance.date) }}</p>
                     </div>
                     <div class="text-right">
                         <div
@@ -272,8 +259,8 @@ const getConfidenceLabel = (score: number | null) => {
                 <div class="space-y-8">
                     <!-- Employee Details -->
                     <div class="overflow-hidden rounded-xl bg-white shadow-sm ring-1 ring-gray-900/5 dark:bg-gray-900 dark:ring-white/10">
-                        <div class="px-6 py-4 border-b border-gray-200 dark:border-gray-700">
-                            <h3 class="text-lg font-semibold text-gray-900 dark:text-white flex items-center">
+                        <div class="border-b border-gray-200 px-6 py-4 dark:border-gray-700">
+                            <h3 class="flex items-center text-lg font-semibold text-gray-900 dark:text-white">
                                 <User class="mr-2 h-5 w-5 text-blue-600 dark:text-blue-400" />
                                 Detail Karyawan
                             </h3>
@@ -294,17 +281,21 @@ const getConfidenceLabel = (score: number | null) => {
                                 </div>
                                 <div class="flex justify-between">
                                     <dt class="text-sm text-gray-600 dark:text-gray-400">Lembur</dt>
-                                    <dd class="text-sm font-medium text-blue-600 dark:text-blue-400">{{ formatDuration(attendance.overtime_duration) }}</dd>
+                                    <dd class="text-sm font-medium text-blue-600 dark:text-blue-400">
+                                        {{ formatDuration(attendance.overtime_duration) }}
+                                    </dd>
                                 </div>
                             </dl>
                         </div>
                     </div>
 
                     <!-- Face Verification -->
-                    <div v-if="attendance.face_match_confidence !== null || attendance.face_photo_url"
-                         class="overflow-hidden rounded-xl bg-white shadow-sm ring-1 ring-gray-900/5 dark:bg-gray-900 dark:ring-white/10">
-                        <div class="px-6 py-4 border-b border-gray-200 dark:border-gray-700">
-                            <h3 class="text-lg font-semibold text-gray-900 dark:text-white flex items-center">
+                    <div
+                        v-if="attendance.face_match_confidence !== null || attendance.face_photo_url"
+                        class="overflow-hidden rounded-xl bg-white shadow-sm ring-1 ring-gray-900/5 dark:bg-gray-900 dark:ring-white/10"
+                    >
+                        <div class="border-b border-gray-200 px-6 py-4 dark:border-gray-700">
+                            <h3 class="flex items-center text-lg font-semibold text-gray-900 dark:text-white">
                                 <Shield class="mr-2 h-5 w-5 text-green-600 dark:text-green-400" />
                                 Verifikasi Wajah
                             </h3>
@@ -314,20 +305,20 @@ const getConfidenceLabel = (score: number | null) => {
                                 <img
                                     :src="attendance.face_photo_url"
                                     alt="Foto Check-in"
-                                    class="h-48 w-full rounded-lg object-cover bg-gray-100 dark:bg-gray-800"
+                                    class="h-48 w-full rounded-lg bg-gray-100 object-cover dark:bg-gray-800"
                                     @error="$event.target.style.display = 'none'"
                                 />
                             </div>
                             <dl class="space-y-4">
                                 <!-- Face Detection Status -->
-                                <div class="flex justify-between items-center">
+                                <div class="flex items-center justify-between">
                                     <dt class="text-sm text-gray-600 dark:text-gray-400">Deteksi Wajah</dt>
                                     <dd>
                                         <span
                                             class="inline-flex items-center rounded-full px-2 py-1 text-xs font-medium"
                                             :class="{
                                                 'bg-green-100 text-green-800 dark:bg-green-900/30 dark:text-green-400': attendance.face_detected,
-                                                'bg-gray-100 text-gray-800 dark:bg-gray-900/30 dark:text-gray-400': !attendance.face_detected
+                                                'bg-gray-100 text-gray-800 dark:bg-gray-900/30 dark:text-gray-400': !attendance.face_detected,
                                             }"
                                         >
                                             <CheckCircle v-if="attendance.face_detected" class="mr-1 h-3 w-3" />
@@ -339,7 +330,7 @@ const getConfidenceLabel = (score: number | null) => {
                                 </div>
 
                                 <!-- Confidence Score (New) -->
-                                <div v-if="attendance.face_confidence_score !== null" class="flex justify-between items-center">
+                                <div v-if="attendance.face_confidence_score !== null" class="flex items-center justify-between">
                                     <dt class="text-sm text-gray-600 dark:text-gray-400">Tingkat Kecocokan</dt>
                                     <dd class="flex items-center gap-2">
                                         <span class="text-sm font-medium text-gray-900 dark:text-white">
@@ -355,7 +346,7 @@ const getConfidenceLabel = (score: number | null) => {
                                 </div>
 
                                 <!-- Legacy Confidence (for backward compatibility) -->
-                                <div v-else-if="attendance.face_match_confidence !== null" class="flex justify-between items-center">
+                                <div v-else-if="attendance.face_match_confidence !== null" class="flex items-center justify-between">
                                     <dt class="text-sm text-gray-600 dark:text-gray-400">Confidence (Legacy)</dt>
                                     <dd class="flex items-center gap-2">
                                         <span class="text-sm font-medium text-gray-900 dark:text-white">
@@ -364,9 +355,11 @@ const getConfidenceLabel = (score: number | null) => {
                                         <span
                                             class="inline-flex items-center rounded-full px-2 py-1 text-xs font-medium"
                                             :class="{
-                                                'bg-green-100 text-green-800 dark:bg-green-900/30 dark:text-green-400': attendance.face_match_confidence >= 70,
-                                                'bg-yellow-100 text-yellow-800 dark:bg-yellow-900/30 dark:text-yellow-400': attendance.face_match_confidence >= 50 && attendance.face_match_confidence < 70,
-                                                'bg-red-100 text-red-800 dark:bg-red-900/30 dark:text-red-400': attendance.face_match_confidence < 50
+                                                'bg-green-100 text-green-800 dark:bg-green-900/30 dark:text-green-400':
+                                                    attendance.face_match_confidence >= 70,
+                                                'bg-yellow-100 text-yellow-800 dark:bg-yellow-900/30 dark:text-yellow-400':
+                                                    attendance.face_match_confidence >= 50 && attendance.face_match_confidence < 70,
+                                                'bg-red-100 text-red-800 dark:bg-red-900/30 dark:text-red-400': attendance.face_match_confidence < 50,
                                             }"
                                         >
                                             <span v-if="attendance.face_match_confidence >= 70">Tinggi</span>
@@ -377,15 +370,18 @@ const getConfidenceLabel = (score: number | null) => {
                                 </div>
 
                                 <!-- Verification Status -->
-                                <div class="flex justify-between items-center">
+                                <div class="flex items-center justify-between">
                                     <dt class="text-sm text-gray-600 dark:text-gray-400">Status Verifikasi</dt>
                                     <dd>
                                         <span
                                             class="inline-flex items-center rounded-full px-2 py-1 text-xs font-medium"
                                             :class="{
-                                                'bg-green-100 text-green-800 dark:bg-green-900/30 dark:text-green-400': attendance.face_verification_passed,
-                                                'bg-yellow-100 text-yellow-800 dark:bg-yellow-900/30 dark:text-yellow-400': attendance.face_verification_skipped,
-                                                'bg-red-100 text-red-800 dark:bg-red-900/30 dark:text-red-400': attendance.face_verification_passed === false
+                                                'bg-green-100 text-green-800 dark:bg-green-900/30 dark:text-green-400':
+                                                    attendance.face_verification_passed,
+                                                'bg-yellow-100 text-yellow-800 dark:bg-yellow-900/30 dark:text-yellow-400':
+                                                    attendance.face_verification_skipped,
+                                                'bg-red-100 text-red-800 dark:bg-red-900/30 dark:text-red-400':
+                                                    attendance.face_verification_passed === false,
                                             }"
                                         >
                                             <CheckCircle v-if="attendance.face_verification_passed" class="mr-1 h-3 w-3" />
@@ -399,9 +395,9 @@ const getConfidenceLabel = (score: number | null) => {
                                 </div>
 
                                 <!-- Verification Notes -->
-                                <div v-if="attendance.face_verification_notes" class="border-t border-gray-200 dark:border-gray-700 pt-4">
-                                    <dt class="text-sm text-gray-600 dark:text-gray-400 mb-2">Catatan</dt>
-                                    <dd class="text-sm text-gray-900 dark:text-white bg-gray-50 dark:bg-gray-800 rounded-lg p-3">
+                                <div v-if="attendance.face_verification_notes" class="border-t border-gray-200 pt-4 dark:border-gray-700">
+                                    <dt class="mb-2 text-sm text-gray-600 dark:text-gray-400">Catatan</dt>
+                                    <dd class="rounded-lg bg-gray-50 p-3 text-sm text-gray-900 dark:bg-gray-800 dark:text-white">
                                         {{ attendance.face_verification_notes }}
                                     </dd>
                                 </div>
@@ -414,22 +410,23 @@ const getConfidenceLabel = (score: number | null) => {
                 <div class="space-y-8">
                     <!-- Office Location -->
                     <div class="overflow-hidden rounded-xl bg-white shadow-sm ring-1 ring-gray-900/5 dark:bg-gray-900 dark:ring-white/10">
-                        <div class="px-6 py-4 border-b border-gray-200 dark:border-gray-700">
-                            <h3 class="text-lg font-semibold text-gray-900 dark:text-white flex items-center">
+                        <div class="border-b border-gray-200 px-6 py-4 dark:border-gray-700">
+                            <h3 class="flex items-center text-lg font-semibold text-gray-900 dark:text-white">
                                 <Building class="mr-2 h-5 w-5 text-orange-600 dark:text-orange-400" />
                                 {{ attendance.office_location.name }}
                             </h3>
                             <p class="text-sm text-gray-600 dark:text-gray-400">{{ attendance.office_location.address }}</p>
                         </div>
                         <div class="p-6">
-                            <div class="aspect-[4/3] rounded-lg overflow-hidden bg-gray-100 dark:bg-gray-800">
+                            <div class="aspect-[4/3] overflow-hidden rounded-lg bg-gray-100 dark:bg-gray-800">
                                 <iframe
                                     :src="`https://maps.google.com/maps?q=${attendance.office_location.latitude},${attendance.office_location.longitude}&z=16&output=embed`"
                                     class="h-full w-full"
-                                    style="border:0;"
+                                    style="border: 0"
                                     allowfullscreen=""
                                     loading="lazy"
-                                    referrerpolicy="no-referrer-when-downgrade">
+                                    referrerpolicy="no-referrer-when-downgrade"
+                                >
                                 </iframe>
                             </div>
                         </div>
@@ -438,52 +435,58 @@ const getConfidenceLabel = (score: number | null) => {
                     <!-- Check-in/out Locations -->
                     <div class="space-y-6">
                         <!-- Check-in Location -->
-                        <div v-if="attendance.check_in_latitude && attendance.check_in_longitude"
-                             class="overflow-hidden rounded-xl bg-white shadow-sm ring-1 ring-gray-900/5 dark:bg-gray-900 dark:ring-white/10">
-                            <div class="px-6 py-4 border-b border-gray-200 dark:border-gray-700">
-                                <h3 class="text-lg font-semibold text-gray-900 dark:text-white flex items-center">
+                        <div
+                            v-if="attendance.check_in_latitude && attendance.check_in_longitude"
+                            class="overflow-hidden rounded-xl bg-white shadow-sm ring-1 ring-gray-900/5 dark:bg-gray-900 dark:ring-white/10"
+                        >
+                            <div class="border-b border-gray-200 px-6 py-4 dark:border-gray-700">
+                                <h3 class="flex items-center text-lg font-semibold text-gray-900 dark:text-white">
                                     <MapPin class="mr-2 h-5 w-5 text-green-600 dark:text-green-400" />
                                     Lokasi Check-in
                                 </h3>
-                                <p class="text-xs text-gray-500 dark:text-gray-500 font-mono">
+                                <p class="font-mono text-xs text-gray-500 dark:text-gray-500">
                                     {{ attendance.check_in_latitude }}, {{ attendance.check_in_longitude }}
                                 </p>
                             </div>
                             <div class="p-6">
-                                <div ref="checkInMapContainer" class="aspect-[4/3] rounded-lg overflow-hidden bg-gray-100 dark:bg-gray-800">
+                                <div ref="checkInMapContainer" class="aspect-[4/3] overflow-hidden rounded-lg bg-gray-100 dark:bg-gray-800">
                                     <iframe
                                         :src="`https://maps.google.com/maps?q=${attendance.check_in_latitude},${attendance.check_in_longitude}&z=16&output=embed`"
                                         class="h-full w-full"
-                                        style="border:0;"
+                                        style="border: 0"
                                         allowfullscreen=""
                                         loading="lazy"
-                                        referrerpolicy="no-referrer-when-downgrade">
+                                        referrerpolicy="no-referrer-when-downgrade"
+                                    >
                                     </iframe>
                                 </div>
                             </div>
                         </div>
 
                         <!-- Check-out Location -->
-                        <div v-if="attendance.check_out_latitude && attendance.check_out_longitude"
-                             class="overflow-hidden rounded-xl bg-white shadow-sm ring-1 ring-gray-900/5 dark:bg-gray-900 dark:ring-white/10">
-                            <div class="px-6 py-4 border-b border-gray-200 dark:border-gray-700">
-                                <h3 class="text-lg font-semibold text-gray-900 dark:text-white flex items-center">
+                        <div
+                            v-if="attendance.check_out_latitude && attendance.check_out_longitude"
+                            class="overflow-hidden rounded-xl bg-white shadow-sm ring-1 ring-gray-900/5 dark:bg-gray-900 dark:ring-white/10"
+                        >
+                            <div class="border-b border-gray-200 px-6 py-4 dark:border-gray-700">
+                                <h3 class="flex items-center text-lg font-semibold text-gray-900 dark:text-white">
                                     <MapPin class="mr-2 h-5 w-5 text-red-600 dark:text-red-400" />
                                     Lokasi Check-out
                                 </h3>
-                                <p class="text-xs text-gray-500 dark:text-gray-500 font-mono">
+                                <p class="font-mono text-xs text-gray-500 dark:text-gray-500">
                                     {{ attendance.check_out_latitude }}, {{ attendance.check_out_longitude }}
                                 </p>
                             </div>
                             <div class="p-6">
-                                <div ref="checkOutMapContainer" class="aspect-[4/3] rounded-lg overflow-hidden bg-gray-100 dark:bg-gray-800">
+                                <div ref="checkOutMapContainer" class="aspect-[4/3] overflow-hidden rounded-lg bg-gray-100 dark:bg-gray-800">
                                     <iframe
                                         :src="`https://maps.google.com/maps?q=${attendance.check_out_latitude},${attendance.check_out_longitude}&z=16&output=embed`"
                                         class="h-full w-full"
-                                        style="border:0;"
+                                        style="border: 0"
                                         allowfullscreen=""
                                         loading="lazy"
-                                        referrerpolicy="no-referrer-when-downgrade">
+                                        referrerpolicy="no-referrer-when-downgrade"
+                                    >
                                     </iframe>
                                 </div>
                             </div>
@@ -495,8 +498,8 @@ const getConfidenceLabel = (score: number | null) => {
             <!-- Footer Information -->
             <div v-if="attendance.notes" class="mt-8">
                 <div class="overflow-hidden rounded-xl bg-white shadow-sm ring-1 ring-gray-900/5 dark:bg-gray-900 dark:ring-white/10">
-                    <div class="px-6 py-4 border-b border-gray-200 dark:border-gray-700">
-                        <h3 class="text-lg font-semibold text-gray-900 dark:text-white flex items-center">
+                    <div class="border-b border-gray-200 px-6 py-4 dark:border-gray-700">
+                        <h3 class="flex items-center text-lg font-semibold text-gray-900 dark:text-white">
                             <Briefcase class="mr-2 h-5 w-5 text-gray-600 dark:text-gray-400" />
                             Catatan
                         </h3>

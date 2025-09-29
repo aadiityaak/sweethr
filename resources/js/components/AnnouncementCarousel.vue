@@ -1,6 +1,6 @@
 <script setup lang="ts">
-import { ref, onMounted, onUnmounted } from 'vue';
-import { ChevronLeft, ChevronRight, Calendar, User, Tag } from 'lucide-vue-next';
+import { Calendar, ChevronLeft, ChevronRight, Tag, User } from 'lucide-vue-next';
+import { onMounted, onUnmounted, ref } from 'vue';
 
 interface AnnouncementCategory {
     id: number;
@@ -104,7 +104,7 @@ const formatDate = (dateString: string) => {
     return new Date(dateString).toLocaleDateString('id-ID', {
         year: 'numeric',
         month: 'short',
-        day: 'numeric'
+        day: 'numeric',
     });
 };
 
@@ -122,17 +122,10 @@ onUnmounted(() => {
 <template>
     <div class="relative">
         <!-- Empty State -->
-        <div
-            v-if="announcements.length === 0"
-            class="flex flex-col items-center justify-center py-12 text-center"
-        >
-            <Calendar class="h-12 w-12 text-gray-400 dark:text-gray-600 mb-4" />
-            <h3 class="text-lg font-medium text-gray-900 dark:text-white">
-                Belum ada pengumuman
-            </h3>
-            <p class="text-sm text-gray-500 dark:text-gray-400">
-                Pengumuman terbaru akan muncul di sini
-            </p>
+        <div v-if="announcements.length === 0" class="flex flex-col items-center justify-center py-12 text-center">
+            <Calendar class="mb-4 h-12 w-12 text-gray-400 dark:text-gray-600" />
+            <h3 class="text-lg font-medium text-gray-900 dark:text-white">Belum ada pengumuman</h3>
+            <p class="text-sm text-gray-500 dark:text-gray-400">Pengumuman terbaru akan muncul di sini</p>
         </div>
 
         <!-- Carousel -->
@@ -144,15 +137,8 @@ onUnmounted(() => {
         >
             <!-- Slides Container -->
             <div class="relative">
-                <div
-                    class="flex transition-transform duration-500 ease-in-out"
-                    :style="{ transform: `translateX(-${currentIndex * 100}%)` }"
-                >
-                    <div
-                        v-for="(announcement, index) in announcements"
-                        :key="announcement.id"
-                        class="w-full flex-shrink-0"
-                    >
+                <div class="flex transition-transform duration-500 ease-in-out" :style="{ transform: `translateX(-${currentIndex * 100}%)` }">
+                    <div v-for="(announcement, index) in announcements" :key="announcement.id" class="w-full flex-shrink-0">
                         <!-- Banner Content -->
                         <div
                             class="flex cursor-pointer items-center gap-6 p-6 transition-colors hover:bg-gray-50 dark:hover:bg-gray-900/50"
@@ -160,15 +146,8 @@ onUnmounted(() => {
                         >
                             <!-- Image -->
                             <div class="flex-shrink-0">
-                                <div
-                                    v-if="announcement.image_url"
-                                    class="h-20 w-20 overflow-hidden rounded-lg"
-                                >
-                                    <img
-                                        :src="announcement.image_url"
-                                        :alt="announcement.title"
-                                        class="h-full w-full object-cover"
-                                    />
+                                <div v-if="announcement.image_url" class="h-20 w-20 overflow-hidden rounded-lg">
+                                    <img :src="announcement.image_url" :alt="announcement.title" class="h-full w-full object-cover" />
                                 </div>
                                 <div
                                     v-else
@@ -183,12 +162,10 @@ onUnmounted(() => {
                                 <div class="flex items-start justify-between gap-4">
                                     <div class="min-w-0 flex-1">
                                         <!-- Title -->
-                                        <h3 class="text-lg font-semibold text-gray-900 dark:text-white line-clamp-2">
-                                            📢 {{ announcement.title }}
-                                        </h3>
+                                        <h3 class="line-clamp-2 text-lg font-semibold text-gray-900 dark:text-white">📢 {{ announcement.title }}</h3>
 
                                         <!-- Excerpt -->
-                                        <p class="mt-2 text-sm text-gray-600 dark:text-gray-400 line-clamp-2">
+                                        <p class="mt-2 line-clamp-2 text-sm text-gray-600 dark:text-gray-400">
                                             {{ announcement.excerpt }}
                                         </p>
 
@@ -227,7 +204,7 @@ onUnmounted(() => {
             <div v-if="announcements.length > 1" class="absolute inset-y-0 left-0 flex items-center">
                 <button
                     @click="prevSlide"
-                    class="ml-2 flex h-8 w-8 items-center justify-center rounded-full bg-white/80 text-gray-700 shadow-lg transition-all hover:bg-white hover:scale-110 dark:bg-gray-800/80 dark:text-gray-300 dark:hover:bg-gray-800"
+                    class="ml-2 flex h-8 w-8 items-center justify-center rounded-full bg-white/80 text-gray-700 shadow-lg transition-all hover:scale-110 hover:bg-white dark:bg-gray-800/80 dark:text-gray-300 dark:hover:bg-gray-800"
                     :class="{ 'opacity-50': announcements.length <= 1 }"
                     :disabled="announcements.length <= 1"
                 >
@@ -238,7 +215,7 @@ onUnmounted(() => {
             <div v-if="announcements.length > 1" class="absolute inset-y-0 right-0 flex items-center">
                 <button
                     @click="nextSlide"
-                    class="mr-2 flex h-8 w-8 items-center justify-center rounded-full bg-white/80 text-gray-700 shadow-lg transition-all hover:bg-white hover:scale-110 dark:bg-gray-800/80 dark:text-gray-300 dark:hover:bg-gray-800"
+                    class="mr-2 flex h-8 w-8 items-center justify-center rounded-full bg-white/80 text-gray-700 shadow-lg transition-all hover:scale-110 hover:bg-white dark:bg-gray-800/80 dark:text-gray-300 dark:hover:bg-gray-800"
                     :class="{ 'opacity-50': announcements.length <= 1 }"
                     :disabled="announcements.length <= 1"
                 >
@@ -247,10 +224,7 @@ onUnmounted(() => {
             </div>
 
             <!-- Dots Indicator -->
-            <div
-                v-if="announcements.length > 1"
-                class="absolute bottom-4 left-1/2 flex -translate-x-1/2 gap-2"
-            >
+            <div v-if="announcements.length > 1" class="absolute bottom-4 left-1/2 flex -translate-x-1/2 gap-2">
                 <button
                     v-for="(announcement, index) in announcements"
                     :key="`dot-${index}`"
@@ -258,8 +232,8 @@ onUnmounted(() => {
                     class="h-2 w-2 rounded-full transition-all"
                     :class="[
                         index === currentIndex
-                            ? 'bg-blue-600 dark:bg-blue-400 w-4'
-                            : 'bg-gray-300 dark:bg-gray-600 hover:bg-gray-400 dark:hover:bg-gray-500'
+                            ? 'w-4 bg-blue-600 dark:bg-blue-400'
+                            : 'bg-gray-300 hover:bg-gray-400 dark:bg-gray-600 dark:hover:bg-gray-500',
                     ]"
                 />
             </div>

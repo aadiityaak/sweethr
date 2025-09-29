@@ -7,12 +7,8 @@
             <div class="mb-8">
                 <div class="flex items-center justify-between">
                     <div>
-                        <h1 class="text-3xl font-bold text-gray-900 dark:text-white">
-                            Pengaturan Perusahaan
-                        </h1>
-                        <p class="mt-1 text-gray-600 dark:text-gray-400">
-                            Kelola informasi dan branding perusahaan
-                        </p>
+                        <h1 class="text-3xl font-bold text-gray-900 dark:text-white">Pengaturan Perusahaan</h1>
+                        <p class="mt-1 text-gray-600 dark:text-gray-400">Kelola informasi dan branding perusahaan</p>
                     </div>
                 </div>
             </div>
@@ -21,7 +17,7 @@
             <form @submit.prevent="submitForm" class="w-full space-y-8">
                 <!-- Branding & Identity -->
                 <div class="overflow-hidden rounded-xl bg-white shadow-sm ring-1 ring-gray-900/5 dark:bg-gray-900 dark:ring-white/10">
-                    <div class="px-6 py-4 border-b border-gray-200 dark:border-gray-700">
+                    <div class="border-b border-gray-200 px-6 py-4 dark:border-gray-700">
                         <h3 class="text-lg font-semibold text-gray-900 dark:text-white">{{ groups.branding }}</h3>
                         <p class="text-sm text-gray-600 dark:text-gray-400">Atur identitas visual dan branding perusahaan</p>
                     </div>
@@ -33,65 +29,57 @@
                                     <span v-if="setting.required" class="text-red-500">*</span>
                                 </label>
 
-                            <!-- Text Input -->
-                            <Input
-                                v-if="setting.type === 'text' || setting.type === 'email' || setting.type === 'url'"
-                                :type="setting.type === 'email' ? 'email' : setting.type === 'url' ? 'url' : 'text'"
-                                v-model="form[key]"
-                                :placeholder="setting.description"
-                                class="w-full"
-                            />
-
-                            <!-- Textarea -->
-                            <Textarea
-                                v-else-if="setting.type === 'textarea'"
-                                v-model="form[key]"
-                                :placeholder="setting.description"
-                                class="w-full"
-                                rows="3"
-                            />
-
-                            <!-- Color Input -->
-                            <div v-else-if="setting.type === 'color'" class="flex items-center gap-3">
-                                <input
-                                    type="color"
-                                    v-model="form[key]"
-                                    class="h-10 w-20 rounded border border-input cursor-pointer"
-                                />
+                                <!-- Text Input -->
                                 <Input
+                                    v-if="setting.type === 'text' || setting.type === 'email' || setting.type === 'url'"
+                                    :type="setting.type === 'email' ? 'email' : setting.type === 'url' ? 'url' : 'text'"
                                     v-model="form[key]"
-                                    placeholder="#3b82f6"
-                                    class="flex-1"
+                                    :placeholder="setting.description"
+                                    class="w-full"
                                 />
-                            </div>
 
-                            <!-- Image Upload -->
-                            <div v-else-if="setting.type === 'image'" class="space-y-3">
-                                <div v-if="setting.current_value" class="flex items-center gap-3">
-                                    <img
-                                        :src="setting.current_value"
-                                        :alt="setting.label"
-                                        class="h-16 w-16 rounded border object-contain bg-muted"
-                                    />
-                                    <Button
-                                        type="button"
-                                        variant="outline"
-                                        size="sm"
-                                        @click="deleteFile(key)"
-                                        class="text-red-600 hover:bg-red-50"
-                                    >
-                                        <Trash class="h-4 w-4 mr-2" />
-                                        Hapus
-                                    </Button>
-                                </div>
-                                <input
-                                    type="file"
-                                    :ref="`file_${key}`"
-                                    @change="handleFileChange(key, $event)"
-                                    accept="image/*"
-                                    class="block w-full text-sm text-muted-foreground file:mr-4 file:py-2 file:px-4 file:rounded-md file:border-0 file:text-sm file:font-medium file:bg-primary file:text-primary-foreground hover:file:bg-primary/90"
+                                <!-- Textarea -->
+                                <Textarea
+                                    v-else-if="setting.type === 'textarea'"
+                                    v-model="form[key]"
+                                    :placeholder="setting.description"
+                                    class="w-full"
+                                    rows="3"
                                 />
-                            </div>
+
+                                <!-- Color Input -->
+                                <div v-else-if="setting.type === 'color'" class="flex items-center gap-3">
+                                    <input type="color" v-model="form[key]" class="h-10 w-20 cursor-pointer rounded border border-input" />
+                                    <Input v-model="form[key]" placeholder="#3b82f6" class="flex-1" />
+                                </div>
+
+                                <!-- Image Upload -->
+                                <div v-else-if="setting.type === 'image'" class="space-y-3">
+                                    <div v-if="setting.current_value" class="flex items-center gap-3">
+                                        <img
+                                            :src="setting.current_value"
+                                            :alt="setting.label"
+                                            class="h-16 w-16 rounded border bg-muted object-contain"
+                                        />
+                                        <Button
+                                            type="button"
+                                            variant="outline"
+                                            size="sm"
+                                            @click="deleteFile(key)"
+                                            class="text-red-600 hover:bg-red-50"
+                                        >
+                                            <Trash class="mr-2 h-4 w-4" />
+                                            Hapus
+                                        </Button>
+                                    </div>
+                                    <input
+                                        type="file"
+                                        :ref="`file_${key}`"
+                                        @change="handleFileChange(key, $event)"
+                                        accept="image/*"
+                                        class="block w-full text-sm text-muted-foreground file:mr-4 file:rounded-md file:border-0 file:bg-primary file:px-4 file:py-2 file:text-sm file:font-medium file:text-primary-foreground hover:file:bg-primary/90"
+                                    />
+                                </div>
 
                                 <p v-if="setting.description" class="text-xs text-gray-600 dark:text-gray-400">
                                     {{ setting.description }}
@@ -105,35 +93,40 @@
                 </div>
 
                 <div class="overflow-hidden rounded-xl bg-white shadow-sm ring-1 ring-gray-900/5 dark:bg-gray-900 dark:ring-white/10">
-                    <div class="px-6 py-4 border-b border-gray-200 dark:border-gray-700">
+                    <div class="border-b border-gray-200 px-6 py-4 dark:border-gray-700">
                         <h3 class="text-lg font-semibold text-gray-900 dark:text-white">{{ groups.company_info }}</h3>
                         <p class="text-sm text-gray-600 dark:text-gray-400">Informasi kontak dan detail perusahaan</p>
                     </div>
                     <div class="p-6">
                         <div class="grid gap-6 md:grid-cols-2">
-                            <div v-for="(setting, key) in settings.company_info" :key="key" class="space-y-2" :class="{ 'md:col-span-2': setting.type === 'textarea' }">
+                            <div
+                                v-for="(setting, key) in settings.company_info"
+                                :key="key"
+                                class="space-y-2"
+                                :class="{ 'md:col-span-2': setting.type === 'textarea' }"
+                            >
                                 <label class="text-sm font-medium text-gray-900 dark:text-white">
                                     {{ setting.label }}
                                     <span v-if="setting.required" class="text-red-500">*</span>
                                 </label>
 
-                            <!-- Text Input -->
-                            <Input
-                                v-if="setting.type === 'text' || setting.type === 'email' || setting.type === 'url'"
-                                :type="setting.type === 'email' ? 'email' : setting.type === 'url' ? 'url' : 'text'"
-                                v-model="form[key]"
-                                :placeholder="setting.description"
-                                class="w-full"
-                            />
+                                <!-- Text Input -->
+                                <Input
+                                    v-if="setting.type === 'text' || setting.type === 'email' || setting.type === 'url'"
+                                    :type="setting.type === 'email' ? 'email' : setting.type === 'url' ? 'url' : 'text'"
+                                    v-model="form[key]"
+                                    :placeholder="setting.description"
+                                    class="w-full"
+                                />
 
-                            <!-- Textarea -->
-                            <Textarea
-                                v-else-if="setting.type === 'textarea'"
-                                v-model="form[key]"
-                                :placeholder="setting.description"
-                                class="w-full"
-                                rows="3"
-                            />
+                                <!-- Textarea -->
+                                <Textarea
+                                    v-else-if="setting.type === 'textarea'"
+                                    v-model="form[key]"
+                                    :placeholder="setting.description"
+                                    class="w-full"
+                                    rows="3"
+                                />
 
                                 <p v-if="setting.description" class="text-xs text-gray-600 dark:text-gray-400">
                                     {{ setting.description }}
@@ -150,7 +143,7 @@
                     <Button
                         type="submit"
                         :disabled="processing"
-                        class="inline-flex items-center gap-2 rounded-lg bg-blue-600 px-8 py-2 text-sm font-medium text-white shadow-sm hover:bg-blue-700 focus:outline-none focus:ring-2 focus:ring-blue-500 focus:ring-offset-2 transition-colors disabled:opacity-50 disabled:cursor-not-allowed"
+                        class="inline-flex items-center gap-2 rounded-lg bg-blue-600 px-8 py-2 text-sm font-medium text-white shadow-sm transition-colors hover:bg-blue-700 focus:ring-2 focus:ring-blue-500 focus:ring-offset-2 focus:outline-none disabled:cursor-not-allowed disabled:opacity-50"
                     >
                         {{ processing ? 'Menyimpan...' : 'Simpan Pengaturan' }}
                     </Button>
@@ -161,15 +154,15 @@
 </template>
 
 <script setup lang="ts">
-import { Head, router, useForm } from '@inertiajs/vue3';
-import { ref, reactive } from 'vue';
+import { Button } from '@/components/ui/button';
+import { Input } from '@/components/ui/input';
+import { Textarea } from '@/components/ui/textarea';
+import { useToast } from '@/components/ui/toast/use-toast';
 import AppLayout from '@/layouts/AppLayout.vue';
 import { type BreadcrumbItem } from '@/types';
-import { Input } from '@/components/ui/input';
-import { Button } from '@/components/ui/button';
-import { Textarea } from '@/components/ui/textarea';
+import { Head, router } from '@inertiajs/vue3';
 import { Trash } from 'lucide-vue-next';
-import { useToast } from '@/components/ui/toast/use-toast';
+import { reactive, ref } from 'vue';
 
 interface SettingDefinition {
     key: string;
@@ -288,7 +281,7 @@ const submitForm = () => {
             processing.value = false;
 
             // Clear file inputs
-            Object.keys(fileInputs).forEach(key => {
+            Object.keys(fileInputs).forEach((key) => {
                 fileInputs[key] = null;
                 const input = document.querySelector(`input[type="file"][data-key="${key}"]`) as HTMLInputElement;
                 if (input) {

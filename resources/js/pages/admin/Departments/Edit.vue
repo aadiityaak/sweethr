@@ -21,34 +21,23 @@
             <!-- Edit Form -->
             <div class="grid gap-6 lg:grid-cols-3">
                 <!-- Main Form -->
-                <div class="lg:col-span-2 space-y-6">
+                <div class="space-y-6 lg:col-span-2">
                     <div class="rounded-lg border bg-card p-6">
-                        <h3 class="text-lg font-semibold mb-4">Informasi Departemen</h3>
+                        <h3 class="mb-4 text-lg font-semibold">Informasi Departemen</h3>
 
                         <form @submit.prevent="submit" class="space-y-4">
                             <div class="grid gap-4 md:grid-cols-2">
                                 <div>
                                     <Label for="name">Nama Departemen *</Label>
-                                    <Input
-                                        id="name"
-                                        v-model="form.name"
-                                        placeholder="e.g. Human Resources"
-                                        :error="form.errors.name"
-                                    />
-                                    <p v-if="form.errors.name" class="text-sm text-red-600 mt-1">
+                                    <Input id="name" v-model="form.name" placeholder="e.g. Human Resources" :error="form.errors.name" />
+                                    <p v-if="form.errors.name" class="mt-1 text-sm text-red-600">
                                         {{ form.errors.name }}
                                     </p>
                                 </div>
                                 <div>
                                     <Label for="code">Kode Departemen *</Label>
-                                    <Input
-                                        id="code"
-                                        v-model="form.code"
-                                        placeholder="e.g. HR"
-                                        maxlength="10"
-                                        :error="form.errors.code"
-                                    />
-                                    <p v-if="form.errors.code" class="text-sm text-red-600 mt-1">
+                                    <Input id="code" v-model="form.code" placeholder="e.g. HR" maxlength="10" :error="form.errors.code" />
+                                    <p v-if="form.errors.code" class="mt-1 text-sm text-red-600">
                                         {{ form.errors.code }}
                                     </p>
                                 </div>
@@ -63,7 +52,7 @@
                                     rows="3"
                                     :error="form.errors.description"
                                 />
-                                <p v-if="form.errors.description" class="text-sm text-red-600 mt-1">
+                                <p v-if="form.errors.description" class="mt-1 text-sm text-red-600">
                                     {{ form.errors.description }}
                                 </p>
                             </div>
@@ -81,58 +70,41 @@
                                         {{ manager.name }} ({{ manager.employee_id }})
                                     </option>
                                 </select>
-                                <p v-if="form.errors.manager_id" class="text-sm text-red-600 mt-1">
+                                <p v-if="form.errors.manager_id" class="mt-1 text-sm text-red-600">
                                     {{ form.errors.manager_id }}
                                 </p>
                             </div>
 
                             <!-- Positions Management -->
-                            <div class="pt-6 border-t">
-                                <div class="flex items-center justify-between mb-4">
+                            <div class="border-t pt-6">
+                                <div class="mb-4 flex items-center justify-between">
                                     <h4 class="text-md font-semibold">Posisi dalam Departemen</h4>
-                                    <Button
-                                        type="button"
-                                        variant="outline"
-                                        size="sm"
-                                        @click="addPosition"
-                                    >
-                                        <Plus class="h-4 w-4 mr-2" />
+                                    <Button type="button" variant="outline" size="sm" @click="addPosition">
+                                        <Plus class="mr-2 h-4 w-4" />
                                         Tambah Posisi
                                     </Button>
                                 </div>
 
-                                <div v-if="form.positions.length === 0" class="text-center py-8 text-muted-foreground">
-                                    <Briefcase class="h-8 w-8 mx-auto mb-2 opacity-50" />
+                                <div v-if="form.positions.length === 0" class="py-8 text-center text-muted-foreground">
+                                    <Briefcase class="mx-auto mb-2 h-8 w-8 opacity-50" />
                                     <p>Belum ada posisi yang ditambahkan</p>
                                     <p class="text-sm">Klik "Tambah Posisi" untuk menambah posisi baru</p>
                                 </div>
 
                                 <div v-else class="space-y-4">
-                                    <div
-                                        v-for="(position, index) in form.positions"
-                                        :key="index"
-                                        class="p-4 border rounded-lg bg-muted/20"
-                                    >
+                                    <div v-for="(position, index) in form.positions" :key="index" class="rounded-lg border bg-muted/20 p-4">
                                         <div class="grid gap-4 md:grid-cols-2">
                                             <div class="space-y-2">
                                                 <Label :for="`position_title_${index}`">Nama Posisi *</Label>
-                                                <Input
-                                                    :id="`position_title_${index}`"
-                                                    v-model="position.title"
-                                                    placeholder="e.g. HR Manager"
-                                                />
+                                                <Input :id="`position_title_${index}`" v-model="position.title" placeholder="e.g. HR Manager" />
                                             </div>
                                             <div class="space-y-2">
                                                 <Label :for="`position_code_${index}`">Kode Posisi *</Label>
-                                                <Input
-                                                    :id="`position_code_${index}`"
-                                                    v-model="position.code"
-                                                    placeholder="e.g. HRM001"
-                                                />
+                                                <Input :id="`position_code_${index}`" v-model="position.code" placeholder="e.g. HRM001" />
                                             </div>
                                         </div>
 
-                                        <div class="grid gap-4 md:grid-cols-3 mt-4">
+                                        <div class="mt-4 grid gap-4 md:grid-cols-3">
                                             <div class="space-y-2">
                                                 <Label :for="`position_level_${index}`">Level *</Label>
                                                 <select
@@ -164,9 +136,9 @@
                                                     variant="outline"
                                                     size="sm"
                                                     @click="removePosition(index)"
-                                                    class="text-red-600 hover:text-red-700 hover:bg-red-50"
+                                                    class="text-red-600 hover:bg-red-50 hover:text-red-700"
                                                 >
-                                                    <Trash class="h-4 w-4 mr-2" />
+                                                    <Trash class="mr-2 h-4 w-4" />
                                                     Hapus
                                                 </Button>
                                             </div>
@@ -185,13 +157,8 @@
                                 </div>
                             </div>
 
-                            <div class="flex items-center space-x-2 pt-6 border-t">
-                                <input
-                                    id="is_active"
-                                    v-model="form.is_active"
-                                    type="checkbox"
-                                    class="h-4 w-4 rounded border-gray-300"
-                                />
+                            <div class="flex items-center space-x-2 border-t pt-6">
+                                <input id="is_active" v-model="form.is_active" type="checkbox" class="h-4 w-4 rounded border-gray-300" />
                                 <Label for="is_active" class="text-sm">Departemen Aktif</Label>
                             </div>
 
@@ -199,13 +166,7 @@
                                 <Button type="submit" :disabled="form.processing">
                                     {{ form.processing ? 'Menyimpan...' : 'Update Departemen' }}
                                 </Button>
-                                <Button
-                                    type="button"
-                                    variant="outline"
-                                    @click="router.visit('/admin/departments')"
-                                >
-                                    Batal
-                                </Button>
+                                <Button type="button" variant="outline" @click="router.visit('/admin/departments')"> Batal </Button>
                             </div>
                         </form>
                     </div>
@@ -215,7 +176,7 @@
                 <div class="space-y-6">
                     <!-- Preview Card -->
                     <div class="rounded-lg border bg-card p-6">
-                        <h3 class="text-lg font-semibold mb-4">Preview Departemen</h3>
+                        <h3 class="mb-4 text-lg font-semibold">Preview Departemen</h3>
                         <div class="space-y-3 text-sm">
                             <div class="flex justify-between">
                                 <span class="text-muted-foreground">Nama:</span>
@@ -234,7 +195,7 @@
                                 <span
                                     :class="{
                                         'text-green-600': form.is_active,
-                                        'text-red-600': !form.is_active
+                                        'text-red-600': !form.is_active,
                                     }"
                                     class="font-medium"
                                 >
@@ -246,13 +207,13 @@
 
                     <!-- Employee Count Warning -->
                     <div v-if="department.employees_count > 0" class="rounded-lg border bg-yellow-50 p-4 dark:bg-yellow-950/20">
-                        <h4 class="font-medium text-yellow-900 dark:text-yellow-400 mb-2">
-                            <AlertTriangle class="h-4 w-4 inline mr-1" />
+                        <h4 class="mb-2 font-medium text-yellow-900 dark:text-yellow-400">
+                            <AlertTriangle class="mr-1 inline h-4 w-4" />
                             Perhatian
                         </h4>
                         <p class="text-sm text-yellow-700 dark:text-yellow-300">
-                            Departemen ini memiliki {{ department.employees_count }} karyawan aktif.
-                            Perubahan status atau manajer akan mempengaruhi karyawan tersebut.
+                            Departemen ini memiliki {{ department.employees_count }} karyawan aktif. Perubahan status atau manajer akan mempengaruhi
+                            karyawan tersebut.
                         </p>
                     </div>
                 </div>
@@ -262,15 +223,15 @@
 </template>
 
 <script setup lang="ts">
-import { Head, Link, router, useForm } from '@inertiajs/vue3';
-import { computed } from 'vue';
+import { Button } from '@/components/ui/button';
+import { Input } from '@/components/ui/input';
+import { Label } from '@/components/ui/label';
+import { Textarea } from '@/components/ui/textarea';
 import AppLayout from '@/layouts/AppLayout.vue';
 import { type BreadcrumbItem } from '@/types';
-import { Input } from '@/components/ui/input';
-import { Textarea } from '@/components/ui/textarea';
-import { Button } from '@/components/ui/button';
-import { Label } from '@/components/ui/label';
-import { ArrowLeft, AlertTriangle, Plus, Trash, Briefcase } from 'lucide-vue-next';
+import { Head, Link, router, useForm } from '@inertiajs/vue3';
+import { AlertTriangle, ArrowLeft, Briefcase, Plus, Trash } from 'lucide-vue-next';
+import { computed } from 'vue';
 
 interface Department {
     id: number;
@@ -326,7 +287,7 @@ const form = useForm({
     description: props.department.description || '',
     manager_id: props.department.manager_id || '',
     is_active: props.department.is_active,
-    positions: props.department.positions.map(pos => ({
+    positions: props.department.positions.map((pos) => ({
         title: pos.title,
         code: pos.code,
         level: pos.level.toString(),
@@ -337,7 +298,7 @@ const form = useForm({
 
 const selectedManagerName = computed(() => {
     if (!form.manager_id) return null;
-    const manager = props.managers.find(m => m.id == form.manager_id);
+    const manager = props.managers.find((m) => m.id == form.manager_id);
     return manager ? `${manager.name} (${manager.employee_id})` : null;
 });
 

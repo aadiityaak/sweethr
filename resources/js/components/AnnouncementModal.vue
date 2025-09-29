@@ -1,6 +1,6 @@
 <script setup lang="ts">
-import { Dialog, DialogContent, DialogDescription, DialogHeader, DialogTitle } from '@/components/ui/dialog';
-import { X, Calendar, User, Tag, Clock } from 'lucide-vue-next';
+import { Dialog, DialogContent, DialogHeader, DialogTitle } from '@/components/ui/dialog';
+import { Calendar, Clock, Tag, User, X } from 'lucide-vue-next';
 
 interface AnnouncementCategory {
     id: number;
@@ -78,7 +78,7 @@ const formatDate = (dateString: string) => {
         month: 'long',
         day: 'numeric',
         hour: '2-digit',
-        minute: '2-digit'
+        minute: '2-digit',
     });
 };
 
@@ -89,7 +89,7 @@ const handleClose = () => {
 
 <template>
     <Dialog :open="open" @update:open="handleClose">
-        <DialogContent class="max-w-4xl max-h-[90vh] overflow-y-auto">
+        <DialogContent class="max-h-[90vh] max-w-4xl overflow-y-auto">
             <div v-if="announcement" class="space-y-6">
                 <!-- Header -->
                 <DialogHeader>
@@ -132,10 +132,7 @@ const handleClose = () => {
                             </div>
 
                             <!-- Expires Info -->
-                            <div
-                                v-if="announcement.expires_at"
-                                class="mt-2 flex items-center text-xs text-amber-600 dark:text-amber-400"
-                            >
+                            <div v-if="announcement.expires_at" class="mt-2 flex items-center text-xs text-amber-600 dark:text-amber-400">
                                 <Clock class="mr-1 h-3 w-3" />
                                 Berlaku hingga {{ formatDate(announcement.expires_at) }}
                             </div>
@@ -154,18 +151,14 @@ const handleClose = () => {
                 <!-- Image -->
                 <div v-if="announcement.image_url" class="mt-6">
                     <div class="overflow-hidden rounded-lg border border-gray-200 dark:border-gray-700">
-                        <img
-                            :src="announcement.image_url"
-                            :alt="announcement.title"
-                            class="w-full h-auto max-h-96 object-cover"
-                        />
+                        <img :src="announcement.image_url" :alt="announcement.title" class="h-auto max-h-96 w-full object-cover" />
                     </div>
                 </div>
 
                 <!-- Content -->
                 <div class="prose prose-gray dark:prose-invert max-w-none">
                     <div
-                        class="text-gray-900 dark:text-gray-100 leading-relaxed whitespace-pre-wrap"
+                        class="leading-relaxed whitespace-pre-wrap text-gray-900 dark:text-gray-100"
                         v-html="announcement.content.replace(/\n/g, '<br>')"
                     ></div>
                 </div>
@@ -173,9 +166,7 @@ const handleClose = () => {
                 <!-- Footer -->
                 <div class="border-t border-gray-200 pt-6 dark:border-gray-700">
                     <div class="flex items-center justify-between">
-                        <div class="text-xs text-gray-500 dark:text-gray-400">
-                            Dipublikasikan oleh {{ announcement.author.name }}
-                        </div>
+                        <div class="text-xs text-gray-500 dark:text-gray-400">Dipublikasikan oleh {{ announcement.author.name }}</div>
 
                         <button
                             @click="handleClose"

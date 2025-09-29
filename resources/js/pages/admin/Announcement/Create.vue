@@ -1,10 +1,10 @@
 <script setup lang="ts">
+import DateTimePicker from '@/components/ui/date-picker/DateTimePicker.vue';
 import AppLayout from '@/layouts/AppLayout.vue';
 import { type BreadcrumbItem } from '@/types';
 import { Head, useForm } from '@inertiajs/vue3';
-import { Save, ArrowLeft, Upload, X } from 'lucide-vue-next';
+import { ArrowLeft, Save, Upload, X } from 'lucide-vue-next';
 import { ref } from 'vue';
-import DateTimePicker from '@/components/ui/date-picker/DateTimePicker.vue';
 
 interface AnnouncementCategory {
     id: number;
@@ -95,12 +95,8 @@ const getCategoryColor = (color: string) => {
                         Kembali
                     </a>
                     <div>
-                        <h1 class="text-3xl font-bold text-gray-900 dark:text-white">
-                            Buat Pengumuman Baru
-                        </h1>
-                        <p class="mt-1 text-gray-600 dark:text-gray-400">
-                            Buat pengumuman untuk semua karyawan
-                        </p>
+                        <h1 class="text-3xl font-bold text-gray-900 dark:text-white">Buat Pengumuman Baru</h1>
+                        <p class="mt-1 text-gray-600 dark:text-gray-400">Buat pengumuman untuk semua karyawan</p>
                     </div>
                 </div>
             </div>
@@ -110,21 +106,17 @@ const getCategoryColor = (color: string) => {
                 <form @submit.prevent="submit" class="divide-y divide-gray-200 dark:divide-gray-800">
                     <!-- Basic Information -->
                     <div class="p-6">
-                        <h3 class="text-lg font-semibold text-gray-900 dark:text-white mb-6">
-                            Informasi Dasar
-                        </h3>
+                        <h3 class="mb-6 text-lg font-semibold text-gray-900 dark:text-white">Informasi Dasar</h3>
 
                         <div class="grid gap-6">
                             <!-- Title -->
                             <div>
-                                <label class="block text-sm font-medium text-gray-700 dark:text-gray-300">
-                                    Judul Pengumuman
-                                </label>
+                                <label class="block text-sm font-medium text-gray-700 dark:text-gray-300"> Judul Pengumuman </label>
                                 <input
                                     v-model="form.title"
                                     type="text"
                                     required
-                                    class="mt-1 block w-full rounded-lg border border-gray-300 bg-white px-3 py-2 text-sm focus:border-blue-500 focus:outline-none focus:ring-1 focus:ring-blue-500 dark:border-gray-600 dark:bg-gray-800 dark:text-gray-300"
+                                    class="mt-1 block w-full rounded-lg border border-gray-300 bg-white px-3 py-2 text-sm focus:border-blue-500 focus:ring-1 focus:ring-blue-500 focus:outline-none dark:border-gray-600 dark:bg-gray-800 dark:text-gray-300"
                                     :class="{ 'border-red-500': form.errors.title }"
                                     placeholder="Masukkan judul pengumuman..."
                                 />
@@ -136,21 +128,15 @@ const getCategoryColor = (color: string) => {
                             <!-- Category and Priority -->
                             <div class="grid gap-6 md:grid-cols-2">
                                 <div>
-                                    <label class="block text-sm font-medium text-gray-700 dark:text-gray-300">
-                                        Kategori
-                                    </label>
+                                    <label class="block text-sm font-medium text-gray-700 dark:text-gray-300"> Kategori </label>
                                     <select
                                         v-model="form.category_id"
                                         required
-                                        class="mt-1 block w-full rounded-lg border border-gray-300 bg-white px-3 py-2 text-sm focus:border-blue-500 focus:outline-none focus:ring-1 focus:ring-blue-500 dark:border-gray-600 dark:bg-gray-800 dark:text-gray-300"
+                                        class="mt-1 block w-full rounded-lg border border-gray-300 bg-white px-3 py-2 text-sm focus:border-blue-500 focus:ring-1 focus:ring-blue-500 focus:outline-none dark:border-gray-600 dark:bg-gray-800 dark:text-gray-300"
                                         :class="{ 'border-red-500': form.errors.category_id }"
                                     >
                                         <option value="">Pilih kategori...</option>
-                                        <option
-                                            v-for="category in categories"
-                                            :key="category.id"
-                                            :value="category.id"
-                                        >
+                                        <option v-for="category in categories" :key="category.id" :value="category.id">
                                             {{ category.name }}
                                         </option>
                                     </select>
@@ -160,12 +146,10 @@ const getCategoryColor = (color: string) => {
                                 </div>
 
                                 <div>
-                                    <label class="block text-sm font-medium text-gray-700 dark:text-gray-300">
-                                        Prioritas
-                                    </label>
+                                    <label class="block text-sm font-medium text-gray-700 dark:text-gray-300"> Prioritas </label>
                                     <select
                                         v-model="form.priority"
-                                        class="mt-1 block w-full rounded-lg border border-gray-300 bg-white px-3 py-2 text-sm focus:border-blue-500 focus:outline-none focus:ring-1 focus:ring-blue-500 dark:border-gray-600 dark:bg-gray-800 dark:text-gray-300"
+                                        class="mt-1 block w-full rounded-lg border border-gray-300 bg-white px-3 py-2 text-sm focus:border-blue-500 focus:ring-1 focus:ring-blue-500 focus:outline-none dark:border-gray-600 dark:bg-gray-800 dark:text-gray-300"
                                     >
                                         <option value="low">Rendah</option>
                                         <option value="normal">Normal</option>
@@ -177,13 +161,11 @@ const getCategoryColor = (color: string) => {
 
                             <!-- Excerpt -->
                             <div>
-                                <label class="block text-sm font-medium text-gray-700 dark:text-gray-300">
-                                    Ringkasan (Opsional)
-                                </label>
+                                <label class="block text-sm font-medium text-gray-700 dark:text-gray-300"> Ringkasan (Opsional) </label>
                                 <textarea
                                     v-model="form.excerpt"
                                     rows="2"
-                                    class="mt-1 block w-full rounded-lg border border-gray-300 bg-white px-3 py-2 text-sm focus:border-blue-500 focus:outline-none focus:ring-1 focus:ring-blue-500 dark:border-gray-600 dark:bg-gray-800 dark:text-gray-300"
+                                    class="mt-1 block w-full rounded-lg border border-gray-300 bg-white px-3 py-2 text-sm focus:border-blue-500 focus:ring-1 focus:ring-blue-500 focus:outline-none dark:border-gray-600 dark:bg-gray-800 dark:text-gray-300"
                                     placeholder="Ringkasan singkat untuk tampilan preview..."
                                     maxlength="500"
                                 ></textarea>
@@ -196,19 +178,15 @@ const getCategoryColor = (color: string) => {
 
                     <!-- Content -->
                     <div class="p-6">
-                        <h3 class="text-lg font-semibold text-gray-900 dark:text-white mb-6">
-                            Konten Pengumuman
-                        </h3>
+                        <h3 class="mb-6 text-lg font-semibold text-gray-900 dark:text-white">Konten Pengumuman</h3>
 
                         <div>
-                            <label class="block text-sm font-medium text-gray-700 dark:text-gray-300">
-                                Isi Pengumuman
-                            </label>
+                            <label class="block text-sm font-medium text-gray-700 dark:text-gray-300"> Isi Pengumuman </label>
                             <textarea
                                 v-model="form.content"
                                 rows="12"
                                 required
-                                class="mt-1 block w-full rounded-lg border border-gray-300 bg-white px-3 py-2 text-sm focus:border-blue-500 focus:outline-none focus:ring-1 focus:ring-blue-500 dark:border-gray-600 dark:bg-gray-800 dark:text-gray-300"
+                                class="mt-1 block w-full rounded-lg border border-gray-300 bg-white px-3 py-2 text-sm focus:border-blue-500 focus:ring-1 focus:ring-blue-500 focus:outline-none dark:border-gray-600 dark:bg-gray-800 dark:text-gray-300"
                                 :class="{ 'border-red-500': form.errors.content }"
                                 placeholder="Tulis isi pengumuman di sini..."
                             ></textarea>
@@ -220,22 +198,16 @@ const getCategoryColor = (color: string) => {
 
                     <!-- Image Upload -->
                     <div class="p-6">
-                        <h3 class="text-lg font-semibold text-gray-900 dark:text-white mb-6">
-                            Gambar (Opsional)
-                        </h3>
+                        <h3 class="mb-6 text-lg font-semibold text-gray-900 dark:text-white">Gambar (Opsional)</h3>
 
                         <div class="space-y-4">
                             <!-- Image Preview -->
                             <div v-if="imagePreview" class="relative inline-block">
-                                <img
-                                    :src="imagePreview"
-                                    alt="Preview"
-                                    class="h-32 w-auto rounded-lg border border-gray-200 dark:border-gray-700"
-                                />
+                                <img :src="imagePreview" alt="Preview" class="h-32 w-auto rounded-lg border border-gray-200 dark:border-gray-700" />
                                 <button
                                     type="button"
                                     @click="removeImage"
-                                    class="absolute -right-2 -top-2 rounded-full bg-red-500 p-1 text-white hover:bg-red-600"
+                                    class="absolute -top-2 -right-2 rounded-full bg-red-500 p-1 text-white hover:bg-red-600"
                                 >
                                     <X class="h-4 w-4" />
                                 </button>
@@ -243,27 +215,18 @@ const getCategoryColor = (color: string) => {
 
                             <!-- File Input -->
                             <div>
-                                <label class="block text-sm font-medium text-gray-700 dark:text-gray-300">
-                                    Upload Gambar
-                                </label>
-                                <div class="mt-1 flex justify-center rounded-lg border-2 border-dashed border-gray-300 px-6 py-10 dark:border-gray-600">
+                                <label class="block text-sm font-medium text-gray-700 dark:text-gray-300"> Upload Gambar </label>
+                                <div
+                                    class="mt-1 flex justify-center rounded-lg border-2 border-dashed border-gray-300 px-6 py-10 dark:border-gray-600"
+                                >
                                     <div class="text-center">
                                         <Upload class="mx-auto h-12 w-12 text-gray-400" />
                                         <div class="mt-4">
                                             <label class="cursor-pointer">
-                                                <span class="mt-2 block text-sm font-medium text-gray-900 dark:text-white">
-                                                    Pilih gambar
-                                                </span>
-                                                <input
-                                                    type="file"
-                                                    accept="image/*"
-                                                    class="sr-only"
-                                                    @change="handleImageChange"
-                                                />
+                                                <span class="mt-2 block text-sm font-medium text-gray-900 dark:text-white"> Pilih gambar </span>
+                                                <input type="file" accept="image/*" class="sr-only" @change="handleImageChange" />
                                             </label>
-                                            <p class="mt-1 text-xs text-gray-500 dark:text-gray-400">
-                                                PNG, JPG, GIF hingga 2MB
-                                            </p>
+                                            <p class="mt-1 text-xs text-gray-500 dark:text-gray-400">PNG, JPG, GIF hingga 2MB</p>
                                         </div>
                                     </div>
                                 </div>
@@ -276,41 +239,25 @@ const getCategoryColor = (color: string) => {
 
                     <!-- Publishing Options -->
                     <div class="p-6">
-                        <h3 class="text-lg font-semibold text-gray-900 dark:text-white mb-6">
-                            Pengaturan Publikasi
-                        </h3>
+                        <h3 class="mb-6 text-lg font-semibold text-gray-900 dark:text-white">Pengaturan Publikasi</h3>
 
                         <div class="grid gap-6 md:grid-cols-2">
                             <!-- Published At -->
                             <div>
-                                <label class="block text-sm font-medium text-gray-700 dark:text-gray-300">
-                                    Tanggal Publikasi (Opsional)
-                                </label>
+                                <label class="block text-sm font-medium text-gray-700 dark:text-gray-300"> Tanggal Publikasi (Opsional) </label>
                                 <div class="mt-1">
-                                    <DateTimePicker
-                                        v-model="form.published_at"
-                                        placeholder="Pilih tanggal dan waktu publikasi"
-                                    />
+                                    <DateTimePicker v-model="form.published_at" placeholder="Pilih tanggal dan waktu publikasi" />
                                 </div>
-                                <p class="mt-1 text-xs text-gray-500 dark:text-gray-400">
-                                    Kosongkan untuk publish sekarang jika aktif
-                                </p>
+                                <p class="mt-1 text-xs text-gray-500 dark:text-gray-400">Kosongkan untuk publish sekarang jika aktif</p>
                             </div>
 
                             <!-- Expires At -->
                             <div>
-                                <label class="block text-sm font-medium text-gray-700 dark:text-gray-300">
-                                    Tanggal Kadaluarsa (Opsional)
-                                </label>
+                                <label class="block text-sm font-medium text-gray-700 dark:text-gray-300"> Tanggal Kadaluarsa (Opsional) </label>
                                 <div class="mt-1">
-                                    <DateTimePicker
-                                        v-model="form.expires_at"
-                                        placeholder="Pilih tanggal dan waktu kadaluarsa"
-                                    />
+                                    <DateTimePicker v-model="form.expires_at" placeholder="Pilih tanggal dan waktu kadaluarsa" />
                                 </div>
-                                <p class="mt-1 text-xs text-gray-500 dark:text-gray-400">
-                                    Pengumuman akan disembunyikan setelah tanggal ini
-                                </p>
+                                <p class="mt-1 text-xs text-gray-500 dark:text-gray-400">Pengumuman akan disembunyikan setelah tanggal ini</p>
                             </div>
                         </div>
 
@@ -322,18 +269,14 @@ const getCategoryColor = (color: string) => {
                                     type="checkbox"
                                     class="h-4 w-4 rounded border-gray-300 text-blue-600 focus:ring-blue-500"
                                 />
-                                <label class="ml-2 block text-sm text-gray-700 dark:text-gray-300">
-                                    Aktifkan pengumuman
-                                </label>
+                                <label class="ml-2 block text-sm text-gray-700 dark:text-gray-300"> Aktifkan pengumuman </label>
                             </div>
-                            <p class="mt-1 text-xs text-gray-500 dark:text-gray-400">
-                                Pengumuman yang aktif akan tampil di dashboard karyawan
-                            </p>
+                            <p class="mt-1 text-xs text-gray-500 dark:text-gray-400">Pengumuman yang aktif akan tampil di dashboard karyawan</p>
                         </div>
                     </div>
 
                     <!-- Actions -->
-                    <div class="flex justify-end gap-3 px-6 py-4 bg-gray-50 dark:bg-gray-900/50">
+                    <div class="flex justify-end gap-3 bg-gray-50 px-6 py-4 dark:bg-gray-900/50">
                         <a
                             href="/admin/announcements"
                             class="inline-flex items-center rounded-lg border border-gray-300 bg-white px-4 py-2 text-sm font-medium text-gray-700 shadow-sm transition-colors hover:bg-gray-50 dark:border-gray-600 dark:bg-gray-800 dark:text-gray-300 dark:hover:bg-gray-700"
@@ -343,7 +286,7 @@ const getCategoryColor = (color: string) => {
                         <button
                             type="submit"
                             :disabled="form.processing"
-                            class="inline-flex items-center rounded-lg bg-blue-600 px-4 py-2 text-sm font-medium text-white shadow-sm transition-colors hover:bg-blue-700 focus:outline-none focus:ring-2 focus:ring-blue-500 focus:ring-offset-2 disabled:opacity-50"
+                            class="inline-flex items-center rounded-lg bg-blue-600 px-4 py-2 text-sm font-medium text-white shadow-sm transition-colors hover:bg-blue-700 focus:ring-2 focus:ring-blue-500 focus:ring-offset-2 focus:outline-none disabled:opacity-50"
                         >
                             <Save class="mr-2 h-4 w-4" />
                             {{ form.processing ? 'Menyimpan...' : 'Simpan Pengumuman' }}

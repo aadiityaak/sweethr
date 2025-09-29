@@ -1,11 +1,11 @@
 <script setup lang="ts">
-import AppLayout from '@/layouts/AppLayout.vue';
-import { Button } from '@/components/ui/button';
 import { Badge } from '@/components/ui/badge';
+import { Button } from '@/components/ui/button';
 import { Textarea } from '@/components/ui/textarea';
+import AppLayout from '@/layouts/AppLayout.vue';
 import { type BreadcrumbItem } from '@/types';
 import { Head, Link, useForm } from '@inertiajs/vue3';
-import { Calendar, Clock, ArrowLeft, User, FileText, AlertCircle, CheckCircle, XCircle, Building, Briefcase } from 'lucide-vue-next';
+import { AlertCircle, ArrowLeft, Briefcase, Building, Calendar, CheckCircle, Clock, FileText, User, XCircle } from 'lucide-vue-next';
 import { ref } from 'vue';
 
 interface User {
@@ -72,7 +72,7 @@ const formatDate = (dateString: string) => {
         weekday: 'long',
         year: 'numeric',
         month: 'long',
-        day: 'numeric'
+        day: 'numeric',
     });
 };
 
@@ -82,7 +82,7 @@ const formatDateTime = (dateString: string) => {
         month: 'long',
         day: 'numeric',
         hour: '2-digit',
-        minute: '2-digit'
+        minute: '2-digit',
     });
 };
 
@@ -95,7 +95,7 @@ const getStatusConfig = (status: string) => {
                 text: 'Menunggu Persetujuan',
                 bgClass: 'bg-amber-50 dark:bg-amber-950/30',
                 textClass: 'text-amber-800 dark:text-amber-200',
-                borderClass: 'border-amber-200 dark:border-amber-800'
+                borderClass: 'border-amber-200 dark:border-amber-800',
             };
         case 'approved':
             return {
@@ -104,7 +104,7 @@ const getStatusConfig = (status: string) => {
                 text: 'Disetujui',
                 bgClass: 'bg-green-50 dark:bg-green-950/30',
                 textClass: 'text-green-800 dark:text-green-200',
-                borderClass: 'border-green-200 dark:border-green-800'
+                borderClass: 'border-green-200 dark:border-green-800',
             };
         case 'rejected':
             return {
@@ -113,7 +113,7 @@ const getStatusConfig = (status: string) => {
                 text: 'Ditolak',
                 bgClass: 'bg-red-50 dark:bg-red-950/30',
                 textClass: 'text-red-800 dark:text-red-200',
-                borderClass: 'border-red-200 dark:border-red-800'
+                borderClass: 'border-red-200 dark:border-red-800',
             };
         default:
             return {
@@ -122,7 +122,7 @@ const getStatusConfig = (status: string) => {
                 text: 'Unknown',
                 bgClass: 'bg-gray-50 dark:bg-gray-950/30',
                 textClass: 'text-gray-800 dark:text-gray-200',
-                borderClass: 'border-gray-200 dark:border-gray-800'
+                borderClass: 'border-gray-200 dark:border-gray-800',
             };
     }
 };
@@ -133,7 +133,7 @@ const approveRequest = () => {
     approvalForm.patch(`/admin/shift-change-requests/${request.id}/approve`, {
         onSuccess: () => {
             showApprovalForm.value = false;
-        }
+        },
     });
 };
 
@@ -141,7 +141,7 @@ const rejectRequest = () => {
     rejectionForm.patch(`/admin/shift-change-requests/${request.id}/reject`, {
         onSuccess: () => {
             showRejectionForm.value = false;
-        }
+        },
     });
 };
 </script>
@@ -159,12 +159,8 @@ const rejectRequest = () => {
                             <Calendar class="h-6 w-6 text-blue-600 dark:text-blue-400" />
                         </div>
                         <div>
-                            <h1 class="text-3xl font-bold text-gray-900 dark:text-white">
-                                Request Tukar Libur #{{ request.id }}
-                            </h1>
-                            <p class="mt-1 text-gray-600 dark:text-gray-400">
-                                Detail permintaan tukar jadwal libur karyawan
-                            </p>
+                            <h1 class="text-3xl font-bold text-gray-900 dark:text-white">Request Tukar Libur #{{ request.id }}</h1>
+                            <p class="mt-1 text-gray-600 dark:text-gray-400">Detail permintaan tukar jadwal libur karyawan</p>
                         </div>
                     </div>
                     <div class="flex gap-3">
@@ -186,9 +182,7 @@ const rejectRequest = () => {
                         <h2 class="text-xl font-semibold" :class="statusConfig.textClass">
                             {{ statusConfig.text }}
                         </h2>
-                        <p class="text-sm opacity-80" :class="statusConfig.textClass">
-                            Diajukan pada {{ formatDateTime(request.requested_at) }}
-                        </p>
+                        <p class="text-sm opacity-80" :class="statusConfig.textClass">Diajukan pada {{ formatDateTime(request.requested_at) }}</p>
                     </div>
                 </div>
             </div>
@@ -196,21 +190,23 @@ const rejectRequest = () => {
             <div class="grid gap-8 lg:grid-cols-3">
                 <!-- Employee Information -->
                 <div class="lg:col-span-1">
-                    <div class="rounded-xl border border-gray-200/50 bg-gradient-to-br from-white to-gray-50/30 p-6 shadow-sm dark:border-gray-800/50 dark:from-gray-950 dark:to-gray-900/30">
+                    <div
+                        class="rounded-xl border border-gray-200/50 bg-gradient-to-br from-white to-gray-50/30 p-6 shadow-sm dark:border-gray-800/50 dark:from-gray-950 dark:to-gray-900/30"
+                    >
                         <div class="mb-6 flex items-center gap-3">
                             <div class="flex h-8 w-8 items-center justify-center rounded-lg bg-purple-500/10 ring-1 ring-purple-500/20">
                                 <User class="h-4 w-4 text-purple-600 dark:text-purple-400" />
                             </div>
-                            <h3 class="text-lg font-semibold text-gray-900 dark:text-white">
-                                Informasi Karyawan
-                            </h3>
+                            <h3 class="text-lg font-semibold text-gray-900 dark:text-white">Informasi Karyawan</h3>
                         </div>
 
                         <div class="space-y-6">
                             <!-- Employee Card -->
                             <div class="rounded-lg border border-gray-200 bg-gray-50 p-4 dark:border-gray-700 dark:bg-gray-800/50">
-                                <div class="flex items-center gap-3 mb-3">
-                                    <div class="flex h-12 w-12 items-center justify-center rounded-full bg-blue-100 text-blue-700 dark:bg-blue-900/30 dark:text-blue-300">
+                                <div class="mb-3 flex items-center gap-3">
+                                    <div
+                                        class="flex h-12 w-12 items-center justify-center rounded-full bg-blue-100 text-blue-700 dark:bg-blue-900/30 dark:text-blue-300"
+                                    >
                                         {{ request.user.name.charAt(0).toUpperCase() }}
                                     </div>
                                     <div>
@@ -233,18 +229,20 @@ const rejectRequest = () => {
 
                             <!-- Current Status -->
                             <div>
-                                <p class="text-sm font-medium text-gray-700 dark:text-gray-300 mb-2">Status Request</p>
-                                <Badge :variant="statusConfig.variant as any" class="text-sm px-3 py-1">
+                                <p class="mb-2 text-sm font-medium text-gray-700 dark:text-gray-300">Status Request</p>
+                                <Badge :variant="statusConfig.variant as any" class="px-3 py-1 text-sm">
                                     {{ statusConfig.text }}
                                 </Badge>
                             </div>
 
                             <!-- Reviewer Info -->
                             <div v-if="request.reviewer">
-                                <p class="text-sm font-medium text-gray-700 dark:text-gray-300 mb-3">Ditinjau Oleh</p>
+                                <p class="mb-3 text-sm font-medium text-gray-700 dark:text-gray-300">Ditinjau Oleh</p>
                                 <div class="rounded-lg border border-gray-200 bg-gray-50 p-3 dark:border-gray-700 dark:bg-gray-800/50">
                                     <div class="flex items-center gap-3">
-                                        <div class="flex h-8 w-8 items-center justify-center rounded-full bg-green-100 text-green-700 dark:bg-green-900/30 dark:text-green-300">
+                                        <div
+                                            class="flex h-8 w-8 items-center justify-center rounded-full bg-green-100 text-green-700 dark:bg-green-900/30 dark:text-green-300"
+                                        >
                                             {{ request.reviewer.name.charAt(0).toUpperCase() }}
                                         </div>
                                         <div>
@@ -262,21 +260,21 @@ const rejectRequest = () => {
                 <div class="lg:col-span-2">
                     <div class="space-y-8">
                         <!-- Request Information -->
-                        <div class="rounded-xl border border-gray-200/50 bg-gradient-to-br from-white to-gray-50/30 p-6 shadow-sm dark:border-gray-800/50 dark:from-gray-950 dark:to-gray-900/30">
+                        <div
+                            class="rounded-xl border border-gray-200/50 bg-gradient-to-br from-white to-gray-50/30 p-6 shadow-sm dark:border-gray-800/50 dark:from-gray-950 dark:to-gray-900/30"
+                        >
                             <div class="mb-6 flex items-center gap-3">
                                 <div class="flex h-8 w-8 items-center justify-center rounded-lg bg-blue-500/10 ring-1 ring-blue-500/20">
                                     <Calendar class="h-4 w-4 text-blue-600 dark:text-blue-400" />
                                 </div>
-                                <h3 class="text-lg font-semibold text-gray-900 dark:text-white">
-                                    Detail Permintaan
-                                </h3>
+                                <h3 class="text-lg font-semibold text-gray-900 dark:text-white">Detail Permintaan</h3>
                             </div>
 
                             <div class="space-y-6">
                                 <!-- Date Changes -->
                                 <div class="grid gap-4 sm:grid-cols-2">
                                     <div class="rounded-lg border border-red-200 bg-red-50 p-4 dark:border-red-800 dark:bg-red-950/30">
-                                        <div class="flex items-center gap-2 mb-2">
+                                        <div class="mb-2 flex items-center gap-2">
                                             <Calendar class="h-4 w-4 text-red-600 dark:text-red-400" />
                                             <p class="text-sm font-medium text-red-800 dark:text-red-200">Tanggal Libur Saat Ini</p>
                                         </div>
@@ -286,7 +284,7 @@ const rejectRequest = () => {
                                     </div>
 
                                     <div class="rounded-lg border border-green-200 bg-green-50 p-4 dark:border-green-800 dark:bg-green-950/30">
-                                        <div class="flex items-center gap-2 mb-2">
+                                        <div class="mb-2 flex items-center gap-2">
                                             <Clock class="h-4 w-4 text-green-600 dark:text-green-400" />
                                             <p class="text-sm font-medium text-green-800 dark:text-green-200">Tanggal Ganti Kerja</p>
                                         </div>
@@ -298,7 +296,7 @@ const rejectRequest = () => {
 
                                 <!-- Reason -->
                                 <div v-if="request.reason">
-                                    <div class="flex items-center gap-2 mb-3">
+                                    <div class="mb-3 flex items-center gap-2">
                                         <FileText class="h-4 w-4 text-gray-600 dark:text-gray-400" />
                                         <p class="text-sm font-medium text-gray-700 dark:text-gray-300">Alasan</p>
                                     </div>
@@ -309,7 +307,7 @@ const rejectRequest = () => {
 
                                 <!-- Timeline -->
                                 <div>
-                                    <div class="flex items-center gap-2 mb-3">
+                                    <div class="mb-3 flex items-center gap-2">
                                         <Clock class="h-4 w-4 text-gray-600 dark:text-gray-400" />
                                         <p class="text-sm font-medium text-gray-700 dark:text-gray-300">Timeline</p>
                                     </div>
@@ -325,13 +323,27 @@ const rejectRequest = () => {
                                         </div>
 
                                         <div v-if="request.reviewed_at" class="flex items-center gap-3">
-                                            <div class="flex h-6 w-6 items-center justify-center rounded-full"
-                                                 :class="request.status === 'approved' ? 'bg-green-100 dark:bg-green-900/30' : 'bg-red-100 dark:bg-red-900/30'">
-                                                <div class="h-2 w-2 rounded-full"
-                                                     :class="request.status === 'approved' ? 'bg-green-600 dark:bg-green-400' : 'bg-red-600 dark:bg-red-400'"></div>
+                                            <div
+                                                class="flex h-6 w-6 items-center justify-center rounded-full"
+                                                :class="
+                                                    request.status === 'approved'
+                                                        ? 'bg-green-100 dark:bg-green-900/30'
+                                                        : 'bg-red-100 dark:bg-red-900/30'
+                                                "
+                                            >
+                                                <div
+                                                    class="h-2 w-2 rounded-full"
+                                                    :class="
+                                                        request.status === 'approved'
+                                                            ? 'bg-green-600 dark:bg-green-400'
+                                                            : 'bg-red-600 dark:bg-red-400'
+                                                    "
+                                                ></div>
                                             </div>
                                             <div>
-                                                <p class="text-sm font-medium text-gray-900 dark:text-white">Request {{ request.status === 'approved' ? 'disetujui' : 'ditolak' }}</p>
+                                                <p class="text-sm font-medium text-gray-900 dark:text-white">
+                                                    Request {{ request.status === 'approved' ? 'disetujui' : 'ditolak' }}
+                                                </p>
                                                 <p class="text-xs text-gray-500 dark:text-gray-400">{{ formatDateTime(request.reviewed_at) }}</p>
                                             </div>
                                         </div>
@@ -341,14 +353,15 @@ const rejectRequest = () => {
                         </div>
 
                         <!-- Admin Notes -->
-                        <div v-if="request.admin_notes" class="rounded-xl border border-gray-200/50 bg-gradient-to-br from-white to-gray-50/30 p-6 shadow-sm dark:border-gray-800/50 dark:from-gray-950 dark:to-gray-900/30">
+                        <div
+                            v-if="request.admin_notes"
+                            class="rounded-xl border border-gray-200/50 bg-gradient-to-br from-white to-gray-50/30 p-6 shadow-sm dark:border-gray-800/50 dark:from-gray-950 dark:to-gray-900/30"
+                        >
                             <div class="mb-4 flex items-center gap-3">
                                 <div class="flex h-8 w-8 items-center justify-center rounded-lg bg-orange-500/10 ring-1 ring-orange-500/20">
                                     <FileText class="h-4 w-4 text-orange-600 dark:text-orange-400" />
                                 </div>
-                                <h3 class="text-lg font-semibold text-gray-900 dark:text-white">
-                                    Catatan Admin
-                                </h3>
+                                <h3 class="text-lg font-semibold text-gray-900 dark:text-white">Catatan Admin</h3>
                             </div>
                             <div class="rounded-lg border border-gray-200 bg-gray-50 p-4 dark:border-gray-700 dark:bg-gray-800/50">
                                 <p class="text-gray-900 dark:text-white">{{ request.admin_notes }}</p>
@@ -356,39 +369,37 @@ const rejectRequest = () => {
                         </div>
 
                         <!-- Action Buttons -->
-                        <div v-if="request.status === 'pending'" class="rounded-xl border border-gray-200/50 bg-gradient-to-br from-white to-gray-50/30 p-6 shadow-sm dark:border-gray-800/50 dark:from-gray-950 dark:to-gray-900/30">
+                        <div
+                            v-if="request.status === 'pending'"
+                            class="rounded-xl border border-gray-200/50 bg-gradient-to-br from-white to-gray-50/30 p-6 shadow-sm dark:border-gray-800/50 dark:from-gray-950 dark:to-gray-900/30"
+                        >
                             <div class="mb-4 flex items-center gap-3">
                                 <div class="flex h-8 w-8 items-center justify-center rounded-lg bg-green-500/10 ring-1 ring-green-500/20">
                                     <CheckCircle class="h-4 w-4 text-green-600 dark:text-green-400" />
                                 </div>
-                                <h3 class="text-lg font-semibold text-gray-900 dark:text-white">
-                                    Tindakan
-                                </h3>
+                                <h3 class="text-lg font-semibold text-gray-900 dark:text-white">Tindakan</h3>
                             </div>
 
                             <div class="space-y-4">
                                 <!-- Quick Actions -->
                                 <div class="flex gap-3">
-                                    <Button
-                                        @click="showApprovalForm = true"
-                                        class="bg-green-600 hover:bg-green-700"
-                                    >
+                                    <Button @click="showApprovalForm = true" class="bg-green-600 hover:bg-green-700">
                                         <CheckCircle class="mr-2 h-4 w-4" />
                                         Setujui
                                     </Button>
-                                    <Button
-                                        @click="showRejectionForm = true"
-                                        variant="destructive"
-                                    >
+                                    <Button @click="showRejectionForm = true" variant="destructive">
                                         <XCircle class="mr-2 h-4 w-4" />
                                         Tolak
                                     </Button>
                                 </div>
 
                                 <!-- Approval Form -->
-                                <div v-if="showApprovalForm" class="space-y-4 rounded-lg border border-green-200 bg-green-50 p-4 dark:border-green-800 dark:bg-green-950/30">
+                                <div
+                                    v-if="showApprovalForm"
+                                    class="space-y-4 rounded-lg border border-green-200 bg-green-50 p-4 dark:border-green-800 dark:bg-green-950/30"
+                                >
                                     <div>
-                                        <label class="block text-sm font-medium text-green-800 dark:text-green-200 mb-2">
+                                        <label class="mb-2 block text-sm font-medium text-green-800 dark:text-green-200">
                                             Catatan Persetujuan (Opsional)
                                         </label>
                                         <Textarea
@@ -399,30 +410,25 @@ const rejectRequest = () => {
                                         />
                                     </div>
                                     <div class="flex gap-2">
-                                        <Button
-                                            @click="approveRequest"
-                                            :disabled="approvalForm.processing"
-                                            class="bg-green-600 hover:bg-green-700"
-                                        >
+                                        <Button @click="approveRequest" :disabled="approvalForm.processing" class="bg-green-600 hover:bg-green-700">
                                             <CheckCircle v-if="!approvalForm.processing" class="mr-2 h-4 w-4" />
-                                            <div v-if="approvalForm.processing" class="mr-2 h-4 w-4 animate-spin rounded-full border-2 border-white border-t-transparent" />
+                                            <div
+                                                v-if="approvalForm.processing"
+                                                class="mr-2 h-4 w-4 animate-spin rounded-full border-2 border-white border-t-transparent"
+                                            />
                                             {{ approvalForm.processing ? 'Menyetujui...' : 'Konfirmasi Setuju' }}
                                         </Button>
-                                        <Button
-                                            @click="showApprovalForm = false"
-                                            variant="outline"
-                                        >
-                                            Batal
-                                        </Button>
+                                        <Button @click="showApprovalForm = false" variant="outline"> Batal </Button>
                                     </div>
                                 </div>
 
                                 <!-- Rejection Form -->
-                                <div v-if="showRejectionForm" class="space-y-4 rounded-lg border border-red-200 bg-red-50 p-4 dark:border-red-800 dark:bg-red-950/30">
+                                <div
+                                    v-if="showRejectionForm"
+                                    class="space-y-4 rounded-lg border border-red-200 bg-red-50 p-4 dark:border-red-800 dark:bg-red-950/30"
+                                >
                                     <div>
-                                        <label class="block text-sm font-medium text-red-800 dark:text-red-200 mb-2">
-                                            Alasan Penolakan *
-                                        </label>
+                                        <label class="mb-2 block text-sm font-medium text-red-800 dark:text-red-200"> Alasan Penolakan * </label>
                                         <Textarea
                                             v-model="rejectionForm.admin_notes"
                                             rows="3"
@@ -438,15 +444,13 @@ const rejectRequest = () => {
                                             variant="destructive"
                                         >
                                             <XCircle v-if="!rejectionForm.processing" class="mr-2 h-4 w-4" />
-                                            <div v-if="rejectionForm.processing" class="mr-2 h-4 w-4 animate-spin rounded-full border-2 border-white border-t-transparent" />
+                                            <div
+                                                v-if="rejectionForm.processing"
+                                                class="mr-2 h-4 w-4 animate-spin rounded-full border-2 border-white border-t-transparent"
+                                            />
                                             {{ rejectionForm.processing ? 'Menolak...' : 'Konfirmasi Tolak' }}
                                         </Button>
-                                        <Button
-                                            @click="showRejectionForm = false"
-                                            variant="outline"
-                                        >
-                                            Batal
-                                        </Button>
+                                        <Button @click="showRejectionForm = false" variant="outline"> Batal </Button>
                                     </div>
                                 </div>
                             </div>

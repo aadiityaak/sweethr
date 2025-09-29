@@ -1,10 +1,10 @@
 <script setup lang="ts">
-import { Head, Link, router, useForm } from '@inertiajs/vue3';
-import { Clock, MapPin, CheckCircle, XCircle, AlertTriangle, ArrowLeft, Calendar, Loader2 } from 'lucide-vue-next';
-import BottomNavigation from '@/components/BottomNavigation.vue';
 import AttendanceCalendar from '@/components/AttendanceCalendar.vue';
+import BottomNavigation from '@/components/BottomNavigation.vue';
 import { useToast } from '@/components/ui/toast/use-toast';
-import { ref, computed } from 'vue';
+import { Head, Link, router, useForm } from '@inertiajs/vue3';
+import { AlertTriangle, ArrowLeft, Calendar, CheckCircle, Clock, Loader2, MapPin, XCircle } from 'lucide-vue-next';
+import { computed, ref } from 'vue';
 
 interface OfficeLocation {
     id: number;
@@ -68,14 +68,19 @@ const checkoutForm = useForm({
 const calendarAttendanceData = computed(() => {
     if (!attendances?.data) return [];
 
-    const transformedData = attendances.data.map(attendance => ({
+    const transformedData = attendances.data.map((attendance) => ({
         date: attendance.date,
-        status: attendance.status === 'present' ? 'present' :
-                attendance.status === 'late' ? 'late' :
-                attendance.status === 'absent' ? 'absent' : 'absent',
+        status:
+            attendance.status === 'present'
+                ? 'present'
+                : attendance.status === 'late'
+                  ? 'late'
+                  : attendance.status === 'absent'
+                    ? 'absent'
+                    : 'absent',
         check_in_time: attendance.check_in_time,
         check_out_time: attendance.check_out_time,
-        notes: `Durasi: ${formatDuration(attendance.work_duration)}`
+        notes: `Durasi: ${formatDuration(attendance.work_duration)}`,
     }));
 
     return transformedData;
@@ -186,8 +191,8 @@ const getCurrentLocation = () => {
         {
             enableHighAccuracy: true,
             timeout: 10000,
-            maximumAge: 60000
-        }
+            maximumAge: 60000,
+        },
     );
 };
 
@@ -251,12 +256,12 @@ const confirmCheckOut = () => {
 
     <div class="min-h-screen bg-background">
         <!-- Mobile Container -->
-        <div class="mx-auto max-w-[480px] bg-background min-h-screen">
+        <div class="mx-auto min-h-screen max-w-[480px] bg-background">
             <!-- Mobile Header -->
-            <div class="bg-background/95 backdrop-blur-sm border-b sticky top-0 z-40">
+            <div class="sticky top-0 z-40 border-b bg-background/95 backdrop-blur-sm">
                 <div class="px-4 py-4">
                     <div class="flex items-center gap-3">
-                        <Link href="/home" class="rounded-md bg-secondary p-2 text-secondary-foreground hover:bg-secondary/80 transition-colors">
+                        <Link href="/home" class="rounded-md bg-secondary p-2 text-secondary-foreground transition-colors hover:bg-secondary/80">
                             <ArrowLeft class="h-4 w-4" />
                         </Link>
                         <div>
@@ -269,21 +274,18 @@ const confirmCheckOut = () => {
 
             <!-- Main Content -->
             <div class="px-4 py-6 pb-24">
-
                 <!-- Today's Status -->
                 <div class="mb-8 rounded-lg border bg-card p-6">
-                    <h2 class="mb-6 text-lg font-semibold">
-                        Status Hari Ini
-                    </h2>
+                    <h2 class="mb-6 text-lg font-semibold">Status Hari Ini</h2>
 
                     <!-- Clean horizontal layout for today's attendance -->
                     <div class="rounded-lg border bg-gradient-to-r from-card to-card/80 p-4">
                         <div class="grid grid-cols-3 gap-4">
                             <!-- Check In -->
                             <div class="text-center">
-                                <div class="flex items-center justify-center gap-2 mb-2">
-                                    <div class="w-6 h-6 rounded-full bg-green-100 dark:bg-green-900/30 flex items-center justify-center">
-                                        <div class="w-2 h-2 rounded-full bg-green-600 dark:bg-green-400"></div>
+                                <div class="mb-2 flex items-center justify-center gap-2">
+                                    <div class="flex h-6 w-6 items-center justify-center rounded-full bg-green-100 dark:bg-green-900/30">
+                                        <div class="h-2 w-2 rounded-full bg-green-600 dark:bg-green-400"></div>
                                     </div>
                                     <span class="text-xs font-semibold text-green-700 dark:text-green-400">MASUK</span>
                                 </div>
@@ -294,9 +296,9 @@ const confirmCheckOut = () => {
 
                             <!-- Check Out -->
                             <div class="text-center">
-                                <div class="flex items-center justify-center gap-2 mb-2">
-                                    <div class="w-6 h-6 rounded-full bg-red-100 dark:bg-red-900/30 flex items-center justify-center">
-                                        <div class="w-2 h-2 rounded-full bg-red-600 dark:bg-red-400"></div>
+                                <div class="mb-2 flex items-center justify-center gap-2">
+                                    <div class="flex h-6 w-6 items-center justify-center rounded-full bg-red-100 dark:bg-red-900/30">
+                                        <div class="h-2 w-2 rounded-full bg-red-600 dark:bg-red-400"></div>
                                     </div>
                                     <span class="text-xs font-semibold text-red-700 dark:text-red-400">KELUAR</span>
                                 </div>
@@ -307,9 +309,9 @@ const confirmCheckOut = () => {
 
                             <!-- Duration -->
                             <div class="text-center">
-                                <div class="flex items-center justify-center gap-2 mb-2">
-                                    <div class="w-6 h-6 rounded-full bg-blue-100 dark:bg-blue-900/30 flex items-center justify-center">
-                                        <div class="w-2 h-2 rounded-full bg-blue-600 dark:bg-blue-400"></div>
+                                <div class="mb-2 flex items-center justify-center gap-2">
+                                    <div class="flex h-6 w-6 items-center justify-center rounded-full bg-blue-100 dark:bg-blue-900/30">
+                                        <div class="h-2 w-2 rounded-full bg-blue-600 dark:bg-blue-400"></div>
                                     </div>
                                     <span class="text-xs font-semibold text-blue-700 dark:text-blue-400">DURASI</span>
                                 </div>
@@ -331,7 +333,7 @@ const confirmCheckOut = () => {
                     <div v-if="todayAttendance?.check_in_time && !todayAttendance?.check_out_time" class="mt-4">
                         <button
                             @click="handleCheckOutClick"
-                            class="flex w-full items-center justify-center gap-2 rounded-md bg-destructive px-4 py-3 text-destructive-foreground font-medium hover:bg-destructive/90 transition-colors"
+                            class="flex w-full items-center justify-center gap-2 rounded-md bg-destructive px-4 py-3 font-medium text-destructive-foreground transition-colors hover:bg-destructive/90"
                         >
                             <Clock class="h-4 w-4" />
                             Check Out Sekarang
@@ -341,16 +343,14 @@ const confirmCheckOut = () => {
 
                 <!-- View Toggle -->
                 <div class="mb-8 rounded-lg border bg-card p-6">
-                    <div class="flex items-center justify-between mb-6">
+                    <div class="mb-6 flex items-center justify-between">
                         <h3 class="text-lg font-semibold">Tampilan Riwayat</h3>
                         <div class="flex rounded-lg border bg-background">
                             <button
                                 @click="showCalendarView = true"
                                 :class="[
-                                    'px-3 py-1.5 text-xs font-medium rounded-l-md transition-colors',
-                                    showCalendarView
-                                        ? 'bg-primary text-primary-foreground'
-                                        : 'hover:bg-muted'
+                                    'rounded-l-md px-3 py-1.5 text-xs font-medium transition-colors',
+                                    showCalendarView ? 'bg-primary text-primary-foreground' : 'hover:bg-muted',
                                 ]"
                             >
                                 📅 Kalender
@@ -358,10 +358,8 @@ const confirmCheckOut = () => {
                             <button
                                 @click="showCalendarView = false"
                                 :class="[
-                                    'px-3 py-1.5 text-xs font-medium rounded-r-md transition-colors border-l',
-                                    !showCalendarView
-                                        ? 'bg-primary text-primary-foreground'
-                                        : 'hover:bg-muted'
+                                    'rounded-r-md border-l px-3 py-1.5 text-xs font-medium transition-colors',
+                                    !showCalendarView ? 'bg-primary text-primary-foreground' : 'hover:bg-muted',
                                 ]"
                             >
                                 📋 Daftar
@@ -369,7 +367,7 @@ const confirmCheckOut = () => {
                         </div>
                     </div>
 
-                    <div v-if="!showCalendarView" class="grid gap-3 grid-cols-2">
+                    <div v-if="!showCalendarView" class="grid grid-cols-2 gap-3">
                         <select
                             :value="filters.month"
                             @change="filterAttendance($event.target.value, filters.year)"
@@ -403,10 +401,8 @@ const confirmCheckOut = () => {
 
                 <!-- Attendance History -->
                 <div class="rounded-lg border bg-card">
-                    <div class="p-6 border-b">
-                        <h2 class="text-lg font-semibold">
-                            Riwayat Kehadiran
-                        </h2>
+                    <div class="border-b p-6">
+                        <h2 class="text-lg font-semibold">Riwayat Kehadiran</h2>
                     </div>
 
                     <!-- Calendar View -->
@@ -422,12 +418,8 @@ const confirmCheckOut = () => {
                     <!-- List View -->
                     <div v-else>
                         <div class="divide-y">
-                            <div
-                                v-for="attendance in attendances?.data || []"
-                                :key="attendance.id"
-                                class="p-6 hover:bg-muted/50 transition-colors"
-                            >
-                                <div class="flex items-center justify-between mb-4">
+                            <div v-for="attendance in attendances?.data || []" :key="attendance.id" class="p-6 transition-colors hover:bg-muted/50">
+                                <div class="mb-4 flex items-center justify-between">
                                     <div class="flex items-center gap-2">
                                         <component
                                             :is="getStatusIcon(attendance.status)"
@@ -435,7 +427,13 @@ const confirmCheckOut = () => {
                                             :class="getStatusColor(attendance.status)"
                                         />
                                         <span class="text-sm font-medium">
-                                            {{ new Date(attendance.date).toLocaleDateString('id-ID', { weekday: 'long', day: 'numeric', month: 'long' }) }}
+                                            {{
+                                                new Date(attendance.date).toLocaleDateString('id-ID', {
+                                                    weekday: 'long',
+                                                    day: 'numeric',
+                                                    month: 'long',
+                                                })
+                                            }}
                                         </span>
                                     </div>
                                     <span
@@ -446,7 +444,7 @@ const confirmCheckOut = () => {
                                     </span>
                                 </div>
 
-                                <div class="grid grid-cols-3 gap-6 text-sm mt-4">
+                                <div class="mt-4 grid grid-cols-3 gap-6 text-sm">
                                     <div>
                                         <p class="text-xs text-muted-foreground">Masuk</p>
                                         <p class="font-medium">{{ formatTime(attendance.check_in_time) }}</p>
@@ -468,76 +466,79 @@ const confirmCheckOut = () => {
                             </div>
 
                             <div v-if="!attendances?.data?.length" class="p-8 text-center">
-                                <Calendar class="h-12 w-12 mx-auto mb-4 text-muted-foreground" />
+                                <Calendar class="mx-auto mb-4 h-12 w-12 text-muted-foreground" />
                                 <p class="text-muted-foreground">Belum ada data absensi</p>
                             </div>
                         </div>
 
                         <!-- Pagination -->
-                        <div v-if="attendances?.meta?.total > attendances?.meta?.per_page" class="p-6 border-t">
-                            <p class="text-sm text-muted-foreground text-center">
+                        <div v-if="attendances?.meta?.total > attendances?.meta?.per_page" class="border-t p-6">
+                            <p class="text-center text-sm text-muted-foreground">
                                 Menampilkan {{ attendances.meta.from }} - {{ attendances.meta.to }} dari {{ attendances.meta.total }} data
                             </p>
                         </div>
                     </div>
                 </div>
             </div>
-
         </div>
 
         <BottomNavigation current-route="/attendance" />
     </div>
 
-        <!-- Check Out Modal -->
-        <dialog ref="checkOutModal" id="checkOutModal" class="rounded-lg border bg-card p-6 backdrop:bg-black/50 max-w-sm fixed top-1/2 left-1/2 transform -translate-x-1/2 -translate-y-1/2 m-0">
-            <div>
-                <h3 class="text-lg font-semibold mb-2">Konfirmasi Check Out</h3>
-                <p class="text-sm text-muted-foreground mb-4">Apakah Anda yakin ingin check out sekarang?</p>
+    <!-- Check Out Modal -->
+    <dialog
+        ref="checkOutModal"
+        id="checkOutModal"
+        class="fixed top-1/2 left-1/2 m-0 max-w-sm -translate-x-1/2 -translate-y-1/2 transform rounded-lg border bg-card p-6 backdrop:bg-black/50"
+    >
+        <div>
+            <h3 class="mb-2 text-lg font-semibold">Konfirmasi Check Out</h3>
+            <p class="mb-4 text-sm text-muted-foreground">Apakah Anda yakin ingin check out sekarang?</p>
 
-                <!-- Location Status -->
-                <div class="mb-4 p-3 rounded-lg border">
-                    <div v-if="locationStatus === 'loading'" class="flex items-center gap-2 text-blue-600">
-                        <Loader2 class="h-4 w-4 animate-spin" />
-                        <span class="text-sm">Mendeteksi lokasi...</span>
-                    </div>
-                    <div v-else-if="locationStatus === 'success'" class="flex items-center gap-2 text-green-600">
-                        <CheckCircle class="h-4 w-4" />
-                        <div class="text-sm">
-                            <div class="font-medium">Lokasi terdeteksi</div>
-                            <div class="text-xs text-muted-foreground">
-                                {{ userLocation.latitude.toFixed(6) }}, {{ userLocation.longitude.toFixed(6) }}
-                            </div>
+            <!-- Location Status -->
+            <div class="mb-4 rounded-lg border p-3">
+                <div v-if="locationStatus === 'loading'" class="flex items-center gap-2 text-blue-600">
+                    <Loader2 class="h-4 w-4 animate-spin" />
+                    <span class="text-sm">Mendeteksi lokasi...</span>
+                </div>
+                <div v-else-if="locationStatus === 'success'" class="flex items-center gap-2 text-green-600">
+                    <CheckCircle class="h-4 w-4" />
+                    <div class="text-sm">
+                        <div class="font-medium">Lokasi terdeteksi</div>
+                        <div class="text-xs text-muted-foreground">
+                            {{ userLocation.latitude.toFixed(6) }}, {{ userLocation.longitude.toFixed(6) }}
                         </div>
-                    </div>
-                    <div v-else-if="locationStatus === 'error'" class="flex items-center gap-2 text-red-600">
-                        <XCircle class="h-4 w-4" />
-                        <div class="text-sm">
-                            <div class="font-medium">Gagal mendeteksi lokasi</div>
-                            <div class="text-xs">{{ locationError }}</div>
-                        </div>
-                    </div>
-                    <div v-else class="flex items-center gap-2 text-muted-foreground">
-                        <MapPin class="h-4 w-4" />
-                        <span class="text-sm">Menunggu deteksi lokasi...</span>
                     </div>
                 </div>
-
-                <div class="flex gap-3">
-                    <button
-                        @click="$refs.checkOutModal.close()"
-                        class="flex-1 rounded-md border bg-background px-4 py-2 text-sm font-medium hover:bg-accent hover:text-accent-foreground transition-colors"
-                    >
-                        Batal
-                    </button>
-                    <button
-                        @click="confirmCheckOut"
-                        :disabled="locationStatus !== 'success' || isCheckingOut"
-                        class="flex-1 rounded-md bg-destructive px-4 py-2 text-sm font-medium text-destructive-foreground hover:bg-destructive/90 transition-colors disabled:opacity-50 disabled:cursor-not-allowed"
-                    >
-                        <Loader2 v-if="isCheckingOut" class="h-4 w-4 animate-spin mr-2" />
-                        {{ isCheckingOut ? 'Memproses...' : 'Konfirmasi' }}
-                    </button>
+                <div v-else-if="locationStatus === 'error'" class="flex items-center gap-2 text-red-600">
+                    <XCircle class="h-4 w-4" />
+                    <div class="text-sm">
+                        <div class="font-medium">Gagal mendeteksi lokasi</div>
+                        <div class="text-xs">{{ locationError }}</div>
+                    </div>
+                </div>
+                <div v-else class="flex items-center gap-2 text-muted-foreground">
+                    <MapPin class="h-4 w-4" />
+                    <span class="text-sm">Menunggu deteksi lokasi...</span>
                 </div>
             </div>
-        </dialog>
+
+            <div class="flex gap-3">
+                <button
+                    @click="$refs.checkOutModal.close()"
+                    class="flex-1 rounded-md border bg-background px-4 py-2 text-sm font-medium transition-colors hover:bg-accent hover:text-accent-foreground"
+                >
+                    Batal
+                </button>
+                <button
+                    @click="confirmCheckOut"
+                    :disabled="locationStatus !== 'success' || isCheckingOut"
+                    class="flex-1 rounded-md bg-destructive px-4 py-2 text-sm font-medium text-destructive-foreground transition-colors hover:bg-destructive/90 disabled:cursor-not-allowed disabled:opacity-50"
+                >
+                    <Loader2 v-if="isCheckingOut" class="mr-2 h-4 w-4 animate-spin" />
+                    {{ isCheckingOut ? 'Memproses...' : 'Konfirmasi' }}
+                </button>
+            </div>
+        </div>
+    </dialog>
 </template>

@@ -30,9 +30,9 @@
             <!-- Department Info Cards -->
             <div class="grid gap-6 lg:grid-cols-3">
                 <!-- Main Info -->
-                <div class="lg:col-span-2 space-y-6">
+                <div class="space-y-6 lg:col-span-2">
                     <div class="rounded-lg border bg-card p-6">
-                        <h3 class="text-lg font-semibold mb-4">Informasi Departemen</h3>
+                        <h3 class="mb-4 text-lg font-semibold">Informasi Departemen</h3>
 
                         <div class="grid gap-6 md:grid-cols-2">
                             <div class="space-y-4">
@@ -50,7 +50,7 @@
                                         <span
                                             :class="{
                                                 'bg-green-100 text-green-800 dark:bg-green-900/20 dark:text-green-400': department.is_active,
-                                                'bg-red-100 text-red-800 dark:bg-red-900/20 dark:text-red-400': !department.is_active
+                                                'bg-red-100 text-red-800 dark:bg-red-900/20 dark:text-red-400': !department.is_active,
                                             }"
                                             class="inline-flex items-center rounded-full px-2.5 py-0.5 text-xs font-medium"
                                         >
@@ -66,40 +66,38 @@
                                     <div v-if="department.manager" class="mt-1">
                                         <p class="font-semibold">{{ department.manager.name }}</p>
                                         <p class="text-sm text-muted-foreground">{{ department.manager.employee_id }}</p>
-                                        <div v-if="department.manager.phone" class="flex items-center gap-2 mt-1">
+                                        <div v-if="department.manager.phone" class="mt-1 flex items-center gap-2">
                                             <Phone class="h-4 w-4 text-muted-foreground" />
                                             <span class="text-sm">{{ department.manager.phone }}</span>
                                         </div>
-                                        <div v-if="department.manager.email" class="flex items-center gap-2 mt-1">
+                                        <div v-if="department.manager.email" class="mt-1 flex items-center gap-2">
                                             <Mail class="h-4 w-4 text-muted-foreground" />
                                             <span class="text-sm">{{ department.manager.email }}</span>
                                         </div>
                                     </div>
-                                    <p v-else class="text-muted-foreground mt-1">Belum ada manajer</p>
+                                    <p v-else class="mt-1 text-muted-foreground">Belum ada manajer</p>
                                 </div>
                             </div>
                         </div>
 
                         <div v-if="department.description" class="mt-6">
                             <label class="text-sm font-medium text-muted-foreground">Deskripsi</label>
-                            <p class="text-sm mt-1 leading-relaxed">{{ department.description }}</p>
+                            <p class="mt-1 text-sm leading-relaxed">{{ department.description }}</p>
                         </div>
                     </div>
 
                     <!-- Department Employees -->
                     <div class="rounded-lg border bg-card p-6">
-                        <div class="flex items-center justify-between mb-4">
+                        <div class="mb-4 flex items-center justify-between">
                             <h3 class="text-lg font-semibold">Karyawan Departemen ({{ employees.length }})</h3>
                         </div>
 
                         <div v-if="employees.length > 0" class="space-y-3">
-                            <div
-                                v-for="employee in employees"
-                                :key="employee.id"
-                                class="flex items-center justify-between rounded-md border p-4"
-                            >
+                            <div v-for="employee in employees" :key="employee.id" class="flex items-center justify-between rounded-md border p-4">
                                 <div class="flex items-center gap-3">
-                                    <div class="flex h-10 w-10 items-center justify-center rounded-full bg-primary text-sm font-medium text-primary-foreground">
+                                    <div
+                                        class="flex h-10 w-10 items-center justify-center rounded-full bg-primary text-sm font-medium text-primary-foreground"
+                                    >
                                         {{ getInitials(employee.name) }}
                                     </div>
                                     <div>
@@ -116,8 +114,8 @@
                             </div>
                         </div>
 
-                        <div v-else class="text-center text-muted-foreground py-8">
-                            <Users class="h-12 w-12 mx-auto mb-4 opacity-50" />
+                        <div v-else class="py-8 text-center text-muted-foreground">
+                            <Users class="mx-auto mb-4 h-12 w-12 opacity-50" />
                             <p>Belum ada karyawan di departemen ini</p>
                         </div>
                     </div>
@@ -127,7 +125,7 @@
                 <div class="space-y-6">
                     <!-- Quick Actions -->
                     <div class="rounded-lg border bg-card p-6">
-                        <h3 class="text-lg font-semibold mb-4">Aksi Cepat</h3>
+                        <h3 class="mb-4 text-lg font-semibold">Aksi Cepat</h3>
                         <div class="space-y-2">
                             <Link
                                 :href="`/admin/departments/${department.id}/edit`"
@@ -146,7 +144,7 @@
                             <button
                                 @click="deleteDepartment"
                                 :disabled="employees.length > 0"
-                                class="flex w-full items-center gap-2 rounded-md px-3 py-2 text-sm text-red-600 hover:bg-red-50 disabled:opacity-50 disabled:cursor-not-allowed"
+                                class="flex w-full items-center gap-2 rounded-md px-3 py-2 text-sm text-red-600 hover:bg-red-50 disabled:cursor-not-allowed disabled:opacity-50"
                             >
                                 <Trash class="h-4 w-4" />
                                 Hapus Departemen
@@ -156,7 +154,7 @@
 
                     <!-- Statistics -->
                     <div class="rounded-lg border bg-card p-6">
-                        <h3 class="text-lg font-semibold mb-4">Statistik</h3>
+                        <h3 class="mb-4 text-lg font-semibold">Statistik</h3>
                         <div class="space-y-3">
                             <div class="flex justify-between">
                                 <span class="text-sm text-muted-foreground">Total Karyawan:</span>
@@ -183,18 +181,10 @@
 </template>
 
 <script setup lang="ts">
-import { Head, Link, router } from '@inertiajs/vue3';
 import AppLayout from '@/layouts/AppLayout.vue';
 import { type BreadcrumbItem } from '@/types';
-import {
-    Edit,
-    ArrowLeft,
-    Phone,
-    Mail,
-    Users,
-    Power,
-    Trash,
-} from 'lucide-vue-next';
+import { Head, Link, router } from '@inertiajs/vue3';
+import { ArrowLeft, Edit, Mail, Phone, Power, Trash, Users } from 'lucide-vue-next';
 
 interface Department {
     id: number;
@@ -268,7 +258,11 @@ const formatDate = (dateString: string) => {
 };
 
 const getInitials = (name: string) => {
-    return name.split(' ').map(n => n[0]).join('').toUpperCase();
+    return name
+        .split(' ')
+        .map((n) => n[0])
+        .join('')
+        .toUpperCase();
 };
 
 const toggleDepartmentStatus = () => {

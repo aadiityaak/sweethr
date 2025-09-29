@@ -7,12 +7,8 @@
             <div class="mb-8">
                 <div class="flex items-center justify-between">
                     <div>
-                        <h1 class="text-3xl font-bold text-gray-900 dark:text-white">
-                            Kelola Cuti
-                        </h1>
-                        <p class="mt-1 text-gray-600 dark:text-gray-400">
-                            Kelola pengajuan cuti karyawan
-                        </p>
+                        <h1 class="text-3xl font-bold text-gray-900 dark:text-white">Kelola Cuti</h1>
+                        <p class="mt-1 text-gray-600 dark:text-gray-400">Kelola pengajuan cuti karyawan</p>
                     </div>
                 </div>
             </div>
@@ -93,11 +89,7 @@
                             <p class="text-sm text-gray-600 dark:text-gray-400">Statistik pengajuan cuti bulanan</p>
                         </div>
                         <div class="h-80">
-                            <Chart
-                                :data="monthlyChartData"
-                                type="line"
-                                :options="{ responsive: true, maintainAspectRatio: false }"
-                            />
+                            <Chart :data="monthlyChartData" type="line" :options="{ responsive: true, maintainAspectRatio: false }" />
                         </div>
                     </div>
                 </div>
@@ -110,11 +102,7 @@
                             <p class="text-sm text-gray-600 dark:text-gray-400">Perbandingan status pengajuan</p>
                         </div>
                         <div class="h-80">
-                            <Chart
-                                :data="statusChartData"
-                                type="doughnut"
-                                :options="{ responsive: true, maintainAspectRatio: false }"
-                            />
+                            <Chart :data="statusChartData" type="doughnut" :options="{ responsive: true, maintainAspectRatio: false }" />
                         </div>
                     </div>
                 </div>
@@ -125,12 +113,7 @@
                 <div class="p-6">
                     <div class="grid gap-4 md:grid-cols-6">
                         <div class="md:col-span-2">
-                            <Input
-                                v-model="search"
-                                placeholder="Cari karyawan..."
-                                class="w-full"
-                                @input="debouncedSearch"
-                            />
+                            <Input v-model="search" placeholder="Cari karyawan..." class="w-full" @input="debouncedSearch" />
                         </div>
                         <div>
                             <select
@@ -180,8 +163,8 @@
 
             <!-- Leave Requests Table -->
             <div class="overflow-hidden rounded-xl bg-white shadow-sm ring-1 ring-gray-900/5 dark:bg-gray-900 dark:ring-white/10">
-                <div class="px-6 py-4 border-b border-gray-200 dark:border-gray-700">
-                    <h3 class="text-lg font-semibold text-gray-900 dark:text-white flex items-center">
+                <div class="border-b border-gray-200 px-6 py-4 dark:border-gray-700">
+                    <h3 class="flex items-center text-lg font-semibold text-gray-900 dark:text-white">
                         <Calendar class="mr-2 h-5 w-5 text-blue-600 dark:text-blue-400" />
                         Daftar Pengajuan Cuti
                     </h3>
@@ -202,11 +185,17 @@
                             </tr>
                         </thead>
                         <tbody>
-                            <tr v-for="request in leaveRequests.data" :key="request.id" class="border-b border-gray-100 hover:bg-gray-50 dark:border-gray-800 dark:hover:bg-gray-900/50">
+                            <tr
+                                v-for="request in leaveRequests.data"
+                                :key="request.id"
+                                class="border-b border-gray-100 hover:bg-gray-50 dark:border-gray-800 dark:hover:bg-gray-900/50"
+                            >
                                 <td class="px-6 py-4">
                                     <div class="flex items-center gap-3">
                                         <div class="flex h-8 w-8 items-center justify-center rounded-full bg-gray-100 dark:bg-gray-800">
-                                            <span class="text-xs font-medium text-gray-600 dark:text-gray-300">{{ getInitials(request.user.name) }}</span>
+                                            <span class="text-xs font-medium text-gray-600 dark:text-gray-300">{{
+                                                getInitials(request.user.name)
+                                            }}</span>
                                         </div>
                                         <div>
                                             <p class="font-medium text-gray-900 dark:text-white">{{ request.user.name }}</p>
@@ -215,7 +204,9 @@
                                     </div>
                                 </td>
                                 <td class="px-6 py-4">
-                                    <span class="inline-flex items-center rounded-full bg-blue-100 px-2.5 py-0.5 text-xs font-medium text-blue-800 dark:bg-blue-900/20 dark:text-blue-400">
+                                    <span
+                                        class="inline-flex items-center rounded-full bg-blue-100 px-2.5 py-0.5 text-xs font-medium text-blue-800 dark:bg-blue-900/20 dark:text-blue-400"
+                                    >
                                         {{ request.leave_type.name }}
                                     </span>
                                 </td>
@@ -233,7 +224,7 @@
                                         :class="{
                                             'bg-yellow-100 text-yellow-800 dark:bg-yellow-900/20 dark:text-yellow-400': request.status === 'pending',
                                             'bg-green-100 text-green-800 dark:bg-green-900/20 dark:text-green-400': request.status === 'approved',
-                                            'bg-red-100 text-red-800 dark:bg-red-900/20 dark:text-red-400': request.status === 'rejected'
+                                            'bg-red-100 text-red-800 dark:bg-red-900/20 dark:text-red-400': request.status === 'rejected',
                                         }"
                                         class="inline-flex items-center rounded-full px-2.5 py-0.5 text-xs font-medium"
                                     >
@@ -298,17 +289,15 @@
 
         <!-- Details Modal -->
         <Dialog v-model:open="showDetailsModal">
-            <DialogContent class="sm:max-w-2xl max-h-[90vh] flex flex-col">
+            <DialogContent class="flex max-h-[90vh] flex-col sm:max-w-2xl">
                 <DialogHeader class="shrink-0">
                     <DialogTitle>Detail Pengajuan Cuti</DialogTitle>
-                    <DialogDescription>
-                        Informasi lengkap pengajuan cuti {{ selectedRequest?.user.name }}
-                    </DialogDescription>
+                    <DialogDescription> Informasi lengkap pengajuan cuti {{ selectedRequest?.user.name }} </DialogDescription>
                 </DialogHeader>
-                <div v-if="selectedRequest" class="space-y-6 overflow-y-auto flex-1 pr-2">
+                <div v-if="selectedRequest" class="flex-1 space-y-6 overflow-y-auto pr-2">
                     <!-- Employee Info -->
                     <div class="rounded-lg border p-4">
-                        <h4 class="font-semibold mb-3">Informasi Karyawan</h4>
+                        <h4 class="mb-3 font-semibold">Informasi Karyawan</h4>
                         <div class="grid gap-3 md:grid-cols-2">
                             <div>
                                 <label class="text-sm font-medium text-muted-foreground">Nama</label>
@@ -323,7 +312,7 @@
 
                     <!-- Leave Details -->
                     <div class="rounded-lg border p-4">
-                        <h4 class="font-semibold mb-3">Detail Cuti</h4>
+                        <h4 class="mb-3 font-semibold">Detail Cuti</h4>
                         <div class="grid gap-3 md:grid-cols-2">
                             <div>
                                 <label class="text-sm font-medium text-muted-foreground">Tipe Cuti</label>
@@ -333,9 +322,10 @@
                                 <label class="text-sm font-medium text-muted-foreground">Status</label>
                                 <span
                                     :class="{
-                                        'bg-yellow-100 text-yellow-800 dark:bg-yellow-900/20 dark:text-yellow-400': selectedRequest.status === 'pending',
+                                        'bg-yellow-100 text-yellow-800 dark:bg-yellow-900/20 dark:text-yellow-400':
+                                            selectedRequest.status === 'pending',
                                         'bg-green-100 text-green-800 dark:bg-green-900/20 dark:text-green-400': selectedRequest.status === 'approved',
-                                        'bg-red-100 text-red-800 dark:bg-red-900/20 dark:text-red-400': selectedRequest.status === 'rejected'
+                                        'bg-red-100 text-red-800 dark:bg-red-900/20 dark:text-red-400': selectedRequest.status === 'rejected',
                                     }"
                                     class="inline-flex items-center rounded-full px-2.5 py-0.5 text-xs font-medium"
                                 >
@@ -363,28 +353,34 @@
 
                     <!-- Reason -->
                     <div class="rounded-lg border p-4">
-                        <h4 class="font-semibold mb-3">Alasan Cuti</h4>
+                        <h4 class="mb-3 font-semibold">Alasan Cuti</h4>
                         <p class="text-sm whitespace-pre-wrap">{{ selectedRequest.reason || 'Tidak ada alasan yang diberikan' }}</p>
                     </div>
 
                     <!-- Admin Notes (if exists) -->
                     <div v-if="selectedRequest.admin_notes" class="rounded-lg border p-4">
-                        <h4 class="font-semibold mb-3">Catatan Admin</h4>
+                        <h4 class="mb-3 font-semibold">Catatan Admin</h4>
                         <p class="text-sm whitespace-pre-wrap">{{ selectedRequest.admin_notes }}</p>
                     </div>
                 </div>
-                <DialogFooter class="shrink-0 border-t pt-4 mt-4">
+                <DialogFooter class="mt-4 shrink-0 border-t pt-4">
                     <Button variant="outline" @click="showDetailsModal = false">Tutup</Button>
                     <div v-if="selectedRequest?.status === 'pending'" class="flex gap-2">
                         <Button
-                            @click="approveRequest(selectedRequest); showDetailsModal = false"
+                            @click="
+                                approveRequest(selectedRequest);
+                                showDetailsModal = false;
+                            "
                             class="bg-green-600 hover:bg-green-700"
                         >
                             <Check class="mr-2 h-4 w-4" />
                             Setujui
                         </Button>
                         <Button
-                            @click="openRejectModal(selectedRequest); showDetailsModal = false"
+                            @click="
+                                openRejectModal(selectedRequest);
+                                showDetailsModal = false;
+                            "
                             class="bg-red-600 hover:bg-red-700"
                         >
                             <X class="mr-2 h-4 w-4" />
@@ -412,20 +408,13 @@
             <DialogContent class="sm:max-w-md">
                 <DialogHeader>
                     <DialogTitle>Tolak Pengajuan Cuti</DialogTitle>
-                    <DialogDescription>
-                        Berikan alasan penolakan untuk {{ selectedRequest?.user.name }}
-                    </DialogDescription>
+                    <DialogDescription> Berikan alasan penolakan untuk {{ selectedRequest?.user.name }} </DialogDescription>
                 </DialogHeader>
                 <div class="space-y-4">
                     <div>
                         <label class="text-sm font-medium">Alasan Penolakan *</label>
-                        <Textarea
-                            v-model="rejectForm.admin_notes"
-                            placeholder="Jelaskan alasan penolakan..."
-                            class="mt-1"
-                            rows="4"
-                        />
-                        <p v-if="rejectForm.errors.admin_notes" class="text-sm text-red-600 mt-1">
+                        <Textarea v-model="rejectForm.admin_notes" placeholder="Jelaskan alasan penolakan..." class="mt-1" rows="4" />
+                        <p v-if="rejectForm.errors.admin_notes" class="mt-1 text-sm text-red-600">
                             {{ rejectForm.errors.admin_notes }}
                         </p>
                     </div>
@@ -442,29 +431,19 @@
 </template>
 
 <script setup lang="ts">
-import { Head, router } from '@inertiajs/vue3';
-import { ref, computed } from 'vue';
+import ConfirmationModal from '@/components/ConfirmationModal.vue';
+import { Button } from '@/components/ui/button';
+import Chart from '@/components/ui/Chart.vue';
+import { Dialog, DialogContent, DialogDescription, DialogFooter, DialogHeader, DialogTitle } from '@/components/ui/dialog';
+import { Input } from '@/components/ui/input';
+import { Textarea } from '@/components/ui/textarea';
+import { useToast } from '@/components/ui/toast/use-toast';
 import AppLayout from '@/layouts/AppLayout.vue';
 import { type BreadcrumbItem } from '@/types';
-import Chart from '@/components/ui/Chart.vue';
-import { Input } from '@/components/ui/input';
-import { Button } from '@/components/ui/button';
-import { Textarea } from '@/components/ui/textarea';
-import { Dialog, DialogContent, DialogHeader, DialogTitle, DialogDescription, DialogFooter } from '@/components/ui/dialog';
-import ConfirmationModal from '@/components/ConfirmationModal.vue';
-import { useToast } from '@/components/ui/toast/use-toast';
-import {
-    Calendar,
-    Clock,
-    CheckCircle,
-    XCircle,
-    FilterX,
-    Check,
-    X,
-    Eye,
-} from 'lucide-vue-next';
-import { useForm } from '@inertiajs/vue3';
+import { Head, router, useForm } from '@inertiajs/vue3';
 import { debounce } from 'lodash';
+import { Calendar, Check, CheckCircle, Clock, Eye, FilterX, X, XCircle } from 'lucide-vue-next';
+import { computed, ref } from 'vue';
 
 interface LeaveRequest {
     id: number;
@@ -552,18 +531,18 @@ const rejectForm = useForm({
 
 // Chart data
 const monthlyChartData = computed(() => ({
-    labels: props.monthlyTrend.map(item => item.month),
+    labels: props.monthlyTrend.map((item) => item.month),
     datasets: [
         {
             label: 'Total Pengajuan',
-            data: props.monthlyTrend.map(item => item.count),
+            data: props.monthlyTrend.map((item) => item.count),
             borderColor: '#3b82f6',
             backgroundColor: 'rgba(59, 130, 246, 0.1)',
             tension: 0.4,
         },
         {
             label: 'Disetujui',
-            data: props.monthlyTrend.map(item => item.approved),
+            data: props.monthlyTrend.map((item) => item.approved),
             borderColor: '#10b981',
             backgroundColor: 'rgba(16, 185, 129, 0.1)',
             tension: 0.4,
@@ -573,11 +552,13 @@ const monthlyChartData = computed(() => ({
 
 const statusChartData = computed(() => ({
     labels: ['Menunggu', 'Disetujui', 'Ditolak'],
-    datasets: [{
-        data: [props.stats.pending_count, props.stats.approved_count, props.stats.rejected_count],
-        backgroundColor: ['#f59e0b', '#10b981', '#ef4444'],
-        borderWidth: 0,
-    }],
+    datasets: [
+        {
+            data: [props.stats.pending_count, props.stats.approved_count, props.stats.rejected_count],
+            backgroundColor: ['#f59e0b', '#10b981', '#ef4444'],
+            borderWidth: 0,
+        },
+    ],
 }));
 
 // Methods
@@ -590,7 +571,11 @@ const formatDate = (dateString: string) => {
 };
 
 const getInitials = (name: string) => {
-    return name.split(' ').map(n => n[0]).join('').toUpperCase();
+    return name
+        .split(' ')
+        .map((n) => n[0])
+        .join('')
+        .toUpperCase();
 };
 
 const getStatusLabel = (status: string) => {
@@ -607,15 +592,19 @@ const debouncedSearch = debounce(() => {
 }, 300);
 
 const applyFilters = () => {
-    router.get('/admin/leave-requests', {
-        search: search.value,
-        status: selectedStatus.value,
-        leave_type: selectedLeaveType.value,
-        department: selectedDepartment.value,
-    }, {
-        preserveState: true,
-        replace: true,
-    });
+    router.get(
+        '/admin/leave-requests',
+        {
+            search: search.value,
+            status: selectedStatus.value,
+            leave_type: selectedLeaveType.value,
+            department: selectedDepartment.value,
+        },
+        {
+            preserveState: true,
+            replace: true,
+        },
+    );
 };
 
 const clearFilters = () => {
@@ -634,26 +623,30 @@ const approveRequest = (request: LeaveRequest) => {
 const confirmApprove = () => {
     if (!selectedRequest.value) return;
 
-    router.patch(`/admin/leave-requests/${selectedRequest.value.id}/approve`, {}, {
-        onSuccess: () => {
-            toast({
-                title: 'Berhasil!',
-                description: `Pengajuan cuti ${selectedRequest.value?.user.name} telah disetujui.`,
-                variant: 'success',
-                duration: 3000,
-            });
-            showApproveModal.value = false;
-            selectedRequest.value = null;
+    router.patch(
+        `/admin/leave-requests/${selectedRequest.value.id}/approve`,
+        {},
+        {
+            onSuccess: () => {
+                toast({
+                    title: 'Berhasil!',
+                    description: `Pengajuan cuti ${selectedRequest.value?.user.name} telah disetujui.`,
+                    variant: 'success',
+                    duration: 3000,
+                });
+                showApproveModal.value = false;
+                selectedRequest.value = null;
+            },
+            onError: () => {
+                toast({
+                    title: 'Gagal!',
+                    description: 'Terjadi kesalahan saat menyetujui pengajuan.',
+                    variant: 'destructive',
+                    duration: 4000,
+                });
+            },
         },
-        onError: () => {
-            toast({
-                title: 'Gagal!',
-                description: 'Terjadi kesalahan saat menyetujui pengajuan.',
-                variant: 'destructive',
-                duration: 4000,
-            });
-        },
-    });
+    );
 };
 
 const openRejectModal = (request: LeaveRequest) => {

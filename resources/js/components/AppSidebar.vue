@@ -1,12 +1,30 @@
 <script setup lang="ts">
-import NavFooter from '@/components/NavFooter.vue';
 import NavMain from '@/components/NavMain.vue';
 import NavUser from '@/components/NavUser.vue';
 import { Sidebar, SidebarContent, SidebarFooter, SidebarHeader, SidebarMenu, SidebarMenuButton, SidebarMenuItem } from '@/components/ui/sidebar';
 // import { welcome } from '@/routes';
 import { type NavItem } from '@/types';
 import { Link, usePage } from '@inertiajs/vue3';
-import { BookOpen, LayoutGrid, Clock, Users, Calendar, MapPin, Settings, Shield, Building, UserCheck, Megaphone, DollarSign, FileText, Wallet, Minus, BriefcaseBusiness, UsersRound, FolderOpen, RefreshCw } from 'lucide-vue-next';
+import {
+    BookOpen,
+    Building,
+    Calendar,
+    Clock,
+    DollarSign,
+    FileText,
+    FolderOpen,
+    LayoutGrid,
+    MapPin,
+    Megaphone,
+    Minus,
+    RefreshCw,
+    Settings,
+    Shield,
+    UserCheck,
+    Users,
+    UsersRound,
+    Wallet,
+} from 'lucide-vue-next';
 import { computed } from 'vue';
 import AppLogo from './AppLogo.vue';
 

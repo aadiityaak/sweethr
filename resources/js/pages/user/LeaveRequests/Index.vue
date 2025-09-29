@@ -1,8 +1,8 @@
 <script setup lang="ts">
-import { Head, Link, router } from '@inertiajs/vue3';
-import { Calendar, Clock, CheckCircle, XCircle, AlertCircle, ArrowLeft, Plus } from 'lucide-vue-next';
-import { ref } from 'vue';
 import BottomNavigation from '@/components/BottomNavigation.vue';
+import { Head, Link, router } from '@inertiajs/vue3';
+import { AlertCircle, ArrowLeft, Calendar, CheckCircle, Clock, Plus, XCircle } from 'lucide-vue-next';
+import { ref } from 'vue';
 
 interface User {
     id: number;
@@ -57,12 +57,16 @@ const { leaveRequests, leaveTypes, filters, stats } = defineProps<Props>();
 const selectedStatus = ref(filters.status || '');
 
 const filterRequests = () => {
-    router.get('/leave-requests', {
-        status: selectedStatus.value || undefined,
-    }, {
-        preserveState: true,
-        replace: true,
-    });
+    router.get(
+        '/leave-requests',
+        {
+            status: selectedStatus.value || undefined,
+        },
+        {
+            preserveState: true,
+            replace: true,
+        },
+    );
 };
 
 const getStatusColor = (status: string) => {
@@ -108,7 +112,7 @@ const formatDate = (dateString: string) => {
     return new Date(dateString).toLocaleDateString('id-ID', {
         day: 'numeric',
         month: 'short',
-        year: 'numeric'
+        year: 'numeric',
     });
 };
 
@@ -118,7 +122,7 @@ const formatDateTime = (dateString: string) => {
         month: 'long',
         year: 'numeric',
         hour: '2-digit',
-        minute: '2-digit'
+        minute: '2-digit',
     });
 };
 </script>
@@ -128,13 +132,13 @@ const formatDateTime = (dateString: string) => {
 
     <div class="min-h-screen bg-background">
         <!-- Mobile Container -->
-        <div class="mx-auto max-w-[480px] bg-background min-h-screen">
+        <div class="mx-auto min-h-screen max-w-[480px] bg-background">
             <!-- Mobile Header -->
-            <div class="bg-background/95 backdrop-blur-sm border-b sticky top-0 z-40">
+            <div class="sticky top-0 z-40 border-b bg-background/95 backdrop-blur-sm">
                 <div class="px-4 py-4">
                     <div class="flex items-center justify-between">
                         <div class="flex items-center gap-3">
-                            <Link href="/home" class="rounded-md bg-secondary p-2 text-secondary-foreground hover:bg-secondary/80 transition-colors">
+                            <Link href="/home" class="rounded-md bg-secondary p-2 text-secondary-foreground transition-colors hover:bg-secondary/80">
                                 <ArrowLeft class="h-4 w-4" />
                             </Link>
                             <div>
@@ -144,7 +148,7 @@ const formatDateTime = (dateString: string) => {
                         </div>
                         <Link
                             href="/leave-requests/create"
-                            class="rounded-md bg-primary p-2 text-primary-foreground hover:bg-primary/90 transition-colors"
+                            class="rounded-md bg-primary p-2 text-primary-foreground transition-colors hover:bg-primary/90"
                         >
                             <Plus class="h-4 w-4" />
                         </Link>
@@ -155,47 +159,43 @@ const formatDateTime = (dateString: string) => {
             <!-- Main Content -->
             <div class="px-4 py-6 pb-24">
                 <!-- Stats -->
-                <div class="mb-6 grid gap-3 grid-cols-2">
+                <div class="mb-6 grid grid-cols-2 gap-3">
                     <div class="rounded-lg border bg-card p-4 text-center">
-                        <div class="mx-auto mb-2 w-10 h-10 rounded-md bg-orange-100 dark:bg-orange-900/20 flex items-center justify-center">
+                        <div class="mx-auto mb-2 flex h-10 w-10 items-center justify-center rounded-md bg-orange-100 dark:bg-orange-900/20">
                             <AlertCircle class="h-5 w-5 text-orange-600 dark:text-orange-400" />
                         </div>
                         <p class="text-2xl font-bold">{{ stats.pending_count }}</p>
-                        <p class="text-xs text-muted-foreground font-medium">Menunggu</p>
+                        <p class="text-xs font-medium text-muted-foreground">Menunggu</p>
                     </div>
 
                     <div class="rounded-lg border bg-card p-4 text-center">
-                        <div class="mx-auto mb-2 w-10 h-10 rounded-md bg-green-100 dark:bg-green-900/20 flex items-center justify-center">
+                        <div class="mx-auto mb-2 flex h-10 w-10 items-center justify-center rounded-md bg-green-100 dark:bg-green-900/20">
                             <CheckCircle class="h-5 w-5 text-green-600 dark:text-green-400" />
                         </div>
                         <p class="text-2xl font-bold">{{ stats.approved_count }}</p>
-                        <p class="text-xs text-muted-foreground font-medium">Disetujui</p>
+                        <p class="text-xs font-medium text-muted-foreground">Disetujui</p>
                     </div>
 
                     <div class="rounded-lg border bg-card p-4 text-center">
-                        <div class="mx-auto mb-2 w-10 h-10 rounded-md bg-red-100 dark:bg-red-900/20 flex items-center justify-center">
+                        <div class="mx-auto mb-2 flex h-10 w-10 items-center justify-center rounded-md bg-red-100 dark:bg-red-900/20">
                             <XCircle class="h-5 w-5 text-red-600 dark:text-red-400" />
                         </div>
                         <p class="text-2xl font-bold">{{ stats.rejected_count }}</p>
-                        <p class="text-xs text-muted-foreground font-medium">Ditolak</p>
+                        <p class="text-xs font-medium text-muted-foreground">Ditolak</p>
                     </div>
 
                     <div class="rounded-lg border bg-card p-4 text-center">
-                        <div class="mx-auto mb-2 w-10 h-10 rounded-md bg-blue-100 dark:bg-blue-900/20 flex items-center justify-center">
+                        <div class="mx-auto mb-2 flex h-10 w-10 items-center justify-center rounded-md bg-blue-100 dark:bg-blue-900/20">
                             <Calendar class="h-5 w-5 text-blue-600 dark:text-blue-400" />
                         </div>
                         <p class="text-2xl font-bold">{{ stats.leave_balance }}</p>
-                        <p class="text-xs text-muted-foreground font-medium">Sisa Cuti</p>
+                        <p class="text-xs font-medium text-muted-foreground">Sisa Cuti</p>
                     </div>
                 </div>
 
                 <!-- Filter -->
                 <div class="mb-6 rounded-lg border bg-card p-4">
-                    <select
-                        v-model="selectedStatus"
-                        @change="filterRequests"
-                        class="w-full rounded-md border bg-background px-3 py-2 text-sm"
-                    >
+                    <select v-model="selectedStatus" @change="filterRequests" class="w-full rounded-md border bg-background px-3 py-2 text-sm">
                         <option value="">Semua Status</option>
                         <option value="pending">Menunggu</option>
                         <option value="approved">Disetujui</option>
@@ -205,34 +205,23 @@ const formatDateTime = (dateString: string) => {
 
                 <!-- Leave Requests List -->
                 <div class="rounded-lg border bg-card">
-                    <div class="p-4 border-b">
-                        <h2 class="text-lg font-semibold flex items-center gap-2">
+                    <div class="border-b p-4">
+                        <h2 class="flex items-center gap-2 text-lg font-semibold">
                             <Calendar class="h-4 w-4" />
                             Riwayat Pengajuan
                         </h2>
                     </div>
 
                     <div class="divide-y">
-                        <div
-                            v-for="request in leaveRequests?.data || []"
-                            :key="request.id"
-                            class="p-4 hover:bg-muted/50 transition-colors"
-                        >
-                            <div class="flex items-center justify-between mb-2">
+                        <div v-for="request in leaveRequests?.data || []" :key="request.id" class="p-4 transition-colors hover:bg-muted/50">
+                            <div class="mb-2 flex items-center justify-between">
                                 <div class="flex items-center gap-2">
-                                    <component
-                                        :is="getStatusIcon(request.status)"
-                                        class="h-4 w-4"
-                                        :class="getStatusColor(request.status)"
-                                    />
+                                    <component :is="getStatusIcon(request.status)" class="h-4 w-4" :class="getStatusColor(request.status)" />
                                     <span class="text-sm font-medium">
                                         {{ request.leave_type.name }}
                                     </span>
                                 </div>
-                                <span
-                                    class="rounded-full border px-2 py-1 text-xs font-medium"
-                                    :class="getStatusBadgeColor(request.status)"
-                                >
+                                <span class="rounded-full border px-2 py-1 text-xs font-medium" :class="getStatusBadgeColor(request.status)">
                                     {{ request.status === 'pending' ? 'Menunggu' : request.status === 'approved' ? 'Disetujui' : 'Ditolak' }}
                                 </span>
                             </div>
@@ -243,18 +232,17 @@ const formatDateTime = (dateString: string) => {
                             </div>
 
                             <div class="mb-2">
-                                <p class="text-sm text-muted-foreground">
-                                    <span class="font-medium">Alasan:</span> {{ request.reason }}
-                                </p>
+                                <p class="text-sm text-muted-foreground"><span class="font-medium">Alasan:</span> {{ request.reason }}</p>
                                 <div v-if="request.attachment_path" class="mt-2 flex items-center gap-2">
                                     <svg class="h-4 w-4 text-muted-foreground" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-                                        <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M15.172 7l-6.586 6.586a2 2 0 102.828 2.828l6.414-6.586a4 4 0 00-5.656-5.656l-6.415 6.585a6 6 0 108.486 8.486L20.5 13"></path>
+                                        <path
+                                            stroke-linecap="round"
+                                            stroke-linejoin="round"
+                                            stroke-width="2"
+                                            d="M15.172 7l-6.586 6.586a2 2 0 102.828 2.828l6.414-6.586a4 4 0 00-5.656-5.656l-6.415 6.585a6 6 0 108.486 8.486L20.5 13"
+                                        ></path>
                                     </svg>
-                                    <a
-                                        :href="`/storage/${request.attachment_path}`"
-                                        target="_blank"
-                                        class="text-xs text-primary hover:underline"
-                                    >
+                                    <a :href="`/storage/${request.attachment_path}`" target="_blank" class="text-xs text-primary hover:underline">
                                         {{ request.attachment_original_name || 'Lihat Lampiran' }}
                                     </a>
                                 </div>
@@ -262,24 +250,20 @@ const formatDateTime = (dateString: string) => {
 
                             <div class="text-xs text-muted-foreground">
                                 Diajukan {{ formatDateTime(request.created_at) }}
-                                <span v-if="request.approved_at && request.approved_by">
-                                    • Direview {{ formatDateTime(request.approved_at) }}
-                                </span>
+                                <span v-if="request.approved_at && request.approved_by"> • Direview {{ formatDateTime(request.approved_at) }} </span>
                             </div>
 
                             <div v-if="request.rejection_reason" class="mt-2 rounded-md bg-muted p-3">
-                                <p class="text-sm">
-                                    <span class="font-medium">Alasan Penolakan:</span> {{ request.rejection_reason }}
-                                </p>
+                                <p class="text-sm"><span class="font-medium">Alasan Penolakan:</span> {{ request.rejection_reason }}</p>
                             </div>
                         </div>
 
                         <div v-if="!leaveRequests?.data?.length" class="p-8 text-center">
-                            <Calendar class="h-12 w-12 mx-auto mb-4 text-muted-foreground" />
+                            <Calendar class="mx-auto mb-4 h-12 w-12 text-muted-foreground" />
                             <p class="text-muted-foreground">Belum ada permintaan cuti</p>
                             <Link
                                 href="/leave-requests/create"
-                                class="mt-4 inline-flex items-center gap-2 rounded-md bg-primary px-4 py-2 text-sm font-medium text-primary-foreground hover:bg-primary/90 transition-colors"
+                                class="mt-4 inline-flex items-center gap-2 rounded-md bg-primary px-4 py-2 text-sm font-medium text-primary-foreground transition-colors hover:bg-primary/90"
                             >
                                 <Plus class="h-4 w-4" />
                                 Ajukan Cuti Pertama
@@ -288,14 +272,13 @@ const formatDateTime = (dateString: string) => {
                     </div>
 
                     <!-- Pagination -->
-                    <div v-if="leaveRequests?.meta?.total > leaveRequests?.meta?.per_page" class="p-4 border-t">
-                        <p class="text-sm text-muted-foreground text-center">
+                    <div v-if="leaveRequests?.meta?.total > leaveRequests?.meta?.per_page" class="border-t p-4">
+                        <p class="text-center text-sm text-muted-foreground">
                             Menampilkan {{ leaveRequests.meta.from }} - {{ leaveRequests.meta.to }} dari {{ leaveRequests.meta.total }} data
                         </p>
                     </div>
                 </div>
             </div>
-
         </div>
 
         <BottomNavigation current-route="/leave-requests" />

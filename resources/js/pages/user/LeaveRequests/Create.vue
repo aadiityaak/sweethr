@@ -1,10 +1,10 @@
 <template>
-    <div class="mx-auto max-w-[480px] bg-background min-h-screen">
+    <div class="mx-auto min-h-screen max-w-[480px] bg-background">
         <!-- Header -->
-        <div class="sticky top-0 z-50 bg-background/95 backdrop-blur supports-[backdrop-filter]:bg-background/60 border-b border-border">
+        <div class="sticky top-0 z-50 border-b border-border bg-background/95 backdrop-blur supports-[backdrop-filter]:bg-background/60">
             <div class="flex items-center justify-between p-4">
                 <div class="flex items-center gap-3">
-                    <button @click="$inertia.visit('/leave-requests')" class="p-2 -ml-2 rounded-lg hover:bg-muted transition-colors">
+                    <button @click="$inertia.visit('/leave-requests')" class="-ml-2 rounded-lg p-2 transition-colors hover:bg-muted">
                         <ArrowLeft class="h-5 w-5" />
                     </button>
                     <h1 class="text-lg font-semibold">Ajukan Cuti</h1>
@@ -13,13 +13,8 @@
         </div>
 
         <!-- Form -->
-        <div class="p-4 space-y-6">
-            <Form
-                action="/leave-requests"
-                method="post"
-                enctype="multipart/form-data"
-                #default="{ errors, processing, wasSuccessful }"
-            >
+        <div class="space-y-6 p-4">
+            <Form action="/leave-requests" method="post" enctype="multipart/form-data" #default="{ errors, processing, wasSuccessful }">
                 <div class="space-y-4">
                     <!-- Leave Type -->
                     <div class="space-y-2">
@@ -28,7 +23,7 @@
                             id="leave_type_id"
                             name="leave_type_id"
                             required
-                            class="w-full px-3 py-2 border border-input rounded-md bg-background text-foreground focus:outline-none focus:ring-2 focus:ring-ring focus:border-transparent"
+                            class="w-full rounded-md border border-input bg-background px-3 py-2 text-foreground focus:border-transparent focus:ring-2 focus:ring-ring focus:outline-none"
                         >
                             <option value="">Pilih jenis cuti</option>
                             <option v-for="leaveType in leaveTypes" :key="leaveType.id" :value="leaveType.id">
@@ -43,12 +38,7 @@
                     <!-- Start Date -->
                     <div class="space-y-2">
                         <Label for="start_date">Tanggal Mulai</Label>
-                        <DatePicker
-                            v-model="startDate"
-                            placeholder="Pilih tanggal mulai"
-                            required
-                            class="w-full"
-                        />
+                        <DatePicker v-model="startDate" placeholder="Pilih tanggal mulai" required class="w-full" />
                         <input type="hidden" name="start_date" :value="startDate" />
                         <div v-if="errors.start_date" class="text-sm text-destructive">
                             {{ errors.start_date }}
@@ -58,12 +48,7 @@
                     <!-- End Date -->
                     <div class="space-y-2">
                         <Label for="end_date">Tanggal Selesai</Label>
-                        <DatePicker
-                            v-model="endDate"
-                            placeholder="Pilih tanggal selesai"
-                            required
-                            class="w-full"
-                        />
+                        <DatePicker v-model="endDate" placeholder="Pilih tanggal selesai" required class="w-full" />
                         <input type="hidden" name="end_date" :value="endDate" />
                         <div v-if="errors.end_date" class="text-sm text-destructive">
                             {{ errors.end_date }}
@@ -79,7 +64,7 @@
                             rows="4"
                             required
                             placeholder="Jelaskan alasan pengajuan cuti..."
-                            class="w-full px-3 py-2 border border-input rounded-md bg-background text-foreground focus:outline-none focus:ring-2 focus:ring-ring focus:border-transparent resize-none"
+                            class="w-full resize-none rounded-md border border-input bg-background px-3 py-2 text-foreground focus:border-transparent focus:ring-2 focus:ring-ring focus:outline-none"
                         ></textarea>
                         <div v-if="errors.reason" class="text-sm text-destructive">
                             {{ errors.reason }}
@@ -95,7 +80,7 @@
                                 name="attachment"
                                 type="file"
                                 accept="image/*"
-                                class="w-full px-3 py-2 border border-input rounded-md bg-background text-foreground focus:outline-none focus:ring-2 focus:ring-ring focus:border-transparent file:mr-4 file:py-1 file:px-3 file:rounded-md file:border-0 file:text-sm file:bg-muted file:text-muted-foreground hover:file:bg-muted/80"
+                                class="w-full rounded-md border border-input bg-background px-3 py-2 text-foreground file:mr-4 file:rounded-md file:border-0 file:bg-muted file:px-3 file:py-1 file:text-sm file:text-muted-foreground hover:file:bg-muted/80 focus:border-transparent focus:ring-2 focus:ring-ring focus:outline-none"
                             />
                             <p class="text-xs text-muted-foreground">
                                 Upload foto surat ijin, surat dokter, atau dokumen pendukung lainnya (maks. 5MB)
@@ -111,7 +96,7 @@
                         <button
                             type="submit"
                             :disabled="processing"
-                            class="w-full inline-flex items-center justify-center gap-2 px-4 py-3 bg-primary text-primary-foreground hover:bg-primary/90 disabled:opacity-50 disabled:pointer-events-none rounded-md font-medium transition-colors"
+                            class="inline-flex w-full items-center justify-center gap-2 rounded-md bg-primary px-4 py-3 font-medium text-primary-foreground transition-colors hover:bg-primary/90 disabled:pointer-events-none disabled:opacity-50"
                         >
                             <LoaderCircle v-if="processing" class="h-4 w-4 animate-spin" />
                             {{ processing ? 'Mengajukan...' : 'Ajukan Cuti' }}
@@ -129,24 +114,24 @@
 </template>
 
 <script setup lang="ts">
-import { ref } from 'vue'
-import { Form } from '@inertiajs/vue3'
-import { ArrowLeft, LoaderCircle } from 'lucide-vue-next'
-import { Label } from '@/components/ui/label'
-import { DatePicker } from '@/components/ui/date-picker'
-import BottomNavigation from '@/components/BottomNavigation.vue'
+import BottomNavigation from '@/components/BottomNavigation.vue';
+import { DatePicker } from '@/components/ui/date-picker';
+import { Label } from '@/components/ui/label';
+import { Form } from '@inertiajs/vue3';
+import { ArrowLeft, LoaderCircle } from 'lucide-vue-next';
+import { ref } from 'vue';
 
 interface LeaveType {
-    id: number
-    name: string
+    id: number;
+    name: string;
 }
 
 interface Props {
-    leaveTypes: LeaveType[]
+    leaveTypes: LeaveType[];
 }
 
-defineProps<Props>()
+defineProps<Props>();
 
-const startDate = ref('')
-const endDate = ref('')
+const startDate = ref('');
+const endDate = ref('');
 </script>

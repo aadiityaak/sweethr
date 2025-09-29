@@ -1,16 +1,16 @@
 <script setup lang="ts">
-import { Head, Link, useForm } from '@inertiajs/vue3';
-import { ref, onMounted, onUnmounted, watch } from 'vue';
-import { Clock, Calendar, CheckCircle, User, MapPin, LogOut, UserCircle, BarChart3, Loader2, Eye } from 'lucide-vue-next';
-import { useCompanySettings } from '@/composables/useCompanySettings';
-import { useToast } from '@/components/ui/toast/use-toast';
-import { useFaceRecognition } from '@/composables/useFaceRecognition';
-import BottomNavigation from '@/components/BottomNavigation.vue';
-import * as faceapi from 'face-api.js';
-import { Dialog, DialogContent, DialogDescription, DialogHeader, DialogTitle } from '@/components/ui/dialog';
-import { Button } from '@/components/ui/button';
 import AnnouncementCarousel from '@/components/AnnouncementCarousel.vue';
 import AnnouncementModal from '@/components/AnnouncementModal.vue';
+import BottomNavigation from '@/components/BottomNavigation.vue';
+import { Button } from '@/components/ui/button';
+import { Dialog, DialogContent, DialogDescription, DialogHeader, DialogTitle } from '@/components/ui/dialog';
+import { useToast } from '@/components/ui/toast/use-toast';
+import { useCompanySettings } from '@/composables/useCompanySettings';
+import { useFaceRecognition } from '@/composables/useFaceRecognition';
+import { Head, Link, useForm } from '@inertiajs/vue3';
+import * as faceapi from 'face-api.js';
+import { BarChart3, Calendar, CheckCircle, Clock, Eye, Loader2, LogOut, MapPin, User, UserCircle } from 'lucide-vue-next';
+import { onMounted, onUnmounted, ref, watch } from 'vue';
 
 interface User {
     id: number;
@@ -94,12 +94,7 @@ const { companyName, companyLogo } = useCompanySettings();
 const { toast } = useToast();
 
 // Face recognition composable for reactive status
-const {
-    faceRecognitionStatus,
-    faceDescriptors: reactiveFaceDescriptors,
-    initializeFaceRecognitionStatus,
-    refreshStatus
-} = useFaceRecognition();
+const { faceRecognitionStatus, faceDescriptors: reactiveFaceDescriptors, initializeFaceRecognitionStatus, refreshStatus } = useFaceRecognition();
 
 // Alert modal function
 const showAlert = (title: string, message: string, variant: 'success' | 'destructive' | 'warning' | 'default' = 'destructive') => {
@@ -107,7 +102,7 @@ const showAlert = (title: string, message: string, variant: 'success' | 'destruc
         isOpen: true,
         title,
         message,
-        variant
+        variant,
     };
 };
 
@@ -127,7 +122,7 @@ const alertModal = ref({
     isOpen: false,
     title: '',
     message: '',
-    variant: 'destructive' as 'success' | 'destructive' | 'warning' | 'default'
+    variant: 'destructive' as 'success' | 'destructive' | 'warning' | 'default',
 });
 const locationError = ref('');
 const selectedOffice = ref<OfficeLocation | null>(null);
@@ -190,13 +185,13 @@ const updateTime = () => {
     currentTime.value = new Date().toLocaleTimeString('id-ID', {
         hour: '2-digit',
         minute: '2-digit',
-        second: '2-digit'
+        second: '2-digit',
     });
     currentDate.value = new Date().toLocaleDateString('id-ID', {
         weekday: 'long',
         year: 'numeric',
         month: 'long',
-        day: 'numeric'
+        day: 'numeric',
     });
 };
 
@@ -211,9 +206,8 @@ const calculateDistance = (lat1: number, lng1: number, lat2: number, lng2: numbe
     const deltaLat = lat2Rad - lat1Rad;
     const deltaLng = lng2Rad - lng1Rad;
 
-    const a = Math.sin(deltaLat / 2) * Math.sin(deltaLat / 2) +
-              Math.cos(lat1Rad) * Math.cos(lat2Rad) *
-              Math.sin(deltaLng / 2) * Math.sin(deltaLng / 2);
+    const a =
+        Math.sin(deltaLat / 2) * Math.sin(deltaLat / 2) + Math.cos(lat1Rad) * Math.cos(lat2Rad) * Math.sin(deltaLng / 2) * Math.sin(deltaLng / 2);
     const c = 2 * Math.atan2(Math.sqrt(a), Math.sqrt(1 - a));
 
     return earthRadius * c;
@@ -278,8 +272,8 @@ const getCurrentLocation = (autoAction = false) => {
         {
             enableHighAccuracy: true,
             timeout: 10000,
-            maximumAge: 60000
-        }
+            maximumAge: 60000,
+        },
     );
 };
 
@@ -290,13 +284,8 @@ const checkOfficeProximity = () => {
     let nearestDistance = Infinity;
     let isWithinRange = false;
 
-    officeLocations.forEach(office => {
-        const distance = calculateDistance(
-            form.latitude,
-            form.longitude,
-            office.latitude,
-            office.longitude
-        );
+    officeLocations.forEach((office) => {
+        const distance = calculateDistance(form.latitude, form.longitude, office.latitude, office.longitude);
 
         if (distance < nearestDistance) {
             nearestDistance = distance;
@@ -315,7 +304,16 @@ const checkOfficeProximity = () => {
 };
 
 const performCheckIn = () => {
-    console.log('performCheckIn called - isInRange:', isInRange.value, 'faceRecognitionEnabled:', faceRecognitionEnabled, 'faceDescriptors:', faceDescriptors?.length, 'isFaceCaptured:', isFaceCaptured.value);
+    console.log(
+        'performCheckIn called - isInRange:',
+        isInRange.value,
+        'faceRecognitionEnabled:',
+        faceRecognitionEnabled,
+        'faceDescriptors:',
+        faceDescriptors?.length,
+        'isFaceCaptured:',
+        isFaceCaptured.value,
+    );
 
     if (!isInRange.value) {
         console.log('Not in range - distanceToOffice:', distanceToOffice.value, 'selectedOffice:', selectedOffice.value);
@@ -325,13 +323,13 @@ const performCheckIn = () => {
             showAlert(
                 '❌ Tidak Dapat Check In',
                 `Anda masih berada di luar radius ${selectedOffice.value.radius_meters}m. Mohon mendekat ${distanceNeeded}m lagi ke ${selectedOffice.value.name}.`,
-                'destructive'
+                'destructive',
             );
         } else {
             showAlert(
                 '❌ Tidak Dapat Check In',
                 'Anda tidak berada dalam jangkauan lokasi kantor manapun. Mohon mendekat ke lokasi kantor.',
-                'destructive'
+                'destructive',
             );
         }
         locationStatus.value = 'idle'; // Reset status so user can try again
@@ -341,11 +339,7 @@ const performCheckIn = () => {
     // Check if face recognition is required and captured
     if (faceRecognitionStatus.value.enabled && faceRecognitionStatus.value.has_descriptors) {
         if (!isFaceCaptured.value) {
-            showAlert(
-                '❌ Verifikasi Wajah Diperlukan',
-                'Posisikan wajah Anda di depan kamera untuk verifikasi terlebih dahulu.',
-                'destructive'
-            );
+            showAlert('❌ Verifikasi Wajah Diperlukan', 'Posisikan wajah Anda di depan kamera untuk verifikasi terlebih dahulu.', 'destructive');
             return;
         }
     }
@@ -363,7 +357,7 @@ const executeCheckIn = () => {
         console.log('Setting face data:', {
             confidence: capturedFaceData.value.confidence,
             hasImage: !!capturedFaceData.value.imageDataUrl,
-            imageLength: capturedFaceData.value.imageDataUrl?.length
+            imageLength: capturedFaceData.value.imageDataUrl?.length,
         });
         form.face_confidence = capturedFaceData.value.confidence;
         form.face_photo = capturedFaceData.value.imageDataUrl;
@@ -371,7 +365,7 @@ const executeCheckIn = () => {
         console.log('Face data not available:', {
             faceRecognitionEnabled: faceRecognitionStatus.value.enabled,
             hasDescriptors: faceRecognitionStatus.value.has_descriptors,
-            hasCapturedData: !!capturedFaceData.value
+            hasCapturedData: !!capturedFaceData.value,
         });
     }
 
@@ -417,7 +411,18 @@ const executeCheckIn = () => {
 };
 
 const handleCheckInClick = () => {
-    console.log('Check-in clicked - locationStatus:', locationStatus.value, 'isInRange:', isInRange.value, 'faceRecognitionEnabled:', faceRecognitionStatus.value.enabled, 'hasDescriptors:', faceRecognitionStatus.value.has_descriptors, 'isFaceCaptured:', isFaceCaptured.value);
+    console.log(
+        'Check-in clicked - locationStatus:',
+        locationStatus.value,
+        'isInRange:',
+        isInRange.value,
+        'faceRecognitionEnabled:',
+        faceRecognitionStatus.value.enabled,
+        'hasDescriptors:',
+        faceRecognitionStatus.value.has_descriptors,
+        'isFaceCaptured:',
+        isFaceCaptured.value,
+    );
 
     if (locationStatus.value === 'idle' || locationStatus.value === 'error') {
         console.log('Getting current location...');
@@ -429,7 +434,10 @@ const handleCheckInClick = () => {
         console.log('Check-in conditions not met:', {
             locationStatus: locationStatus.value,
             isInRange: isInRange.value,
-            buttonDisabled: isCheckingIn.value || (locationStatus.value === 'success' && !isInRange.value) || (faceRecognitionEnabled && faceDescriptors && !isFaceCaptured.value)
+            buttonDisabled:
+                isCheckingIn.value ||
+                (locationStatus.value === 'success' && !isInRange.value) ||
+                (faceRecognitionEnabled && faceDescriptors && !isFaceCaptured.value),
         });
 
         // Provide specific error message
@@ -457,7 +465,6 @@ const handleCheckInClick = () => {
         }
     }
 };
-
 
 // Real-time face detection functions
 const loadFaceApiModels = async () => {
@@ -513,8 +520,8 @@ const startFaceDetection = async () => {
                 width: isMobile ? 240 : 320,
                 height: isMobile ? 180 : 240,
                 facingMode: 'user',
-                frameRate: { ideal: isMobile ? 10 : 15 }
-            }
+                frameRate: { ideal: isMobile ? 10 : 15 },
+            },
         });
 
         if (videoElement.value) {
@@ -560,17 +567,14 @@ const detectFace = async () => {
         const isMobile = /Android|iPhone|iPad|iPod|BlackBerry|IEMobile|Opera Mini/i.test(navigator.userAgent);
         const detectionOptions = new faceapi.TinyFaceDetectorOptions({
             inputSize: isMobile ? 128 : 416, // Smaller input size for mobile
-            scoreThreshold: isMobile ? 0.3 : 0.5 // Lower threshold for mobile
+            scoreThreshold: isMobile ? 0.3 : 0.5, // Lower threshold for mobile
         });
 
-        const detection = await faceapi
-            .detectSingleFace(videoElement.value, detectionOptions)
-            .withFaceLandmarks()
-            .withFaceDescriptor();
+        const detection = await faceapi.detectSingleFace(videoElement.value, detectionOptions).withFaceLandmarks().withFaceDescriptor();
 
         if (detection) {
             // Compare with stored descriptors
-            const storedDescriptors = reactiveFaceDescriptors.value.map(desc => new Float32Array(desc));
+            const storedDescriptors = reactiveFaceDescriptors.value.map((desc) => new Float32Array(desc));
             const currentDescriptor = detection.descriptor;
 
             let bestMatch = 0;
@@ -635,7 +639,7 @@ const autoCaptureFace = (confidence: number, descriptor: Float32Array) => {
                 confidence: Math.round(confidence),
                 timestamp: new Date(),
                 descriptor: descriptor,
-                imageDataUrl: imageDataUrl
+                imageDataUrl: imageDataUrl,
             };
             isFaceCaptured.value = true;
             isCapturing.value = false;
@@ -643,7 +647,7 @@ const autoCaptureFace = (confidence: number, descriptor: Float32Array) => {
             console.log('Face captured successfully:', {
                 confidence: Math.round(confidence),
                 imageLength: imageDataUrl.length,
-                timestamp: new Date()
+                timestamp: new Date(),
             });
 
             toast({
@@ -696,7 +700,7 @@ const stopFaceDetection = () => {
     }
 
     if (stream.value) {
-        stream.value.getTracks().forEach(track => track.stop());
+        stream.value.getTracks().forEach((track) => track.stop());
         stream.value = null;
     }
 
@@ -791,7 +795,7 @@ watch(
             console.log('Face recognition enabled - starting detection');
             startFaceDetection();
         }
-    }
+    },
 );
 
 onMounted(async () => {
@@ -803,7 +807,7 @@ onMounted(async () => {
         face_recognition_enabled: faceRecognitionEnabled,
         face_recognition_mandatory: user?.face_recognition_mandatory,
         face_setup_at: user?.face_setup_at,
-        face_descriptors: faceDescriptors
+        face_descriptors: faceDescriptors,
     });
 
     // Start face detection if enabled and user hasn't checked in yet
@@ -824,18 +828,13 @@ onUnmounted(() => {
     <Head :title="`${companyName} - Employee Portal`" />
 
     <!-- Mobile-only Layout -->
-    <div class="mx-auto max-w-[480px] bg-background min-h-screen">
+    <div class="mx-auto min-h-screen max-w-[480px] bg-background">
         <!-- Header -->
-        <div class="sticky top-0 z-50 bg-background/95 backdrop-blur supports-[backdrop-filter]:bg-background/60 border-b border-border">
+        <div class="sticky top-0 z-50 border-b border-border bg-background/95 backdrop-blur supports-[backdrop-filter]:bg-background/60">
             <div class="flex items-center justify-between p-4">
                 <div class="flex items-center gap-3">
-                    <div class="rounded-lg overflow-hidden">
-                        <img
-                            v-if="companyLogo"
-                            :src="companyLogo"
-                            :alt="companyName"
-                            class="h-12 w-12 object-contain"
-                        />
+                    <div class="overflow-hidden rounded-lg">
+                        <img v-if="companyLogo" :src="companyLogo" :alt="companyName" class="h-12 w-12 object-contain" />
                         <User v-else class="h-4 w-4 text-primary-foreground" />
                     </div>
                     <div>
@@ -848,7 +847,7 @@ onUnmounted(() => {
                     <Link
                         v-if="user?.is_admin"
                         href="/admin/dashboard"
-                        class="rounded-md bg-primary p-2 text-primary-foreground hover:bg-primary/90 transition-colors"
+                        class="rounded-md bg-primary p-2 text-primary-foreground transition-colors hover:bg-primary/90"
                         title="Admin Dashboard"
                     >
                         <UserCircle class="h-4 w-4" />
@@ -857,7 +856,7 @@ onUnmounted(() => {
                         href="/logout"
                         method="post"
                         as="button"
-                        class="rounded-md bg-secondary p-2 text-secondary-foreground hover:bg-secondary/80 transition-colors"
+                        class="rounded-md bg-secondary p-2 text-secondary-foreground transition-colors hover:bg-secondary/80"
                         title="Logout"
                     >
                         <LogOut class="h-4 w-4" />
@@ -870,15 +869,14 @@ onUnmounted(() => {
         <div class="px-4 py-6 pb-20">
             <!-- Today's Attendance - Moved to top -->
             <div class="mb-8 rounded-lg border bg-card p-6">
-
                 <!-- Clean horizontal layout for attendance info -->
                 <div class="rounded-lg border bg-gradient-to-r from-card to-card/80 p-4">
                     <div class="grid grid-cols-3 gap-4">
                         <!-- Check In -->
                         <div class="text-center">
-                            <div class="flex items-center justify-center gap-2 mb-2">
-                                <div class="w-6 h-6 rounded-full bg-green-100 dark:bg-green-900/30 flex items-center justify-center">
-                                    <div class="w-2 h-2 rounded-full bg-green-600 dark:bg-green-400"></div>
+                            <div class="mb-2 flex items-center justify-center gap-2">
+                                <div class="flex h-6 w-6 items-center justify-center rounded-full bg-green-100 dark:bg-green-900/30">
+                                    <div class="h-2 w-2 rounded-full bg-green-600 dark:bg-green-400"></div>
                                 </div>
                                 <span class="text-xs font-semibold text-green-700 dark:text-green-400">MASUK</span>
                             </div>
@@ -889,9 +887,9 @@ onUnmounted(() => {
 
                         <!-- Check Out -->
                         <div class="text-center">
-                            <div class="flex items-center justify-center gap-2 mb-2">
-                                <div class="w-6 h-6 rounded-full bg-red-100 dark:bg-red-900/30 flex items-center justify-center">
-                                    <div class="w-2 h-2 rounded-full bg-red-600 dark:bg-red-400"></div>
+                            <div class="mb-2 flex items-center justify-center gap-2">
+                                <div class="flex h-6 w-6 items-center justify-center rounded-full bg-red-100 dark:bg-red-900/30">
+                                    <div class="h-2 w-2 rounded-full bg-red-600 dark:bg-red-400"></div>
                                 </div>
                                 <span class="text-xs font-semibold text-red-700 dark:text-red-400">KELUAR</span>
                             </div>
@@ -902,9 +900,9 @@ onUnmounted(() => {
 
                         <!-- Duration -->
                         <div class="text-center">
-                            <div class="flex items-center justify-center gap-2 mb-2">
-                                <div class="w-6 h-6 rounded-full bg-blue-100 dark:bg-blue-900/30 flex items-center justify-center">
-                                    <div class="w-2 h-2 rounded-full bg-blue-600 dark:bg-blue-400"></div>
+                            <div class="mb-2 flex items-center justify-center gap-2">
+                                <div class="flex h-6 w-6 items-center justify-center rounded-full bg-blue-100 dark:bg-blue-900/30">
+                                    <div class="h-2 w-2 rounded-full bg-blue-600 dark:bg-blue-400"></div>
                                 </div>
                                 <span class="text-xs font-semibold text-blue-700 dark:text-blue-400">DURASI</span>
                             </div>
@@ -916,23 +914,24 @@ onUnmounted(() => {
                 </div>
 
                 <!-- Face Recognition Warning -->
-                <div v-if="!faceRecognitionStatus.enabled || !faceRecognitionStatus.has_descriptors" class="mt-4 rounded-lg border border-orange-200 dark:border-orange-800 bg-orange-50 dark:bg-orange-900/20 p-4">
+                <div
+                    v-if="!faceRecognitionStatus.enabled || !faceRecognitionStatus.has_descriptors"
+                    class="mt-4 rounded-lg border border-orange-200 bg-orange-50 p-4 dark:border-orange-800 dark:bg-orange-900/20"
+                >
                     <div class="flex items-start gap-3">
                         <div class="flex-shrink-0">
-                            <div class="w-10 h-10 rounded-md bg-orange-100 dark:bg-orange-900/30 flex items-center justify-center">
+                            <div class="flex h-10 w-10 items-center justify-center rounded-md bg-orange-100 dark:bg-orange-900/30">
                                 <Eye class="h-5 w-5 text-orange-600 dark:text-orange-400" />
                             </div>
                         </div>
                         <div class="flex-1">
-                            <h4 class="text-sm font-medium text-orange-800 dark:text-orange-200 mb-1">
-                                Face Recognition Belum Setup
-                            </h4>
-                            <p class="text-sm text-orange-700 dark:text-orange-300 mb-3">
+                            <h4 class="mb-1 text-sm font-medium text-orange-800 dark:text-orange-200">Face Recognition Belum Setup</h4>
+                            <p class="mb-3 text-sm text-orange-700 dark:text-orange-300">
                                 Setup pengenalan wajah untuk keamanan tambahan saat absensi.
                             </p>
                             <Link
                                 href="/user/profile"
-                                class="inline-flex items-center gap-2 px-3 py-2 text-sm font-medium text-orange-700 dark:text-orange-300 bg-orange-100 dark:bg-orange-900/50 hover:bg-orange-200 dark:hover:bg-orange-900/70 border border-orange-300 dark:border-orange-700 rounded-md transition-colors"
+                                class="inline-flex items-center gap-2 rounded-md border border-orange-300 bg-orange-100 px-3 py-2 text-sm font-medium text-orange-700 transition-colors hover:bg-orange-200 dark:border-orange-700 dark:bg-orange-900/50 dark:text-orange-300 dark:hover:bg-orange-900/70"
                             >
                                 <UserCircle class="h-4 w-4" />
                                 Setup Sekarang
@@ -942,35 +941,38 @@ onUnmounted(() => {
                 </div>
 
                 <!-- Real-time Face Recognition -->
-                <div v-if="faceRecognitionStatus.enabled && faceRecognitionStatus.has_descriptors && !todayAttendance?.check_in_time" class="mt-4 flex justify-center">
+                <div
+                    v-if="faceRecognitionStatus.enabled && faceRecognitionStatus.has_descriptors && !todayAttendance?.check_in_time"
+                    class="mt-4 flex justify-center"
+                >
                     <div class="relative">
                         <!-- Face Captured State -->
-                        <div v-if="isFaceCaptured" class="w-48 h-48 rounded-full overflow-hidden border-4 border-green-500 relative bg-gray-900">
+                        <div v-if="isFaceCaptured" class="relative h-48 w-48 overflow-hidden rounded-full border-4 border-green-500 bg-gray-900">
                             <!-- Captured Face Image (Full Circle) -->
                             <img
                                 v-if="capturedFaceData?.imageDataUrl"
                                 :src="capturedFaceData.imageDataUrl"
                                 alt="Captured Face"
-                                class="w-full h-full object-cover"
+                                class="h-full w-full object-cover"
                             />
 
                             <!-- Success Overlay -->
-                            <div class="absolute inset-0 bg-green-500/20 flex items-center justify-center">
-                                <div class="bg-green-500 rounded-full p-2 shadow-lg">
+                            <div class="absolute inset-0 flex items-center justify-center bg-green-500/20">
+                                <div class="rounded-full bg-green-500 p-2 shadow-lg">
                                     <CheckCircle class="h-6 w-6 text-white" />
                                 </div>
                             </div>
 
                             <!-- Confidence Badge -->
-                            <div class="absolute top-4 left-1/2 transform -translate-x-1/2 -translate-y-1/2 backdrop-blur-sm rounded-full px-3 py-1">
-                                <span class="text-white text-base font-bold">{{ capturedFaceData?.confidence }}%</span>
+                            <div class="absolute top-4 left-1/2 -translate-x-1/2 -translate-y-1/2 transform rounded-full px-3 py-1 backdrop-blur-sm">
+                                <span class="text-base font-bold text-white">{{ capturedFaceData?.confidence }}%</span>
                             </div>
 
                             <!-- Reset Button -->
-                            <div class="absolute bottom-3 left-1/2 transform -translate-x-1/2">
+                            <div class="absolute bottom-3 left-1/2 -translate-x-1/2 transform">
                                 <button
                                     @click="resetCapture"
-                                    class="backdrop-blur-sm hover:bg-black/80 text-white px-3 py-1.5 rounded-full text-xs font-medium transition-colors"
+                                    class="rounded-full px-3 py-1.5 text-xs font-medium text-white backdrop-blur-sm transition-colors hover:bg-black/80"
                                 >
                                     Ulangi
                                 </button>
@@ -978,17 +980,19 @@ onUnmounted(() => {
                         </div>
 
                         <!-- Active Detection State -->
-                        <div v-else class="relative bg-gray-900 rounded-full overflow-hidden border-4 w-48 h-48"
-                             :class="faceDetectionActive ? (isFaceMatched ? 'border-green-500' : 'border-red-500') : 'border-gray-300'">
-
+                        <div
+                            v-else
+                            class="relative h-48 w-48 overflow-hidden rounded-full border-4 bg-gray-900"
+                            :class="faceDetectionActive ? (isFaceMatched ? 'border-green-500' : 'border-red-500') : 'border-gray-300'"
+                        >
                             <!-- Video Element (Circular) -->
                             <video
                                 ref="videoElement"
                                 autoplay
                                 muted
                                 playsinline
-                                class="w-full h-full object-cover scale-150"
-                                style="transform: scaleX(-1);"
+                                class="h-full w-full scale-150 object-cover"
+                                style="transform: scaleX(-1)"
                                 v-show="faceDetectionActive"
                             />
 
@@ -997,55 +1001,58 @@ onUnmounted(() => {
                                 ref="canvasElement"
                                 width="320"
                                 height="320"
-                                class="absolute top-0 left-0 w-full h-full"
+                                class="absolute top-0 left-0 h-full w-full"
                                 v-show="faceDetectionActive"
                             />
 
                             <!-- Scanning Animation Overlay -->
-                            <div v-if="faceDetectionActive && !isCapturing" class="absolute inset-0 rounded-full overflow-hidden">
+                            <div v-if="faceDetectionActive && !isCapturing" class="absolute inset-0 overflow-hidden rounded-full">
                                 <!-- Vertical Scanning Line (like barcode scanner) -->
                                 <div class="absolute inset-0">
-                                    <div class="absolute left-0 right-0 h-0.5 bg-gradient-to-r from-transparent via-white via-white to-transparent opacity-80 shadow-lg scan-line">
-                                    </div>
+                                    <div
+                                        class="scan-line absolute right-0 left-0 h-0.5 bg-gradient-to-r from-transparent via-white to-transparent opacity-80 shadow-lg"
+                                    ></div>
                                 </div>
 
                                 <!-- Pulsing Rings -->
-                                <div class="absolute inset-1 rounded-full border-2 border-green-400/30 animate-pulse"></div>
-                                <div class="absolute inset-4 rounded-full border border-green-400/20 animate-ping" style="animation-duration: 2s;"></div>
+                                <div class="absolute inset-1 animate-pulse rounded-full border-2 border-green-400/30"></div>
+                                <div
+                                    class="absolute inset-4 animate-ping rounded-full border border-green-400/20"
+                                    style="animation-duration: 2s"
+                                ></div>
 
                                 <!-- Corner Markers -->
-                                <div class="absolute top-4 left-4 w-4 h-4 border-l-2 border-t-2 border-green-400 rounded-tl-lg opacity-60"></div>
-                                <div class="absolute top-4 right-4 w-4 h-4 border-r-2 border-t-2 border-green-400 rounded-tr-lg opacity-60"></div>
-                                <div class="absolute bottom-4 left-4 w-4 h-4 border-l-2 border-b-2 border-green-400 rounded-bl-lg opacity-60"></div>
-                                <div class="absolute bottom-4 right-4 w-4 h-4 border-r-2 border-b-2 border-green-400 rounded-br-lg opacity-60"></div>
+                                <div class="absolute top-4 left-4 h-4 w-4 rounded-tl-lg border-t-2 border-l-2 border-green-400 opacity-60"></div>
+                                <div class="absolute top-4 right-4 h-4 w-4 rounded-tr-lg border-t-2 border-r-2 border-green-400 opacity-60"></div>
+                                <div class="absolute bottom-4 left-4 h-4 w-4 rounded-bl-lg border-b-2 border-l-2 border-green-400 opacity-60"></div>
+                                <div class="absolute right-4 bottom-4 h-4 w-4 rounded-br-lg border-r-2 border-b-2 border-green-400 opacity-60"></div>
                             </div>
 
                             <!-- Loading/Status Overlay -->
-                            <div v-if="!faceDetectionActive" class="absolute inset-0 rounded-full bg-gray-800/80 flex items-center justify-center">
+                            <div v-if="!faceDetectionActive" class="absolute inset-0 flex items-center justify-center rounded-full bg-gray-800/80">
                                 <div class="text-center text-white">
-                                    <Loader2 class="h-6 w-6 animate-spin mx-auto mb-2" />
+                                    <Loader2 class="mx-auto mb-2 h-6 w-6 animate-spin" />
                                     <p class="text-xs">Memuat kamera...</p>
                                 </div>
                             </div>
 
                             <!-- Face Match Status (Circular) -->
-                            <div class="absolute bottom-0 left-1/2 transform -translate-x-1/2 translate-y-full mt-1">
-                                <div v-if="faceDetectionActive && !isCapturing" class="bg-black/70 rounded-full px-3 py-1 text-white text-xs text-center whitespace-nowrap">
+                            <div class="absolute bottom-0 left-1/2 mt-1 -translate-x-1/2 translate-y-full transform">
+                                <div
+                                    v-if="faceDetectionActive && !isCapturing"
+                                    class="rounded-full bg-black/70 px-3 py-1 text-center text-xs whitespace-nowrap text-white"
+                                >
                                     <span v-if="isFaceMatched" class="text-green-400">
                                         ✅ Terverifikasi ({{ Math.round(faceMatchConfidence) }}%)
                                     </span>
                                     <span v-else-if="faceMatchConfidence > 0" class="text-red-400">
                                         ❌ Gagal ({{ Math.round(faceMatchConfidence) }}%)
                                     </span>
-                                    <span v-else class="text-yellow-400">
-                                        🔍 Mencari wajah...
-                                    </span>
+                                    <span v-else class="text-yellow-400"> 🔍 Mencari wajah... </span>
                                 </div>
                             </div>
                         </div>
-
                     </div>
-
                 </div>
 
                 <div v-if="todayAttendance?.office_location" class="mt-4 flex items-center gap-2 rounded-md bg-muted p-3">
@@ -1056,48 +1063,77 @@ onUnmounted(() => {
                 </div>
 
                 <!-- Face Match Confidence Display - Centered and Prominent -->
-                <div v-if="faceRecognitionStatus.enabled && faceRecognitionStatus.has_descriptors && faceMatchConfidence > 0" class="mt-6 mb-6 flex justify-center">
-                    <div class="bg-white dark:bg-gray-800 rounded-xl border border-gray-200 dark:border-gray-700 shadow-lg p-6 text-center min-w-[200px] max-w-[300px] w-full">
-                        <div class="text-sm font-medium text-gray-600 dark:text-gray-400 mb-2">Tingkat Kecocokan Wajah</div>
-                        <div class="text-4xl font-bold mb-2" :class="{
-                            'text-green-600 dark:text-green-400': faceMatchConfidence >= 70,
-                            'text-yellow-600 dark:text-yellow-400': faceMatchConfidence >= 40 && faceMatchConfidence < 70,
-                            'text-red-600 dark:text-red-400': faceMatchConfidence < 40
-                        }">
+                <div
+                    v-if="faceRecognitionStatus.enabled && faceRecognitionStatus.has_descriptors && faceMatchConfidence > 0"
+                    class="mt-6 mb-6 flex justify-center"
+                >
+                    <div
+                        class="w-full max-w-[300px] min-w-[200px] rounded-xl border border-gray-200 bg-white p-6 text-center shadow-lg dark:border-gray-700 dark:bg-gray-800"
+                    >
+                        <div class="mb-2 text-sm font-medium text-gray-600 dark:text-gray-400">Tingkat Kecocokan Wajah</div>
+                        <div
+                            class="mb-2 text-4xl font-bold"
+                            :class="{
+                                'text-green-600 dark:text-green-400': faceMatchConfidence >= 70,
+                                'text-yellow-600 dark:text-yellow-400': faceMatchConfidence >= 40 && faceMatchConfidence < 70,
+                                'text-red-600 dark:text-red-400': faceMatchConfidence < 40,
+                            }"
+                        >
                             {{ Math.round(faceMatchConfidence) }}%
                         </div>
-                        <div class="text-sm font-medium mb-3" :class="{
-                            'text-green-600 dark:text-green-400': faceMatchConfidence >= 70,
-                            'text-yellow-600 dark:text-yellow-400': faceMatchConfidence >= 40 && faceMatchConfidence < 70,
-                            'text-red-600 dark:text-red-400': faceMatchConfidence < 40
-                        }">
-                            {{ faceMatchConfidence >= 70 ? '✅ Sangat Cocok' :
-                               faceMatchConfidence >= 40 ? '⚠️ Cukup Cocok' : '❌ Kurang Cocok' }}
+                        <div
+                            class="mb-3 text-sm font-medium"
+                            :class="{
+                                'text-green-600 dark:text-green-400': faceMatchConfidence >= 70,
+                                'text-yellow-600 dark:text-yellow-400': faceMatchConfidence >= 40 && faceMatchConfidence < 70,
+                                'text-red-600 dark:text-red-400': faceMatchConfidence < 40,
+                            }"
+                        >
+                            {{ faceMatchConfidence >= 70 ? '✅ Sangat Cocok' : faceMatchConfidence >= 40 ? '⚠️ Cukup Cocok' : '❌ Kurang Cocok' }}
                         </div>
                         <!-- Progress bar -->
-                        <div class="w-full bg-gray-200 dark:bg-gray-700 rounded-full h-2">
-                            <div class="h-2 rounded-full transition-all duration-300" :class="{
-                                'bg-green-500': faceMatchConfidence >= 70,
-                                'bg-yellow-500': faceMatchConfidence >= 40 && faceMatchConfidence < 70,
-                                'bg-red-500': faceMatchConfidence < 40
-                            }" :style="{ width: faceMatchConfidence + '%' }"></div>
+                        <div class="h-2 w-full rounded-full bg-gray-200 dark:bg-gray-700">
+                            <div
+                                class="h-2 rounded-full transition-all duration-300"
+                                :class="{
+                                    'bg-green-500': faceMatchConfidence >= 70,
+                                    'bg-yellow-500': faceMatchConfidence >= 40 && faceMatchConfidence < 70,
+                                    'bg-red-500': faceMatchConfidence < 40,
+                                }"
+                                :style="{ width: faceMatchConfidence + '%' }"
+                            ></div>
                         </div>
                     </div>
                 </div>
 
                 <!-- Attendance Actions -->
-                <div class="mt-6 grid gap-4 grid-cols-2">
+                <div class="mt-6 grid grid-cols-2 gap-4">
                     <!-- Check In Button -->
                     <button
                         v-if="!todayAttendance?.check_in_time"
                         @click="handleCheckInClick"
-                        :disabled="isCheckingIn || (locationStatus === 'success' && !isInRange) || (faceRecognitionStatus.enabled && faceRecognitionStatus.has_descriptors && !isFaceCaptured) || (!faceRecognitionStatus.enabled || !faceRecognitionStatus.has_descriptors)"
-                        class="flex items-center justify-center gap-2 rounded-lg px-3 py-3 text-white font-medium transition-colors shadow-sm disabled:opacity-50 disabled:cursor-not-allowed min-h-[48px] touch-manipulation"
+                        :disabled="
+                            isCheckingIn ||
+                            (locationStatus === 'success' && !isInRange) ||
+                            (faceRecognitionStatus.enabled && faceRecognitionStatus.has_descriptors && !isFaceCaptured) ||
+                            !faceRecognitionStatus.enabled ||
+                            !faceRecognitionStatus.has_descriptors
+                        "
+                        class="flex min-h-[48px] touch-manipulation items-center justify-center gap-2 rounded-lg px-3 py-3 font-medium text-white shadow-sm transition-colors disabled:cursor-not-allowed disabled:opacity-50"
                         :class="{
-                            'bg-green-600 hover:bg-green-700 active:bg-green-800': (locationStatus === 'idle' || locationStatus === 'error' || (locationStatus === 'success' && isInRange)) && faceRecognitionStatus.enabled && faceRecognitionStatus.has_descriptors && isFaceCaptured,
+                            'bg-green-600 hover:bg-green-700 active:bg-green-800':
+                                (locationStatus === 'idle' || locationStatus === 'error' || (locationStatus === 'success' && isInRange)) &&
+                                faceRecognitionStatus.enabled &&
+                                faceRecognitionStatus.has_descriptors &&
+                                isFaceCaptured,
                             'bg-blue-600 hover:bg-blue-700 active:bg-blue-800': locationStatus === 'loading',
-                            'bg-gray-500': (locationStatus === 'success' && !isInRange) || (faceRecognitionStatus.enabled && faceRecognitionStatus.has_descriptors && !isFaceCaptured) || (!faceRecognitionStatus.enabled || !faceRecognitionStatus.has_descriptors),
-                            'bg-orange-500 hover:bg-orange-600 active:bg-orange-700': faceRecognitionStatus.enabled && faceRecognitionStatus.has_descriptors && faceMatchConfidence > 0 && !isFaceCaptured
+                            'bg-gray-500':
+                                (locationStatus === 'success' && !isInRange) ||
+                                (faceRecognitionStatus.enabled && faceRecognitionStatus.has_descriptors && !isFaceCaptured) ||
+                                !faceRecognitionStatus.enabled ||
+                                !faceRecognitionStatus.has_descriptors,
+                            'bg-orange-500 hover:bg-orange-600 active:bg-orange-700':
+                                faceRecognitionStatus.enabled && faceRecognitionStatus.has_descriptors && faceMatchConfidence > 0 && !isFaceCaptured,
                         }"
                     >
                         <Loader2 v-if="locationStatus === 'loading' || isCheckingIn" class="h-4 w-4 animate-spin" />
@@ -1105,19 +1141,28 @@ onUnmounted(() => {
                         <Eye v-else-if="faceRecognitionStatus.enabled && faceRecognitionStatus.has_descriptors && !isFaceCaptured" class="h-4 w-4" />
                         <Clock v-else class="h-4 w-4" />
                         <span class="text-xs font-medium">
-                            {{ isCheckingIn ? 'Sedang Check In...' :
-                               locationStatus === 'loading' ? 'Mencari Lokasi...' :
-                               locationStatus === 'success' && !isInRange ? 'Di Luar Area' :
-                               (!faceRecognitionStatus.enabled || !faceRecognitionStatus.has_descriptors) ? 'Tidak Tersedia' :
-                               faceRecognitionStatus.enabled && faceRecognitionStatus.has_descriptors && !isFaceCaptured ? 'Tunggu Verifikasi' :
-                               isFaceCaptured && isInRange ? 'Siap Check In!' :
-                               locationStatus === 'error' ? 'Coba Lagi' :
-                               'Check In' }}
+                            {{
+                                isCheckingIn
+                                    ? 'Sedang Check In...'
+                                    : locationStatus === 'loading'
+                                      ? 'Mencari Lokasi...'
+                                      : locationStatus === 'success' && !isInRange
+                                        ? 'Di Luar Area'
+                                        : !faceRecognitionStatus.enabled || !faceRecognitionStatus.has_descriptors
+                                          ? 'Tidak Tersedia'
+                                          : faceRecognitionStatus.enabled && faceRecognitionStatus.has_descriptors && !isFaceCaptured
+                                            ? 'Tunggu Verifikasi'
+                                            : isFaceCaptured && isInRange
+                                              ? 'Siap Check In!'
+                                              : locationStatus === 'error'
+                                                ? 'Coba Lagi'
+                                                : 'Check In'
+                            }}
                         </span>
                     </button>
                     <div
                         v-else
-                        class="flex items-center justify-center gap-2 rounded-lg bg-green-100 dark:bg-green-900/20 px-3 py-3 text-green-800 dark:text-green-200 font-medium min-h-[48px]"
+                        class="flex min-h-[48px] items-center justify-center gap-2 rounded-lg bg-green-100 px-3 py-3 font-medium text-green-800 dark:bg-green-900/20 dark:text-green-200"
                     >
                         <CheckCircle class="h-4 w-4" />
                         <span class="text-xs font-medium">Sudah Masuk</span>
@@ -1128,31 +1173,37 @@ onUnmounted(() => {
                         v-if="todayAttendance?.check_in_time && !todayAttendance?.check_out_time"
                         @click="handleCheckOutClick"
                         :disabled="isCheckingOut"
-                        class="flex items-center justify-center gap-2 rounded-lg px-3 py-3 text-white font-medium transition-colors shadow-sm disabled:opacity-50 disabled:cursor-not-allowed min-h-[48px] touch-manipulation"
+                        class="flex min-h-[48px] touch-manipulation items-center justify-center gap-2 rounded-lg px-3 py-3 font-medium text-white shadow-sm transition-colors disabled:cursor-not-allowed disabled:opacity-50"
                         :class="{
-                            'bg-red-600 hover:bg-red-700 active:bg-red-800': locationStatus === 'idle' || locationStatus === 'error' || locationStatus === 'success',
-                            'bg-blue-600 hover:bg-blue-700 active:bg-blue-800': locationStatus === 'loading'
+                            'bg-red-600 hover:bg-red-700 active:bg-red-800':
+                                locationStatus === 'idle' || locationStatus === 'error' || locationStatus === 'success',
+                            'bg-blue-600 hover:bg-blue-700 active:bg-blue-800': locationStatus === 'loading',
                         }"
                     >
                         <Loader2 v-if="locationStatus === 'loading' || isCheckingOut" class="h-4 w-4 animate-spin" />
                         <Clock v-else class="h-4 w-4" />
                         <span class="text-xs font-medium">
-                            {{ isCheckingOut ? 'Sedang Check Out...' :
-                               locationStatus === 'loading' ? 'Mencari Lokasi...' :
-                               locationStatus === 'error' ? 'Coba Lagi' :
-                               'Check Out' }}
+                            {{
+                                isCheckingOut
+                                    ? 'Sedang Check Out...'
+                                    : locationStatus === 'loading'
+                                      ? 'Mencari Lokasi...'
+                                      : locationStatus === 'error'
+                                        ? 'Coba Lagi'
+                                        : 'Check Out'
+                            }}
                         </span>
                     </button>
                     <div
                         v-else-if="todayAttendance?.check_out_time"
-                        class="flex items-center justify-center gap-2 rounded-lg bg-red-100 dark:bg-red-900/20 px-3 py-3 text-red-800 dark:text-red-200 font-medium min-h-[48px]"
+                        class="flex min-h-[48px] items-center justify-center gap-2 rounded-lg bg-red-100 px-3 py-3 font-medium text-red-800 dark:bg-red-900/20 dark:text-red-200"
                     >
                         <CheckCircle class="h-4 w-4" />
                         <span class="text-xs font-medium">Sudah Keluar</span>
                     </div>
                     <div
                         v-else
-                        class="flex items-center justify-center gap-2 rounded-lg bg-muted px-3 py-3 text-muted-foreground font-medium min-h-[48px]"
+                        class="flex min-h-[48px] items-center justify-center gap-2 rounded-lg bg-muted px-3 py-3 font-medium text-muted-foreground"
                     >
                         <Clock class="h-4 w-4" />
                         <span class="text-xs font-medium">Belum Waktunya</span>
@@ -1162,57 +1213,56 @@ onUnmounted(() => {
 
             <!-- Welcome Section -->
             <div class="mb-8 rounded-xl border bg-gradient-to-br from-card via-card to-card/80 p-6 shadow-sm">
-                <div class="text-center space-y-3">
+                <div class="space-y-3 text-center">
                     <!-- Avatar Section -->
                     <div class="relative mx-auto">
-                            <div class="mx-auto w-14 h-14 rounded-full bg-gradient-to-br from-primary/20 to-primary/10 flex items-center justify-center ring-4 ring-primary/5 overflow-hidden">
-                                <img
-                                    v-if="user?.avatar"
-                                    :src="user.avatar"
-                                    :alt="user.name"
-                                    class="h-full w-full object-cover"
-                                />
-                                <UserCircle v-else class="h-7 w-7 text-primary" />
-                            </div>
-                            <div class="absolute -bottom-1 -right-1 w-5 h-5 bg-green-500 rounded-full border-2 border-background flex items-center justify-center">
-                                <div class="w-1.5 h-1.5 bg-white rounded-full animate-pulse"></div>
-                            </div>
+                        <div
+                            class="mx-auto flex h-14 w-14 items-center justify-center overflow-hidden rounded-full bg-gradient-to-br from-primary/20 to-primary/10 ring-4 ring-primary/5"
+                        >
+                            <img v-if="user?.avatar" :src="user.avatar" :alt="user.name" class="h-full w-full object-cover" />
+                            <UserCircle v-else class="h-7 w-7 text-primary" />
                         </div>
-
-                        <!-- Greeting -->
-                        <div class="space-y-2">
-                            <h2 class="text-xl font-bold bg-gradient-to-r from-foreground to-foreground/80 bg-clip-text">
-                                Halo, {{ user?.name?.split(' ')[0] || 'Guest' }}! 👋
-                            </h2>
-                            <div class="flex items-center justify-center gap-2 text-muted-foreground flex-wrap">
-                                <div class="w-1.5 h-1.5 rounded-full bg-primary"></div>
-                                <p class="text-sm font-medium">
-                                    {{ user?.department?.name || 'No Department' }}
-                                </p>
-                                <div class="w-1 h-1 rounded-full bg-muted-foreground/50"></div>
-                                <p class="text-sm">
-                                    {{ user?.position?.title || 'No Position' }}
-                                </p>
-                            </div>
+                        <div
+                            class="absolute -right-1 -bottom-1 flex h-5 w-5 items-center justify-center rounded-full border-2 border-background bg-green-500"
+                        >
+                            <div class="h-1.5 w-1.5 animate-pulse rounded-full bg-white"></div>
                         </div>
+                    </div>
 
-                        <!-- Date & Time Display -->
-                        <div class="bg-gradient-to-r from-muted/50 to-muted/30 rounded-lg p-3 border border-border/50">
-                            <div class="flex items-center justify-center gap-2 mb-2">
-                                <Calendar class="h-4 w-4 text-primary" />
-                                <p class="text-xs font-semibold text-foreground text-center">
-                                    {{ currentDate }}
-                                </p>
-                            </div>
-                            <div class="flex items-center justify-center gap-2">
-                                <Clock class="h-4 w-4 text-muted-foreground" />
-                                <p class="text-lg font-mono font-bold text-primary tracking-wider">
-                                    {{ currentTime }}
-                                </p>
-                            </div>
+                    <!-- Greeting -->
+                    <div class="space-y-2">
+                        <h2 class="bg-gradient-to-r from-foreground to-foreground/80 bg-clip-text text-xl font-bold">
+                            Halo, {{ user?.name?.split(' ')[0] || 'Guest' }}! 👋
+                        </h2>
+                        <div class="flex flex-wrap items-center justify-center gap-2 text-muted-foreground">
+                            <div class="h-1.5 w-1.5 rounded-full bg-primary"></div>
+                            <p class="text-sm font-medium">
+                                {{ user?.department?.name || 'No Department' }}
+                            </p>
+                            <div class="h-1 w-1 rounded-full bg-muted-foreground/50"></div>
+                            <p class="text-sm">
+                                {{ user?.position?.title || 'No Position' }}
+                            </p>
+                        </div>
+                    </div>
+
+                    <!-- Date & Time Display -->
+                    <div class="rounded-lg border border-border/50 bg-gradient-to-r from-muted/50 to-muted/30 p-3">
+                        <div class="mb-2 flex items-center justify-center gap-2">
+                            <Calendar class="h-4 w-4 text-primary" />
+                            <p class="text-center text-xs font-semibold text-foreground">
+                                {{ currentDate }}
+                            </p>
+                        </div>
+                        <div class="flex items-center justify-center gap-2">
+                            <Clock class="h-4 w-4 text-muted-foreground" />
+                            <p class="font-mono text-lg font-bold tracking-wider text-primary">
+                                {{ currentTime }}
+                            </p>
                         </div>
                     </div>
                 </div>
+            </div>
 
             <!-- Announcements Section -->
             <div v-if="announcements && announcements.length > 0" class="mb-8">
@@ -1234,42 +1284,42 @@ onUnmounted(() => {
 
             <!-- Monthly Stats -->
             <div class="rounded-lg border bg-card p-6">
-                <h3 class="mb-6 text-lg font-semibold flex items-center gap-2">
+                <h3 class="mb-6 flex items-center gap-2 text-lg font-semibold">
                     <BarChart3 class="h-4 w-4" />
                     Statistik Bulan Ini
                 </h3>
 
-                <div class="grid gap-4 grid-cols-2">
+                <div class="grid grid-cols-2 gap-4">
                     <div class="rounded-md border bg-card p-4 text-center">
-                        <div class="mx-auto mb-2 w-8 h-8 rounded-md bg-muted flex items-center justify-center">
+                        <div class="mx-auto mb-2 flex h-8 w-8 items-center justify-center rounded-md bg-muted">
                             <Calendar class="h-4 w-4 text-muted-foreground" />
                         </div>
                         <p class="text-xl font-bold">{{ stats?.monthly_attendance_days || 0 }}</p>
-                        <p class="text-xs text-muted-foreground font-medium">Hari Masuk</p>
+                        <p class="text-xs font-medium text-muted-foreground">Hari Masuk</p>
                     </div>
 
                     <div class="rounded-md border bg-card p-3 text-center">
-                        <div class="mx-auto mb-2 w-8 h-8 rounded-md bg-muted flex items-center justify-center">
+                        <div class="mx-auto mb-2 flex h-8 w-8 items-center justify-center rounded-md bg-muted">
                             <Clock class="h-4 w-4 text-muted-foreground" />
                         </div>
                         <p class="text-xl font-bold">{{ stats?.monthly_late_days || 0 }}</p>
-                        <p class="text-xs text-muted-foreground font-medium">Hari Terlambat</p>
+                        <p class="text-xs font-medium text-muted-foreground">Hari Terlambat</p>
                     </div>
 
                     <div class="rounded-md border bg-card p-3 text-center">
-                        <div class="mx-auto mb-2 w-8 h-8 rounded-md bg-muted flex items-center justify-center">
+                        <div class="mx-auto mb-2 flex h-8 w-8 items-center justify-center rounded-md bg-muted">
                             <Clock class="h-4 w-4 text-muted-foreground" />
                         </div>
                         <p class="text-xl font-bold">{{ stats?.monthly_work_hours || 0 }}</p>
-                        <p class="text-xs text-muted-foreground font-medium">Jam Kerja</p>
+                        <p class="text-xs font-medium text-muted-foreground">Jam Kerja</p>
                     </div>
 
                     <div class="rounded-md border bg-card p-3 text-center">
-                        <div class="mx-auto mb-2 w-8 h-8 rounded-md bg-muted flex items-center justify-center">
+                        <div class="mx-auto mb-2 flex h-8 w-8 items-center justify-center rounded-md bg-muted">
                             <Calendar class="h-4 w-4 text-muted-foreground" />
                         </div>
                         <p class="text-xl font-bold">{{ stats?.leave_balance || 0 }}</p>
-                        <p class="text-xs text-muted-foreground font-medium">Sisa Cuti</p>
+                        <p class="text-xs font-medium text-muted-foreground">Sisa Cuti</p>
                     </div>
                 </div>
             </div>
@@ -1287,10 +1337,7 @@ onUnmounted(() => {
                     </DialogDescription>
                 </DialogHeader>
                 <div class="flex justify-end">
-                    <Button
-                        @click="alertModal.isOpen = false"
-                        :variant="alertModal.variant === 'destructive' ? 'destructive' : 'default'"
-                    >
+                    <Button @click="alertModal.isOpen = false" :variant="alertModal.variant === 'destructive' ? 'destructive' : 'default'">
                         OK
                     </Button>
                 </div>
@@ -1298,13 +1345,8 @@ onUnmounted(() => {
         </Dialog>
 
         <!-- Announcement Detail Modal -->
-        <AnnouncementModal
-            :announcement="selectedAnnouncement"
-            :open="showAnnouncementModal"
-            @close="closeAnnouncementModal"
-        />
+        <AnnouncementModal :announcement="selectedAnnouncement" :open="showAnnouncementModal" @close="closeAnnouncementModal" />
     </div>
-
 </template>
 
 <style scoped>

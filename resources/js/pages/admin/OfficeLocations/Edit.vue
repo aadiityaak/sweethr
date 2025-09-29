@@ -1,10 +1,10 @@
 <script setup lang="ts">
+import LeafletMap from '@/components/LeafletMap.vue';
 import AppLayout from '@/layouts/AppLayout.vue';
 import { type BreadcrumbItem } from '@/types';
 import { Head, useForm } from '@inertiajs/vue3';
-import { MapPin, Save, Navigation, Target } from 'lucide-vue-next';
-import { ref, onMounted, watch, computed, nextTick } from 'vue';
-import LeafletMap from '@/components/LeafletMap.vue';
+import { MapPin, Navigation, Save, Target } from 'lucide-vue-next';
+import { computed, nextTick, onMounted, ref, watch } from 'vue';
 
 interface OfficeLocation {
     id: number;
@@ -48,22 +48,24 @@ const form = useForm({
     is_active: officeLocation.is_active,
 });
 
-const selectedLocation = ref<{latitude: number, longitude: number} | null>(null);
-const currentLocation = ref<{latitude: number, longitude: number} | null>(null);
+const selectedLocation = ref<{ latitude: number; longitude: number } | null>(null);
+const currentLocation = ref<{ latitude: number; longitude: number } | null>(null);
 
 const mapLocations = computed(() => {
     if (!form.latitude || !form.longitude) return [];
 
     console.log('mapLocations computed:', { lat: form.latitude, lng: form.longitude });
-    return [{
-        id: officeLocation.id,
-        name: form.name || 'Location',
-        address: form.address || '',
-        latitude: Number(form.latitude),
-        longitude: Number(form.longitude),
-        radius_meters: form.radius_meters,
-        is_active: form.is_active
-    }];
+    return [
+        {
+            id: officeLocation.id,
+            name: form.name || 'Location',
+            address: form.address || '',
+            latitude: Number(form.latitude),
+            longitude: Number(form.longitude),
+            radius_meters: form.radius_meters,
+            is_active: form.is_active,
+        },
+    ];
 });
 
 const getCurrentLocation = () => {
@@ -82,14 +84,14 @@ const getCurrentLocation = () => {
             (error) => {
                 console.error('Error getting location:', error);
                 alert('Unable to get current location. Please set coordinates manually.');
-            }
+            },
         );
     } else {
         alert('Geolocation is not supported by this browser.');
     }
 };
 
-const onMapClick = async (coordinates: {latitude: number, longitude: number}) => {
+const onMapClick = async (coordinates: { latitude: number; longitude: number }) => {
     console.log('Map clicked, new coordinates:', coordinates);
     // Limit to 8 decimal places for practical use
     const lat = Number(coordinates.latitude.toFixed(8));
@@ -102,7 +104,7 @@ const onMapClick = async (coordinates: {latitude: number, longitude: number}) =>
 
     selectedLocation.value = {
         latitude: lat,
-        longitude: lng
+        longitude: lng,
     };
 
     console.log('Updated form coordinates:', { lat: form.latitude, lng: form.longitude });
@@ -118,14 +120,18 @@ const submit = () => {
 };
 
 // Watch for form coordinate changes and update selected location
-watch([() => form.latitude, () => form.longitude], ([lat, lng]) => {
-    if (lat && lng) {
-        selectedLocation.value = {
-            latitude: Number(lat),
-            longitude: Number(lng),
-        };
-    }
-}, { immediate: true });
+watch(
+    [() => form.latitude, () => form.longitude],
+    ([lat, lng]) => {
+        if (lat && lng) {
+            selectedLocation.value = {
+                latitude: Number(lat),
+                longitude: Number(lng),
+            };
+        }
+    },
+    { immediate: true },
+);
 
 onMounted(() => {
     // Set initial coordinates from office location
@@ -155,9 +161,7 @@ onMounted(() => {
                     <form @submit.prevent="submit" class="space-y-6">
                         <!-- Location Name -->
                         <div>
-                            <label for="name" class="block text-sm font-medium text-gray-700 dark:text-gray-300 mb-2">
-                                Nama Lokasi *
-                            </label>
+                            <label for="name" class="mb-2 block text-sm font-medium text-gray-700 dark:text-gray-300"> Nama Lokasi * </label>
                             <input
                                 id="name"
                                 v-model="form.name"
@@ -171,9 +175,7 @@ onMounted(() => {
 
                         <!-- Address -->
                         <div>
-                            <label for="address" class="block text-sm font-medium text-gray-700 dark:text-gray-300 mb-2">
-                                Alamat *
-                            </label>
+                            <label for="address" class="mb-2 block text-sm font-medium text-gray-700 dark:text-gray-300"> Alamat * </label>
                             <textarea
                                 id="address"
                                 v-model="form.address"
@@ -188,9 +190,7 @@ onMounted(() => {
                         <!-- Coordinates -->
                         <div class="grid gap-4 md:grid-cols-2">
                             <div>
-                                <label for="latitude" class="block text-sm font-medium text-gray-700 dark:text-gray-300 mb-2">
-                                    Latitude *
-                                </label>
+                                <label for="latitude" class="mb-2 block text-sm font-medium text-gray-700 dark:text-gray-300"> Latitude * </label>
                                 <input
                                     id="latitude"
                                     v-model="form.latitude"
@@ -203,9 +203,7 @@ onMounted(() => {
                                 <div v-if="form.errors.latitude" class="mt-1 text-sm text-red-600">{{ form.errors.latitude }}</div>
                             </div>
                             <div>
-                                <label for="longitude" class="block text-sm font-medium text-gray-700 dark:text-gray-300 mb-2">
-                                    Longitude *
-                                </label>
+                                <label for="longitude" class="mb-2 block text-sm font-medium text-gray-700 dark:text-gray-300"> Longitude * </label>
                                 <input
                                     id="longitude"
                                     v-model="form.longitude"
@@ -232,7 +230,7 @@ onMounted(() => {
 
                         <!-- Check-in Radius -->
                         <div>
-                            <label for="radius_meters" class="block text-sm font-medium text-gray-700 dark:text-gray-300 mb-2">
+                            <label for="radius_meters" class="mb-2 block text-sm font-medium text-gray-700 dark:text-gray-300">
                                 Radius Absensi (meter) *
                             </label>
                             <input
@@ -260,9 +258,7 @@ onMounted(() => {
                                 />
                                 <span class="text-sm font-medium text-gray-700 dark:text-gray-300">Lokasi Aktif</span>
                             </label>
-                            <p class="mt-1 text-sm text-gray-500 dark:text-gray-400">
-                                Hanya lokasi aktif yang dapat digunakan untuk absensi
-                            </p>
+                            <p class="mt-1 text-sm text-gray-500 dark:text-gray-400">Hanya lokasi aktif yang dapat digunakan untuk absensi</p>
                             <div v-if="form.errors.is_active" class="mt-1 text-sm text-red-600">{{ form.errors.is_active }}</div>
                         </div>
 
@@ -310,7 +306,11 @@ onMounted(() => {
                             <span class="font-medium text-gray-700 dark:text-gray-300">Koordinat Saat Ini:</span>
                         </div>
                         <div class="mt-1 text-sm text-gray-600 dark:text-gray-400">
-                            {{ form.latitude && form.longitude ? `${Number(form.latitude).toFixed(8)}, ${Number(form.longitude).toFixed(8)}` : 'Koordinat belum diatur' }}
+                            {{
+                                form.latitude && form.longitude
+                                    ? `${Number(form.latitude).toFixed(8)}, ${Number(form.longitude).toFixed(8)}`
+                                    : 'Koordinat belum diatur'
+                            }}
                         </div>
                         <div class="mt-2 flex items-center gap-2 text-sm">
                             <Target class="h-4 w-4 text-green-600" />

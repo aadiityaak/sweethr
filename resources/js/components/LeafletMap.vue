@@ -1,6 +1,6 @@
 <script setup lang="ts">
+import type { Circle, CircleMarker, LatLngExpression, Map as LeafletMap } from 'leaflet';
 import { onMounted, ref, watch } from 'vue';
-import type { Map as LeafletMap, LatLngExpression, CircleMarker, Circle } from 'leaflet';
 
 interface OfficeLocation {
     id: number;
@@ -14,10 +14,12 @@ interface OfficeLocation {
 
 interface Props {
     locations: OfficeLocation[];
-    selectedLocation?: OfficeLocation | {
-        latitude: number;
-        longitude: number;
-    };
+    selectedLocation?:
+        | OfficeLocation
+        | {
+              latitude: number;
+              longitude: number;
+          };
     userLocation?: {
         latitude: number;
         longitude: number;
@@ -60,10 +62,10 @@ const initializeMap = async () => {
     // Center map on Indonesia (Jakarta) by default
     const defaultCenter: LatLngExpression = [-6.2088, 106.8456];
     const center = props.selectedLocation
-        ? [props.selectedLocation.latitude, props.selectedLocation.longitude] as LatLngExpression
+        ? ([props.selectedLocation.latitude, props.selectedLocation.longitude] as LatLngExpression)
         : props.locations.length > 0
-        ? [props.locations[0].latitude, props.locations[0].longitude] as LatLngExpression
-        : defaultCenter;
+          ? ([props.locations[0].latitude, props.locations[0].longitude] as LatLngExpression)
+          : defaultCenter;
 
     map = L.map(mapContainer.value, {
         zoomControl: props.interactive,
@@ -77,7 +79,7 @@ const initializeMap = async () => {
 
     // Add tile layer
     L.tileLayer('https://{s}.tile.openstreetmap.org/{z}/{x}/{y}.png', {
-        attribution: '© <a href="https://www.openstreetmap.org/copyright">OpenStreetMap</a> contributors'
+        attribution: '© <a href="https://www.openstreetmap.org/copyright">OpenStreetMap</a> contributors',
     }).addTo(map);
 
     // Add map click event listener if interactive
@@ -85,7 +87,7 @@ const initializeMap = async () => {
         map.on('click', (e: any) => {
             emit('map-click', {
                 latitude: e.latlng.lat,
-                longitude: e.latlng.lng
+                longitude: e.latlng.lng,
             });
         });
     }
@@ -109,12 +111,12 @@ const addOfficeMarkers = (L: any) => {
     if (!map) return;
 
     // Clear existing markers
-    markers.forEach(marker => map?.removeLayer(marker));
-    radiusCircles.forEach(circle => map?.removeLayer(circle));
+    markers.forEach((marker) => map?.removeLayer(marker));
+    radiusCircles.forEach((circle) => map?.removeLayer(circle));
     markers = [];
     radiusCircles = [];
 
-    props.locations.forEach(location => {
+    props.locations.forEach((location) => {
         if (!map) return;
 
         // Create office marker
@@ -124,7 +126,7 @@ const addOfficeMarkers = (L: any) => {
             color: location.is_active ? '#16a34a' : '#dc2626',
             weight: 2,
             opacity: 1,
-            fillOpacity: 0.8
+            fillOpacity: 0.8,
         });
 
         // Add popup with office info
@@ -151,7 +153,7 @@ const addOfficeMarkers = (L: any) => {
                 color: location.is_active ? '#22c55e' : '#ef4444',
                 weight: 2,
                 opacity: 0.6,
-                fillOpacity: 0.1
+                fillOpacity: 0.1,
             });
 
             radiusCircle.addTo(map);
@@ -175,7 +177,7 @@ const addUserMarker = (L: any) => {
         color: '#1d4ed8',
         weight: 2,
         opacity: 1,
-        fillOpacity: 0.8
+        fillOpacity: 0.8,
     });
 
     userMarker.bindPopup(`
@@ -194,30 +196,42 @@ onMounted(() => {
     initializeMap();
 });
 
-watch(() => props.locations, async () => {
-    if (map) {
-        const L = await import('leaflet');
-        addOfficeMarkers(L);
-    }
-}, { deep: true });
+watch(
+    () => props.locations,
+    async () => {
+        if (map) {
+            const L = await import('leaflet');
+            addOfficeMarkers(L);
+        }
+    },
+    { deep: true },
+);
 
-watch(() => props.userLocation, async () => {
-    if (map) {
-        const L = await import('leaflet');
-        addUserMarker(L);
-    }
-}, { deep: true });
+watch(
+    () => props.userLocation,
+    async () => {
+        if (map) {
+            const L = await import('leaflet');
+            addUserMarker(L);
+        }
+    },
+    { deep: true },
+);
 
-watch(() => props.selectedLocation, async (newLocation) => {
-    console.log('selectedLocation changed:', newLocation);
-    if (map && newLocation) {
-        const L = await import('leaflet');
-        // Update map center and zoom to selected location
-        map.setView([newLocation.latitude, newLocation.longitude], 16);
-        // Re-add markers to update the display
-        addOfficeMarkers(L);
-    }
-}, { deep: true });
+watch(
+    () => props.selectedLocation,
+    async (newLocation) => {
+        console.log('selectedLocation changed:', newLocation);
+        if (map && newLocation) {
+            const L = await import('leaflet');
+            // Update map center and zoom to selected location
+            map.setView([newLocation.latitude, newLocation.longitude], 16);
+            // Re-add markers to update the display
+            addOfficeMarkers(L);
+        }
+    },
+    { deep: true },
+);
 
 // Cleanup on unmount
 onMounted(() => {
@@ -231,9 +245,5 @@ onMounted(() => {
 </script>
 
 <template>
-    <div
-        ref="mapContainer"
-        class="w-full rounded-lg overflow-hidden border border-gray-200 dark:border-gray-700"
-        :style="{ height: height }"
-    ></div>
+    <div ref="mapContainer" class="w-full overflow-hidden rounded-lg border border-gray-200 dark:border-gray-700" :style="{ height: height }"></div>
 </template>

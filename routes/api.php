@@ -5,10 +5,10 @@ use App\Http\Controllers\Api\AuthController;
 use App\Http\Controllers\Api\DashboardController;
 use App\Http\Controllers\Api\DepartmentController;
 use App\Http\Controllers\Api\EmployeeController;
+use App\Http\Controllers\Api\EmployeeValidationController;
 use App\Http\Controllers\Api\FaceRecognitionController;
 use App\Http\Controllers\Api\LeaveController;
 use App\Http\Controllers\Api\ShiftController;
-use Illuminate\Http\Request;
 use Illuminate\Support\Facades\Route;
 
 // Public authentication routes
@@ -29,6 +29,10 @@ Route::middleware(['auth:web'])->group(function () {
     Route::apiResource('employees', EmployeeController::class);
     Route::get('/employees/{employee}/attendance', [EmployeeController::class, 'attendance']);
     Route::get('/employees/{employee}/leave-requests', [EmployeeController::class, 'leaveRequests']);
+
+    // Employee Validation
+    Route::post('/employees/validate/employee-id', [EmployeeValidationController::class, 'checkEmployeeId']);
+    Route::get('/employees/generate/next-id', [EmployeeValidationController::class, 'generateNextEmployeeId']);
 
     // Department Management
     Route::apiResource('departments', DepartmentController::class);

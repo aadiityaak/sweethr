@@ -30,9 +30,9 @@
             <!-- Shift Info Cards -->
             <div class="grid gap-6 lg:grid-cols-3">
                 <!-- Main Info -->
-                <div class="lg:col-span-2 space-y-6">
+                <div class="space-y-6 lg:col-span-2">
                     <div class="rounded-lg border bg-card p-6">
-                        <h3 class="text-lg font-semibold mb-4">Informasi Shift</h3>
+                        <h3 class="mb-4 text-lg font-semibold">Informasi Shift</h3>
 
                         <div class="grid gap-6 md:grid-cols-2">
                             <div class="space-y-4">
@@ -50,7 +50,7 @@
                                         <span
                                             :class="{
                                                 'bg-green-100 text-green-800 dark:bg-green-900/20 dark:text-green-400': workShift.is_active,
-                                                'bg-red-100 text-red-800 dark:bg-red-900/20 dark:text-red-400': !workShift.is_active
+                                                'bg-red-100 text-red-800 dark:bg-red-900/20 dark:text-red-400': !workShift.is_active,
                                             }"
                                             class="inline-flex items-center rounded-full px-2.5 py-0.5 text-xs font-medium"
                                         >
@@ -70,9 +70,7 @@
                             <div class="space-y-4">
                                 <div>
                                     <label class="text-sm font-medium text-muted-foreground">Waktu Kerja</label>
-                                    <p class="text-lg font-semibold">
-                                        {{ formatTime(workShift.start_time) }} - {{ formatTime(workShift.end_time) }}
-                                    </p>
+                                    <p class="text-lg font-semibold">{{ formatTime(workShift.start_time) }} - {{ formatTime(workShift.end_time) }}</p>
                                 </div>
                                 <div>
                                     <label class="text-sm font-medium text-muted-foreground">Durasi Kerja</label>
@@ -87,7 +85,7 @@
 
                         <div class="mt-6">
                             <label class="text-sm font-medium text-muted-foreground">Hari Kerja</label>
-                            <div class="flex flex-wrap gap-2 mt-2">
+                            <div class="mt-2 flex flex-wrap gap-2">
                                 <span
                                     v-for="day in workShift.workdays"
                                     :key="day"
@@ -106,13 +104,9 @@
 
                     <!-- Employee Assignments -->
                     <div class="rounded-lg border bg-card p-6">
-                        <div class="flex items-center justify-between mb-4">
+                        <div class="mb-4 flex items-center justify-between">
                             <h3 class="text-lg font-semibold">Karyawan Ter-assign ({{ assignedEmployees.length }})</h3>
-                            <Button
-                                @click="showAssignModal = true"
-                                size="sm"
-                                class="inline-flex items-center gap-2"
-                            >
+                            <Button @click="showAssignModal = true" size="sm" class="inline-flex items-center gap-2">
                                 <UserPlus class="h-4 w-4" />
                                 Assign Karyawan
                             </Button>
@@ -125,7 +119,9 @@
                                 class="flex items-center justify-between rounded-md border p-3"
                             >
                                 <div class="flex items-center gap-3">
-                                    <div class="flex h-8 w-8 items-center justify-center rounded-full bg-primary text-xs font-medium text-primary-foreground">
+                                    <div
+                                        class="flex h-8 w-8 items-center justify-center rounded-full bg-primary text-xs font-medium text-primary-foreground"
+                                    >
                                         {{ getInitials(assignment.user.name) }}
                                     </div>
                                     <div>
@@ -137,20 +133,15 @@
                                     <span class="text-xs text-muted-foreground">
                                         {{ assignment.assignment_type }}
                                     </span>
-                                    <Button
-                                        size="sm"
-                                        variant="ghost"
-                                        @click="unassignEmployee(assignment)"
-                                        class="text-red-600 hover:bg-red-50"
-                                    >
+                                    <Button size="sm" variant="ghost" @click="unassignEmployee(assignment)" class="text-red-600 hover:bg-red-50">
                                         <UserMinus class="h-4 w-4" />
                                     </Button>
                                 </div>
                             </div>
                         </div>
 
-                        <div v-else class="text-center text-muted-foreground py-8">
-                            <Users class="h-12 w-12 mx-auto mb-4 opacity-50" />
+                        <div v-else class="py-8 text-center text-muted-foreground">
+                            <Users class="mx-auto mb-4 h-12 w-12 opacity-50" />
                             <p>Belum ada karyawan yang ditugaskan ke shift ini</p>
                         </div>
                     </div>
@@ -160,7 +151,7 @@
                 <div class="space-y-6">
                     <!-- Quick Actions -->
                     <div class="rounded-lg border bg-card p-6">
-                        <h3 class="text-lg font-semibold mb-4">Aksi Cepat</h3>
+                        <h3 class="mb-4 text-lg font-semibold">Aksi Cepat</h3>
                         <div class="space-y-2">
                             <Link
                                 :href="`/admin/work-shifts/${workShift.id}/edit`"
@@ -169,17 +160,14 @@
                                 <Edit class="h-4 w-4" />
                                 Edit Shift
                             </Link>
-                            <button
-                                @click="toggleShiftStatus"
-                                class="flex w-full items-center gap-2 rounded-md px-3 py-2 text-sm hover:bg-muted"
-                            >
+                            <button @click="toggleShiftStatus" class="flex w-full items-center gap-2 rounded-md px-3 py-2 text-sm hover:bg-muted">
                                 <Power class="h-4 w-4" />
                                 {{ workShift.is_active ? 'Nonaktifkan' : 'Aktifkan' }} Shift
                             </button>
                             <button
                                 @click="deleteShift"
                                 :disabled="assignedEmployees.length > 0"
-                                class="flex w-full items-center gap-2 rounded-md px-3 py-2 text-sm text-red-600 hover:bg-red-50 disabled:opacity-50 disabled:cursor-not-allowed"
+                                class="flex w-full items-center gap-2 rounded-md px-3 py-2 text-sm text-red-600 hover:bg-red-50 disabled:cursor-not-allowed disabled:opacity-50"
                             >
                                 <Trash class="h-4 w-4" />
                                 Hapus Shift
@@ -189,7 +177,7 @@
 
                     <!-- Statistics -->
                     <div class="rounded-lg border bg-card p-6">
-                        <h3 class="text-lg font-semibold mb-4">Statistik</h3>
+                        <h3 class="mb-4 text-lg font-semibold">Statistik</h3>
                         <div class="space-y-3">
                             <div class="flex justify-between">
                                 <span class="text-sm text-muted-foreground">Total Karyawan:</span>
@@ -220,15 +208,11 @@
             <DialogContent>
                 <DialogHeader>
                     <DialogTitle>Assign Karyawan ke Shift</DialogTitle>
-                    <DialogDescription>
-                        Pilih karyawan untuk ditugaskan ke shift "{{ workShift.name }}"
-                    </DialogDescription>
+                    <DialogDescription> Pilih karyawan untuk ditugaskan ke shift "{{ workShift.name }}" </DialogDescription>
                 </DialogHeader>
 
                 <!-- Modal content would go here -->
-                <p class="text-sm text-muted-foreground">
-                    Fitur ini akan dikembangkan lebih lanjut untuk memilih dan menugaskan karyawan.
-                </p>
+                <p class="text-sm text-muted-foreground">Fitur ini akan dikembangkan lebih lanjut untuk memilih dan menugaskan karyawan.</p>
 
                 <DialogFooter>
                     <Button variant="outline" @click="showAssignModal = false">Batal</Button>
@@ -240,21 +224,12 @@
 </template>
 
 <script setup lang="ts">
-import { Head, Link, router } from '@inertiajs/vue3';
-import { ref } from 'vue';
-import AppLayout from '@/layouts/AppLayout.vue';
 import { Button } from '@/components/ui/button';
-import { Dialog, DialogContent, DialogHeader, DialogTitle, DialogDescription, DialogFooter } from '@/components/ui/dialog';
-import {
-    Edit,
-    ArrowLeft,
-    Moon,
-    Users,
-    UserPlus,
-    UserMinus,
-    Power,
-    Trash,
-} from 'lucide-vue-next';
+import { Dialog, DialogContent, DialogDescription, DialogFooter, DialogHeader, DialogTitle } from '@/components/ui/dialog';
+import AppLayout from '@/layouts/AppLayout.vue';
+import { Head, Link, router } from '@inertiajs/vue3';
+import { ArrowLeft, Edit, Moon, Power, Trash, UserMinus, UserPlus, Users } from 'lucide-vue-next';
+import { ref } from 'vue';
 
 interface WorkShift {
     id: number;
@@ -307,7 +282,11 @@ const getDayName = (dayNumber: number) => {
 };
 
 const getInitials = (name: string) => {
-    return name.split(' ').map(n => n[0]).join('').toUpperCase();
+    return name
+        .split(' ')
+        .map((n) => n[0])
+        .join('')
+        .toUpperCase();
 };
 
 const toggleShiftStatus = () => {

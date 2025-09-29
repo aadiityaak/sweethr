@@ -1,6 +1,6 @@
 <script setup lang="ts">
-import { Head, Link } from '@inertiajs/vue3';
-import { Calendar, Clock, ArrowLeft, User, FileText, AlertCircle, CheckCircle, XCircle, RefreshCw } from 'lucide-vue-next';
+import { Head } from '@inertiajs/vue3';
+import { AlertCircle, ArrowLeft, Calendar, CheckCircle, Clock, FileText, RefreshCw, User, XCircle } from 'lucide-vue-next';
 
 interface User {
     id: number;
@@ -39,7 +39,7 @@ const formatDate = (dateString: string) => {
         weekday: 'long',
         year: 'numeric',
         month: 'long',
-        day: 'numeric'
+        day: 'numeric',
     });
 };
 
@@ -49,7 +49,7 @@ const formatDateTime = (dateString: string) => {
         month: 'long',
         day: 'numeric',
         hour: '2-digit',
-        minute: '2-digit'
+        minute: '2-digit',
     });
 };
 
@@ -62,7 +62,7 @@ const getStatusConfig = (status: string) => {
                 text: 'Menunggu Persetujuan',
                 bgClass: 'bg-amber-50 dark:bg-amber-950/30',
                 textClass: 'text-amber-800 dark:text-amber-200',
-                borderClass: 'border-amber-200 dark:border-amber-800'
+                borderClass: 'border-amber-200 dark:border-amber-800',
             };
         case 'approved':
             return {
@@ -71,7 +71,7 @@ const getStatusConfig = (status: string) => {
                 text: 'Disetujui',
                 bgClass: 'bg-green-50 dark:bg-green-950/30',
                 textClass: 'text-green-800 dark:text-green-200',
-                borderClass: 'border-green-200 dark:border-green-800'
+                borderClass: 'border-green-200 dark:border-green-800',
             };
         case 'rejected':
             return {
@@ -80,7 +80,7 @@ const getStatusConfig = (status: string) => {
                 text: 'Ditolak',
                 bgClass: 'bg-red-50 dark:bg-red-950/30',
                 textClass: 'text-red-800 dark:text-red-200',
-                borderClass: 'border-red-200 dark:border-red-800'
+                borderClass: 'border-red-200 dark:border-red-800',
             };
         default:
             return {
@@ -89,7 +89,7 @@ const getStatusConfig = (status: string) => {
                 text: 'Unknown',
                 bgClass: 'bg-gray-50 dark:bg-gray-950/30',
                 textClass: 'text-gray-800 dark:text-gray-200',
-                borderClass: 'border-gray-200 dark:border-gray-800'
+                borderClass: 'border-gray-200 dark:border-gray-800',
             };
     }
 };
@@ -100,12 +100,12 @@ const statusConfig = getStatusConfig(request.status);
 <template>
     <Head :title="`Request Tukar Libur #${request.id}`" />
 
-    <div class="mx-auto max-w-[480px] bg-background min-h-screen">
+    <div class="mx-auto min-h-screen max-w-[480px] bg-background">
         <!-- Header -->
-        <div class="sticky top-0 z-50 bg-background/95 backdrop-blur supports-[backdrop-filter]:bg-background/60 border-b border-border">
+        <div class="sticky top-0 z-50 border-b border-border bg-background/95 backdrop-blur supports-[backdrop-filter]:bg-background/60">
             <div class="flex items-center justify-between p-4">
                 <div class="flex items-center gap-3">
-                    <button @click="$inertia.visit('/shift-change-requests')" class="p-2 -ml-2 rounded-lg hover:bg-muted transition-colors">
+                    <button @click="$inertia.visit('/shift-change-requests')" class="-ml-2 rounded-lg p-2 transition-colors hover:bg-muted">
                         <ArrowLeft class="h-5 w-5" />
                     </button>
                     <h1 class="text-lg font-semibold">Request #{{ request.id }}</h1>
@@ -114,7 +114,7 @@ const statusConfig = getStatusConfig(request.status);
         </div>
 
         <!-- Content -->
-        <div class="p-4 space-y-6">
+        <div class="space-y-6 p-4">
             <!-- Status Card -->
             <div class="rounded-lg border bg-card p-4" :class="[statusConfig.bgClass, statusConfig.borderClass]">
                 <div class="flex items-center gap-3">
@@ -123,9 +123,7 @@ const statusConfig = getStatusConfig(request.status);
                         <h2 class="text-lg font-semibold" :class="statusConfig.textClass">
                             {{ statusConfig.text }}
                         </h2>
-                        <p class="text-sm opacity-80" :class="statusConfig.textClass">
-                            Diajukan {{ formatDateTime(request.requested_at) }}
-                        </p>
+                        <p class="text-sm opacity-80" :class="statusConfig.textClass">Diajukan {{ formatDateTime(request.requested_at) }}</p>
                     </div>
                 </div>
             </div>
@@ -139,9 +137,9 @@ const statusConfig = getStatusConfig(request.status);
 
                 <div class="space-y-4">
                     <!-- Date Changes -->
-                    <div class="grid gap-3 grid-cols-2">
+                    <div class="grid grid-cols-2 gap-3">
                         <div class="rounded-md bg-red-50 p-3 dark:bg-red-950/30">
-                            <div class="flex items-center gap-2 mb-1">
+                            <div class="mb-1 flex items-center gap-2">
                                 <Calendar class="h-4 w-4 text-red-600 dark:text-red-400" />
                                 <p class="text-xs font-medium text-red-800 dark:text-red-200">Libur Saat Ini</p>
                             </div>
@@ -151,7 +149,7 @@ const statusConfig = getStatusConfig(request.status);
                         </div>
 
                         <div class="rounded-md bg-green-50 p-3 dark:bg-green-950/30">
-                            <div class="flex items-center gap-2 mb-1">
+                            <div class="mb-1 flex items-center gap-2">
                                 <Clock class="h-4 w-4 text-green-600 dark:text-green-400" />
                                 <p class="text-xs font-medium text-green-800 dark:text-green-200">Ganti Kerja</p>
                             </div>
@@ -163,7 +161,7 @@ const statusConfig = getStatusConfig(request.status);
 
                     <!-- Reason -->
                     <div v-if="request.reason">
-                        <div class="flex items-center gap-2 mb-2">
+                        <div class="mb-2 flex items-center gap-2">
                             <FileText class="h-4 w-4 text-muted-foreground" />
                             <p class="text-sm font-medium">Alasan</p>
                         </div>
@@ -174,14 +172,12 @@ const statusConfig = getStatusConfig(request.status);
 
                     <!-- Timeline -->
                     <div>
-                        <div class="flex items-center gap-2 mb-2">
+                        <div class="mb-2 flex items-center gap-2">
                             <Clock class="h-4 w-4 text-muted-foreground" />
                             <p class="text-sm font-medium">Timeline</p>
                         </div>
                         <div class="space-y-2">
-                            <div class="text-xs text-muted-foreground">
-                                Diajukan {{ formatDateTime(request.requested_at) }}
-                            </div>
+                            <div class="text-xs text-muted-foreground">Diajukan {{ formatDateTime(request.requested_at) }}</div>
                             <div v-if="request.reviewed_at" class="text-xs text-muted-foreground">
                                 {{ request.status === 'approved' ? 'Disetujui' : 'Ditolak' }} {{ formatDateTime(request.reviewed_at) }}
                                 <span v-if="request.reviewer"> oleh {{ request.reviewer.name }}</span>
@@ -191,7 +187,7 @@ const statusConfig = getStatusConfig(request.status);
 
                     <!-- Admin Notes -->
                     <div v-if="request.admin_notes && request.status !== 'pending'">
-                        <div class="flex items-center gap-2 mb-2">
+                        <div class="mb-2 flex items-center gap-2">
                             <User class="h-4 w-4 text-muted-foreground" />
                             <p class="text-sm font-medium">Catatan Admin</p>
                         </div>
@@ -206,19 +202,16 @@ const statusConfig = getStatusConfig(request.status);
             <div v-if="request.status === 'pending'" class="space-y-3">
                 <button
                     @click="$inertia.visit('/shift-change-requests')"
-                    class="w-full rounded-md bg-secondary px-4 py-3 text-sm font-medium text-secondary-foreground hover:bg-secondary/80 transition-colors"
+                    class="w-full rounded-md bg-secondary px-4 py-3 text-sm font-medium text-secondary-foreground transition-colors hover:bg-secondary/80"
                 >
                     Kembali ke Daftar
                 </button>
 
-                <form
-                    @submit.prevent="$inertia.delete(`/shift-change-requests/${request.id}`)"
-                    class="inline w-full"
-                >
+                <form @submit.prevent="$inertia.delete(`/shift-change-requests/${request.id}`)" class="inline w-full">
                     <button
                         type="submit"
                         @click="confirm('Apakah Anda yakin ingin membatalkan request ini?') || $event.preventDefault()"
-                        class="w-full rounded-md bg-destructive px-4 py-3 text-sm font-medium text-destructive-foreground hover:bg-destructive/90 transition-colors"
+                        class="w-full rounded-md bg-destructive px-4 py-3 text-sm font-medium text-destructive-foreground transition-colors hover:bg-destructive/90"
                     >
                         Batalkan Request
                     </button>
@@ -227,7 +220,7 @@ const statusConfig = getStatusConfig(request.status);
             <div v-else class="space-y-3">
                 <button
                     @click="$inertia.visit('/shift-change-requests')"
-                    class="w-full rounded-md bg-secondary px-4 py-3 text-sm font-medium text-secondary-foreground hover:bg-secondary/80 transition-colors"
+                    class="w-full rounded-md bg-secondary px-4 py-3 text-sm font-medium text-secondary-foreground transition-colors hover:bg-secondary/80"
                 >
                     Kembali ke Daftar
                 </button>

@@ -1,32 +1,21 @@
 <script setup lang="ts">
-import { ref, onMounted, watch, nextTick } from 'vue';
 import {
-    Chart as ChartJS,
-    CategoryScale,
-    LinearScale,
-    PointElement,
-    LineElement,
+    ArcElement,
     BarElement,
+    CategoryScale,
+    Chart as ChartJS,
+    Filler,
+    Legend,
+    LinearScale,
+    LineElement,
+    PointElement,
     Title,
     Tooltip,
-    Legend,
-    ArcElement,
-    Filler
 } from 'chart.js';
+import { ref, watch } from 'vue';
 import { Bar, Doughnut, Line } from 'vue-chartjs';
 
-ChartJS.register(
-    CategoryScale,
-    LinearScale,
-    PointElement,
-    LineElement,
-    BarElement,
-    Title,
-    Tooltip,
-    Legend,
-    ArcElement,
-    Filler
-);
+ChartJS.register(CategoryScale, LinearScale, PointElement, LineElement, BarElement, Title, Tooltip, Legend, ArcElement, Filler);
 
 interface Props {
     type?: 'bar' | 'doughnut' | 'line';
@@ -54,29 +43,21 @@ const doughnutData = ref({
     labels: ['Hadir', 'Tidak Hadir', 'Terlambat'],
     datasets: [
         {
-            data: [
-                attendanceData?.present || 0,
-                attendanceData?.absent || 0,
-                attendanceData?.late || 0
-            ],
+            data: [attendanceData?.present || 0, attendanceData?.absent || 0, attendanceData?.late || 0],
             backgroundColor: [
                 '#10b981', // emerald-500
                 '#ef4444', // red-500
-                '#f59e0b'  // amber-500
+                '#f59e0b', // amber-500
             ],
             borderColor: [
                 '#059669', // emerald-600
                 '#dc2626', // red-600
-                '#d97706'  // amber-600
+                '#d97706', // amber-600
             ],
             borderWidth: 2,
-            hoverBackgroundColor: [
-                '#059669',
-                '#dc2626',
-                '#d97706'
-            ]
-        }
-    ]
+            hoverBackgroundColor: ['#059669', '#dc2626', '#d97706'],
+        },
+    ],
 });
 
 // For bar chart (weekly attendance)
@@ -91,8 +72,8 @@ const barData = ref({
             borderWidth: 2,
             borderRadius: 6,
             borderSkipped: false,
-        }
-    ]
+        },
+    ],
 });
 
 // For line chart (30-day attendance)
@@ -111,8 +92,8 @@ const lineData = ref({
             pointBorderWidth: 2,
             pointRadius: 4,
             pointHoverRadius: 6,
-        }
-    ]
+        },
+    ],
 });
 
 const doughnutOptions = {
@@ -125,9 +106,9 @@ const doughnutOptions = {
                 padding: 20,
                 usePointStyle: true,
                 font: {
-                    size: 12
-                }
-            }
+                    size: 12,
+                },
+            },
         },
         tooltip: {
             callbacks: {
@@ -137,16 +118,16 @@ const doughnutOptions = {
                     const total = context.dataset.data.reduce((a: number, b: number) => a + b, 0);
                     const percentage = total > 0 ? Math.round((value / total) * 100) : 0;
                     return `${label}: ${value} (${percentage}%)`;
-                }
-            }
-        }
+                },
+            },
+        },
     },
     cutout: '60%',
     elements: {
         arc: {
-            borderWidth: 0
-        }
-    }
+            borderWidth: 0,
+        },
+    },
 };
 
 const barOptions = {
@@ -154,33 +135,33 @@ const barOptions = {
     maintainAspectRatio: false,
     plugins: {
         legend: {
-            display: false
+            display: false,
         },
         tooltip: {
             callbacks: {
                 label: (context: any) => {
                     return `Kehadiran: ${context.parsed.y}%`;
-                }
-            }
-        }
+                },
+            },
+        },
     },
     scales: {
         y: {
             beginAtZero: true,
             max: 100,
             ticks: {
-                callback: (value: any) => value + '%'
+                callback: (value: any) => value + '%',
             },
             grid: {
-                color: 'rgba(156, 163, 175, 0.1)' // gray-400 with opacity
-            }
+                color: 'rgba(156, 163, 175, 0.1)', // gray-400 with opacity
+            },
         },
         x: {
             grid: {
-                display: false
-            }
-        }
-    }
+                display: false,
+            },
+        },
+    },
 };
 
 const lineOptions = {
@@ -188,7 +169,7 @@ const lineOptions = {
     maintainAspectRatio: false,
     plugins: {
         legend: {
-            display: false
+            display: false,
         },
         tooltip: {
             backgroundColor: 'rgba(0, 0, 0, 0.8)',
@@ -202,9 +183,9 @@ const lineOptions = {
                 },
                 title: (context: any) => {
                     return context[0].label;
-                }
-            }
-        }
+                },
+            },
+        },
     },
     scales: {
         y: {
@@ -212,81 +193,66 @@ const lineOptions = {
             max: 100,
             ticks: {
                 callback: (value: any) => value + '%',
-                color: 'rgba(156, 163, 175, 0.8)'
+                color: 'rgba(156, 163, 175, 0.8)',
             },
             grid: {
-                color: 'rgba(156, 163, 175, 0.1)'
+                color: 'rgba(156, 163, 175, 0.1)',
             },
             border: {
-                display: false
-            }
+                display: false,
+            },
         },
         x: {
             ticks: {
                 color: 'rgba(156, 163, 175, 0.8)',
-                maxTicksLimit: 10
+                maxTicksLimit: 10,
             },
             grid: {
-                display: false
+                display: false,
             },
             border: {
-                display: false
-            }
-        }
+                display: false,
+            },
+        },
     },
     interaction: {
         intersect: false,
-        mode: 'index' as const
+        mode: 'index' as const,
     },
     elements: {
         point: {
             hoverBackgroundColor: 'rgb(59, 130, 246)',
-            hoverBorderColor: '#fff'
-        }
-    }
+            hoverBorderColor: '#fff',
+        },
+    },
 };
 
 // Update chart data when props change
-watch([attendanceData, weeklyData, monthlyData], () => {
-    if (attendanceData) {
-        doughnutData.value.datasets[0].data = [
-            attendanceData.present,
-            attendanceData.absent,
-            attendanceData.late
-        ];
-    }
+watch(
+    [attendanceData, weeklyData, monthlyData],
+    () => {
+        if (attendanceData) {
+            doughnutData.value.datasets[0].data = [attendanceData.present, attendanceData.absent, attendanceData.late];
+        }
 
-    if (weeklyData) {
-        barData.value.labels = weeklyData.labels;
-        barData.value.datasets[0].data = weeklyData.data;
-    }
+        if (weeklyData) {
+            barData.value.labels = weeklyData.labels;
+            barData.value.datasets[0].data = weeklyData.data;
+        }
 
-    if (monthlyData) {
-        lineData.value.labels = monthlyData.labels;
-        lineData.value.datasets[0].data = monthlyData.data;
-    }
-}, { deep: true });
+        if (monthlyData) {
+            lineData.value.labels = monthlyData.labels;
+            lineData.value.datasets[0].data = monthlyData.data;
+        }
+    },
+    { deep: true },
+);
 </script>
 
 <template>
     <div class="h-full w-full">
-        <Doughnut
-            v-if="type === 'doughnut'"
-            :data="doughnutData"
-            :options="doughnutOptions"
-            class="h-full w-full"
-        />
-        <Bar
-            v-else-if="type === 'bar'"
-            :data="barData"
-            :options="barOptions"
-            class="h-full w-full"
-        />
-        <Line
-            v-else-if="type === 'line'"
-            :data="lineData"
-            :options="lineOptions"
-            class="h-full w-full"
-        />
+        <Doughnut v-if="type === 'doughnut'" :data="doughnutData" :options="doughnutOptions" class="h-full w-full" />
+        <Bar v-else-if="type === 'bar'" :data="barData" :options="barOptions" class="h-full w-full" />
+        <Line v-else-if="type === 'line'" :data="lineData" :options="lineOptions" class="h-full w-full" />
     </div>
 </template>

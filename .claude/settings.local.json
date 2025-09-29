@@ -45,7 +45,8 @@
       "Bash(findstr:*)",
       "Bash(taskkill:*)",
       "Bash(tasklist:*)",
-      "mcp__laravel-boost__database-connections"
+      "mcp__laravel-boost__database-connections",
+      "Bash(npm run format:*)"
     ],
     "deny": [],
     "ask": []

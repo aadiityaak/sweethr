@@ -1,6 +1,5 @@
-import { ref, computed } from 'vue';
-import { router } from '@inertiajs/vue3';
 import { useToast } from '@/components/ui/toast/use-toast';
+import { computed, ref } from 'vue';
 
 interface FaceRecognitionResult {
     success: boolean;
@@ -54,7 +53,10 @@ export function useFaceRecognition() {
         try {
             console.log('=== SETUP FACE RECOGNITION DEBUG ===');
             console.log('Descriptors received:', descriptors.length);
-            console.log('Descriptor length check:', descriptors.map(d => d.length));
+            console.log(
+                'Descriptor length check:',
+                descriptors.map((d) => d.length),
+            );
             console.log('Current URL:', window.location.href);
             console.log('CSRF Token:', document.querySelector('meta[name="csrf-token"]')?.getAttribute('content'));
 
@@ -66,7 +68,7 @@ export function useFaceRecognition() {
             console.log('CSRF cookie response:', csrfCookieResponse.status);
 
             // Wait a bit for cookie to be set
-            await new Promise(resolve => setTimeout(resolve, 100));
+            await new Promise((resolve) => setTimeout(resolve, 100));
 
             // Get CSRF token from meta tag after ensuring cookie is set
             let csrfToken = document.querySelector('meta[name="csrf-token"]')?.getAttribute('content');
@@ -75,7 +77,7 @@ export function useFaceRecognition() {
             if (!csrfToken) {
                 // Try to get from cookies as fallback
                 const cookies = document.cookie.split(';');
-                const xsrfCookie = cookies.find(cookie => cookie.trim().startsWith('XSRF-TOKEN='));
+                const xsrfCookie = cookies.find((cookie) => cookie.trim().startsWith('XSRF-TOKEN='));
                 if (xsrfCookie) {
                     csrfToken = decodeURIComponent(xsrfCookie.split('=')[1]);
                     console.log('CSRF token from cookie:', csrfToken);
@@ -88,7 +90,7 @@ export function useFaceRecognition() {
 
             console.log('Making API request to /api/face-recognition/setup...');
             console.log('Request payload:', {
-                descriptors: descriptors.map(d => `Array(${d.length})`)
+                descriptors: descriptors.map((d) => `Array(${d.length})`),
             });
 
             // Make the API request with proper headers
@@ -96,7 +98,7 @@ export function useFaceRecognition() {
                 method: 'POST',
                 headers: {
                     'Content-Type': 'application/json',
-                    'Accept': 'application/json',
+                    Accept: 'application/json',
                     'X-CSRF-TOKEN': csrfToken,
                     'X-Requested-With': 'XMLHttpRequest',
                     'X-XSRF-TOKEN': csrfToken, // Additional CSRF header
@@ -109,7 +111,7 @@ export function useFaceRecognition() {
                 status: response.status,
                 statusText: response.statusText,
                 ok: response.ok,
-                headers: Object.fromEntries(response.headers.entries())
+                headers: Object.fromEntries(response.headers.entries()),
             });
 
             if (!response.ok) {
@@ -189,7 +191,7 @@ export function useFaceRecognition() {
                 headers: {
                     'Content-Type': 'application/json',
                     'X-CSRF-TOKEN': document.querySelector('meta[name="csrf-token"]')?.getAttribute('content') || '',
-                    'Accept': 'application/json',
+                    Accept: 'application/json',
                     'X-Requested-With': 'XMLHttpRequest',
                 },
                 body: JSON.stringify({ confidence }),
@@ -260,7 +262,7 @@ export function useFaceRecognition() {
                 headers: {
                     'Content-Type': 'application/json',
                     'X-CSRF-TOKEN': document.querySelector('meta[name="csrf-token"]')?.getAttribute('content') || '',
-                    'Accept': 'application/json',
+                    Accept: 'application/json',
                     'X-Requested-With': 'XMLHttpRequest',
                 },
                 credentials: 'include', // Include cookies for session authentication
@@ -304,7 +306,7 @@ export function useFaceRecognition() {
                     enabled: faceRecognitionStatus.value.enabled,
                     has_descriptors: faceRecognitionStatus.value.has_descriptors,
                     descriptors_length: faceDescriptors.value.length,
-                    global_state_ref: faceRecognitionStatus
+                    global_state_ref: faceRecognitionStatus,
                 });
 
                 // Refresh the status from server to ensure consistency
@@ -357,7 +359,7 @@ export function useFaceRecognition() {
         try {
             const response = await fetch('/api/face-recognition/status', {
                 headers: {
-                    'Accept': 'application/json',
+                    Accept: 'application/json',
                 },
                 credentials: 'include',
             });
@@ -386,7 +388,7 @@ export function useFaceRecognition() {
                 try {
                     const descriptorsResponse = await fetch('/api/face-recognition/descriptors', {
                         headers: {
-                            'Accept': 'application/json',
+                            Accept: 'application/json',
                         },
                         credentials: 'include',
                     });

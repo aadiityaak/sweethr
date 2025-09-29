@@ -1,13 +1,13 @@
 <script setup lang="ts">
-import { Head, Link, useForm } from '@inertiajs/vue3';
-import { MapPin, Clock, AlertCircle, CheckCircle, Loader2, ArrowLeft, User, AlertTriangle, Camera } from 'lucide-vue-next';
-import { ref, onMounted } from 'vue';
-import LeafletMap from '@/components/LeafletMap.vue';
 import BottomNavigation from '@/components/BottomNavigation.vue';
 import FaceCapture from '@/components/FaceCapture.vue';
-import { useCompanySettings } from '@/composables/useCompanySettings';
+import LeafletMap from '@/components/LeafletMap.vue';
 import { useToast } from '@/components/ui/toast/use-toast';
+import { useCompanySettings } from '@/composables/useCompanySettings';
 import { useFaceRecognition } from '@/composables/useFaceRecognition';
+import { Head, Link, useForm } from '@inertiajs/vue3';
+import { AlertCircle, AlertTriangle, ArrowLeft, Camera, CheckCircle, Clock, Loader2, MapPin, User } from 'lucide-vue-next';
+import { onMounted, ref } from 'vue';
 
 interface OfficeLocation {
     id: number;
@@ -34,14 +34,7 @@ const { companyName, companyLogo } = useCompanySettings();
 const { toast } = useToast();
 
 // Face Recognition
-const {
-    isLoading: faceLoading,
-    showFaceCapture,
-    verifyFace,
-    openFaceVerification,
-    closeFaceCapture,
-    verificationResult
-} = useFaceRecognition();
+const { isLoading: faceLoading, showFaceCapture, verifyFace, openFaceVerification, closeFaceCapture, verificationResult } = useFaceRecognition();
 
 const form = useForm({
     office_location_id: '',
@@ -107,8 +100,8 @@ const getCurrentLocation = () => {
         {
             enableHighAccuracy: true,
             timeout: 10000,
-            maximumAge: 60000
-        }
+            maximumAge: 60000,
+        },
     );
 };
 
@@ -122,9 +115,8 @@ const calculateDistance = (lat1: number, lng1: number, lat2: number, lng2: numbe
     const deltaLat = lat2Rad - lat1Rad;
     const deltaLng = lng2Rad - lng1Rad;
 
-    const a = Math.sin(deltaLat / 2) * Math.sin(deltaLat / 2) +
-              Math.cos(lat1Rad) * Math.cos(lat2Rad) *
-              Math.sin(deltaLng / 2) * Math.sin(deltaLng / 2);
+    const a =
+        Math.sin(deltaLat / 2) * Math.sin(deltaLat / 2) + Math.cos(lat1Rad) * Math.cos(lat2Rad) * Math.sin(deltaLng / 2) * Math.sin(deltaLng / 2);
     const c = 2 * Math.atan2(Math.sqrt(a), Math.sqrt(1 - a));
 
     return earthRadius * c;
@@ -137,13 +129,8 @@ const checkOfficeProximity = () => {
     let nearestDistance = Infinity;
     let isWithinRange = false;
 
-    officeLocations.forEach(office => {
-        const distance = calculateDistance(
-            form.latitude,
-            form.longitude,
-            office.latitude,
-            office.longitude
-        );
+    officeLocations.forEach((office) => {
+        const distance = calculateDistance(form.latitude, form.longitude, office.latitude, office.longitude);
 
         if (distance < nearestDistance) {
             nearestDistance = distance;
@@ -289,23 +276,15 @@ const handleFaceVerification = async (confidence: number) => {
 
     <div class="min-h-screen bg-background">
         <!-- Mobile Header - Full Width -->
-        <div class="bg-background/95 backdrop-blur-sm border-b sticky top-0 z-40">
+        <div class="sticky top-0 z-40 border-b bg-background/95 backdrop-blur-sm">
             <div class="mx-auto max-w-[480px] px-4 py-4">
                 <div class="flex items-center justify-between">
                     <div class="flex items-center gap-3">
-                        <Link
-                            href="/home"
-                            class="rounded-lg bg-muted p-2 hover:bg-muted/80 transition-colors"
-                        >
+                        <Link href="/home" class="rounded-lg bg-muted p-2 transition-colors hover:bg-muted/80">
                             <ArrowLeft class="h-4 w-4" />
                         </Link>
-                        <div class="rounded-lg bg-primary p-2 overflow-hidden">
-                            <img
-                                v-if="companyLogo"
-                                :src="companyLogo"
-                                :alt="companyName"
-                                class="h-4 w-4 object-contain"
-                            />
+                        <div class="overflow-hidden rounded-lg bg-primary p-2">
+                            <img v-if="companyLogo" :src="companyLogo" :alt="companyName" class="h-4 w-4 object-contain" />
                             <User v-else class="h-4 w-4 text-primary-foreground" />
                         </div>
                         <div>
@@ -318,22 +297,24 @@ const handleFaceVerification = async (confidence: number) => {
         </div>
 
         <!-- Mobile Container for Content -->
-        <div class="mx-auto max-w-[480px] bg-background min-h-screen relative">
+        <div class="relative mx-auto min-h-screen max-w-[480px] bg-background">
             <!-- Main Content -->
-            <div class="px-4 py-6 pb-20 space-y-6">
+            <div class="space-y-6 px-4 py-6 pb-20">
                 <!-- Out of Range Alert -->
-                <div v-if="locationStatus === 'success' && selectedOffice && !isInRange"
-                     class="rounded-lg border-2 border-destructive/50 bg-destructive/10 p-4 animate-pulse">
+                <div
+                    v-if="locationStatus === 'success' && selectedOffice && !isInRange"
+                    class="animate-pulse rounded-lg border-2 border-destructive/50 bg-destructive/10 p-4"
+                >
                     <div class="flex items-start gap-3">
                         <div class="rounded-lg bg-destructive/20 p-2">
                             <AlertTriangle class="h-5 w-5 text-destructive" />
                         </div>
                         <div class="flex-1">
                             <h3 class="font-semibold text-destructive">Di Luar Jangkauan!</h3>
-                            <p class="text-sm text-destructive/80 mt-1">
+                            <p class="mt-1 text-sm text-destructive/80">
                                 Anda harus berada dalam radius {{ selectedOffice.radius_meters }}m dari {{ selectedOffice.name }}
                             </p>
-                            <p class="text-sm font-medium text-destructive mt-2">
+                            <p class="mt-2 text-sm font-medium text-destructive">
                                 📍 Mohon mendekat {{ Math.round(distanceToOffice - selectedOffice.radius_meters) }}m lagi
                             </p>
                         </div>
@@ -341,15 +322,17 @@ const handleFaceVerification = async (confidence: number) => {
                 </div>
 
                 <!-- Success Alert -->
-                <div v-if="locationStatus === 'success' && isInRange"
-                     class="rounded-lg border-2 border-green-500/50 bg-green-50 dark:bg-green-950/50 p-4">
+                <div
+                    v-if="locationStatus === 'success' && isInRange"
+                    class="rounded-lg border-2 border-green-500/50 bg-green-50 p-4 dark:bg-green-950/50"
+                >
                     <div class="flex items-start gap-3">
-                        <div class="rounded-lg bg-green-100 dark:bg-green-900/50 p-2">
+                        <div class="rounded-lg bg-green-100 p-2 dark:bg-green-900/50">
                             <CheckCircle class="h-5 w-5 text-green-600 dark:text-green-400" />
                         </div>
                         <div class="flex-1">
                             <h3 class="font-semibold text-green-800 dark:text-green-300">Siap Check In!</h3>
-                            <p class="text-sm text-green-700 dark:text-green-400 mt-1">
+                            <p class="mt-1 text-sm text-green-700 dark:text-green-400">
                                 Anda berada dalam radius {{ selectedOffice?.name }}. Silakan lakukan check in.
                             </p>
                         </div>
@@ -358,13 +341,13 @@ const handleFaceVerification = async (confidence: number) => {
 
                 <!-- Location Status -->
                 <div class="rounded-lg border bg-card p-6">
-                    <h2 class="mb-4 text-lg font-semibold flex items-center gap-2">
+                    <h2 class="mb-4 flex items-center gap-2 text-lg font-semibold">
                         <MapPin class="h-4 w-4 text-primary" />
                         Status Lokasi
                     </h2>
 
                     <!-- Loading State -->
-                    <div v-if="locationStatus === 'loading'" class="flex items-center gap-3 p-4 bg-muted/50 rounded-lg">
+                    <div v-if="locationStatus === 'loading'" class="flex items-center gap-3 rounded-lg bg-muted/50 p-4">
                         <Loader2 class="h-5 w-5 animate-spin text-primary" />
                         <div>
                             <p class="font-medium">Mencari lokasi Anda...</p>
@@ -373,17 +356,17 @@ const handleFaceVerification = async (confidence: number) => {
                     </div>
 
                     <!-- Error State -->
-                    <div v-else-if="locationStatus === 'error'" class="p-4 bg-destructive/10 border border-destructive/20 rounded-lg">
+                    <div v-else-if="locationStatus === 'error'" class="rounded-lg border border-destructive/20 bg-destructive/10 p-4">
                         <div class="flex items-start gap-3">
                             <div class="rounded-lg bg-destructive/20 p-2">
                                 <AlertCircle class="h-5 w-5 text-destructive" />
                             </div>
                             <div class="flex-1">
                                 <p class="font-medium text-destructive">Error Lokasi</p>
-                                <p class="text-sm text-destructive/80 mt-1">{{ locationError }}</p>
+                                <p class="mt-1 text-sm text-destructive/80">{{ locationError }}</p>
                                 <button
                                     @click="getCurrentLocation"
-                                    class="mt-3 rounded-lg bg-destructive px-4 py-2 text-sm font-medium text-destructive-foreground hover:bg-destructive/90 transition-colors"
+                                    class="mt-3 rounded-lg bg-destructive px-4 py-2 text-sm font-medium text-destructive-foreground transition-colors hover:bg-destructive/90"
                                 >
                                     Coba Lagi
                                 </button>
@@ -393,8 +376,10 @@ const handleFaceVerification = async (confidence: number) => {
 
                     <!-- Success State -->
                     <div v-else class="space-y-4">
-                        <div class="flex items-center gap-3 p-4 bg-green-50 dark:bg-green-950/50 border border-green-200 dark:border-green-800 rounded-lg">
-                            <div class="rounded-lg bg-green-100 dark:bg-green-900/50 p-2">
+                        <div
+                            class="flex items-center gap-3 rounded-lg border border-green-200 bg-green-50 p-4 dark:border-green-800 dark:bg-green-950/50"
+                        >
+                            <div class="rounded-lg bg-green-100 p-2 dark:bg-green-900/50">
                                 <CheckCircle class="h-5 w-5 text-green-600 dark:text-green-400" />
                             </div>
                             <div>
@@ -407,26 +392,27 @@ const handleFaceVerification = async (confidence: number) => {
 
                         <!-- Office Proximity -->
                         <div v-if="selectedOffice" class="rounded-lg border bg-card p-4">
-                            <div class="flex items-start justify-between mb-3">
+                            <div class="mb-3 flex items-start justify-between">
                                 <div class="flex-1">
                                     <h3 class="font-medium">{{ selectedOffice.name }}</h3>
                                     <p class="text-sm text-muted-foreground">{{ selectedOffice.address }}</p>
                                     <div class="mt-2 flex items-center gap-2">
                                         <MapPin class="h-4 w-4 text-muted-foreground" />
-                                        <span class="text-sm text-muted-foreground">
-                                            Jarak: {{ distanceToOffice }}m
-                                        </span>
+                                        <span class="text-sm text-muted-foreground"> Jarak: {{ distanceToOffice }}m </span>
                                     </div>
                                 </div>
-                                <div v-if="isInRange" class="rounded-lg bg-green-100 dark:bg-green-900/50 p-2">
+                                <div v-if="isInRange" class="rounded-lg bg-green-100 p-2 dark:bg-green-900/50">
                                     <CheckCircle class="h-5 w-5 text-green-600 dark:text-green-400" />
                                 </div>
-                                <div v-else class="rounded-lg bg-red-100 dark:bg-red-900/50 p-2">
+                                <div v-else class="rounded-lg bg-red-100 p-2 dark:bg-red-900/50">
                                     <AlertCircle class="h-5 w-5 text-red-600 dark:text-red-400" />
                                 </div>
                             </div>
 
-                            <div v-if="isInRange" class="rounded-lg bg-green-50 dark:bg-green-950/50 border border-green-200 dark:border-green-800 p-3">
+                            <div
+                                v-if="isInRange"
+                                class="rounded-lg border border-green-200 bg-green-50 p-3 dark:border-green-800 dark:bg-green-950/50"
+                            >
                                 <p class="text-sm font-medium text-green-800 dark:text-green-300">
                                     ✓ Anda berada dalam radius check-in ({{ selectedOffice.radius_meters }}m)
                                 </p>
@@ -437,7 +423,7 @@ const handleFaceVerification = async (confidence: number) => {
 
                 <!-- Office Locations -->
                 <div class="rounded-lg border bg-card p-6">
-                    <h2 class="mb-4 text-lg font-semibold flex items-center gap-2">
+                    <h2 class="mb-4 flex items-center gap-2 text-lg font-semibold">
                         <Clock class="h-4 w-4 text-primary" />
                         Lokasi Kantor
                     </h2>
@@ -449,21 +435,19 @@ const handleFaceVerification = async (confidence: number) => {
                             :class="{
                                 'border-green-300 bg-green-50 dark:border-green-600 dark:bg-green-900/20':
                                     form.office_location_id === office.id.toString(),
-                                'border-border hover:bg-muted/50': form.office_location_id !== office.id.toString()
+                                'border-border hover:bg-muted/50': form.office_location_id !== office.id.toString(),
                             }"
                         >
                             <div class="flex items-start justify-between">
                                 <div class="flex-1">
                                     <h3 class="font-medium">{{ office.name }}</h3>
-                                    <p class="text-sm text-muted-foreground mt-1">{{ office.address }}</p>
+                                    <p class="mt-1 text-sm text-muted-foreground">{{ office.address }}</p>
                                     <div class="mt-2 flex items-center gap-2">
-                                        <div class="w-2 h-2 rounded-full bg-primary"></div>
-                                        <span class="text-sm text-muted-foreground">
-                                            Radius: {{ office.radius_meters }}m
-                                        </span>
+                                        <div class="h-2 w-2 rounded-full bg-primary"></div>
+                                        <span class="text-sm text-muted-foreground"> Radius: {{ office.radius_meters }}m </span>
                                     </div>
                                 </div>
-                                <div v-if="form.office_location_id === office.id.toString()" class="rounded-lg bg-green-100 dark:bg-green-900/50 p-2">
+                                <div v-if="form.office_location_id === office.id.toString()" class="rounded-lg bg-green-100 p-2 dark:bg-green-900/50">
                                     <CheckCircle class="h-5 w-5 text-green-600 dark:text-green-400" />
                                 </div>
                             </div>
@@ -473,11 +457,11 @@ const handleFaceVerification = async (confidence: number) => {
 
                 <!-- Interactive Map -->
                 <div v-if="locationStatus === 'success'" class="rounded-lg border bg-card p-6">
-                    <h2 class="mb-4 text-lg font-semibold flex items-center gap-2">
+                    <h2 class="mb-4 flex items-center gap-2 text-lg font-semibold">
                         <MapPin class="h-4 w-4 text-primary" />
                         Peta Lokasi
                     </h2>
-                    <div class="rounded-lg overflow-hidden border">
+                    <div class="overflow-hidden rounded-lg border">
                         <LeafletMap
                             :locations="officeLocations"
                             :user-location="{ latitude: form.latitude, longitude: form.longitude }"
@@ -489,70 +473,86 @@ const handleFaceVerification = async (confidence: number) => {
                 </div>
 
                 <!-- Face Recognition Required Alert -->
-                <div v-if="isInRange && faceVerificationRequired && !faceVerificationCompleted && !hasCheckedInToday"
-                     class="rounded-lg border-2 border-blue-500/50 bg-blue-50 dark:bg-blue-950/50 p-4">
+                <div
+                    v-if="isInRange && faceVerificationRequired && !faceVerificationCompleted && !hasCheckedInToday"
+                    class="rounded-lg border-2 border-blue-500/50 bg-blue-50 p-4 dark:bg-blue-950/50"
+                >
                     <div class="flex items-start gap-3">
-                        <div class="rounded-lg bg-blue-100 dark:bg-blue-900/50 p-2">
+                        <div class="rounded-lg bg-blue-100 p-2 dark:bg-blue-900/50">
                             <Camera class="h-5 w-5 text-blue-600 dark:text-blue-400" />
                         </div>
                         <div class="flex-1">
                             <h3 class="font-semibold text-blue-800 dark:text-blue-300">Verifikasi Wajah Diperlukan</h3>
-                            <p class="text-sm text-blue-700 dark:text-blue-400 mt-1">
-                                Silakan lakukan verifikasi wajah untuk melanjutkan check-in.
-                            </p>
+                            <p class="mt-1 text-sm text-blue-700 dark:text-blue-400">Silakan lakukan verifikasi wajah untuk melanjutkan check-in.</p>
                         </div>
                     </div>
                 </div>
 
                 <!-- Face Verification Success -->
-                <div v-if="faceVerificationCompleted"
-                     class="rounded-lg border-2 border-green-500/50 bg-green-50 dark:bg-green-950/50 p-4">
+                <div v-if="faceVerificationCompleted" class="rounded-lg border-2 border-green-500/50 bg-green-50 p-4 dark:bg-green-950/50">
                     <div class="flex items-start gap-3">
-                        <div class="rounded-lg bg-green-100 dark:bg-green-900/50 p-2">
+                        <div class="rounded-lg bg-green-100 p-2 dark:bg-green-900/50">
                             <CheckCircle class="h-5 w-5 text-green-600 dark:text-green-400" />
                         </div>
                         <div class="flex-1">
                             <h3 class="font-semibold text-green-800 dark:text-green-300">Verifikasi Wajah Berhasil!</h3>
-                            <p class="text-sm text-green-700 dark:text-green-400 mt-1">
-                                Wajah Anda telah terverifikasi. Siap untuk check-in.
-                            </p>
+                            <p class="mt-1 text-sm text-green-700 dark:text-green-400">Wajah Anda telah terverifikasi. Siap untuk check-in.</p>
                         </div>
                     </div>
                 </div>
 
                 <!-- Check In Action -->
                 <div class="rounded-lg border bg-card p-6">
-                    <div class="text-center space-y-4">
+                    <div class="space-y-4 text-center">
                         <!-- Already Checked In State -->
-                        <div v-if="hasCheckedInToday" class="mx-auto w-16 h-16 rounded-full bg-green-100 dark:bg-green-900/50 flex items-center justify-center">
+                        <div
+                            v-if="hasCheckedInToday"
+                            class="mx-auto flex h-16 w-16 items-center justify-center rounded-full bg-green-100 dark:bg-green-900/50"
+                        >
                             <CheckCircle class="h-8 w-8 text-green-600 dark:text-green-400" />
                         </div>
                         <!-- Face Recognition State -->
-                        <div v-else-if="faceVerificationRequired && !faceVerificationCompleted" class="mx-auto w-16 h-16 rounded-full flex items-center justify-center"
-                             :class="isInRange ? 'bg-blue-100 dark:bg-blue-900/50' : 'bg-muted'">
+                        <div
+                            v-else-if="faceVerificationRequired && !faceVerificationCompleted"
+                            class="mx-auto flex h-16 w-16 items-center justify-center rounded-full"
+                            :class="isInRange ? 'bg-blue-100 dark:bg-blue-900/50' : 'bg-muted'"
+                        >
                             <Camera class="h-8 w-8" :class="isInRange ? 'text-blue-600 dark:text-blue-400' : 'text-muted-foreground'" />
                         </div>
                         <!-- Normal States -->
-                        <div v-else class="mx-auto w-16 h-16 rounded-full flex items-center justify-center"
-                             :class="isInRange ? 'bg-green-100 dark:bg-green-900/50' : 'bg-muted'">
+                        <div
+                            v-else
+                            class="mx-auto flex h-16 w-16 items-center justify-center rounded-full"
+                            :class="isInRange ? 'bg-green-100 dark:bg-green-900/50' : 'bg-muted'"
+                        >
                             <Clock class="h-8 w-8" :class="isInRange ? 'text-green-600 dark:text-green-400' : 'text-muted-foreground'" />
                         </div>
 
                         <div>
                             <h2 class="text-lg font-semibold">
-                                {{ hasCheckedInToday
-                                    ? 'Sudah Check In Hari Ini'
-                                    : faceVerificationRequired && !faceVerificationCompleted
-                                        ? (isInRange ? 'Verifikasi Wajah' : 'Belum Bisa Check In')
-                                        : (isInRange ? 'Siap Check In!' : 'Belum Bisa Check In')
+                                {{
+                                    hasCheckedInToday
+                                        ? 'Sudah Check In Hari Ini'
+                                        : faceVerificationRequired && !faceVerificationCompleted
+                                          ? isInRange
+                                              ? 'Verifikasi Wajah'
+                                              : 'Belum Bisa Check In'
+                                          : isInRange
+                                            ? 'Siap Check In!'
+                                            : 'Belum Bisa Check In'
                                 }}
                             </h2>
-                            <p class="text-sm text-muted-foreground mt-1">
-                                {{ hasCheckedInToday
-                                    ? 'Absensi masuk Anda sudah tercatat untuk hari ini'
-                                    : faceVerificationRequired && !faceVerificationCompleted
-                                        ? (isInRange ? 'Silakan verifikasi wajah untuk melanjutkan' : 'Mohon mendekat ke lokasi kantor')
-                                        : (isInRange ? 'Anda dapat melakukan absensi masuk sekarang' : 'Mohon mendekat ke lokasi kantor')
+                            <p class="mt-1 text-sm text-muted-foreground">
+                                {{
+                                    hasCheckedInToday
+                                        ? 'Absensi masuk Anda sudah tercatat untuk hari ini'
+                                        : faceVerificationRequired && !faceVerificationCompleted
+                                          ? isInRange
+                                              ? 'Silakan verifikasi wajah untuk melanjutkan'
+                                              : 'Mohon mendekat ke lokasi kantor'
+                                          : isInRange
+                                            ? 'Anda dapat melakukan absensi masuk sekarang'
+                                            : 'Mohon mendekat ke lokasi kantor'
                                 }}
                             </p>
                         </div>
@@ -561,12 +561,14 @@ const handleFaceVerification = async (confidence: number) => {
                             v-if="!hasCheckedInToday"
                             @click="submitCheckIn"
                             :disabled="!isInRange || form.processing || faceLoading"
-                            class="w-full inline-flex items-center justify-center gap-2 rounded-lg px-6 py-4 text-sm font-medium transition-colors disabled:opacity-50 disabled:cursor-not-allowed"
-                            :class="isInRange
-                                ? (faceVerificationRequired && !faceVerificationCompleted)
-                                    ? 'bg-blue-600 hover:bg-blue-700 text-white shadow-sm'
-                                    : 'bg-green-600 hover:bg-green-700 text-white shadow-sm'
-                                : 'bg-muted text-muted-foreground cursor-not-allowed'"
+                            class="inline-flex w-full items-center justify-center gap-2 rounded-lg px-6 py-4 text-sm font-medium transition-colors disabled:cursor-not-allowed disabled:opacity-50"
+                            :class="
+                                isInRange
+                                    ? faceVerificationRequired && !faceVerificationCompleted
+                                        ? 'bg-blue-600 text-white shadow-sm hover:bg-blue-700'
+                                        : 'bg-green-600 text-white shadow-sm hover:bg-green-700'
+                                    : 'cursor-not-allowed bg-muted text-muted-foreground'
+                            "
                         >
                             <Loader2 v-if="form.processing || faceLoading" class="h-4 w-4 animate-spin" />
                             <Camera v-else-if="faceVerificationRequired && !faceVerificationCompleted" class="h-4 w-4" />
@@ -580,15 +582,18 @@ const handleFaceVerification = async (confidence: number) => {
                         </button>
 
                         <!-- Already Checked In Button -->
-                        <div v-if="hasCheckedInToday" class="w-full inline-flex items-center justify-center gap-2 rounded-lg px-6 py-4 text-sm font-medium bg-green-100 dark:bg-green-900/50 text-green-800 dark:text-green-300 border border-green-200 dark:border-green-800">
+                        <div
+                            v-if="hasCheckedInToday"
+                            class="inline-flex w-full items-center justify-center gap-2 rounded-lg border border-green-200 bg-green-100 px-6 py-4 text-sm font-medium text-green-800 dark:border-green-800 dark:bg-green-900/50 dark:text-green-300"
+                        >
                             <CheckCircle class="h-4 w-4" />
                             <span>Sudah Check In</span>
                         </div>
 
                         <!-- Current Time -->
-                        <div class="rounded-lg bg-muted/50 p-3 border">
-                            <p class="text-sm text-muted-foreground text-center">
-                                <Clock class="h-4 w-4 inline mr-2" />
+                        <div class="rounded-lg border bg-muted/50 p-3">
+                            <p class="text-center text-sm text-muted-foreground">
+                                <Clock class="mr-2 inline h-4 w-4" />
                                 Waktu saat ini: {{ new Date().toLocaleTimeString('id-ID') }}
                             </p>
                         </div>
@@ -596,7 +601,7 @@ const handleFaceVerification = async (confidence: number) => {
                         <!-- Navigation Button -->
                         <Link
                             href="/home"
-                            class="w-full inline-flex items-center justify-center gap-2 rounded-lg border border-primary/20 bg-primary/10 px-6 py-3 text-sm font-medium text-primary hover:bg-primary/20 transition-colors"
+                            class="inline-flex w-full items-center justify-center gap-2 rounded-lg border border-primary/20 bg-primary/10 px-6 py-3 text-sm font-medium text-primary transition-colors hover:bg-primary/20"
                         >
                             <ArrowLeft class="h-4 w-4" />
                             Kembali ke Beranda

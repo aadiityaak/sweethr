@@ -21,34 +21,24 @@
             <!-- Edit Form -->
             <div class="grid gap-6 lg:grid-cols-3">
                 <!-- Main Form -->
-                <div class="lg:col-span-2 space-y-6">
+                <div class="space-y-6 lg:col-span-2">
                     <!-- Personal Information -->
                     <div class="rounded-lg border bg-card p-6">
-                        <h3 class="text-lg font-semibold mb-4">Informasi Personal</h3>
+                        <h3 class="mb-4 text-lg font-semibold">Informasi Personal</h3>
 
                         <form @submit.prevent="submit" class="space-y-6">
                             <div class="grid gap-6 md:grid-cols-2">
                                 <div class="space-y-2">
                                     <Label for="name">Nama Lengkap *</Label>
-                                    <Input
-                                        id="name"
-                                        v-model="form.name"
-                                        placeholder="e.g. John Doe"
-                                        :error="form.errors.name"
-                                    />
-                                    <p v-if="form.errors.name" class="text-sm text-red-600 mt-1">
+                                    <Input id="name" v-model="form.name" placeholder="e.g. John Doe" :error="form.errors.name" />
+                                    <p v-if="form.errors.name" class="mt-1 text-sm text-red-600">
                                         {{ form.errors.name }}
                                     </p>
                                 </div>
                                 <div class="space-y-2">
                                     <Label for="employee_id">ID Karyawan *</Label>
-                                    <Input
-                                        id="employee_id"
-                                        v-model="form.employee_id"
-                                        placeholder="e.g. EMP001"
-                                        :error="form.errors.employee_id"
-                                    />
-                                    <p v-if="form.errors.employee_id" class="text-sm text-red-600 mt-1">
+                                    <Input id="employee_id" v-model="form.employee_id" placeholder="e.g. EMP001" :error="form.errors.employee_id" />
+                                    <p v-if="form.errors.employee_id" class="mt-1 text-sm text-red-600">
                                         {{ form.errors.employee_id }}
                                     </p>
                                 </div>
@@ -64,19 +54,14 @@
                                         placeholder="e.g. john@example.com"
                                         :error="form.errors.email"
                                     />
-                                    <p v-if="form.errors.email" class="text-sm text-red-600 mt-1">
+                                    <p v-if="form.errors.email" class="mt-1 text-sm text-red-600">
                                         {{ form.errors.email }}
                                     </p>
                                 </div>
                                 <div class="space-y-2">
                                     <Label for="phone">Nomor Telepon</Label>
-                                    <Input
-                                        id="phone"
-                                        v-model="form.phone"
-                                        placeholder="e.g. 08123456789"
-                                        :error="form.errors.phone"
-                                    />
-                                    <p v-if="form.errors.phone" class="text-sm text-red-600 mt-1">
+                                    <Input id="phone" v-model="form.phone" placeholder="e.g. 08123456789" :error="form.errors.phone" />
+                                    <p v-if="form.errors.phone" class="mt-1 text-sm text-red-600">
                                         {{ form.errors.phone }}
                                     </p>
                                 </div>
@@ -85,11 +70,8 @@
                             <div class="grid gap-6 md:grid-cols-2">
                                 <div class="space-y-2">
                                     <Label for="date_of_birth">Tanggal Lahir</Label>
-                                    <DatePicker
-                                        v-model="form.date_of_birth"
-                                        placeholder="Pilih tanggal lahir"
-                                    />
-                                    <p v-if="form.errors.date_of_birth" class="text-sm text-red-600 mt-1">
+                                    <DatePicker v-model="form.date_of_birth" placeholder="Pilih tanggal lahir" />
+                                    <p v-if="form.errors.date_of_birth" class="mt-1 text-sm text-red-600">
                                         {{ form.errors.date_of_birth }}
                                     </p>
                                 </div>
@@ -104,7 +86,7 @@
                                         <option value="male">Laki-laki</option>
                                         <option value="female">Perempuan</option>
                                     </select>
-                                    <p v-if="form.errors.gender" class="text-sm text-red-600 mt-1">
+                                    <p v-if="form.errors.gender" class="mt-1 text-sm text-red-600">
                                         {{ form.errors.gender }}
                                     </p>
                                 </div>
@@ -119,24 +101,21 @@
                                     rows="3"
                                     :error="form.errors.address"
                                 />
-                                <p v-if="form.errors.address" class="text-sm text-red-600 mt-1">
+                                <p v-if="form.errors.address" class="mt-1 text-sm text-red-600">
                                     {{ form.errors.address }}
                                 </p>
                             </div>
 
                             <!-- Employment Information -->
-                            <div class="pt-6 border-t">
-                                <h4 class="text-md font-semibold mb-6">Informasi Pekerjaan</h4>
+                            <div class="border-t pt-6">
+                                <h4 class="text-md mb-6 font-semibold">Informasi Pekerjaan</h4>
 
                                 <div class="space-y-6">
                                     <div class="grid gap-6 md:grid-cols-2">
                                         <div class="space-y-2">
                                             <Label for="hire_date">Tanggal Masuk *</Label>
-                                            <DatePicker
-                                                v-model="form.hire_date"
-                                                placeholder="Pilih tanggal masuk"
-                                            />
-                                            <p v-if="form.errors.hire_date" class="text-sm text-red-600 mt-1">
+                                            <DatePicker v-model="form.hire_date" placeholder="Pilih tanggal masuk" />
+                                            <p v-if="form.errors.hire_date" class="mt-1 text-sm text-red-600">
                                                 {{ form.errors.hire_date }}
                                             </p>
                                         </div>
@@ -150,7 +129,7 @@
                                                 <option value="active">Aktif</option>
                                                 <option value="inactive">Tidak Aktif</option>
                                             </select>
-                                            <p v-if="form.errors.employment_status" class="text-sm text-red-600 mt-1">
+                                            <p v-if="form.errors.employment_status" class="mt-1 text-sm text-red-600">
                                                 {{ form.errors.employment_status }}
                                             </p>
                                         </div>
@@ -169,7 +148,7 @@
                                                     {{ dept.name }}
                                                 </option>
                                             </select>
-                                            <p v-if="form.errors.department_id" class="text-sm text-red-600 mt-1">
+                                            <p v-if="form.errors.department_id" class="mt-1 text-sm text-red-600">
                                                 {{ form.errors.department_id }}
                                             </p>
                                         </div>
@@ -185,7 +164,7 @@
                                                     {{ pos.title }}
                                                 </option>
                                             </select>
-                                            <p v-if="form.errors.position_id" class="text-sm text-red-600 mt-1">
+                                            <p v-if="form.errors.position_id" class="mt-1 text-sm text-red-600">
                                                 {{ form.errors.position_id }}
                                             </p>
                                         </div>
@@ -203,7 +182,7 @@
                                                 {{ manager.name }} ({{ manager.employee_id }})
                                             </option>
                                         </select>
-                                        <p v-if="form.errors.manager_id" class="text-sm text-red-600 mt-1">
+                                        <p v-if="form.errors.manager_id" class="mt-1 text-sm text-red-600">
                                             {{ form.errors.manager_id }}
                                         </p>
                                     </div>
@@ -211,25 +190,17 @@
                             </div>
 
                             <!-- Emergency Contact -->
-                            <div class="pt-6 border-t">
-                                <h4 class="text-md font-semibold mb-4">Kontak Darurat</h4>
+                            <div class="border-t pt-6">
+                                <h4 class="text-md mb-4 font-semibold">Kontak Darurat</h4>
 
                                 <div class="grid gap-6 md:grid-cols-3">
                                     <div class="space-y-2">
                                         <Label for="emergency_name">Nama Kontak</Label>
-                                        <Input
-                                            id="emergency_name"
-                                            v-model="form.emergency_contact.name"
-                                            placeholder="Nama kontak darurat"
-                                        />
+                                        <Input id="emergency_name" v-model="form.emergency_contact.name" placeholder="Nama kontak darurat" />
                                     </div>
                                     <div class="space-y-2">
                                         <Label for="emergency_phone">Nomor Telepon</Label>
-                                        <Input
-                                            id="emergency_phone"
-                                            v-model="form.emergency_contact.phone"
-                                            placeholder="08123456789"
-                                        />
+                                        <Input id="emergency_phone" v-model="form.emergency_contact.phone" placeholder="08123456789" />
                                     </div>
                                     <div class="space-y-2">
                                         <Label for="emergency_relationship">Hubungan</Label>
@@ -251,25 +222,18 @@
                             </div>
 
                             <!-- Admin Status -->
-                            <div class="pt-6 border-t">
-                                <h4 class="text-md font-semibold mb-4">Status Admin</h4>
+                            <div class="border-t pt-6">
+                                <h4 class="text-md mb-4 font-semibold">Status Admin</h4>
                                 <div class="flex items-center space-x-2">
-                                    <input
-                                        id="is_admin"
-                                        type="checkbox"
-                                        v-model="form.is_admin"
-                                        class="rounded border-input"
-                                    />
+                                    <input id="is_admin" type="checkbox" v-model="form.is_admin" class="rounded border-input" />
                                     <Label for="is_admin">Berikan akses admin</Label>
                                 </div>
-                                <p class="text-sm text-muted-foreground mt-1">
-                                    Admin memiliki akses penuh ke semua fitur sistem
-                                </p>
+                                <p class="mt-1 text-sm text-muted-foreground">Admin memiliki akses penuh ke semua fitur sistem</p>
                             </div>
 
                             <!-- Attendance Settings -->
-                            <div class="pt-6 border-t">
-                                <h4 class="text-md font-semibold mb-4">Pengaturan Absensi</h4>
+                            <div class="border-t pt-6">
+                                <h4 class="text-md mb-4 font-semibold">Pengaturan Absensi</h4>
                                 <div class="flex items-center space-x-2">
                                     <input
                                         id="allow_outside_radius"
@@ -279,23 +243,17 @@
                                     />
                                     <Label for="allow_outside_radius">Ijinkan absen di luar radius kantor</Label>
                                 </div>
-                                <p class="text-sm text-muted-foreground mt-1">
+                                <p class="mt-1 text-sm text-muted-foreground">
                                     Karyawan dapat melakukan check-in/out dari lokasi manapun (untuk tugas luar, dll)
                                 </p>
                             </div>
 
                             <!-- Submit Button -->
-                            <div class="flex gap-2 pt-6 border-t">
+                            <div class="flex gap-2 border-t pt-6">
                                 <Button type="submit" :disabled="form.processing">
                                     {{ form.processing ? 'Menyimpan...' : 'Simpan Perubahan' }}
                                 </Button>
-                                <Button
-                                    type="button"
-                                    variant="outline"
-                                    @click="router.visit('/employees')"
-                                >
-                                    Batal
-                                </Button>
+                                <Button type="button" variant="outline" @click="router.visit('/employees')"> Batal </Button>
                             </div>
                         </form>
                     </div>
@@ -305,7 +263,7 @@
                 <div class="space-y-6">
                     <!-- Preview Card -->
                     <div class="rounded-lg border bg-card p-6">
-                        <h3 class="text-lg font-semibold mb-4">Preview Karyawan</h3>
+                        <h3 class="mb-4 text-lg font-semibold">Preview Karyawan</h3>
                         <div class="space-y-3 text-sm">
                             <div class="flex justify-between">
                                 <span class="text-muted-foreground">Nama:</span>
@@ -332,7 +290,7 @@
                                 <span
                                     :class="{
                                         'text-green-600': form.employment_status === 'active',
-                                        'text-red-600': form.employment_status === 'inactive'
+                                        'text-red-600': form.employment_status === 'inactive',
                                     }"
                                     class="font-medium"
                                 >
@@ -344,7 +302,7 @@
 
                     <!-- Employee Info -->
                     <div class="rounded-lg border bg-card p-6">
-                        <h3 class="text-lg font-semibold mb-4">Info Karyawan</h3>
+                        <h3 class="mb-4 text-lg font-semibold">Info Karyawan</h3>
                         <div class="space-y-3 text-sm">
                             <div class="flex justify-between">
                                 <span class="text-muted-foreground">Tanggal Masuk:</span>
@@ -355,7 +313,7 @@
                                 <span
                                     :class="{
                                         'text-green-600': employee.employment_status === 'active',
-                                        'text-red-600': employee.employment_status === 'inactive'
+                                        'text-red-600': employee.employment_status === 'inactive',
                                     }"
                                     class="font-medium"
                                 >
@@ -371,8 +329,8 @@
 
                     <!-- Tips -->
                     <div class="rounded-lg border bg-blue-50 p-4 dark:bg-blue-950/20">
-                        <h4 class="font-medium text-blue-900 dark:text-blue-400 mb-2">Tips:</h4>
-                        <ul class="text-sm text-blue-700 dark:text-blue-300 space-y-1">
+                        <h4 class="mb-2 font-medium text-blue-900 dark:text-blue-400">Tips:</h4>
+                        <ul class="space-y-1 text-sm text-blue-700 dark:text-blue-300">
                             <li>• Pastikan email tetap unik dalam sistem</li>
                             <li>• Perubahan departemen akan mempengaruhi akses karyawan</li>
                             <li>• Status admin memberikan akses penuh ke sistem</li>
@@ -387,16 +345,16 @@
 </template>
 
 <script setup lang="ts">
-import { Head, Link, router, useForm } from '@inertiajs/vue3';
-import { computed, watch } from 'vue';
+import { Button } from '@/components/ui/button';
+import DatePicker from '@/components/ui/date-picker/DatePicker.vue';
+import { Input } from '@/components/ui/input';
+import { Label } from '@/components/ui/label';
+import { Textarea } from '@/components/ui/textarea';
 import AppLayout from '@/layouts/AppLayout.vue';
 import { type BreadcrumbItem } from '@/types';
-import { Input } from '@/components/ui/input';
-import { Textarea } from '@/components/ui/textarea';
-import { Button } from '@/components/ui/button';
-import { Label } from '@/components/ui/label';
-import DatePicker from '@/components/ui/date-picker/DatePicker.vue';
+import { Head, Link, router, useForm } from '@inertiajs/vue3';
 import { ArrowLeft } from 'lucide-vue-next';
+import { computed, watch } from 'vue';
 
 interface Employee {
     id: number;
@@ -489,29 +447,32 @@ const form = useForm({
 
 const filteredPositions = computed(() => {
     if (!form.department_id) return props.positions;
-    return props.positions.filter(pos => pos.department_id == form.department_id);
+    return props.positions.filter((pos) => pos.department_id == form.department_id);
 });
 
 // Watch for department changes and reset position if it's no longer valid
-watch(() => form.department_id, (newDepartmentId, oldDepartmentId) => {
-    if (newDepartmentId !== oldDepartmentId && form.position_id) {
-        // Check if current position belongs to the new department
-        const currentPosition = props.positions.find(pos => pos.id == form.position_id);
-        if (!currentPosition || currentPosition.department_id != newDepartmentId) {
-            form.position_id = '';
+watch(
+    () => form.department_id,
+    (newDepartmentId, oldDepartmentId) => {
+        if (newDepartmentId !== oldDepartmentId && form.position_id) {
+            // Check if current position belongs to the new department
+            const currentPosition = props.positions.find((pos) => pos.id == form.position_id);
+            if (!currentPosition || currentPosition.department_id != newDepartmentId) {
+                form.position_id = '';
+            }
         }
-    }
-});
+    },
+);
 
 const selectedDepartmentName = computed(() => {
     if (!form.department_id) return null;
-    const dept = props.departments.find(d => d.id == form.department_id);
+    const dept = props.departments.find((d) => d.id == form.department_id);
     return dept ? dept.name : null;
 });
 
 const selectedPositionName = computed(() => {
     if (!form.position_id) return null;
-    const pos = props.positions.find(p => p.id == form.position_id);
+    const pos = props.positions.find((p) => p.id == form.position_id);
     return pos ? pos.title : null;
 });
 
@@ -519,7 +480,7 @@ const formatDate = (dateString: string) => {
     return new Date(dateString).toLocaleDateString('id-ID', {
         year: 'numeric',
         month: 'long',
-        day: 'numeric'
+        day: 'numeric',
     });
 };
 

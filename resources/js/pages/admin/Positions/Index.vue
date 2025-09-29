@@ -73,12 +73,7 @@
             <div class="rounded-lg border bg-card p-6">
                 <div class="grid gap-4 md:grid-cols-3">
                     <div>
-                        <Input
-                            v-model="search"
-                            placeholder="Cari posisi..."
-                            class="w-full"
-                            @input="debouncedSearch"
-                        />
+                        <Input v-model="search" placeholder="Cari posisi..." class="w-full" @input="debouncedSearch" />
                     </div>
                     <div>
                         <select
@@ -125,12 +120,14 @@
                             <tr v-for="position in positions.data" :key="position.id" class="border-b hover:bg-muted/50">
                                 <td class="p-4">
                                     <div class="flex items-center gap-3">
-                                        <div class="flex h-8 w-8 items-center justify-center rounded-full bg-primary text-xs font-medium text-primary-foreground">
+                                        <div
+                                            class="flex h-8 w-8 items-center justify-center rounded-full bg-primary text-xs font-medium text-primary-foreground"
+                                        >
                                             {{ position.code.substring(0, 2) }}
                                         </div>
                                         <div>
                                             <p class="font-medium">{{ position.title }}</p>
-                                            <p v-if="position.description" class="text-sm text-muted-foreground line-clamp-1">
+                                            <p v-if="position.description" class="line-clamp-1 text-sm text-muted-foreground">
                                                 {{ position.description }}
                                             </p>
                                         </div>
@@ -160,7 +157,7 @@
                                     <span
                                         :class="{
                                             'bg-green-100 text-green-800 dark:bg-green-900/20 dark:text-green-400': position.is_active,
-                                            'bg-red-100 text-red-800 dark:bg-red-900/20 dark:text-red-400': !position.is_active
+                                            'bg-red-100 text-red-800 dark:bg-red-900/20 dark:text-red-400': !position.is_active,
                                         }"
                                         class="inline-flex items-center rounded-full px-2.5 py-0.5 text-xs font-medium"
                                     >
@@ -171,13 +168,13 @@
                                     <div class="flex items-center gap-2">
                                         <Link
                                             :href="`/admin/positions/${position.id}`"
-                                            class="inline-flex items-center justify-center h-8 w-8 rounded-md hover:bg-muted"
+                                            class="inline-flex h-8 w-8 items-center justify-center rounded-md hover:bg-muted"
                                         >
                                             <Eye class="h-4 w-4" />
                                         </Link>
                                         <Link
                                             :href="`/admin/positions/${position.id}/edit`"
-                                            class="inline-flex items-center justify-center h-8 w-8 rounded-md hover:bg-muted"
+                                            class="inline-flex h-8 w-8 items-center justify-center rounded-md hover:bg-muted"
                                         >
                                             <Edit class="h-4 w-4" />
                                         </Link>
@@ -197,7 +194,7 @@
                 </div>
 
                 <!-- Pagination -->
-                <div class="flex items-center justify-between p-4 border-t">
+                <div class="flex items-center justify-between border-t p-4">
                     <div class="text-sm text-muted-foreground">
                         Menampilkan {{ positions.from || 0 }}-{{ positions.to || 0 }} dari {{ positions.total }} hasil
                     </div>
@@ -220,24 +217,14 @@
 </template>
 
 <script setup lang="ts">
-import { Head, Link, router } from '@inertiajs/vue3';
-import { ref } from 'vue';
+import { Button } from '@/components/ui/button';
+import { Input } from '@/components/ui/input';
 import AppLayout from '@/layouts/AppLayout.vue';
 import { type BreadcrumbItem } from '@/types';
-import { Input } from '@/components/ui/input';
-import { Button } from '@/components/ui/button';
-import {
-    Briefcase,
-    CheckCircle,
-    Users,
-    Building,
-    Plus,
-    FilterX,
-    Eye,
-    Edit,
-    Trash,
-} from 'lucide-vue-next';
+import { Head, Link, router } from '@inertiajs/vue3';
 import { debounce } from 'lodash';
+import { Briefcase, Building, CheckCircle, Edit, Eye, FilterX, Plus, Trash, Users } from 'lucide-vue-next';
+import { ref } from 'vue';
 
 interface Department {
     id: number;
@@ -302,13 +289,17 @@ const debouncedSearch = debounce(() => {
 }, 300);
 
 const applyFilters = () => {
-    router.get('/admin/positions', {
-        search: search.value,
-        department: selectedDepartment.value,
-    }, {
-        preserveState: true,
-        replace: true,
-    });
+    router.get(
+        '/admin/positions',
+        {
+            search: search.value,
+            department: selectedDepartment.value,
+        },
+        {
+            preserveState: true,
+            replace: true,
+        },
+    );
 };
 
 const clearFilters = () => {
@@ -324,7 +315,7 @@ const getLevelLabel = (level: number) => {
         3: 'Senior',
         4: 'Lead',
         5: 'Manager',
-        6: 'Director'
+        6: 'Director',
     };
     return labels[level] || 'Unknown';
 };

@@ -2,7 +2,7 @@
 import AppLayout from '@/layouts/AppLayout.vue';
 import { type BreadcrumbItem } from '@/types';
 import { Head, Link, useForm } from '@inertiajs/vue3';
-import { Plus, Edit, Trash2, Eye, ToggleRight, ToggleLeft, Calendar, User, Tag } from 'lucide-vue-next';
+import { Calendar, Edit, Eye, Plus, Tag, ToggleLeft, ToggleRight, Trash2, User } from 'lucide-vue-next';
 
 interface AnnouncementCategory {
     id: number;
@@ -49,12 +49,15 @@ interface Props {
 const { announcements } = defineProps<Props>();
 
 // Temporary debugging - akan dihapus setelah issue solved
-console.log('DEBUG [' + new Date().toISOString() + '] announcements data:', announcements.data.map(a => ({
-    id: a.id,
-    title: a.title,
-    image_url: a.image_url,
-    hasImageUrl: !!a.image_url
-})));
+console.log(
+    'DEBUG [' + new Date().toISOString() + '] announcements data:',
+    announcements.data.map((a) => ({
+        id: a.id,
+        title: a.title,
+        image_url: a.image_url,
+        hasImageUrl: !!a.image_url,
+    })),
+);
 
 const breadcrumbs: BreadcrumbItem[] = [
     { title: 'Dashboard', href: '/admin/dashboard' },
@@ -108,7 +111,7 @@ const formatDate = (dateString: string) => {
         month: 'short',
         day: 'numeric',
         hour: '2-digit',
-        minute: '2-digit'
+        minute: '2-digit',
     });
 };
 </script>
@@ -122,17 +125,13 @@ const formatDate = (dateString: string) => {
             <div class="mb-8">
                 <div class="flex items-center justify-between">
                     <div>
-                        <h1 class="text-3xl font-bold text-gray-900 dark:text-white">
-                            Kelola Pengumuman
-                        </h1>
-                        <p class="mt-1 text-gray-600 dark:text-gray-400">
-                            Buat dan kelola pengumuman untuk karyawan
-                        </p>
+                        <h1 class="text-3xl font-bold text-gray-900 dark:text-white">Kelola Pengumuman</h1>
+                        <p class="mt-1 text-gray-600 dark:text-gray-400">Buat dan kelola pengumuman untuk karyawan</p>
                     </div>
                     <div class="flex gap-3">
                         <Link
                             href="/admin/announcements/create"
-                            class="inline-flex items-center rounded-lg bg-blue-600 px-4 py-2 text-sm font-medium text-white shadow-sm transition-colors hover:bg-blue-700 focus:outline-none focus:ring-2 focus:ring-blue-500 focus:ring-offset-2"
+                            class="inline-flex items-center rounded-lg bg-blue-600 px-4 py-2 text-sm font-medium text-white shadow-sm transition-colors hover:bg-blue-700 focus:ring-2 focus:ring-blue-500 focus:ring-offset-2 focus:outline-none"
                         >
                             <Plus class="mr-2 h-4 w-4" />
                             Buat Pengumuman
@@ -147,32 +146,28 @@ const formatDate = (dateString: string) => {
                     <table class="min-w-full divide-y divide-gray-200 dark:divide-gray-800">
                         <thead class="bg-gray-50 dark:bg-gray-900">
                             <tr>
-                                <th class="px-6 py-3 text-left text-xs font-medium uppercase tracking-wider text-gray-500 dark:text-gray-400">
+                                <th class="px-6 py-3 text-left text-xs font-medium tracking-wider text-gray-500 uppercase dark:text-gray-400">
                                     Pengumuman
                                 </th>
-                                <th class="px-6 py-3 text-left text-xs font-medium uppercase tracking-wider text-gray-500 dark:text-gray-400">
+                                <th class="px-6 py-3 text-left text-xs font-medium tracking-wider text-gray-500 uppercase dark:text-gray-400">
                                     Kategori
                                 </th>
-                                <th class="px-6 py-3 text-left text-xs font-medium uppercase tracking-wider text-gray-500 dark:text-gray-400">
+                                <th class="px-6 py-3 text-left text-xs font-medium tracking-wider text-gray-500 uppercase dark:text-gray-400">
                                     Prioritas
                                 </th>
-                                <th class="px-6 py-3 text-left text-xs font-medium uppercase tracking-wider text-gray-500 dark:text-gray-400">
+                                <th class="px-6 py-3 text-left text-xs font-medium tracking-wider text-gray-500 uppercase dark:text-gray-400">
                                     Status
                                 </th>
-                                <th class="px-6 py-3 text-left text-xs font-medium uppercase tracking-wider text-gray-500 dark:text-gray-400">
+                                <th class="px-6 py-3 text-left text-xs font-medium tracking-wider text-gray-500 uppercase dark:text-gray-400">
                                     Dibuat
                                 </th>
-                                <th class="px-6 py-3 text-right text-xs font-medium uppercase tracking-wider text-gray-500 dark:text-gray-400">
+                                <th class="px-6 py-3 text-right text-xs font-medium tracking-wider text-gray-500 uppercase dark:text-gray-400">
                                     Aksi
                                 </th>
                             </tr>
                         </thead>
                         <tbody class="divide-y divide-gray-200 bg-white dark:divide-gray-800 dark:bg-gray-950">
-                            <tr
-                                v-for="announcement in announcements.data"
-                                :key="announcement.id"
-                                class="hover:bg-gray-50 dark:hover:bg-gray-900"
-                            >
+                            <tr v-for="announcement in announcements.data" :key="announcement.id" class="hover:bg-gray-50 dark:hover:bg-gray-900">
                                 <!-- Announcement Info -->
                                 <td class="px-6 py-4">
                                     <div class="flex items-start gap-4">
@@ -197,7 +192,7 @@ const formatDate = (dateString: string) => {
                                             <p class="font-medium text-gray-900 dark:text-white">
                                                 {{ announcement.title }}
                                             </p>
-                                            <p class="mt-1 text-sm text-gray-500 dark:text-gray-400 line-clamp-2">
+                                            <p class="mt-1 line-clamp-2 text-sm text-gray-500 dark:text-gray-400">
                                                 {{ announcement.excerpt }}
                                             </p>
                                             <div class="mt-2 flex items-center gap-2 text-xs text-gray-500 dark:text-gray-400">
@@ -236,14 +231,13 @@ const formatDate = (dateString: string) => {
                                     <button
                                         @click="toggleStatus(announcement)"
                                         class="flex items-center gap-2 rounded-lg px-3 py-1.5 text-sm font-medium transition-colors"
-                                        :class="announcement.is_active
-                                            ? 'bg-green-100 text-green-700 hover:bg-green-200 dark:bg-green-900/30 dark:text-green-300 dark:hover:bg-green-900/50'
-                                            : 'bg-gray-100 text-gray-700 hover:bg-gray-200 dark:bg-gray-800 dark:text-gray-300 dark:hover:bg-gray-700'"
+                                        :class="
+                                            announcement.is_active
+                                                ? 'bg-green-100 text-green-700 hover:bg-green-200 dark:bg-green-900/30 dark:text-green-300 dark:hover:bg-green-900/50'
+                                                : 'bg-gray-100 text-gray-700 hover:bg-gray-200 dark:bg-gray-800 dark:text-gray-300 dark:hover:bg-gray-700'
+                                        "
                                     >
-                                        <component
-                                            :is="announcement.is_active ? ToggleRight : ToggleLeft"
-                                            class="h-4 w-4"
-                                        />
+                                        <component :is="announcement.is_active ? ToggleRight : ToggleLeft" class="h-4 w-4" />
                                         {{ announcement.is_active ? 'Aktif' : 'Nonaktif' }}
                                     </button>
                                 </td>
@@ -285,17 +279,10 @@ const formatDate = (dateString: string) => {
                 </div>
 
                 <!-- Empty State -->
-                <div
-                    v-if="announcements.data.length === 0"
-                    class="flex flex-col items-center justify-center py-12"
-                >
+                <div v-if="announcements.data.length === 0" class="flex flex-col items-center justify-center py-12">
                     <Calendar class="h-12 w-12 text-gray-400 dark:text-gray-600" />
-                    <h3 class="mt-4 text-lg font-medium text-gray-900 dark:text-white">
-                        Belum ada pengumuman
-                    </h3>
-                    <p class="mt-2 text-sm text-gray-500 dark:text-gray-400">
-                        Mulai dengan membuat pengumuman pertama untuk karyawan.
-                    </p>
+                    <h3 class="mt-4 text-lg font-medium text-gray-900 dark:text-white">Belum ada pengumuman</h3>
+                    <p class="mt-2 text-sm text-gray-500 dark:text-gray-400">Mulai dengan membuat pengumuman pertama untuk karyawan.</p>
                     <Link
                         href="/admin/announcements/create"
                         class="mt-4 inline-flex items-center rounded-lg bg-blue-600 px-4 py-2 text-sm font-medium text-white shadow-sm transition-colors hover:bg-blue-700"
@@ -308,7 +295,7 @@ const formatDate = (dateString: string) => {
                 <!-- Pagination -->
                 <div
                     v-if="announcements.data.length > 0"
-                    class="border-t border-gray-200 bg-white px-4 py-3 dark:border-gray-800 dark:bg-gray-950 sm:px-6"
+                    class="border-t border-gray-200 bg-white px-4 py-3 sm:px-6 dark:border-gray-800 dark:bg-gray-950"
                 >
                     <div class="flex items-center justify-between">
                         <div class="flex flex-1 justify-between sm:hidden">
@@ -349,11 +336,11 @@ const formatDate = (dateString: string) => {
                                         class="relative inline-flex items-center px-4 py-2 text-sm font-medium transition-colors"
                                         :class="[
                                             link.active
-                                                ? 'z-10 bg-blue-50 border-blue-500 text-blue-600 dark:bg-blue-950 dark:border-blue-400 dark:text-blue-400'
-                                                : 'bg-white border-gray-300 text-gray-500 hover:bg-gray-50 dark:bg-gray-950 dark:border-gray-700 dark:text-gray-400 dark:hover:bg-gray-900',
+                                                ? 'z-10 border-blue-500 bg-blue-50 text-blue-600 dark:border-blue-400 dark:bg-blue-950 dark:text-blue-400'
+                                                : 'border-gray-300 bg-white text-gray-500 hover:bg-gray-50 dark:border-gray-700 dark:bg-gray-950 dark:text-gray-400 dark:hover:bg-gray-900',
                                             index === 0 ? 'rounded-l-md' : '',
                                             index === announcements.links.length - 1 ? 'rounded-r-md' : '',
-                                            'border'
+                                            'border',
                                         ]"
                                         v-html="link.label"
                                     />

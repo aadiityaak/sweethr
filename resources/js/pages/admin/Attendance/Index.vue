@@ -1,27 +1,25 @@
 <script setup lang="ts">
-import AppLayout from '@/layouts/AppLayout.vue';
 import AttendanceChart from '@/components/AttendanceChart.vue';
-import { type BreadcrumbItem } from '@/types';
 import DatePicker from '@/components/ui/date-picker/DatePicker.vue';
+import AppLayout from '@/layouts/AppLayout.vue';
+import { type BreadcrumbItem } from '@/types';
 import { Head, Link, router } from '@inertiajs/vue3';
-import { ref, watch, onMounted, onUnmounted } from 'vue';
 import {
-    Clock,
-    Users,
+    AlertCircle,
     Calendar,
     CheckCircle,
-    XCircle,
-    AlertCircle,
+    Clock,
     Download,
-    Filter,
-    Search,
-    MapPin,
-    Eye,
     Edit,
-    Trash2,
+    Eye,
+    MapPin,
     MoreHorizontal,
-    Plus
+    Search,
+    Trash2,
+    Users,
+    XCircle,
 } from 'lucide-vue-next';
+import { onMounted, onUnmounted, ref } from 'vue';
 
 interface User {
     id: number;
@@ -91,7 +89,7 @@ const { attendanceRecords, stats, filters, departments, officeLocations } = defi
 
 const breadcrumbs: BreadcrumbItem[] = [
     { title: 'Dasbor', href: '/dashboard' },
-    { title: 'Kelola Kehadiran', href: '/admin/attendance' }
+    { title: 'Kelola Kehadiran', href: '/admin/attendance' },
 ];
 
 // Reactive filter state
@@ -118,7 +116,7 @@ const updateFilters = () => {
     };
 
     // Remove empty values
-    Object.keys(newFilters).forEach(key => {
+    Object.keys(newFilters).forEach((key) => {
         if (!newFilters[key as keyof typeof newFilters]) {
             delete newFilters[key as keyof typeof newFilters];
         }
@@ -127,7 +125,7 @@ const updateFilters = () => {
     router.get('/admin/attendance', newFilters, {
         preserveState: true,
         preserveScroll: true,
-        replace: true
+        replace: true,
     });
 };
 
@@ -168,7 +166,7 @@ const formatTime = (time: string | null) => {
     if (!time) return '--:--';
     return new Date(`2000-01-01T${time}`).toLocaleTimeString('id-ID', {
         hour: '2-digit',
-        minute: '2-digit'
+        minute: '2-digit',
     });
 };
 
@@ -184,7 +182,7 @@ const formatDate = (dateString: string) => {
         weekday: 'short',
         day: 'numeric',
         month: 'short',
-        year: 'numeric'
+        year: 'numeric',
     });
 };
 
@@ -193,7 +191,7 @@ const getStatusBadge = (status: string) => {
         present: 'bg-emerald-50 text-emerald-700 ring-emerald-600/20 dark:bg-emerald-950/50 dark:text-emerald-400',
         late: 'bg-amber-50 text-amber-700 ring-amber-600/20 dark:bg-amber-950/50 dark:text-amber-400',
         absent: 'bg-red-50 text-red-700 ring-red-600/20 dark:bg-red-950/50 dark:text-red-400',
-        half_day: 'bg-blue-50 text-blue-700 ring-blue-600/20 dark:bg-blue-950/50 dark:text-blue-400'
+        half_day: 'bg-blue-50 text-blue-700 ring-blue-600/20 dark:bg-blue-950/50 dark:text-blue-400',
     };
     return badges[status as keyof typeof badges] || badges.absent;
 };
@@ -203,18 +201,23 @@ const getStatusText = (status: string) => {
         present: 'Hadir',
         late: 'Terlambat',
         absent: 'Tidak Hadir',
-        half_day: 'Setengah Hari'
+        half_day: 'Setengah Hari',
     };
     return statusMap[status as keyof typeof statusMap] || 'Tidak Diketahui';
 };
 
 const getStatusIcon = (status: string) => {
     switch (status) {
-        case 'present': return CheckCircle;
-        case 'late': return AlertCircle;
-        case 'absent': return XCircle;
-        case 'half_day': return Clock;
-        default: return XCircle;
+        case 'present':
+            return CheckCircle;
+        case 'late':
+            return AlertCircle;
+        case 'absent':
+            return XCircle;
+        case 'half_day':
+            return Clock;
+        default:
+            return XCircle;
     }
 };
 
@@ -222,7 +225,7 @@ const getStatusIcon = (status: string) => {
 const generateWeeklyData = () => {
     return {
         labels: ['Sen', 'Sel', 'Rab', 'Kam', 'Jum', 'Sab', 'Min'],
-        data: [92, 88, 95, 89, 91, 0, 0] // Weekend = 0
+        data: [92, 88, 95, 89, 91, 0, 0], // Weekend = 0
     };
 };
 
@@ -231,7 +234,7 @@ const generateAttendanceBreakdown = () => {
     return {
         present: stats.present_today,
         absent: stats.absent_today,
-        late: stats.late_today
+        late: stats.late_today,
     };
 };
 
@@ -263,7 +266,7 @@ const exportData = () => {
         department: selectedDepartment.value || '',
         office_location: selectedOfficeLocation.value || '',
         search: searchQuery.value || '',
-        export: 'excel'
+        export: 'excel',
     });
 
     window.open(`/admin/attendance/export?${queryParams.toString()}`, '_blank');
@@ -296,17 +299,13 @@ onUnmounted(() => {
             <div class="mb-8">
                 <div class="flex items-center justify-between">
                     <div>
-                        <h1 class="text-3xl font-bold text-gray-900 dark:text-white">
-                            Kelola Kehadiran
-                        </h1>
-                        <p class="mt-1 text-gray-600 dark:text-gray-400">
-                            Pantau dan kelola kehadiran seluruh karyawan
-                        </p>
+                        <h1 class="text-3xl font-bold text-gray-900 dark:text-white">Kelola Kehadiran</h1>
+                        <p class="mt-1 text-gray-600 dark:text-gray-400">Pantau dan kelola kehadiran seluruh karyawan</p>
                     </div>
                     <div class="flex gap-3">
                         <button
                             @click="exportData"
-                            class="inline-flex items-center rounded-lg bg-green-600 px-4 py-2 text-sm font-medium text-white shadow-sm hover:bg-green-700 focus:outline-none focus:ring-2 focus:ring-green-500 focus:ring-offset-2 transition-colors"
+                            class="inline-flex items-center rounded-lg bg-green-600 px-4 py-2 text-sm font-medium text-white shadow-sm transition-colors hover:bg-green-700 focus:ring-2 focus:ring-green-500 focus:ring-offset-2 focus:outline-none"
                         >
                             <Download class="mr-2 h-4 w-4" />
                             Export Excel
@@ -381,9 +380,7 @@ onUnmounted(() => {
                             <div class="ml-4 flex-1">
                                 <p class="text-sm font-medium text-gray-600 dark:text-gray-400">Total Karyawan</p>
                                 <p class="text-2xl font-bold text-gray-900 dark:text-white">{{ stats.total_employees }}</p>
-                                <p class="text-sm text-gray-500 dark:text-gray-500">
-                                    {{ stats.attendance_rate }}% tingkat kehadiran
-                                </p>
+                                <p class="text-sm text-gray-500 dark:text-gray-500">{{ stats.attendance_rate }}% tingkat kehadiran</p>
                             </div>
                         </div>
                     </div>
@@ -393,7 +390,9 @@ onUnmounted(() => {
             <!-- Charts Section -->
             <div class="grid gap-6 lg:grid-cols-2">
                 <!-- Weekly Attendance Chart -->
-                <div class="rounded-xl border border-gray-200/50 bg-gradient-to-br from-white to-gray-50/30 p-6 shadow-sm dark:border-gray-800/50 dark:from-gray-950 dark:to-gray-900/30">
+                <div
+                    class="rounded-xl border border-gray-200/50 bg-gradient-to-br from-white to-gray-50/30 p-6 shadow-sm dark:border-gray-800/50 dark:from-gray-950 dark:to-gray-900/30"
+                >
                     <div class="mb-6 flex items-center gap-3">
                         <div class="flex h-8 w-8 items-center justify-center rounded-lg bg-purple-500/10 ring-1 ring-purple-500/20">
                             <Calendar class="h-4 w-4 text-purple-600 dark:text-purple-400" />
@@ -404,15 +403,14 @@ onUnmounted(() => {
                         </div>
                     </div>
                     <div class="h-64">
-                        <AttendanceChart
-                            type="bar"
-                            :weekly-data="generateWeeklyData()"
-                        />
+                        <AttendanceChart type="bar" :weekly-data="generateWeeklyData()" />
                     </div>
                 </div>
 
                 <!-- Attendance Breakdown -->
-                <div class="rounded-xl border border-gray-200/50 bg-gradient-to-br from-white to-gray-50/30 p-6 shadow-sm dark:border-gray-800/50 dark:from-gray-950 dark:to-gray-900/30">
+                <div
+                    class="rounded-xl border border-gray-200/50 bg-gradient-to-br from-white to-gray-50/30 p-6 shadow-sm dark:border-gray-800/50 dark:from-gray-950 dark:to-gray-900/30"
+                >
                     <div class="mb-6 flex items-center gap-3">
                         <div class="flex h-8 w-8 items-center justify-center rounded-lg bg-blue-500/10 ring-1 ring-blue-500/20">
                             <CheckCircle class="h-4 w-4 text-blue-600 dark:text-blue-400" />
@@ -423,10 +421,7 @@ onUnmounted(() => {
                         </div>
                     </div>
                     <div class="h-64">
-                        <AttendanceChart
-                            type="doughnut"
-                            :attendance-data="generateAttendanceBreakdown()"
-                        />
+                        <AttendanceChart type="doughnut" :attendance-data="generateAttendanceBreakdown()" />
                     </div>
                 </div>
             </div>
@@ -434,19 +429,19 @@ onUnmounted(() => {
             <!-- Search and Filters -->
             <div class="rounded-xl border border-gray-200/50 bg-white p-4 shadow-sm dark:border-gray-800/50 dark:bg-gray-950">
                 <div class="flex flex-col gap-4 sm:flex-row sm:items-center sm:justify-between">
-                    <div class="relative flex-1 max-w-md">
-                        <Search class="absolute left-3 top-1/2 h-4 w-4 -translate-y-1/2 text-gray-400" />
+                    <div class="relative max-w-md flex-1">
+                        <Search class="absolute top-1/2 left-3 h-4 w-4 -translate-y-1/2 text-gray-400" />
                         <input
                             type="text"
                             placeholder="Cari karyawan..."
-                            class="w-full rounded-lg border border-gray-300 bg-white pl-10 pr-4 py-2 text-sm focus:border-blue-500 focus:outline-none focus:ring-1 focus:ring-blue-500 dark:border-gray-600 dark:bg-gray-800 dark:text-gray-300 dark:focus:border-blue-400"
+                            class="w-full rounded-lg border border-gray-300 bg-white py-2 pr-4 pl-10 text-sm focus:border-blue-500 focus:ring-1 focus:ring-blue-500 focus:outline-none dark:border-gray-600 dark:bg-gray-800 dark:text-gray-300 dark:focus:border-blue-400"
                             :value="searchQuery"
                             @input="handleSearchInput"
                         />
                     </div>
                     <div class="flex gap-3">
                         <select
-                            class="rounded-lg border border-gray-300 bg-white px-3 py-2 text-sm focus:border-blue-500 focus:outline-none focus:ring-1 focus:ring-blue-500 dark:border-gray-600 dark:bg-gray-800 dark:text-gray-300"
+                            class="rounded-lg border border-gray-300 bg-white px-3 py-2 text-sm focus:border-blue-500 focus:ring-1 focus:ring-blue-500 focus:outline-none dark:border-gray-600 dark:bg-gray-800 dark:text-gray-300"
                             :value="selectedStatus"
                             @change="handleStatusChange"
                         >
@@ -457,7 +452,7 @@ onUnmounted(() => {
                             <option value="half_day">Setengah Hari</option>
                         </select>
                         <select
-                            class="rounded-lg border border-gray-300 bg-white px-3 py-2 text-sm focus:border-blue-500 focus:outline-none focus:ring-1 focus:ring-blue-500 dark:border-gray-600 dark:bg-gray-800 dark:text-gray-300"
+                            class="rounded-lg border border-gray-300 bg-white px-3 py-2 text-sm focus:border-blue-500 focus:ring-1 focus:ring-blue-500 focus:outline-none dark:border-gray-600 dark:bg-gray-800 dark:text-gray-300"
                             :value="selectedDepartment"
                             @change="handleDepartmentChange"
                         >
@@ -465,7 +460,7 @@ onUnmounted(() => {
                             <option v-for="dept in departments" :key="dept.id" :value="dept.id">{{ dept.name }}</option>
                         </select>
                         <select
-                            class="rounded-lg border border-gray-300 bg-white px-3 py-2 text-sm focus:border-blue-500 focus:outline-none focus:ring-1 focus:ring-blue-500 dark:border-gray-600 dark:bg-gray-800 dark:text-gray-300"
+                            class="rounded-lg border border-gray-300 bg-white px-3 py-2 text-sm focus:border-blue-500 focus:ring-1 focus:ring-blue-500 focus:outline-none dark:border-gray-600 dark:bg-gray-800 dark:text-gray-300"
                             :value="selectedOfficeLocation"
                             @change="handleOfficeLocationChange"
                         >
@@ -487,52 +482,44 @@ onUnmounted(() => {
             <!-- Attendance Records Table -->
             <div class="rounded-xl border border-gray-200/50 bg-white shadow-sm dark:border-gray-800/50 dark:bg-gray-950">
                 <div class="border-b border-gray-200/50 p-6 dark:border-gray-800/50">
-                    <h3 class="text-lg font-semibold text-gray-900 dark:text-white">
-                        Catatan Kehadiran
-                    </h3>
-                    <p class="text-sm text-gray-600 dark:text-gray-400">
-                        {{ attendanceRecords.length }} catatan kehadiran ditemukan
-                    </p>
+                    <h3 class="text-lg font-semibold text-gray-900 dark:text-white">Catatan Kehadiran</h3>
+                    <p class="text-sm text-gray-600 dark:text-gray-400">{{ attendanceRecords.length }} catatan kehadiran ditemukan</p>
                 </div>
                 <div class="overflow-x-auto">
                     <table class="w-full">
                         <thead class="border-b border-gray-200/50 bg-gray-50/50 dark:border-gray-800/50 dark:bg-gray-900/50">
                             <tr>
-                                <th class="px-6 py-3 text-left text-xs font-medium uppercase tracking-wide text-gray-500 dark:text-gray-400">
+                                <th class="px-6 py-3 text-left text-xs font-medium tracking-wide text-gray-500 uppercase dark:text-gray-400">
                                     Karyawan
                                 </th>
-                                <th class="px-6 py-3 text-left text-xs font-medium uppercase tracking-wide text-gray-500 dark:text-gray-400">
+                                <th class="px-6 py-3 text-left text-xs font-medium tracking-wide text-gray-500 uppercase dark:text-gray-400">
                                     Tanggal
                                 </th>
-                                <th class="px-6 py-3 text-left text-xs font-medium uppercase tracking-wide text-gray-500 dark:text-gray-400">
+                                <th class="px-6 py-3 text-left text-xs font-medium tracking-wide text-gray-500 uppercase dark:text-gray-400">
                                     Check In
                                 </th>
-                                <th class="px-6 py-3 text-left text-xs font-medium uppercase tracking-wide text-gray-500 dark:text-gray-400">
+                                <th class="px-6 py-3 text-left text-xs font-medium tracking-wide text-gray-500 uppercase dark:text-gray-400">
                                     Check Out
                                 </th>
-                                <th class="px-6 py-3 text-left text-xs font-medium uppercase tracking-wide text-gray-500 dark:text-gray-400">
+                                <th class="px-6 py-3 text-left text-xs font-medium tracking-wide text-gray-500 uppercase dark:text-gray-400">
                                     Durasi
                                 </th>
-                                <th class="px-6 py-3 text-left text-xs font-medium uppercase tracking-wide text-gray-500 dark:text-gray-400">
+                                <th class="px-6 py-3 text-left text-xs font-medium tracking-wide text-gray-500 uppercase dark:text-gray-400">
                                     Status
                                 </th>
-                                <th class="px-6 py-3 text-left text-xs font-medium uppercase tracking-wide text-gray-500 dark:text-gray-400">
+                                <th class="px-6 py-3 text-left text-xs font-medium tracking-wide text-gray-500 uppercase dark:text-gray-400">
                                     Lokasi
                                 </th>
-                                <th class="px-6 py-3 text-left text-xs font-medium uppercase tracking-wide text-gray-500 dark:text-gray-400">
-                                    Aksi
-                                </th>
+                                <th class="px-6 py-3 text-left text-xs font-medium tracking-wide text-gray-500 uppercase dark:text-gray-400">Aksi</th>
                             </tr>
                         </thead>
                         <tbody class="divide-y divide-gray-200/50 dark:divide-gray-800/50">
-                            <tr
-                                v-for="record in attendanceRecords"
-                                :key="record.id"
-                                class="group hover:bg-gray-50/50 dark:hover:bg-gray-900/50"
-                            >
+                            <tr v-for="record in attendanceRecords" :key="record.id" class="group hover:bg-gray-50/50 dark:hover:bg-gray-900/50">
                                 <td class="px-6 py-4">
                                     <div class="flex items-center gap-3">
-                                        <div class="flex h-8 w-8 items-center justify-center rounded-full bg-gray-100 text-sm font-medium text-gray-700 dark:bg-gray-800 dark:text-gray-300">
+                                        <div
+                                            class="flex h-8 w-8 items-center justify-center rounded-full bg-gray-100 text-sm font-medium text-gray-700 dark:bg-gray-800 dark:text-gray-300"
+                                        >
                                             {{ record.user.name.charAt(0) }}
                                         </div>
                                         <div>
@@ -565,10 +552,7 @@ onUnmounted(() => {
                                 </td>
                                 <td class="px-6 py-4">
                                     <div class="flex items-center gap-2">
-                                        <component
-                                            :is="getStatusIcon(record.status)"
-                                            class="h-3 w-3"
-                                        />
+                                        <component :is="getStatusIcon(record.status)" class="h-3 w-3" />
                                         <span
                                             class="inline-flex items-center rounded-full px-2.5 py-0.5 text-xs font-medium ring-1 ring-inset"
                                             :class="getStatusBadge(record.status)"
@@ -586,24 +570,24 @@ onUnmounted(() => {
                                 <td class="px-6 py-4">
                                     <div class="relative">
                                         <!-- Quick action buttons for larger screens -->
-                                        <div class="hidden sm:flex items-center gap-2">
+                                        <div class="hidden items-center gap-2 sm:flex">
                                             <Link
                                                 :href="`/admin/attendance/${record.id}`"
-                                                class="inline-flex items-center rounded-md bg-gray-50 px-2.5 py-1.5 text-xs font-medium text-gray-700 ring-1 ring-gray-200 hover:bg-gray-100 dark:bg-gray-800 dark:text-gray-300 dark:ring-gray-700 dark:hover:bg-gray-700 transition-colors"
+                                                class="inline-flex items-center rounded-md bg-gray-50 px-2.5 py-1.5 text-xs font-medium text-gray-700 ring-1 ring-gray-200 transition-colors hover:bg-gray-100 dark:bg-gray-800 dark:text-gray-300 dark:ring-gray-700 dark:hover:bg-gray-700"
                                                 title="Lihat Detail"
                                             >
                                                 <Eye class="h-3 w-3" />
                                             </Link>
                                             <Link
                                                 :href="`/admin/attendance/${record.id}/edit`"
-                                                class="inline-flex items-center rounded-md bg-blue-50 px-2.5 py-1.5 text-xs font-medium text-blue-700 ring-1 ring-blue-200 hover:bg-blue-100 dark:bg-blue-950/50 dark:text-blue-400 dark:ring-blue-800 dark:hover:bg-blue-900/50 transition-colors"
+                                                class="inline-flex items-center rounded-md bg-blue-50 px-2.5 py-1.5 text-xs font-medium text-blue-700 ring-1 ring-blue-200 transition-colors hover:bg-blue-100 dark:bg-blue-950/50 dark:text-blue-400 dark:ring-blue-800 dark:hover:bg-blue-900/50"
                                                 title="Edit"
                                             >
                                                 <Edit class="h-3 w-3" />
                                             </Link>
                                             <button
                                                 @click="deleteAttendance(record)"
-                                                class="inline-flex items-center rounded-md bg-red-50 px-2.5 py-1.5 text-xs font-medium text-red-700 ring-1 ring-red-200 hover:bg-red-100 dark:bg-red-950/50 dark:text-red-400 dark:ring-red-800 dark:hover:bg-red-900/50 transition-colors"
+                                                class="inline-flex items-center rounded-md bg-red-50 px-2.5 py-1.5 text-xs font-medium text-red-700 ring-1 ring-red-200 transition-colors hover:bg-red-100 dark:bg-red-950/50 dark:text-red-400 dark:ring-red-800 dark:hover:bg-red-900/50"
                                                 title="Hapus"
                                             >
                                                 <Trash2 class="h-3 w-3" />
@@ -614,7 +598,7 @@ onUnmounted(() => {
                                         <div class="sm:hidden">
                                             <button
                                                 @click="toggleDropdown(record.id)"
-                                                class="inline-flex items-center rounded-md bg-gray-50 px-2 py-1.5 text-xs font-medium text-gray-700 ring-1 ring-gray-200 hover:bg-gray-100 dark:bg-gray-800 dark:text-gray-300 dark:ring-gray-700 dark:hover:bg-gray-700 transition-colors"
+                                                class="inline-flex items-center rounded-md bg-gray-50 px-2 py-1.5 text-xs font-medium text-gray-700 ring-1 ring-gray-200 transition-colors hover:bg-gray-100 dark:bg-gray-800 dark:text-gray-300 dark:ring-gray-700 dark:hover:bg-gray-700"
                                             >
                                                 <MoreHorizontal class="h-4 w-4" />
                                             </button>
@@ -623,7 +607,7 @@ onUnmounted(() => {
                                             <div
                                                 v-if="activeDropdown === record.id"
                                                 @click.stop
-                                                class="absolute right-0 top-8 z-10 w-48 rounded-md bg-white py-1 shadow-lg ring-1 ring-black/5 dark:bg-gray-800 dark:ring-gray-700"
+                                                class="absolute top-8 right-0 z-10 w-48 rounded-md bg-white py-1 shadow-lg ring-1 ring-black/5 dark:bg-gray-800 dark:ring-gray-700"
                                             >
                                                 <Link
                                                     :href="`/admin/attendance/${record.id}`"

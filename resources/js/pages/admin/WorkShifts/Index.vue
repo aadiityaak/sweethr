@@ -7,17 +7,13 @@
             <div class="mb-8">
                 <div class="flex items-center justify-between">
                     <div>
-                        <h1 class="text-3xl font-bold text-gray-900 dark:text-white">
-                            Kelola Shift Kerja
-                        </h1>
-                        <p class="mt-1 text-gray-600 dark:text-gray-400">
-                            Kelola jadwal shift dan penugasan karyawan
-                        </p>
+                        <h1 class="text-3xl font-bold text-gray-900 dark:text-white">Kelola Shift Kerja</h1>
+                        <p class="mt-1 text-gray-600 dark:text-gray-400">Kelola jadwal shift dan penugasan karyawan</p>
                     </div>
                     <div class="flex gap-3">
                         <Link
                             href="/admin/work-shifts/create"
-                            class="inline-flex items-center gap-2 rounded-lg bg-blue-600 px-4 py-2 text-sm font-medium text-white shadow-sm hover:bg-blue-700 focus:outline-none focus:ring-2 focus:ring-blue-500 focus:ring-offset-2 transition-colors"
+                            class="inline-flex items-center gap-2 rounded-lg bg-blue-600 px-4 py-2 text-sm font-medium text-white shadow-sm transition-colors hover:bg-blue-700 focus:ring-2 focus:ring-blue-500 focus:ring-offset-2 focus:outline-none"
                         >
                             <Plus class="h-4 w-4" />
                             Tambah Shift
@@ -94,12 +90,7 @@
                 <div class="p-6">
                     <div class="grid gap-4 md:grid-cols-3">
                         <div>
-                            <Input
-                                v-model="search"
-                                placeholder="Cari shift..."
-                                class="w-full"
-                                @input="debouncedSearch"
-                            />
+                            <Input v-model="search" placeholder="Cari shift..." class="w-full" @input="debouncedSearch" />
                         </div>
                         <div>
                             <select
@@ -131,8 +122,8 @@
 
             <!-- Work Shifts Table -->
             <div class="overflow-hidden rounded-xl bg-white shadow-sm ring-1 ring-gray-900/5 dark:bg-gray-900 dark:ring-white/10">
-                <div class="px-6 py-4 border-b border-gray-200 dark:border-gray-700">
-                    <h3 class="text-lg font-semibold text-gray-900 dark:text-white flex items-center">
+                <div class="border-b border-gray-200 px-6 py-4 dark:border-gray-700">
+                    <h3 class="flex items-center text-lg font-semibold text-gray-900 dark:text-white">
                         <Clock class="mr-2 h-5 w-5 text-blue-600 dark:text-blue-400" />
                         Daftar Shift Kerja
                     </h3>
@@ -154,7 +145,11 @@
                             </tr>
                         </thead>
                         <tbody>
-                            <tr v-for="shift in workShifts.data" :key="shift.id" class="border-b border-gray-100 hover:bg-gray-50 dark:border-gray-800 dark:hover:bg-gray-900/50">
+                            <tr
+                                v-for="shift in workShifts.data"
+                                :key="shift.id"
+                                class="border-b border-gray-100 hover:bg-gray-50 dark:border-gray-800 dark:hover:bg-gray-900/50"
+                            >
                                 <td class="px-6 py-4">
                                     <div class="flex items-center gap-3">
                                         <div class="flex h-8 w-8 items-center justify-center rounded-full bg-gray-100 dark:bg-gray-800">
@@ -163,18 +158,22 @@
                                         <div>
                                             <p class="font-medium text-gray-900 dark:text-white">{{ shift.name }}</p>
                                             <p v-if="shift.is_night_shift" class="text-xs text-amber-600 dark:text-amber-400">
-                                                <Moon class="inline h-3 w-3 mr-1" />
+                                                <Moon class="mr-1 inline h-3 w-3" />
                                                 Shift Malam
                                             </p>
                                         </div>
                                     </div>
                                 </td>
                                 <td class="px-6 py-4">
-                                    <code class="rounded bg-gray-100 px-2 py-1 text-xs text-gray-700 dark:bg-gray-800 dark:text-gray-300">{{ shift.code }}</code>
+                                    <code class="rounded bg-gray-100 px-2 py-1 text-xs text-gray-700 dark:bg-gray-800 dark:text-gray-300">{{
+                                        shift.code
+                                    }}</code>
                                 </td>
                                 <td class="px-6 py-4">
                                     <div class="text-sm">
-                                        <p class="font-medium text-gray-900 dark:text-white">{{ formatTime(shift.start_time) }} - {{ formatTime(shift.end_time) }}</p>
+                                        <p class="font-medium text-gray-900 dark:text-white">
+                                            {{ formatTime(shift.start_time) }} - {{ formatTime(shift.end_time) }}
+                                        </p>
                                         <p class="text-gray-500 dark:text-gray-400">Istirahat: {{ shift.break_duration }} menit</p>
                                     </div>
                                 </td>
@@ -196,7 +195,7 @@
                                     <span
                                         :class="{
                                             'bg-green-100 text-green-800 dark:bg-green-900/20 dark:text-green-400': shift.is_active,
-                                            'bg-red-100 text-red-800 dark:bg-red-900/20 dark:text-red-400': !shift.is_active
+                                            'bg-red-100 text-red-800 dark:bg-red-900/20 dark:text-red-400': !shift.is_active,
                                         }"
                                         class="inline-flex items-center rounded-full px-2.5 py-0.5 text-xs font-medium"
                                     >
@@ -272,27 +271,16 @@
 </template>
 
 <script setup lang="ts">
-import { Head, Link, router } from '@inertiajs/vue3';
-import { ref } from 'vue';
+import ConfirmationModal from '@/components/ConfirmationModal.vue';
+import { Button } from '@/components/ui/button';
+import { Input } from '@/components/ui/input';
+import { useToast } from '@/components/ui/toast/use-toast';
 import AppLayout from '@/layouts/AppLayout.vue';
 import { type BreadcrumbItem } from '@/types';
-import { Input } from '@/components/ui/input';
-import { Button } from '@/components/ui/button';
-import ConfirmationModal from '@/components/ConfirmationModal.vue';
-import { useToast } from '@/components/ui/toast/use-toast';
-import {
-    Clock,
-    CheckCircle,
-    XCircle,
-    Users,
-    Plus,
-    FilterX,
-    Eye,
-    Edit,
-    Trash,
-    Moon,
-} from 'lucide-vue-next';
+import { Head, Link, router } from '@inertiajs/vue3';
 import { debounce } from 'lodash';
+import { CheckCircle, Clock, Edit, Eye, FilterX, Moon, Plus, Trash, Users, XCircle } from 'lucide-vue-next';
+import { ref } from 'vue';
 
 interface WorkShift {
     id: number;
@@ -376,13 +364,17 @@ const debouncedSearch = debounce(() => {
 }, 300);
 
 const applyFilters = () => {
-    router.get('/admin/work-shifts', {
-        search: search.value,
-        status: selectedStatus.value,
-    }, {
-        preserveState: true,
-        replace: true,
-    });
+    router.get(
+        '/admin/work-shifts',
+        {
+            search: search.value,
+            status: selectedStatus.value,
+        },
+        {
+            preserveState: true,
+            replace: true,
+        },
+    );
 };
 
 const clearFilters = () => {

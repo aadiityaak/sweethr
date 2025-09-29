@@ -21,34 +21,23 @@
             <!-- Create Form -->
             <div class="grid gap-6 lg:grid-cols-3">
                 <!-- Main Form -->
-                <div class="lg:col-span-2 space-y-6">
+                <div class="space-y-6 lg:col-span-2">
                     <div class="rounded-lg border bg-card p-6">
-                        <h3 class="text-lg font-semibold mb-4">Informasi Shift</h3>
+                        <h3 class="mb-4 text-lg font-semibold">Informasi Shift</h3>
 
                         <form @submit.prevent="submit" class="space-y-4">
                             <div class="grid gap-4 md:grid-cols-2">
                                 <div>
                                     <Label for="name">Nama Shift *</Label>
-                                    <Input
-                                        id="name"
-                                        v-model="form.name"
-                                        placeholder="e.g. Shift Pagi"
-                                        :error="form.errors.name"
-                                    />
-                                    <p v-if="form.errors.name" class="text-sm text-red-600 mt-1">
+                                    <Input id="name" v-model="form.name" placeholder="e.g. Shift Pagi" :error="form.errors.name" />
+                                    <p v-if="form.errors.name" class="mt-1 text-sm text-red-600">
                                         {{ form.errors.name }}
                                     </p>
                                 </div>
                                 <div>
                                     <Label for="code">Kode Shift *</Label>
-                                    <Input
-                                        id="code"
-                                        v-model="form.code"
-                                        placeholder="e.g. SP"
-                                        maxlength="10"
-                                        :error="form.errors.code"
-                                    />
-                                    <p v-if="form.errors.code" class="text-sm text-red-600 mt-1">
+                                    <Input id="code" v-model="form.code" placeholder="e.g. SP" maxlength="10" :error="form.errors.code" />
+                                    <p v-if="form.errors.code" class="mt-1 text-sm text-red-600">
                                         {{ form.errors.code }}
                                     </p>
                                 </div>
@@ -57,25 +46,15 @@
                             <div class="grid gap-4 md:grid-cols-2">
                                 <div>
                                     <Label for="start_time">Waktu Mulai *</Label>
-                                    <Input
-                                        id="start_time"
-                                        v-model="form.start_time"
-                                        type="time"
-                                        :error="form.errors.start_time"
-                                    />
-                                    <p v-if="form.errors.start_time" class="text-sm text-red-600 mt-1">
+                                    <Input id="start_time" v-model="form.start_time" type="time" :error="form.errors.start_time" />
+                                    <p v-if="form.errors.start_time" class="mt-1 text-sm text-red-600">
                                         {{ form.errors.start_time }}
                                     </p>
                                 </div>
                                 <div>
                                     <Label for="end_time">Waktu Selesai *</Label>
-                                    <Input
-                                        id="end_time"
-                                        v-model="form.end_time"
-                                        type="time"
-                                        :error="form.errors.end_time"
-                                    />
-                                    <p v-if="form.errors.end_time" class="text-sm text-red-600 mt-1">
+                                    <Input id="end_time" v-model="form.end_time" type="time" :error="form.errors.end_time" />
+                                    <p v-if="form.errors.end_time" class="mt-1 text-sm text-red-600">
                                         {{ form.errors.end_time }}
                                     </p>
                                 </div>
@@ -93,7 +72,7 @@
                                         placeholder="60"
                                         :error="form.errors.break_duration"
                                     />
-                                    <p v-if="form.errors.break_duration" class="text-sm text-red-600 mt-1">
+                                    <p v-if="form.errors.break_duration" class="mt-1 text-sm text-red-600">
                                         {{ form.errors.break_duration }}
                                     </p>
                                 </div>
@@ -109,7 +88,7 @@
                                         placeholder="1.5"
                                         :error="form.errors.overtime_multiplier"
                                     />
-                                    <p v-if="form.errors.overtime_multiplier" class="text-sm text-red-600 mt-1">
+                                    <p v-if="form.errors.overtime_multiplier" class="mt-1 text-sm text-red-600">
                                         {{ form.errors.overtime_multiplier }}
                                     </p>
                                 </div>
@@ -117,32 +96,21 @@
 
                             <div>
                                 <Label>Hari Kerja *</Label>
-                                <div class="grid grid-cols-7 gap-2 mt-2">
-                                    <div
-                                        v-for="(day, index) in daysOfWeek"
-                                        :key="index"
-                                        class="flex flex-col items-center"
-                                    >
+                                <div class="mt-2 grid grid-cols-7 gap-2">
+                                    <div v-for="(day, index) in daysOfWeek" :key="index" class="flex flex-col items-center">
                                         <label
                                             :class="[
-                                                'flex flex-col items-center gap-1 p-2 rounded-md cursor-pointer transition-colors',
-                                                form.workdays.includes(index)
-                                                    ? 'bg-primary text-primary-foreground'
-                                                    : 'bg-muted hover:bg-muted/80'
+                                                'flex cursor-pointer flex-col items-center gap-1 rounded-md p-2 transition-colors',
+                                                form.workdays.includes(index) ? 'bg-primary text-primary-foreground' : 'bg-muted hover:bg-muted/80',
                                             ]"
                                         >
-                                            <input
-                                                type="checkbox"
-                                                :value="index"
-                                                v-model="form.workdays"
-                                                class="sr-only"
-                                            />
+                                            <input type="checkbox" :value="index" v-model="form.workdays" class="sr-only" />
                                             <span class="text-xs font-medium">{{ day.short }}</span>
                                             <span class="text-[10px]">{{ day.initial }}</span>
                                         </label>
                                     </div>
                                 </div>
-                                <p v-if="form.errors.workdays" class="text-sm text-red-600 mt-1">
+                                <p v-if="form.errors.workdays" class="mt-1 text-sm text-red-600">
                                     {{ form.errors.workdays }}
                                 </p>
                             </div>
@@ -158,12 +126,7 @@
                                     <Label for="is_night_shift" class="text-sm">Shift Malam</Label>
                                 </div>
                                 <div class="flex items-center space-x-2">
-                                    <input
-                                        id="is_active"
-                                        v-model="form.is_active"
-                                        type="checkbox"
-                                        class="h-4 w-4 rounded border-gray-300"
-                                    />
+                                    <input id="is_active" v-model="form.is_active" type="checkbox" class="h-4 w-4 rounded border-gray-300" />
                                     <Label for="is_active" class="text-sm">Aktif</Label>
                                 </div>
                             </div>
@@ -172,13 +135,7 @@
                                 <Button type="submit" :disabled="form.processing">
                                     {{ form.processing ? 'Menyimpan...' : 'Simpan Shift' }}
                                 </Button>
-                                <Button
-                                    type="button"
-                                    variant="outline"
-                                    @click="router.visit('/admin/work-shifts')"
-                                >
-                                    Batal
-                                </Button>
+                                <Button type="button" variant="outline" @click="router.visit('/admin/work-shifts')"> Batal </Button>
                             </div>
                         </form>
                     </div>
@@ -188,7 +145,7 @@
                 <div class="space-y-6">
                     <!-- Preview Card -->
                     <div class="rounded-lg border bg-card p-6">
-                        <h3 class="text-lg font-semibold mb-4">Preview Shift</h3>
+                        <h3 class="mb-4 text-lg font-semibold">Preview Shift</h3>
                         <div class="space-y-3 text-sm">
                             <div class="flex justify-between">
                                 <span class="text-muted-foreground">Nama:</span>
@@ -200,9 +157,7 @@
                             </div>
                             <div class="flex justify-between">
                                 <span class="text-muted-foreground">Waktu:</span>
-                                <span class="font-medium">
-                                    {{ form.start_time || '--:--' }} - {{ form.end_time || '--:--' }}
-                                </span>
+                                <span class="font-medium"> {{ form.start_time || '--:--' }} - {{ form.end_time || '--:--' }} </span>
                             </div>
                             <div class="flex justify-between">
                                 <span class="text-muted-foreground">Durasi Kerja:</span>
@@ -221,8 +176,8 @@
 
                     <!-- Tips -->
                     <div class="rounded-lg border bg-blue-50 p-4 dark:bg-blue-950/20">
-                        <h4 class="font-medium text-blue-900 dark:text-blue-400 mb-2">Tips:</h4>
-                        <ul class="text-sm text-blue-700 dark:text-blue-300 space-y-1">
+                        <h4 class="mb-2 font-medium text-blue-900 dark:text-blue-400">Tips:</h4>
+                        <ul class="space-y-1 text-sm text-blue-700 dark:text-blue-300">
                             <li>• Kode shift sebaiknya singkat dan mudah diingat</li>
                             <li>• Durasi istirahat dihitung dari total jam kerja</li>
                             <li>• Multiplier lembur untuk perhitungan upah overtime</li>
@@ -236,13 +191,13 @@
 </template>
 
 <script setup lang="ts">
-import { Head, Link, router, useForm } from '@inertiajs/vue3';
-import { computed } from 'vue';
-import AppLayout from '@/layouts/AppLayout.vue';
-import { Input } from '@/components/ui/input';
 import { Button } from '@/components/ui/button';
+import { Input } from '@/components/ui/input';
 import { Label } from '@/components/ui/label';
+import AppLayout from '@/layouts/AppLayout.vue';
+import { Head, Link, router, useForm } from '@inertiajs/vue3';
 import { ArrowLeft } from 'lucide-vue-next';
+import { computed } from 'vue';
 
 const daysOfWeek = [
     { name: 'Minggu', short: 'Min', initial: 'M' },
@@ -289,9 +244,7 @@ const calculatedWorkHours = computed(() => {
 const selectedDaysText = computed(() => {
     if (form.workdays.length === 0) return '-';
 
-    const selectedDays = form.workdays
-        .sort((a, b) => a - b)
-        .map(index => daysOfWeek[index].short);
+    const selectedDays = form.workdays.sort((a, b) => a - b).map((index) => daysOfWeek[index].short);
 
     return selectedDays.join(', ');
 });

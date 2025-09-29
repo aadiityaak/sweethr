@@ -1,8 +1,8 @@
 <script setup lang="ts">
 import AppLogoIcon from '@/components/AppLogoIcon.vue';
+import { useCompanySettings } from '@/composables/useCompanySettings';
 import { home } from '@/routes';
 import { Link } from '@inertiajs/vue3';
-import { useCompanySettings } from '@/composables/useCompanySettings';
 
 defineProps<{
     title?: string;
@@ -13,9 +13,9 @@ const { companyName, companyLogo } = useCompanySettings();
 </script>
 
 <template>
-    <div class="mx-auto max-w-[480px] bg-gradient-to-br from-background via-background to-muted/20 min-h-screen">
+    <div class="mx-auto min-h-screen max-w-[480px] bg-gradient-to-br from-background via-background to-muted/20">
         <!-- Background Pattern -->
-        <div class="absolute inset-0 bg-grid-white/[0.02] bg-[size:60px_60px]" />
+        <div class="bg-grid-white/[0.02] absolute inset-0 bg-[size:60px_60px]" />
         <div class="absolute inset-0 bg-gradient-to-t from-transparent via-background/50 to-background" />
 
         <!-- Main Content -->
@@ -27,7 +27,7 @@ const { companyName, companyLogo } = useCompanySettings();
                     <div class="absolute -inset-0.5 rounded-2xl bg-gradient-to-r from-primary/20 via-primary/10 to-primary/20 opacity-75 blur"></div>
 
                     <!-- Main Card -->
-                    <div class="relative rounded-2xl border bg-card/50 backdrop-blur-xl p-8 shadow-2xl">
+                    <div class="relative rounded-2xl border bg-card/50 p-8 shadow-2xl backdrop-blur-xl">
                         <div class="flex flex-col gap-8">
                             <!-- Logo and Branding -->
                             <div class="flex flex-col items-center gap-6">
@@ -42,7 +42,7 @@ const { companyName, companyLogo } = useCompanySettings();
                                     />
                                     <AppLogoIcon v-else class="size-16 fill-primary drop-shadow-lg" />
                                     <!-- Company Name -->
-                                    <div class="text-xl font-bold bg-gradient-to-r from-foreground to-foreground/80 bg-clip-text text-transparent">
+                                    <div class="bg-gradient-to-r from-foreground to-foreground/80 bg-clip-text text-xl font-bold text-transparent">
                                         {{ companyName }}
                                     </div>
                                 </Link>
@@ -50,7 +50,7 @@ const { companyName, companyLogo } = useCompanySettings();
                                 <!-- Title and Description -->
                                 <div class="space-y-2 text-center">
                                     <h1 class="text-xl font-semibold text-foreground">{{ title }}</h1>
-                                    <p class="text-sm text-muted-foreground leading-relaxed">{{ description }}</p>
+                                    <p class="text-sm leading-relaxed text-muted-foreground">{{ description }}</p>
                                 </div>
                             </div>
 
@@ -63,10 +63,8 @@ const { companyName, companyLogo } = useCompanySettings();
         </div>
 
         <!-- Footer -->
-        <div class="absolute bottom-6 left-0 right-0 text-center">
-            <p class="text-xs text-muted-foreground">
-                © {{ new Date().getFullYear() }} {{ companyName }}. Sistem Manajemen SDM Modern
-            </p>
+        <div class="absolute right-0 bottom-6 left-0 text-center">
+            <p class="text-xs text-muted-foreground">© {{ new Date().getFullYear() }} {{ companyName }}. Sistem Manajemen SDM Modern</p>
         </div>
     </div>
 </template>

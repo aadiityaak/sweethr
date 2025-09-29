@@ -6,32 +6,18 @@
             </div>
             <div class="flex items-center gap-2">
                 <span class="font-mono">{{ versionInfo.fullVersion }}</span>
-                <button
-                    @click="showDetails = !showDetails"
-                    class="p-1 rounded hover:bg-accent transition-colors"
-                    title="Version Details"
-                >
+                <button @click="showDetails = !showDetails" class="rounded p-1 transition-colors hover:bg-accent" title="Version Details">
                     <Info class="h-3 w-3" />
                 </button>
             </div>
         </div>
 
         <!-- Version Details Modal -->
-        <div
-            v-if="showDetails"
-            class="fixed inset-0 bg-black/50 flex items-center justify-center z-50"
-            @click="showDetails = false"
-        >
-            <div
-                class="bg-white dark:bg-gray-800 rounded-lg p-6 max-w-md w-full mx-4 shadow-xl"
-                @click.stop
-            >
-                <div class="flex items-center justify-between mb-4">
+        <div v-if="showDetails" class="fixed inset-0 z-50 flex items-center justify-center bg-black/50" @click="showDetails = false">
+            <div class="mx-4 w-full max-w-md rounded-lg bg-white p-6 shadow-xl dark:bg-gray-800" @click.stop>
+                <div class="mb-4 flex items-center justify-between">
                     <h3 class="text-lg font-semibold">Version Information</h3>
-                    <button
-                        @click="showDetails = false"
-                        class="p-1 rounded hover:bg-gray-100 dark:hover:bg-gray-700"
-                    >
+                    <button @click="showDetails = false" class="rounded p-1 hover:bg-gray-100 dark:hover:bg-gray-700">
                         <X class="h-4 w-4" />
                     </button>
                 </div>
@@ -39,26 +25,24 @@
                 <div class="space-y-3">
                     <div class="flex justify-between">
                         <span class="text-sm text-gray-600 dark:text-gray-400">Application:</span>
-                        <span class="text-sm font-mono">{{ companyName }}</span>
+                        <span class="font-mono text-sm">{{ companyName }}</span>
                     </div>
                     <div class="flex justify-between">
                         <span class="text-sm text-gray-600 dark:text-gray-400">Version:</span>
-                        <span class="text-sm font-mono">{{ versionInfo.fullVersion }}</span>
+                        <span class="font-mono text-sm">{{ versionInfo.fullVersion }}</span>
                     </div>
                     <div class="flex justify-between">
                         <span class="text-sm text-gray-600 dark:text-gray-400">Build Date:</span>
-                        <span class="text-sm font-mono">{{ formattedBuildDate }}</span>
+                        <span class="font-mono text-sm">{{ formattedBuildDate }}</span>
                     </div>
                     <div class="flex justify-between">
                         <span class="text-sm text-gray-600 dark:text-gray-400">Environment:</span>
-                        <span class="text-sm font-mono capitalize">{{ versionInfo.environment }}</span>
+                        <span class="font-mono text-sm capitalize">{{ versionInfo.environment }}</span>
                     </div>
                 </div>
 
-                <div class="mt-6 pt-4 border-t border-gray-200 dark:border-gray-700">
-                    <p class="text-xs text-gray-500 dark:text-gray-400 text-center">
-                        Human Resource Management System
-                    </p>
+                <div class="mt-6 border-t border-gray-200 pt-4 dark:border-gray-700">
+                    <p class="text-center text-xs text-gray-500 dark:text-gray-400">Human Resource Management System</p>
                 </div>
             </div>
         </div>
@@ -66,9 +50,9 @@
 </template>
 
 <script setup lang="ts">
-import { ref, computed, onMounted } from 'vue';
-import { Info, X } from 'lucide-vue-next';
 import { useCompanySettings } from '@/composables/useCompanySettings';
+import { Info, X } from 'lucide-vue-next';
+import { computed, onMounted, ref } from 'vue';
 
 interface VersionInfo {
     version: string;
@@ -85,7 +69,7 @@ const versionInfo = ref<VersionInfo>({
     fullVersion: 'v1.0.0.20250926.2303',
     buildDate: new Date().toISOString(),
     timestamp: '20250926.2303',
-    environment: 'development'
+    environment: 'development',
 });
 
 const currentYear = computed(() => new Date().getFullYear());
@@ -97,7 +81,7 @@ const formattedBuildDate = computed(() => {
         day: 'numeric',
         hour: '2-digit',
         minute: '2-digit',
-        second: '2-digit'
+        second: '2-digit',
     });
 });
 

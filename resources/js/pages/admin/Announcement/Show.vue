@@ -2,7 +2,7 @@
 import AppLayout from '@/layouts/AppLayout.vue';
 import { type BreadcrumbItem } from '@/types';
 import { Head, Link } from '@inertiajs/vue3';
-import { ArrowLeft, Edit, Trash2, Calendar, User, Tag, Clock, Eye, EyeOff } from 'lucide-vue-next';
+import { ArrowLeft, Calendar, Clock, Edit, Eye, EyeOff, Tag, User } from 'lucide-vue-next';
 
 interface AnnouncementCategory {
     id: number;
@@ -50,7 +50,7 @@ const formatDate = (dateString: string) => {
         month: 'long',
         day: 'numeric',
         hour: '2-digit',
-        minute: '2-digit'
+        minute: '2-digit',
     });
 };
 
@@ -97,24 +97,20 @@ const getCategoryColor = (color: string) => {
             <div class="mb-8">
                 <div class="flex items-center justify-between">
                     <div>
-                        <h1 class="text-3xl font-bold text-gray-900 dark:text-white">
-                            Detail Pengumuman
-                        </h1>
-                        <p class="mt-1 text-gray-600 dark:text-gray-400">
-                            Lihat detail lengkap pengumuman
-                        </p>
+                        <h1 class="text-3xl font-bold text-gray-900 dark:text-white">Detail Pengumuman</h1>
+                        <p class="mt-1 text-gray-600 dark:text-gray-400">Lihat detail lengkap pengumuman</p>
                     </div>
                     <div class="flex gap-3">
                         <Link
                             :href="`/admin/announcements/${announcement.id}/edit`"
-                            class="inline-flex items-center rounded-lg bg-blue-600 px-4 py-2 text-sm font-medium text-white shadow-sm transition-colors hover:bg-blue-700 focus:outline-none focus:ring-2 focus:ring-blue-500 focus:ring-offset-2"
+                            class="inline-flex items-center rounded-lg bg-blue-600 px-4 py-2 text-sm font-medium text-white shadow-sm transition-colors hover:bg-blue-700 focus:ring-2 focus:ring-blue-500 focus:ring-offset-2 focus:outline-none"
                         >
                             <Edit class="mr-2 h-4 w-4" />
                             Edit
                         </Link>
                         <Link
                             href="/admin/announcements"
-                            class="inline-flex items-center rounded-lg border border-gray-300 bg-white px-4 py-2 text-sm font-medium text-gray-700 shadow-sm transition-colors hover:bg-gray-50 focus:outline-none focus:ring-2 focus:ring-blue-500 focus:ring-offset-2 dark:border-gray-600 dark:bg-gray-800 dark:text-gray-300 dark:hover:bg-gray-700"
+                            class="inline-flex items-center rounded-lg border border-gray-300 bg-white px-4 py-2 text-sm font-medium text-gray-700 shadow-sm transition-colors hover:bg-gray-50 focus:ring-2 focus:ring-blue-500 focus:ring-offset-2 focus:outline-none dark:border-gray-600 dark:bg-gray-800 dark:text-gray-300 dark:hover:bg-gray-700"
                         >
                             <ArrowLeft class="mr-2 h-4 w-4" />
                             Kembali
@@ -129,11 +125,7 @@ const getCategoryColor = (color: string) => {
                 <div class="overflow-hidden rounded-xl bg-white shadow-sm ring-1 ring-gray-900/5 dark:bg-gray-950 dark:ring-white/10">
                     <!-- Header Image -->
                     <div v-if="announcement.image_url" class="aspect-video w-full overflow-hidden">
-                        <img
-                            :src="announcement.image_url"
-                            :alt="announcement.title"
-                            class="h-full w-full object-cover"
-                        />
+                        <img :src="announcement.image_url" :alt="announcement.title" class="h-full w-full object-cover" />
                     </div>
 
                     <div class="p-6">
@@ -159,15 +151,14 @@ const getCategoryColor = (color: string) => {
 
                                 <!-- Status -->
                                 <span
-                                    :class="announcement.is_active
-                                        ? 'bg-green-100 text-green-700 dark:bg-green-900/30 dark:text-green-300'
-                                        : 'bg-gray-100 text-gray-700 dark:bg-gray-800 dark:text-gray-300'"
+                                    :class="
+                                        announcement.is_active
+                                            ? 'bg-green-100 text-green-700 dark:bg-green-900/30 dark:text-green-300'
+                                            : 'bg-gray-100 text-gray-700 dark:bg-gray-800 dark:text-gray-300'
+                                    "
                                     class="inline-flex items-center rounded-full px-3 py-1 text-xs font-medium"
                                 >
-                                    <component
-                                        :is="announcement.is_active ? Eye : EyeOff"
-                                        class="mr-1 h-3 w-3"
-                                    />
+                                    <component :is="announcement.is_active ? Eye : EyeOff" class="mr-1 h-3 w-3" />
                                     {{ announcement.is_active ? 'Aktif' : 'Nonaktif' }}
                                 </span>
                             </div>
@@ -195,13 +186,13 @@ const getCategoryColor = (color: string) => {
 
                         <!-- Excerpt -->
                         <div v-if="announcement.excerpt" class="mb-6">
-                            <p class="text-lg text-gray-600 dark:text-gray-300 italic border-l-4 border-blue-500 pl-4">
+                            <p class="border-l-4 border-blue-500 pl-4 text-lg text-gray-600 italic dark:text-gray-300">
                                 {{ announcement.excerpt }}
                             </p>
                         </div>
 
                         <!-- Content -->
-                        <div class="prose prose-gray max-w-none dark:prose-invert">
+                        <div class="prose prose-gray dark:prose-invert max-w-none">
                             <div v-html="announcement.content"></div>
                         </div>
                     </div>
@@ -228,11 +219,7 @@ const getCategoryColor = (color: string) => {
                             <div>
                                 <dt class="text-xs text-gray-500 dark:text-gray-400">Status</dt>
                                 <dd class="text-sm font-medium">
-                                    <span
-                                        :class="announcement.is_active
-                                            ? 'text-green-600 dark:text-green-400'
-                                            : 'text-gray-600 dark:text-gray-400'"
-                                    >
+                                    <span :class="announcement.is_active ? 'text-green-600 dark:text-green-400' : 'text-gray-600 dark:text-gray-400'">
                                         {{ announcement.is_active ? 'Aktif' : 'Nonaktif' }}
                                     </span>
                                 </dd>

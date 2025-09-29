@@ -35,7 +35,7 @@ import { LoaderCircle } from 'lucide-vue-next';
                             autocomplete="name"
                             name="name"
                             placeholder="Masukkan nama lengkap Anda"
-                            class="min-h-[48px] h-12 rounded-lg border-2 bg-background/50 backdrop-blur-sm transition-all duration-200 placeholder:text-muted-foreground/70 focus:border-primary focus:bg-background focus:ring-2 focus:ring-primary/20 touch-manipulation"
+                            class="h-12 min-h-[48px] touch-manipulation rounded-lg border-2 bg-background/50 backdrop-blur-sm transition-all duration-200 placeholder:text-muted-foreground/70 focus:border-primary focus:bg-background focus:ring-2 focus:ring-primary/20"
                         />
                     </div>
                     <InputError :message="errors.name" class="text-xs" />
@@ -53,7 +53,7 @@ import { LoaderCircle } from 'lucide-vue-next';
                             autocomplete="email"
                             name="email"
                             placeholder="email@example.com"
-                            class="min-h-[48px] h-12 rounded-lg border-2 bg-background/50 backdrop-blur-sm transition-all duration-200 placeholder:text-muted-foreground/70 focus:border-primary focus:bg-background focus:ring-2 focus:ring-primary/20 touch-manipulation"
+                            class="h-12 min-h-[48px] touch-manipulation rounded-lg border-2 bg-background/50 backdrop-blur-sm transition-all duration-200 placeholder:text-muted-foreground/70 focus:border-primary focus:bg-background focus:ring-2 focus:ring-primary/20"
                         />
                     </div>
                     <InputError :message="errors.email" class="text-xs" />
@@ -71,7 +71,7 @@ import { LoaderCircle } from 'lucide-vue-next';
                             autocomplete="new-password"
                             name="password"
                             placeholder="Masukkan password Anda"
-                            class="min-h-[48px] h-12 rounded-lg border-2 bg-background/50 backdrop-blur-sm transition-all duration-200 placeholder:text-muted-foreground/70 focus:border-primary focus:bg-background focus:ring-2 focus:ring-primary/20 touch-manipulation"
+                            class="h-12 min-h-[48px] touch-manipulation rounded-lg border-2 bg-background/50 backdrop-blur-sm transition-all duration-200 placeholder:text-muted-foreground/70 focus:border-primary focus:bg-background focus:ring-2 focus:ring-primary/20"
                         />
                     </div>
                     <InputError :message="errors.password" class="text-xs" />
@@ -89,7 +89,7 @@ import { LoaderCircle } from 'lucide-vue-next';
                             autocomplete="new-password"
                             name="password_confirmation"
                             placeholder="Konfirmasi password Anda"
-                            class="min-h-[48px] h-12 rounded-lg border-2 bg-background/50 backdrop-blur-sm transition-all duration-200 placeholder:text-muted-foreground/70 focus:border-primary focus:bg-background focus:ring-2 focus:ring-primary/20 touch-manipulation"
+                            class="h-12 min-h-[48px] touch-manipulation rounded-lg border-2 bg-background/50 backdrop-blur-sm transition-all duration-200 placeholder:text-muted-foreground/70 focus:border-primary focus:bg-background focus:ring-2 focus:ring-primary/20"
                         />
                     </div>
                     <InputError :message="errors.password_confirmation" class="text-xs" />
@@ -98,7 +98,7 @@ import { LoaderCircle } from 'lucide-vue-next';
                 <!-- Register Button -->
                 <Button
                     type="submit"
-                    class="min-h-[48px] h-12 w-full rounded-lg bg-gradient-to-r from-primary to-primary/90 font-semibold text-primary-foreground shadow-lg transition-all duration-200 hover:shadow-xl hover:shadow-primary/25 disabled:scale-100 disabled:opacity-70 touch-manipulation"
+                    class="h-12 min-h-[48px] w-full touch-manipulation rounded-lg bg-gradient-to-r from-primary to-primary/90 font-semibold text-primary-foreground shadow-lg transition-all duration-200 hover:shadow-xl hover:shadow-primary/25 disabled:scale-100 disabled:opacity-70"
                     :tabindex="5"
                     :disabled="processing"
                     data-test="register-user-button"
@@ -116,7 +116,7 @@ import { LoaderCircle } from 'lucide-vue-next';
                     <TextLink
                         :href="login()"
                         :tabindex="6"
-                        class="font-medium text-primary hover:text-primary/80 transition-colors duration-200 hover:underline"
+                        class="font-medium text-primary transition-colors duration-200 hover:text-primary/80 hover:underline"
                     >
                         Masuk sekarang
                     </TextLink>

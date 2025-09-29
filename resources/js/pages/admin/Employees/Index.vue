@@ -2,7 +2,7 @@
 import AppLayout from '@/layouts/AppLayout.vue';
 import { type BreadcrumbItem } from '@/types';
 import { Head, Link, router } from '@inertiajs/vue3';
-import { Search, Plus, Users, Mail, Phone, MapPin, Calendar, MoreHorizontal, Edit, Trash2, UserCheck } from 'lucide-vue-next';
+import { Edit, Mail, Phone, Plus, Search, Trash2, UserCheck, Users } from 'lucide-vue-next';
 import { ref } from 'vue';
 
 interface Department {
@@ -65,15 +65,19 @@ const selectedPosition = ref(filters.position || '');
 const selectedStatus = ref(filters.status || '');
 
 const filterEmployees = () => {
-    router.get('/employees', {
-        search: searchQuery.value || undefined,
-        department: selectedDepartment.value || undefined,
-        position: selectedPosition.value || undefined,
-        status: selectedStatus.value || undefined,
-    }, {
-        preserveState: true,
-        replace: true,
-    });
+    router.get(
+        '/employees',
+        {
+            search: searchQuery.value || undefined,
+            department: selectedDepartment.value || undefined,
+            position: selectedPosition.value || undefined,
+            status: selectedStatus.value || undefined,
+        },
+        {
+            preserveState: true,
+            replace: true,
+        },
+    );
 };
 
 const getStatusBadge = (employmentStatus: string) => {
@@ -83,14 +87,19 @@ const getStatusBadge = (employmentStatus: string) => {
 };
 
 const getInitials = (name: string) => {
-    return name.split(' ').map(word => word.charAt(0)).join('').toUpperCase().slice(0, 2);
+    return name
+        .split(' ')
+        .map((word) => word.charAt(0))
+        .join('')
+        .toUpperCase()
+        .slice(0, 2);
 };
 
 const formatDate = (dateString: string) => {
     return new Date(dateString).toLocaleDateString('id-ID', {
         year: 'numeric',
         month: 'long',
-        day: 'numeric'
+        day: 'numeric',
     });
 };
 </script>
@@ -99,22 +108,18 @@ const formatDate = (dateString: string) => {
     <Head title="Karyawan" />
 
     <AppLayout :breadcrumbs="breadcrumbs">
-        <div class="mx-auto max-w-[1200px] w-full px-4 py-6 sm:px-6 lg:px-8">
+        <div class="mx-auto w-full max-w-[1200px] px-4 py-6 sm:px-6 lg:px-8">
             <!-- Header -->
             <div class="mb-8">
                 <div class="flex items-center justify-between">
                     <div>
-                        <h1 class="text-3xl font-bold text-gray-900 dark:text-white">
-                            Karyawan
-                        </h1>
-                        <p class="mt-1 text-gray-600 dark:text-gray-400">
-                            Kelola informasi dan peran karyawan
-                        </p>
+                        <h1 class="text-3xl font-bold text-gray-900 dark:text-white">Karyawan</h1>
+                        <p class="mt-1 text-gray-600 dark:text-gray-400">Kelola informasi dan peran karyawan</p>
                     </div>
                     <div class="flex gap-3">
                         <Link
                             href="/employees/create"
-                            class="inline-flex items-center gap-2 rounded-lg bg-blue-600 px-4 py-2 text-sm font-medium text-white shadow-sm hover:bg-blue-700 focus:outline-none focus:ring-2 focus:ring-blue-500 focus:ring-offset-2 transition-colors"
+                            class="inline-flex items-center gap-2 rounded-lg bg-blue-600 px-4 py-2 text-sm font-medium text-white shadow-sm transition-colors hover:bg-blue-700 focus:ring-2 focus:ring-blue-500 focus:ring-offset-2 focus:outline-none"
                         >
                             <Plus class="h-4 w-4" />
                             Tambah Karyawan
@@ -150,7 +155,7 @@ const formatDate = (dateString: string) => {
                             <div class="ml-4 flex-1">
                                 <p class="text-sm font-medium text-gray-600 dark:text-gray-400">Karyawan Aktif</p>
                                 <p class="text-2xl font-bold text-gray-900 dark:text-white">
-                                    {{ employees?.data?.filter(emp => emp.employment_status === 'active').length || 0 }}
+                                    {{ employees?.data?.filter((emp) => emp.employment_status === 'active').length || 0 }}
                                 </p>
                             </div>
                         </div>
@@ -193,13 +198,13 @@ const formatDate = (dateString: string) => {
                 <div class="p-6">
                     <div class="grid gap-4 md:grid-cols-4">
                         <div class="relative">
-                            <Search class="absolute left-3 top-1/2 h-4 w-4 -translate-y-1/2 text-gray-400" />
+                            <Search class="absolute top-1/2 left-3 h-4 w-4 -translate-y-1/2 text-gray-400" />
                             <input
                                 v-model="searchQuery"
                                 @input="filterEmployees"
                                 type="text"
                                 placeholder="Cari karyawan..."
-                                class="w-full rounded-lg border border-gray-300 pl-10 pr-3 py-2 text-sm dark:border-gray-600 dark:bg-gray-800 dark:text-white"
+                                class="w-full rounded-lg border border-gray-300 py-2 pr-3 pl-10 text-sm dark:border-gray-600 dark:bg-gray-800 dark:text-white"
                             />
                         </div>
                         <select
@@ -237,8 +242,8 @@ const formatDate = (dateString: string) => {
 
             <!-- Employee List -->
             <div class="overflow-hidden rounded-xl bg-white shadow-sm ring-1 ring-gray-900/5 dark:bg-gray-900 dark:ring-white/10">
-                <div class="px-6 py-4 border-b border-gray-200 dark:border-gray-700">
-                    <h3 class="text-lg font-semibold text-gray-900 dark:text-white flex items-center">
+                <div class="border-b border-gray-200 px-6 py-4 dark:border-gray-700">
+                    <h3 class="flex items-center text-lg font-semibold text-gray-900 dark:text-white">
                         <Users class="mr-2 h-5 w-5 text-blue-600 dark:text-blue-400" />
                         Direktori Karyawan
                     </h3>
@@ -266,11 +271,7 @@ const formatDate = (dateString: string) => {
                                 <td class="px-6 py-4">
                                     <div class="flex items-center gap-3">
                                         <div v-if="employee.profile_photo_url" class="h-10 w-10 rounded-full">
-                                            <img
-                                                :src="employee.profile_photo_url"
-                                                :alt="employee.name"
-                                                class="h-10 w-10 rounded-full object-cover"
-                                            />
+                                            <img :src="employee.profile_photo_url" :alt="employee.name" class="h-10 w-10 rounded-full object-cover" />
                                         </div>
                                         <div v-else class="flex h-10 w-10 items-center justify-center rounded-full bg-gray-100 dark:bg-gray-800">
                                             <span class="text-sm font-medium text-gray-600 dark:text-gray-300">
@@ -312,9 +313,7 @@ const formatDate = (dateString: string) => {
                                         >
                                             {{ employee.employment_status === 'active' ? 'Aktif' : 'Tidak Aktif' }}
                                         </span>
-                                        <div v-if="employee.is_admin" class="text-xs text-blue-600 dark:text-blue-400">
-                                            Admin
-                                        </div>
+                                        <div v-if="employee.is_admin" class="text-xs text-blue-600 dark:text-blue-400">Admin</div>
                                     </div>
                                 </td>
                                 <td class="px-6 py-4">
@@ -325,7 +324,9 @@ const formatDate = (dateString: string) => {
                                         >
                                             <Edit class="h-4 w-4" />
                                         </Link>
-                                        <button class="rounded-lg bg-red-100 p-2 text-red-600 hover:bg-red-200 dark:bg-red-900/30 dark:text-red-400 dark:hover:bg-red-900/50">
+                                        <button
+                                            class="rounded-lg bg-red-100 p-2 text-red-600 hover:bg-red-200 dark:bg-red-900/30 dark:text-red-400 dark:hover:bg-red-900/50"
+                                        >
                                             <Trash2 class="h-4 w-4" />
                                         </button>
                                     </div>
@@ -348,10 +349,10 @@ const formatDate = (dateString: string) => {
                                 :href="link.url"
                                 v-html="link.label"
                                 :class="[
-                                    'px-3 py-1 text-sm border rounded',
+                                    'rounded border px-3 py-1 text-sm',
                                     link.active
-                                        ? 'bg-blue-600 text-white border-blue-600'
-                                        : 'text-gray-600 border-gray-300 hover:bg-gray-50 dark:text-gray-300 dark:border-gray-600 dark:hover:bg-gray-800'
+                                        ? 'border-blue-600 bg-blue-600 text-white'
+                                        : 'border-gray-300 text-gray-600 hover:bg-gray-50 dark:border-gray-600 dark:text-gray-300 dark:hover:bg-gray-800',
                                 ]"
                                 :disabled="!link.url"
                             />
