@@ -119,6 +119,21 @@ const closeMapModal = () => {
     showMapModal.value = false;
     selectedLocation.value = null;
 };
+
+const deleteLocation = (location: OfficeLocation) => {
+    if (confirm(`Apakah Anda yakin ingin menghapus lokasi "${location.name}"?\n\nTindakan ini tidak dapat dibatalkan.`)) {
+        router.delete(`/office-locations/${location.id}`, {
+            onSuccess: () => {
+                // Refresh data after successful deletion
+                router.reload();
+            },
+            onError: (errors) => {
+                console.error('Error deleting location:', errors);
+                alert('Gagal menghapus lokasi. Silakan coba lagi.');
+            },
+        });
+    }
+};
 </script>
 
 <template>
@@ -384,6 +399,8 @@ const closeMapModal = () => {
                                             <Edit class="h-4 w-4" />
                                         </Link>
                                         <button
+                                            @click="deleteLocation(location)"
+                                            title="Hapus Lokasi"
                                             class="rounded-lg bg-red-100 p-2 text-red-600 hover:bg-red-200 dark:bg-red-900/30 dark:text-red-400 dark:hover:bg-red-900/50"
                                         >
                                             <Trash2 class="h-4 w-4" />
@@ -438,8 +455,8 @@ const closeMapModal = () => {
         </div>
 
         <!-- Map Modal -->
-        <div v-if="showMapModal && selectedLocation" class="fixed inset-0 z-50 flex items-center justify-center bg-black/50" @click="closeMapModal">
-            <div class="w-full max-w-4xl rounded-xl border-0 bg-white p-6 dark:bg-gray-950" @click.stop>
+        <div v-if="showMapModal && selectedLocation" class="fixed inset-0 z-[9999] flex items-center justify-center bg-black/50 backdrop-blur-sm" @click="closeMapModal" style="z-index: 9999 !important;">
+            <div class="relative z-[10000] w-full max-w-4xl rounded-xl border-0 bg-white p-6 shadow-2xl dark:bg-gray-950" @click.stop style="z-index: 10000 !important;">
                 <div class="mb-4 flex items-center justify-between">
                     <div>
                         <h3 class="text-lg font-semibold text-gray-900 dark:text-white">{{ selectedLocation.name }}</h3>
