@@ -13,8 +13,7 @@ class EmployeeController extends Controller
 {
     public function index(Request $request): Response
     {
-        $query = User::with(['department', 'position'])
-            ->orderBy('name');
+        $query = User::with(['department', 'position']);
 
         // Apply filters
         if ($request->search) {
@@ -37,6 +36,41 @@ class EmployeeController extends Controller
             $query->where('employment_status', $request->status);
         }
 
+        // Apply sorting
+        $sortField = $request->get('sort', 'name');
+        $sortDirection = $request->get('direction', 'asc');
+
+        // Define sortable fields and their mappings
+        $sortableFields = [
+            'name' => 'name',
+            'email' => 'email',
+            'employee_id' => 'employee_id',
+            'hire_date' => 'hire_date',
+            'department' => 'departments.name',
+            'position' => 'positions.title',
+            'status' => 'employment_status',
+        ];
+
+        if (array_key_exists($sortField, $sortableFields)) {
+            $sortColumn = $sortableFields[$sortField];
+
+            // Handle relationship sorting
+            if ($sortField === 'department') {
+                $query->leftJoin('departments', 'users.department_id', '=', 'departments.id')
+                      ->orderBy('departments.name', $sortDirection)
+                      ->select('users.*');
+            } elseif ($sortField === 'position') {
+                $query->leftJoin('positions', 'users.position_id', '=', 'positions.id')
+                      ->orderBy('positions.title', $sortDirection)
+                      ->select('users.*');
+            } else {
+                $query->orderBy($sortColumn, $sortDirection);
+            }
+        } else {
+            // Default sorting
+            $query->orderBy('name', 'asc');
+        }
+
         $employees = $query->paginate(15);
 
         // Get departments and positions for filters
@@ -47,7 +81,7 @@ class EmployeeController extends Controller
             'employees' => $employees,
             'departments' => $departments,
             'positions' => $positions,
-            'filters' => $request->only(['search', 'department', 'position', 'status']),
+            'filters' => $request->only(['search', 'department', 'position', 'status', 'sort', 'direction']),
             'flash' => [
                 'success' => session('success'),
                 'error' => session('error'),
@@ -72,7 +106,7 @@ class EmployeeController extends Controller
             'name' => 'required|string|max:255',
             'email' => 'required|email|unique:users,email',
             'employee_id' => 'required|string|unique:users,employee_id',
-            'phone' => 'nullable|string|max:20',
+            'phone' => 'required|numeric|digits_between:10,15',
             'department_id' => 'required|exists:departments,id',
             'position_id' => 'nullable|exists:positions,id',
             'hire_date' => 'required|date',
@@ -122,7 +156,7 @@ class EmployeeController extends Controller
             'name' => 'required|string|max:255',
             'email' => 'required|email|unique:users,email,'.$employee->id,
             'employee_id' => 'required|string|unique:users,employee_id,'.$employee->id,
-            'phone' => 'nullable|string|max:20',
+            'phone' => 'required|numeric|digits_between:10,15',
             'department_id' => 'required|exists:departments,id',
             'position_id' => 'nullable|exists:positions,id',
             'hire_date' => 'required|date',

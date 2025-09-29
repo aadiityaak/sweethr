@@ -139,13 +139,15 @@
                                     </p>
                                 </div>
                                 <div class="space-y-2">
-                                    <Label for="phone">Nomor Telepon</Label>
+                                    <Label for="phone">Nomor Telepon *</Label>
                                     <Input
                                         id="phone"
                                         type="tel"
                                         v-model="form.phone"
                                         placeholder="e.g. 08123456789"
                                         :error="form.errors.phone"
+                                        pattern="[0-9]*"
+                                        @input="onPhoneInput"
                                     />
                                     <p v-if="form.errors.phone" class="mt-1 text-sm text-red-600">
                                         {{ form.errors.phone }}
@@ -303,7 +305,14 @@
                                     </div>
                                     <div class="space-y-2">
                                         <Label for="emergency_phone">Nomor Telepon</Label>
-                                        <Input id="emergency_phone" type="tel" v-model="form.emergency_contact.phone" placeholder="08123456789" />
+                                        <Input
+                                            id="emergency_phone"
+                                            type="tel"
+                                            v-model="form.emergency_contact.phone"
+                                            placeholder="08123456789"
+                                            pattern="[0-9]*"
+                                            @input="onEmergencyPhoneInput"
+                                        />
                                     </div>
                                     <div class="space-y-2">
                                         <Label for="emergency_relationship">Hubungan</Label>
@@ -629,6 +638,7 @@ const validateRequiredFields = () => {
         { field: 'name', label: 'Nama Lengkap' },
         { field: 'email', label: 'Email' },
         { field: 'employee_id', label: 'ID Karyawan' },
+        { field: 'phone', label: 'Nomor Telepon' },
         { field: 'hire_date', label: 'Tanggal Masuk' },
         { field: 'password', label: 'Password' },
         { field: 'password_confirmation', label: 'Konfirmasi Password' },
@@ -640,6 +650,21 @@ const validateRequiredFields = () => {
     });
 
     return missingFields;
+};
+
+// Phone input validation - only allow numbers
+const onPhoneInput = (event: Event) => {
+    const input = event.target as HTMLInputElement;
+    const value = input.value.replace(/[^0-9]/g, '');
+    form.phone = value;
+    input.value = value;
+};
+
+const onEmergencyPhoneInput = (event: Event) => {
+    const input = event.target as HTMLInputElement;
+    const value = input.value.replace(/[^0-9]/g, '');
+    form.emergency_contact.phone = value;
+    input.value = value;
 };
 
 const submit = () => {

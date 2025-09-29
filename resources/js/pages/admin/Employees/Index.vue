@@ -356,12 +356,78 @@ const formatDate = (dateString: string) => {
                     <table class="w-full">
                         <thead class="border-t border-gray-200 dark:border-gray-700">
                             <tr class="border-b border-gray-200 dark:border-gray-700">
-                                <th class="px-6 py-3 text-left text-sm font-medium text-gray-500 dark:text-gray-400">Karyawan</th>
-                                <th class="px-6 py-3 text-left text-sm font-medium text-gray-500 dark:text-gray-400">Departemen</th>
-                                <th class="px-6 py-3 text-left text-sm font-medium text-gray-500 dark:text-gray-400">Posisi</th>
-                                <th class="px-6 py-3 text-left text-sm font-medium text-gray-500 dark:text-gray-400">Kontak</th>
-                                <th class="px-6 py-3 text-left text-sm font-medium text-gray-500 dark:text-gray-400">Tanggal Masuk</th>
-                                <th class="px-6 py-3 text-left text-sm font-medium text-gray-500 dark:text-gray-400">Status</th>
+                                <th class="px-6 py-3 text-left text-sm font-medium text-gray-500 dark:text-gray-400">
+                                    <button
+                                        @click="sortBy('name')"
+                                        :class="[
+                                            'flex items-center gap-2 hover:text-gray-700 dark:hover:text-gray-200',
+                                            sortField === 'name' ? 'text-blue-600 dark:text-blue-400' : ''
+                                        ]"
+                                    >
+                                        Karyawan
+                                        <component :is="getSortIcon('name')" class="h-4 w-4" />
+                                    </button>
+                                </th>
+                                <th class="px-6 py-3 text-left text-sm font-medium text-gray-500 dark:text-gray-400">
+                                    <button
+                                        @click="sortBy('department')"
+                                        :class="[
+                                            'flex items-center gap-2 hover:text-gray-700 dark:hover:text-gray-200',
+                                            sortField === 'department' ? 'text-blue-600 dark:text-blue-400' : ''
+                                        ]"
+                                    >
+                                        Departemen
+                                        <component :is="getSortIcon('department')" class="h-4 w-4" />
+                                    </button>
+                                </th>
+                                <th class="px-6 py-3 text-left text-sm font-medium text-gray-500 dark:text-gray-400">
+                                    <button
+                                        @click="sortBy('position')"
+                                        :class="[
+                                            'flex items-center gap-2 hover:text-gray-700 dark:hover:text-gray-200',
+                                            sortField === 'position' ? 'text-blue-600 dark:text-blue-400' : ''
+                                        ]"
+                                    >
+                                        Posisi
+                                        <component :is="getSortIcon('position')" class="h-4 w-4" />
+                                    </button>
+                                </th>
+                                <th class="px-6 py-3 text-left text-sm font-medium text-gray-500 dark:text-gray-400">
+                                    <button
+                                        @click="sortBy('email')"
+                                        :class="[
+                                            'flex items-center gap-2 hover:text-gray-700 dark:hover:text-gray-200',
+                                            sortField === 'email' ? 'text-blue-600 dark:text-blue-400' : ''
+                                        ]"
+                                    >
+                                        Kontak
+                                        <component :is="getSortIcon('email')" class="h-4 w-4" />
+                                    </button>
+                                </th>
+                                <th class="px-6 py-3 text-left text-sm font-medium text-gray-500 dark:text-gray-400">
+                                    <button
+                                        @click="sortBy('hire_date')"
+                                        :class="[
+                                            'flex items-center gap-2 hover:text-gray-700 dark:hover:text-gray-200',
+                                            sortField === 'hire_date' ? 'text-blue-600 dark:text-blue-400' : ''
+                                        ]"
+                                    >
+                                        Tanggal Masuk
+                                        <component :is="getSortIcon('hire_date')" class="h-4 w-4" />
+                                    </button>
+                                </th>
+                                <th class="px-6 py-3 text-left text-sm font-medium text-gray-500 dark:text-gray-400">
+                                    <button
+                                        @click="sortBy('status')"
+                                        :class="[
+                                            'flex items-center gap-2 hover:text-gray-700 dark:hover:text-gray-200',
+                                            sortField === 'status' ? 'text-blue-600 dark:text-blue-400' : ''
+                                        ]"
+                                    >
+                                        Status
+                                        <component :is="getSortIcon('status')" class="h-4 w-4" />
+                                    </button>
+                                </th>
                                 <th class="px-6 py-3 text-left text-sm font-medium text-gray-500 dark:text-gray-400">Aksi</th>
                             </tr>
                         </thead>
