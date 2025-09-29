@@ -866,27 +866,309 @@ onUnmounted(() => {
             </div>
         </div>
 
-        <!-- Announcements Section (moved to top) -->
-        <div v-if="announcements && announcements.length > 0" class="px-4 pt-4 pb-2">
-            <div class="mb-4 flex items-center gap-3">
-                <div class="flex h-8 w-8 items-center justify-center rounded-lg bg-blue-500/10 ring-1 ring-blue-500/20">
-                    <Calendar class="h-4 w-4 text-blue-600 dark:text-blue-400" />
-                </div>
-                <div>
-                    <h2 class="text-lg font-semibold text-gray-900 dark:text-white">Pengumuman Terbaru</h2>
-                    <p class="text-sm text-gray-600 dark:text-gray-400">Informasi penting dari perusahaan</p>
-                </div>
-            </div>
-            <AnnouncementCarousel
-                :announcements="announcements"
-                :auto-play="true"
-                :auto-play-interval="6000"
-                @announcement-click="handleAnnouncementClick"
-            />
-        </div>
-
         <!-- Main Content -->
         <div class="px-4 py-4 pb-20">
+            <!-- Today's Attendance - Moved to top -->
+            <div class="mb-6 rounded-lg border bg-card p-4">
+                <h3 class="mb-4 text-lg font-semibold flex items-center gap-2">
+                    <Clock class="h-4 w-4" />
+                    Absensi Hari Ini
+                </h3>
+
+                <div class="grid gap-3 grid-cols-2">
+                    <div class="rounded-md border bg-card p-4">
+                        <div class="text-center">
+                            <div class="mx-auto mb-2 w-10 h-10 rounded-md bg-green-100 dark:bg-green-900/20 flex items-center justify-center">
+                                <Clock class="h-5 w-5 text-green-600 dark:text-green-400" />
+                            </div>
+                            <p class="text-xs font-medium text-muted-foreground">MASUK</p>
+                            <p class="text-lg font-bold">
+                                {{ formatTime(todayAttendance?.check_in_time) }}
+                            </p>
+                        </div>
+                    </div>
+
+                    <div class="rounded-md border bg-card p-4">
+                        <div class="text-center">
+                            <div class="mx-auto mb-2 w-10 h-10 rounded-md bg-red-100 dark:bg-red-900/20 flex items-center justify-center">
+                                <Clock class="h-5 w-5 text-red-600 dark:text-red-400" />
+                            </div>
+                            <p class="text-xs font-medium text-muted-foreground">KELUAR</p>
+                            <p class="text-lg font-bold">
+                                {{ formatTime(todayAttendance?.check_out_time) }}
+                            </p>
+                        </div>
+                    </div>
+                </div>
+
+                <div class="mt-3 rounded-md border bg-card p-4">
+                    <div class="text-center">
+                        <div class="mx-auto mb-2 w-10 h-10 rounded-md bg-blue-100 dark:bg-blue-900/20 flex items-center justify-center">
+                            <Calendar class="h-5 w-5 text-blue-600 dark:text-blue-400" />
+                        </div>
+                        <p class="text-xs font-medium text-muted-foreground">DURASI KERJA</p>
+                        <p class="text-lg font-bold">
+                            {{ formatDuration(todayAttendance?.work_duration) }}
+                        </p>
+                    </div>
+                </div>
+
+                <!-- Face Recognition Warning -->
+                <div v-if="!faceRecognitionStatus.enabled || !faceRecognitionStatus.has_descriptors" class="mt-4 rounded-lg border border-orange-200 dark:border-orange-800 bg-orange-50 dark:bg-orange-900/20 p-4">
+                    <div class="flex items-start gap-3">
+                        <div class="flex-shrink-0">
+                            <div class="w-10 h-10 rounded-md bg-orange-100 dark:bg-orange-900/30 flex items-center justify-center">
+                                <Eye class="h-5 w-5 text-orange-600 dark:text-orange-400" />
+                            </div>
+                        </div>
+                        <div class="flex-1">
+                            <h4 class="text-sm font-medium text-orange-800 dark:text-orange-200 mb-1">
+                                Face Recognition Belum Setup
+                            </h4>
+                            <p class="text-sm text-orange-700 dark:text-orange-300 mb-3">
+                                Setup pengenalan wajah untuk keamanan tambahan saat absensi.
+                            </p>
+                            <Link
+                                href="/user/profile"
+                                class="inline-flex items-center gap-2 px-3 py-2 text-sm font-medium text-orange-700 dark:text-orange-300 bg-orange-100 dark:bg-orange-900/50 hover:bg-orange-200 dark:hover:bg-orange-900/70 border border-orange-300 dark:border-orange-700 rounded-md transition-colors"
+                            >
+                                <UserCircle class="h-4 w-4" />
+                                Setup Sekarang
+                            </Link>
+                        </div>
+                    </div>
+                </div>
+
+                <!-- Real-time Face Recognition -->
+                <div v-if="faceRecognitionStatus.enabled && faceRecognitionStatus.has_descriptors && !todayAttendance?.check_in_time" class="mt-4 flex justify-center">
+                    <div class="relative">
+                        <!-- Face Captured State -->
+                        <div v-if="isFaceCaptured" class="w-48 h-48 rounded-full overflow-hidden border-4 border-green-500 relative bg-gray-900">
+                            <!-- Captured Face Image (Full Circle) -->
+                            <img
+                                v-if="capturedFaceData?.imageDataUrl"
+                                :src="capturedFaceData.imageDataUrl"
+                                alt="Captured Face"
+                                class="w-full h-full object-cover"
+                            />
+
+                            <!-- Success Overlay -->
+                            <div class="absolute inset-0 bg-green-500/20 flex items-center justify-center">
+                                <div class="bg-green-500 rounded-full p-2 shadow-lg">
+                                    <CheckCircle class="h-6 w-6 text-white" />
+                                </div>
+                            </div>
+
+                            <!-- Confidence Badge -->
+                            <div class="absolute top-4 left-1/2 transform -translate-x-1/2 -translate-y-1/2 backdrop-blur-sm rounded-full px-3 py-1">
+                                <span class="text-white text-base font-bold">{{ capturedFaceData?.confidence }}%</span>
+                            </div>
+
+                            <!-- Reset Button -->
+                            <div class="absolute bottom-3 left-1/2 transform -translate-x-1/2">
+                                <button
+                                    @click="resetCapture"
+                                    class="backdrop-blur-sm hover:bg-black/80 text-white px-3 py-1.5 rounded-full text-xs font-medium transition-colors"
+                                >
+                                    Ulangi
+                                </button>
+                            </div>
+                        </div>
+
+                        <!-- Active Detection State -->
+                        <div v-else class="relative bg-gray-900 rounded-full overflow-hidden border-4 w-48 h-48"
+                             :class="faceDetectionActive ? (isFaceMatched ? 'border-green-500' : 'border-red-500') : 'border-gray-300'">
+
+                            <!-- Video Element (Circular) -->
+                            <video
+                                ref="videoElement"
+                                autoplay
+                                muted
+                                playsinline
+                                class="w-full h-full object-cover scale-150"
+                                style="transform: scaleX(-1);"
+                                v-show="faceDetectionActive"
+                            />
+
+                            <!-- Canvas for face detection overlay (Circular) -->
+                            <canvas
+                                ref="canvasElement"
+                                width="320"
+                                height="320"
+                                class="absolute top-0 left-0 w-full h-full"
+                                v-show="faceDetectionActive"
+                            />
+
+                            <!-- Scanning Animation Overlay -->
+                            <div v-if="faceDetectionActive && !isCapturing" class="absolute inset-0 rounded-full overflow-hidden">
+                                <!-- Vertical Scanning Line (like barcode scanner) -->
+                                <div class="absolute inset-0">
+                                    <div class="absolute left-0 right-0 h-0.5 bg-gradient-to-r from-transparent via-white via-white to-transparent opacity-80 shadow-lg scan-line">
+                                    </div>
+                                </div>
+
+                                <!-- Pulsing Rings -->
+                                <div class="absolute inset-1 rounded-full border-2 border-green-400/30 animate-pulse"></div>
+                                <div class="absolute inset-4 rounded-full border border-green-400/20 animate-ping" style="animation-duration: 2s;"></div>
+
+                                <!-- Corner Markers -->
+                                <div class="absolute top-4 left-4 w-4 h-4 border-l-2 border-t-2 border-green-400 rounded-tl-lg opacity-60"></div>
+                                <div class="absolute top-4 right-4 w-4 h-4 border-r-2 border-t-2 border-green-400 rounded-tr-lg opacity-60"></div>
+                                <div class="absolute bottom-4 left-4 w-4 h-4 border-l-2 border-b-2 border-green-400 rounded-bl-lg opacity-60"></div>
+                                <div class="absolute bottom-4 right-4 w-4 h-4 border-r-2 border-b-2 border-green-400 rounded-br-lg opacity-60"></div>
+                            </div>
+
+                            <!-- Loading/Status Overlay -->
+                            <div v-if="!faceDetectionActive" class="absolute inset-0 rounded-full bg-gray-800/80 flex items-center justify-center">
+                                <div class="text-center text-white">
+                                    <Loader2 class="h-6 w-6 animate-spin mx-auto mb-2" />
+                                    <p class="text-xs">Memuat kamera...</p>
+                                </div>
+                            </div>
+
+                            <!-- Face Match Status (Circular) -->
+                            <div class="absolute bottom-0 left-1/2 transform -translate-x-1/2 translate-y-full mt-1">
+                                <div v-if="faceDetectionActive && !isCapturing" class="bg-black/70 rounded-full px-3 py-1 text-white text-xs text-center whitespace-nowrap">
+                                    <span v-if="isFaceMatched" class="text-green-400">
+                                        ✅ Terverifikasi ({{ Math.round(faceMatchConfidence) }}%)
+                                    </span>
+                                    <span v-else-if="faceMatchConfidence > 0" class="text-red-400">
+                                        ❌ Gagal ({{ Math.round(faceMatchConfidence) }}%)
+                                    </span>
+                                    <span v-else class="text-yellow-400">
+                                        🔍 Mencari wajah...
+                                    </span>
+                                </div>
+                            </div>
+                        </div>
+
+                    </div>
+
+                </div>
+
+                <div v-if="todayAttendance?.office_location" class="mt-4 flex items-center gap-2 rounded-md bg-muted p-3">
+                    <MapPin class="h-4 w-4 text-muted-foreground" />
+                    <span class="text-sm text-muted-foreground">
+                        {{ todayAttendance.office_location.name }}
+                    </span>
+                </div>
+
+                <!-- Face Match Confidence Display - Centered and Prominent -->
+                <div v-if="faceRecognitionStatus.enabled && faceRecognitionStatus.has_descriptors && faceMatchConfidence > 0" class="mt-6 mb-6 flex justify-center">
+                    <div class="bg-white dark:bg-gray-800 rounded-xl border border-gray-200 dark:border-gray-700 shadow-lg p-6 text-center min-w-[200px] max-w-[300px] w-full">
+                        <div class="text-sm font-medium text-gray-600 dark:text-gray-400 mb-2">Tingkat Kecocokan Wajah</div>
+                        <div class="text-4xl font-bold mb-2" :class="{
+                            'text-green-600 dark:text-green-400': faceMatchConfidence >= 70,
+                            'text-yellow-600 dark:text-yellow-400': faceMatchConfidence >= 40 && faceMatchConfidence < 70,
+                            'text-red-600 dark:text-red-400': faceMatchConfidence < 40
+                        }">
+                            {{ Math.round(faceMatchConfidence) }}%
+                        </div>
+                        <div class="text-sm font-medium mb-3" :class="{
+                            'text-green-600 dark:text-green-400': faceMatchConfidence >= 70,
+                            'text-yellow-600 dark:text-yellow-400': faceMatchConfidence >= 40 && faceMatchConfidence < 70,
+                            'text-red-600 dark:text-red-400': faceMatchConfidence < 40
+                        }">
+                            {{ faceMatchConfidence >= 70 ? '✅ Sangat Cocok' :
+                               faceMatchConfidence >= 40 ? '⚠️ Cukup Cocok' : '❌ Kurang Cocok' }}
+                        </div>
+                        <!-- Progress bar -->
+                        <div class="w-full bg-gray-200 dark:bg-gray-700 rounded-full h-2">
+                            <div class="h-2 rounded-full transition-all duration-300" :class="{
+                                'bg-green-500': faceMatchConfidence >= 70,
+                                'bg-yellow-500': faceMatchConfidence >= 40 && faceMatchConfidence < 70,
+                                'bg-red-500': faceMatchConfidence < 40
+                            }" :style="{ width: faceMatchConfidence + '%' }"></div>
+                        </div>
+                    </div>
+                </div>
+
+                <!-- Attendance Actions -->
+                <div class="mt-4 grid gap-3 grid-cols-2">
+                    <!-- Check In Button -->
+                    <button
+                        v-if="!todayAttendance?.check_in_time"
+                        @click="handleCheckInClick"
+                        :disabled="isCheckingIn || (locationStatus === 'success' && !isInRange) || (faceRecognitionStatus.enabled && faceRecognitionStatus.has_descriptors && !isFaceCaptured) || (!faceRecognitionStatus.enabled || !faceRecognitionStatus.has_descriptors)"
+                        class="flex items-center justify-center gap-2 rounded-lg px-3 py-3 text-white font-medium transition-colors shadow-sm disabled:opacity-50 disabled:cursor-not-allowed min-h-[48px] touch-manipulation"
+                        :class="{
+                            'bg-green-600 hover:bg-green-700 active:bg-green-800': (locationStatus === 'idle' || locationStatus === 'error' || (locationStatus === 'success' && isInRange)) && faceRecognitionStatus.enabled && faceRecognitionStatus.has_descriptors && isFaceCaptured,
+                            'bg-blue-600 hover:bg-blue-700 active:bg-blue-800': locationStatus === 'loading',
+                            'bg-gray-500': (locationStatus === 'success' && !isInRange) || (faceRecognitionStatus.enabled && faceRecognitionStatus.has_descriptors && !isFaceCaptured) || (!faceRecognitionStatus.enabled || !faceRecognitionStatus.has_descriptors),
+                            'bg-orange-500 hover:bg-orange-600 active:bg-orange-700': faceRecognitionStatus.enabled && faceRecognitionStatus.has_descriptors && faceMatchConfidence > 0 && !isFaceCaptured
+                        }"
+                    >
+                        <Loader2 v-if="locationStatus === 'loading' || isCheckingIn" class="h-4 w-4 animate-spin" />
+                        <CheckCircle v-else-if="isFaceCaptured && isInRange" class="h-4 w-4" />
+                        <Eye v-else-if="faceRecognitionStatus.enabled && faceRecognitionStatus.has_descriptors && !isFaceCaptured" class="h-4 w-4" />
+                        <Clock v-else class="h-4 w-4" />
+                        <span class="text-xs font-medium">
+                            {{ isCheckingIn ? 'Sedang Check In...' :
+                               locationStatus === 'loading' ? 'Mencari Lokasi...' :
+                               locationStatus === 'success' && !isInRange ? 'Di Luar Area' :
+                               (!faceRecognitionStatus.enabled || !faceRecognitionStatus.has_descriptors) ? 'Tidak Tersedia' :
+                               faceRecognitionStatus.enabled && faceRecognitionStatus.has_descriptors && !isFaceCaptured ? 'Tunggu Verifikasi' :
+                               isFaceCaptured && isInRange ? 'Siap Check In!' :
+                               locationStatus === 'error' ? 'Coba Lagi' :
+                               'Check In' }}
+                        </span>
+                    </button>
+                    <div
+                        v-else
+                        class="flex items-center justify-center gap-2 rounded-lg bg-green-100 dark:bg-green-900/20 px-3 py-3 text-green-800 dark:text-green-200 font-medium min-h-[48px]"
+                    >
+                        <CheckCircle class="h-4 w-4" />
+                        <span class="text-xs font-medium">Sudah Masuk</span>
+                    </div>
+
+                    <!-- Check Out Button -->
+                    <button
+                        v-if="todayAttendance?.check_in_time && !todayAttendance?.check_out_time"
+                        @click="handleCheckOutClick"
+                        :disabled="isCheckingOut"
+                        class="flex items-center justify-center gap-2 rounded-lg px-3 py-3 text-white font-medium transition-colors shadow-sm disabled:opacity-50 disabled:cursor-not-allowed min-h-[48px] touch-manipulation"
+                        :class="{
+                            'bg-red-600 hover:bg-red-700 active:bg-red-800': locationStatus === 'idle' || locationStatus === 'error' || locationStatus === 'success',
+                            'bg-blue-600 hover:bg-blue-700 active:bg-blue-800': locationStatus === 'loading'
+                        }"
+                    >
+                        <Loader2 v-if="locationStatus === 'loading' || isCheckingOut" class="h-4 w-4 animate-spin" />
+                        <Clock v-else class="h-4 w-4" />
+                        <span class="text-xs font-medium">
+                            {{ isCheckingOut ? 'Sedang Check Out...' :
+                               locationStatus === 'loading' ? 'Mencari Lokasi...' :
+                               locationStatus === 'error' ? 'Coba Lagi' :
+                               'Check Out' }}
+                        </span>
+                    </button>
+                    <div
+                        v-else-if="todayAttendance?.check_out_time"
+                        class="flex items-center justify-center gap-2 rounded-lg bg-red-100 dark:bg-red-900/20 px-3 py-3 text-red-800 dark:text-red-200 font-medium min-h-[48px]"
+                    >
+                        <CheckCircle class="h-4 w-4" />
+                        <span class="text-xs font-medium">Sudah Keluar</span>
+                    </div>
+                    <div
+                        v-else
+                        class="flex items-center justify-center gap-2 rounded-lg bg-muted px-3 py-3 text-muted-foreground font-medium min-h-[48px]"
+                    >
+                        <Clock class="h-4 w-4" />
+                        <span class="text-xs font-medium">Belum Waktunya</span>
+                    </div>
+                </div>
+
+                <!-- History Button -->
+                <div class="mt-3">
+                    <Link
+                        href="/attendance"
+                        class="flex w-full items-center justify-center gap-2 rounded-lg border-2 border-dashed border-muted-foreground/20 bg-background px-3 py-3 font-medium hover:bg-accent hover:text-accent-foreground hover:border-muted-foreground/40 transition-all min-h-[48px] touch-manipulation"
+                    >
+                        <Calendar class="h-4 w-4" />
+                        <span class="text-sm">Lihat Riwayat Absensi</span>
+                    </Link>
+                </div>
+            </div>
+
             <!-- Welcome Section -->
             <div class="mb-4 rounded-xl border bg-gradient-to-br from-card via-card to-card/80 p-4 shadow-sm">
                 <div class="text-center space-y-3">
@@ -941,306 +1223,24 @@ onUnmounted(() => {
                     </div>
                 </div>
 
-            <!-- Today's Attendance -->
-                <div class="mb-4 rounded-lg border bg-card p-4">
-                    <h3 class="mb-4 text-lg font-semibold flex items-center gap-2">
-                        <Clock class="h-4 w-4" />
-                        Absensi Hari Ini
-                    </h3>
-
-                    <div class="grid gap-3 grid-cols-2">
-                        <div class="rounded-md border bg-card p-4">
-                            <div class="text-center">
-                                <div class="mx-auto mb-2 w-10 h-10 rounded-md bg-green-100 dark:bg-green-900/20 flex items-center justify-center">
-                                    <Clock class="h-5 w-5 text-green-600 dark:text-green-400" />
-                                </div>
-                                <p class="text-xs font-medium text-muted-foreground">MASUK</p>
-                                <p class="text-lg font-bold">
-                                    {{ formatTime(todayAttendance?.check_in_time) }}
-                                </p>
-                            </div>
-                        </div>
-
-                        <div class="rounded-md border bg-card p-4">
-                            <div class="text-center">
-                                <div class="mx-auto mb-2 w-10 h-10 rounded-md bg-red-100 dark:bg-red-900/20 flex items-center justify-center">
-                                    <Clock class="h-5 w-5 text-red-600 dark:text-red-400" />
-                                </div>
-                                <p class="text-xs font-medium text-muted-foreground">KELUAR</p>
-                                <p class="text-lg font-bold">
-                                    {{ formatTime(todayAttendance?.check_out_time) }}
-                                </p>
-                            </div>
-                        </div>
+            <!-- Announcements Section -->
+            <div v-if="announcements && announcements.length > 0" class="mb-6">
+                <div class="mb-4 flex items-center gap-3">
+                    <div class="flex h-8 w-8 items-center justify-center rounded-lg bg-blue-500/10 ring-1 ring-blue-500/20">
+                        <Calendar class="h-4 w-4 text-blue-600 dark:text-blue-400" />
                     </div>
-
-                    <div class="mt-3 rounded-md border bg-card p-4">
-                        <div class="text-center">
-                            <div class="mx-auto mb-2 w-10 h-10 rounded-md bg-blue-100 dark:bg-blue-900/20 flex items-center justify-center">
-                                <Calendar class="h-5 w-5 text-blue-600 dark:text-blue-400" />
-                            </div>
-                            <p class="text-xs font-medium text-muted-foreground">DURASI KERJA</p>
-                            <p class="text-lg font-bold">
-                                {{ formatDuration(todayAttendance?.work_duration) }}
-                            </p>
-                        </div>
-                    </div>
-
-                    <!-- Face Recognition Warning -->
-                    <div v-if="!faceRecognitionStatus.enabled || !faceRecognitionStatus.has_descriptors" class="mt-4 rounded-lg border border-orange-200 dark:border-orange-800 bg-orange-50 dark:bg-orange-900/20 p-4">
-                        <div class="flex items-start gap-3">
-                            <div class="flex-shrink-0">
-                                <div class="w-10 h-10 rounded-md bg-orange-100 dark:bg-orange-900/30 flex items-center justify-center">
-                                    <Eye class="h-5 w-5 text-orange-600 dark:text-orange-400" />
-                                </div>
-                            </div>
-                            <div class="flex-1">
-                                <h4 class="text-sm font-medium text-orange-800 dark:text-orange-200 mb-1">
-                                    Face Recognition Belum Setup
-                                </h4>
-                                <p class="text-sm text-orange-700 dark:text-orange-300 mb-3">
-                                    Setup pengenalan wajah untuk keamanan tambahan saat absensi.
-                                </p>
-                                <Link
-                                    href="/user/profile"
-                                    class="inline-flex items-center gap-2 px-3 py-2 text-sm font-medium text-orange-700 dark:text-orange-300 bg-orange-100 dark:bg-orange-900/50 hover:bg-orange-200 dark:hover:bg-orange-900/70 border border-orange-300 dark:border-orange-700 rounded-md transition-colors"
-                                >
-                                    <UserCircle class="h-4 w-4" />
-                                    Setup Sekarang
-                                </Link>
-                            </div>
-                        </div>
-                    </div>
-
-                    <!-- Real-time Face Recognition -->
-                    <div v-if="faceRecognitionStatus.enabled && faceRecognitionStatus.has_descriptors && !todayAttendance?.check_in_time" class="mt-4 flex justify-center">
-                        <div class="relative">
-                            <!-- Face Captured State -->
-                            <div v-if="isFaceCaptured" class="w-48 h-48 rounded-full overflow-hidden border-4 border-green-500 relative bg-gray-900">
-                                <!-- Captured Face Image (Full Circle) -->
-                                <img
-                                    v-if="capturedFaceData?.imageDataUrl"
-                                    :src="capturedFaceData.imageDataUrl"
-                                    alt="Captured Face"
-                                    class="w-full h-full object-cover"
-                                />
-
-                                <!-- Success Overlay -->
-                                <div class="absolute inset-0 bg-green-500/20 flex items-center justify-center">
-                                    <div class="bg-green-500 rounded-full p-2 shadow-lg">
-                                        <CheckCircle class="h-6 w-6 text-white" />
-                                    </div>
-                                </div>
-
-                                <!-- Confidence Badge -->
-                                <div class="absolute top-4 left-1/2 transform -translate-x-1/2 -translate-y-1/2 backdrop-blur-sm rounded-full px-3 py-1">
-                                    <span class="text-white text-base font-bold">{{ capturedFaceData?.confidence }}%</span>
-                                </div>
-
-                                <!-- Reset Button -->
-                                <div class="absolute bottom-3 left-1/2 transform -translate-x-1/2">
-                                    <button
-                                        @click="resetCapture"
-                                        class="backdrop-blur-sm hover:bg-black/80 text-white px-3 py-1.5 rounded-full text-xs font-medium transition-colors"
-                                    >
-                                        Ulangi
-                                    </button>
-                                </div>
-                            </div>
-
-                            <!-- Active Detection State -->
-                            <div v-else class="relative bg-gray-900 rounded-full overflow-hidden border-4 w-48 h-48"
-                                 :class="faceDetectionActive ? (isFaceMatched ? 'border-green-500' : 'border-red-500') : 'border-gray-300'">
-
-                                <!-- Video Element (Circular) -->
-                                <video
-                                    ref="videoElement"
-                                    autoplay
-                                    muted
-                                    playsinline
-                                    class="w-full h-full object-cover scale-150"
-                                    style="transform: scaleX(-1);"
-                                    v-show="faceDetectionActive"
-                                />
-
-                                <!-- Canvas for face detection overlay (Circular) -->
-                                <canvas
-                                    ref="canvasElement"
-                                    width="320"
-                                    height="320"
-                                    class="absolute top-0 left-0 w-full h-full"
-                                    v-show="faceDetectionActive"
-                                />
-
-                                <!-- Scanning Animation Overlay -->
-                                <div v-if="faceDetectionActive && !isCapturing" class="absolute inset-0 rounded-full overflow-hidden">
-                                    <!-- Vertical Scanning Line (like barcode scanner) -->
-                                    <div class="absolute inset-0">
-                                        <div class="absolute left-0 right-0 h-0.5 bg-gradient-to-r from-transparent via-white via-white to-transparent opacity-80 shadow-lg scan-line">
-                                        </div>
-                                    </div>
-
-                                    <!-- Pulsing Rings -->
-                                    <div class="absolute inset-1 rounded-full border-2 border-green-400/30 animate-pulse"></div>
-                                    <div class="absolute inset-4 rounded-full border border-green-400/20 animate-ping" style="animation-duration: 2s;"></div>
-
-                                    <!-- Corner Markers -->
-                                    <div class="absolute top-4 left-4 w-4 h-4 border-l-2 border-t-2 border-green-400 rounded-tl-lg opacity-60"></div>
-                                    <div class="absolute top-4 right-4 w-4 h-4 border-r-2 border-t-2 border-green-400 rounded-tr-lg opacity-60"></div>
-                                    <div class="absolute bottom-4 left-4 w-4 h-4 border-l-2 border-b-2 border-green-400 rounded-bl-lg opacity-60"></div>
-                                    <div class="absolute bottom-4 right-4 w-4 h-4 border-r-2 border-b-2 border-green-400 rounded-br-lg opacity-60"></div>
-                                </div>
-
-                                <!-- Loading/Status Overlay -->
-                                <div v-if="!faceDetectionActive" class="absolute inset-0 rounded-full bg-gray-800/80 flex items-center justify-center">
-                                    <div class="text-center text-white">
-                                        <Loader2 class="h-6 w-6 animate-spin mx-auto mb-2" />
-                                        <p class="text-xs">Memuat kamera...</p>
-                                    </div>
-                                </div>
-
-                                <!-- Face Match Status (Circular) -->
-                                <div class="absolute bottom-0 left-1/2 transform -translate-x-1/2 translate-y-full mt-1">
-                                    <div v-if="faceDetectionActive && !isCapturing" class="bg-black/70 rounded-full px-3 py-1 text-white text-xs text-center whitespace-nowrap">
-                                        <span v-if="isFaceMatched" class="text-green-400">
-                                            ✅ Terverifikasi ({{ Math.round(faceMatchConfidence) }}%)
-                                        </span>
-                                        <span v-else-if="faceMatchConfidence > 0" class="text-red-400">
-                                            ❌ Gagal ({{ Math.round(faceMatchConfidence) }}%)
-                                        </span>
-                                        <span v-else class="text-yellow-400">
-                                            🔍 Mencari wajah...
-                                        </span>
-                                    </div>
-                                </div>
-                            </div>
-
-                        </div>
-
-                    </div>
-
-                    <div v-if="todayAttendance?.office_location" class="mt-4 flex items-center gap-2 rounded-md bg-muted p-3">
-                        <MapPin class="h-4 w-4 text-muted-foreground" />
-                        <span class="text-sm text-muted-foreground">
-                            {{ todayAttendance.office_location.name }}
-                        </span>
-                    </div>
-
-                    <!-- Face Match Confidence Display - Centered and Prominent -->
-                    <div v-if="faceRecognitionStatus.enabled && faceRecognitionStatus.has_descriptors && faceMatchConfidence > 0" class="mt-6 mb-6 flex justify-center">
-                        <div class="bg-white dark:bg-gray-800 rounded-xl border border-gray-200 dark:border-gray-700 shadow-lg p-6 text-center min-w-[200px] max-w-[300px] w-full">
-                            <div class="text-sm font-medium text-gray-600 dark:text-gray-400 mb-2">Tingkat Kecocokan Wajah</div>
-                            <div class="text-4xl font-bold mb-2" :class="{
-                                'text-green-600 dark:text-green-400': faceMatchConfidence >= 70,
-                                'text-yellow-600 dark:text-yellow-400': faceMatchConfidence >= 40 && faceMatchConfidence < 70,
-                                'text-red-600 dark:text-red-400': faceMatchConfidence < 40
-                            }">
-                                {{ Math.round(faceMatchConfidence) }}%
-                            </div>
-                            <div class="text-sm font-medium mb-3" :class="{
-                                'text-green-600 dark:text-green-400': faceMatchConfidence >= 70,
-                                'text-yellow-600 dark:text-yellow-400': faceMatchConfidence >= 40 && faceMatchConfidence < 70,
-                                'text-red-600 dark:text-red-400': faceMatchConfidence < 40
-                            }">
-                                {{ faceMatchConfidence >= 70 ? '✅ Sangat Cocok' :
-                                   faceMatchConfidence >= 40 ? '⚠️ Cukup Cocok' : '❌ Kurang Cocok' }}
-                            </div>
-                            <!-- Progress bar -->
-                            <div class="w-full bg-gray-200 dark:bg-gray-700 rounded-full h-2">
-                                <div class="h-2 rounded-full transition-all duration-300" :class="{
-                                    'bg-green-500': faceMatchConfidence >= 70,
-                                    'bg-yellow-500': faceMatchConfidence >= 40 && faceMatchConfidence < 70,
-                                    'bg-red-500': faceMatchConfidence < 40
-                                }" :style="{ width: faceMatchConfidence + '%' }"></div>
-                            </div>
-                        </div>
-                    </div>
-
-                    <!-- Attendance Actions -->
-                    <div class="mt-4 grid gap-3 grid-cols-2">
-                        <!-- Check In Button -->
-                        <button
-                            v-if="!todayAttendance?.check_in_time"
-                            @click="handleCheckInClick"
-                            :disabled="isCheckingIn || (locationStatus === 'success' && !isInRange) || (faceRecognitionStatus.enabled && faceRecognitionStatus.has_descriptors && !isFaceCaptured) || (!faceRecognitionStatus.enabled || !faceRecognitionStatus.has_descriptors)"
-                            class="flex items-center justify-center gap-2 rounded-lg px-3 py-3 text-white font-medium transition-colors shadow-sm disabled:opacity-50 disabled:cursor-not-allowed min-h-[48px] touch-manipulation"
-                            :class="{
-                                'bg-green-600 hover:bg-green-700 active:bg-green-800': (locationStatus === 'idle' || locationStatus === 'error' || (locationStatus === 'success' && isInRange)) && faceRecognitionStatus.enabled && faceRecognitionStatus.has_descriptors && isFaceCaptured,
-                                'bg-blue-600 hover:bg-blue-700 active:bg-blue-800': locationStatus === 'loading',
-                                'bg-gray-500': (locationStatus === 'success' && !isInRange) || (faceRecognitionStatus.enabled && faceRecognitionStatus.has_descriptors && !isFaceCaptured) || (!faceRecognitionStatus.enabled || !faceRecognitionStatus.has_descriptors),
-                                'bg-orange-500 hover:bg-orange-600 active:bg-orange-700': faceRecognitionStatus.enabled && faceRecognitionStatus.has_descriptors && faceMatchConfidence > 0 && !isFaceCaptured
-                            }"
-                        >
-                            <Loader2 v-if="locationStatus === 'loading' || isCheckingIn" class="h-4 w-4 animate-spin" />
-                            <CheckCircle v-else-if="isFaceCaptured && isInRange" class="h-4 w-4" />
-                            <Eye v-else-if="faceRecognitionStatus.enabled && faceRecognitionStatus.has_descriptors && !isFaceCaptured" class="h-4 w-4" />
-                            <Clock v-else class="h-4 w-4" />
-                            <span class="text-xs font-medium">
-                                {{ isCheckingIn ? 'Sedang Check In...' :
-                                   locationStatus === 'loading' ? 'Mencari Lokasi...' :
-                                   locationStatus === 'success' && !isInRange ? 'Di Luar Area' :
-                                   (!faceRecognitionStatus.enabled || !faceRecognitionStatus.has_descriptors) ? 'Tidak Tersedia' :
-                                   faceRecognitionStatus.enabled && faceRecognitionStatus.has_descriptors && !isFaceCaptured ? 'Tunggu Verifikasi' :
-                                   isFaceCaptured && isInRange ? 'Siap Check In!' :
-                                   locationStatus === 'error' ? 'Coba Lagi' :
-                                   'Check In' }}
-                            </span>
-                        </button>
-                        <div
-                            v-else
-                            class="flex items-center justify-center gap-2 rounded-lg bg-green-100 dark:bg-green-900/20 px-3 py-3 text-green-800 dark:text-green-200 font-medium min-h-[48px]"
-                        >
-                            <CheckCircle class="h-4 w-4" />
-                            <span class="text-xs font-medium">Sudah Masuk</span>
-                        </div>
-
-                        <!-- Check Out Button -->
-                        <button
-                            v-if="todayAttendance?.check_in_time && !todayAttendance?.check_out_time"
-                            @click="handleCheckOutClick"
-                            :disabled="isCheckingOut"
-                            class="flex items-center justify-center gap-2 rounded-lg px-3 py-3 text-white font-medium transition-colors shadow-sm disabled:opacity-50 disabled:cursor-not-allowed min-h-[48px] touch-manipulation"
-                            :class="{
-                                'bg-red-600 hover:bg-red-700 active:bg-red-800': locationStatus === 'idle' || locationStatus === 'error' || locationStatus === 'success',
-                                'bg-blue-600 hover:bg-blue-700 active:bg-blue-800': locationStatus === 'loading'
-                            }"
-                        >
-                            <Loader2 v-if="locationStatus === 'loading' || isCheckingOut" class="h-4 w-4 animate-spin" />
-                            <Clock v-else class="h-4 w-4" />
-                            <span class="text-xs font-medium">
-                                {{ isCheckingOut ? 'Sedang Check Out...' :
-                                   locationStatus === 'loading' ? 'Mencari Lokasi...' :
-                                   locationStatus === 'error' ? 'Coba Lagi' :
-                                   'Check Out' }}
-                            </span>
-                        </button>
-                        <div
-                            v-else-if="todayAttendance?.check_out_time"
-                            class="flex items-center justify-center gap-2 rounded-lg bg-red-100 dark:bg-red-900/20 px-3 py-3 text-red-800 dark:text-red-200 font-medium min-h-[48px]"
-                        >
-                            <CheckCircle class="h-4 w-4" />
-                            <span class="text-xs font-medium">Sudah Keluar</span>
-                        </div>
-                        <div
-                            v-else
-                            class="flex items-center justify-center gap-2 rounded-lg bg-muted px-3 py-3 text-muted-foreground font-medium min-h-[48px]"
-                        >
-                            <Clock class="h-4 w-4" />
-                            <span class="text-xs font-medium">Belum Waktunya</span>
-                        </div>
-                    </div>
-
-                    <!-- History Button -->
-                    <div class="mt-3">
-                        <Link
-                            href="/attendance"
-                            class="flex w-full items-center justify-center gap-2 rounded-lg border-2 border-dashed border-muted-foreground/20 bg-background px-3 py-3 font-medium hover:bg-accent hover:text-accent-foreground hover:border-muted-foreground/40 transition-all min-h-[48px] touch-manipulation"
-                        >
-                            <Calendar class="h-4 w-4" />
-                            <span class="text-sm">Lihat Riwayat Absensi</span>
-                        </Link>
+                    <div>
+                        <h2 class="text-lg font-semibold text-gray-900 dark:text-white">Pengumuman Terbaru</h2>
+                        <p class="text-sm text-gray-600 dark:text-gray-400">Informasi penting dari perusahaan</p>
                     </div>
                 </div>
+                <AnnouncementCarousel
+                    :announcements="announcements"
+                    :auto-play="true"
+                    :auto-play-interval="6000"
+                    @announcement-click="handleAnnouncementClick"
+                />
+            </div>
 
             <!-- Monthly Stats -->
             <div class="rounded-lg border bg-card p-4">
