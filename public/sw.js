@@ -1,4 +1,20 @@
-const CACHE_NAME = 'sistemhr-v7'; // Updated to force cache refresh for image uploads
+// Try to get version from version.json, fallback to static version
+let APP_VERSION = '1.0.0';
+let BUILD_TIMESTAMP = Date.now();
+
+// Load version info if available
+fetch('/version.json')
+  .then(response => response.json())
+  .then(versionInfo => {
+    APP_VERSION = versionInfo.fullVersion;
+    BUILD_TIMESTAMP = new Date(versionInfo.buildDate).getTime();
+    console.log('SW: Loaded version info:', APP_VERSION);
+  })
+  .catch(() => {
+    console.log('SW: Using fallback version:', APP_VERSION);
+  });
+
+const CACHE_NAME = `sistemhr-${APP_VERSION || 'fallback'}`;
 const urlsToCache = [
   '/',
   '/manifest.json',
@@ -329,5 +345,21 @@ self.addEventListener('notificationclick', (event) => {
     event.waitUntil(
       clients.openWindow(event.notification.data?.url || '/')
     );
+  }
+});
+
+// Handle messages from main thread
+self.addEventListener('message', (event) => {
+  if (event.data && event.data.type === 'CHECK_UPDATE') {
+    // Force update check
+    console.log('SW: Checking for updates...');
+    self.registration.update().then(() => {
+      console.log('SW: Update check completed');
+    });
+  }
+
+  if (event.data && event.data.type === 'SKIP_WAITING') {
+    // Force service worker activation
+    self.skipWaiting();
   }
 });

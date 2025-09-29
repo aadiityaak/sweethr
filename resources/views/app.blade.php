@@ -81,10 +81,8 @@
                                         // New content is available
                                         console.log('New content is available; please refresh.');
 
-                                        // Optional: Show update notification
-                                        if (confirm('Aplikasi telah diperbarui. Refresh untuk mendapatkan versi terbaru?')) {
-                                            window.location.reload();
-                                        }
+                                        // Show modern update notification
+                                        showUpdateNotification();
                                     }
                                 });
                             });
@@ -132,6 +130,177 @@
             window.addEventListener('appinstalled', (evt) => {
                 console.log('PWA was installed');
                 // Optional: Analytics tracking
+            });
+
+            // Modern update notification system
+            function showUpdateNotification() {
+                // Remove existing notification
+                const existingNotification = document.getElementById('sw-update-notification');
+                if (existingNotification) {
+                    existingNotification.remove();
+                }
+
+                // Create notification element
+                const notification = document.createElement('div');
+                notification.id = 'sw-update-notification';
+                notification.innerHTML = `
+                    <div style="
+                        position: fixed;
+                        top: 20px;
+                        right: 20px;
+                        background: #3B82F6;
+                        color: white;
+                        padding: 16px 20px;
+                        border-radius: 12px;
+                        box-shadow: 0 10px 25px rgba(0,0,0,0.2);
+                        z-index: 9999;
+                        max-width: 300px;
+                        font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, sans-serif;
+                        animation: slideIn 0.3s ease-out;
+                    ">
+                        <div style="display: flex; align-items: center; gap: 12px;">
+                            <div style="
+                                width: 8px;
+                                height: 8px;
+                                background: #10B981;
+                                border-radius: 50%;
+                                animation: pulse 2s infinite;
+                            "></div>
+                            <div style="flex: 1;">
+                                <div style="font-weight: 600; margin-bottom: 4px;">
+                                    Update Tersedia
+                                </div>
+                                <div style="font-size: 14px; opacity: 0.9;">
+                                    Aplikasi telah diperbarui dengan fitur terbaru
+                                </div>
+                            </div>
+                        </div>
+                        <div style="
+                            margin-top: 12px;
+                            display: flex;
+                            gap: 8px;
+                            justify-content: flex-end;
+                        ">
+                            <button onclick="dismissUpdateNotification()" style="
+                                background: rgba(255,255,255,0.2);
+                                border: none;
+                                color: white;
+                                padding: 6px 12px;
+                                border-radius: 6px;
+                                font-size: 14px;
+                                cursor: pointer;
+                            ">Nanti</button>
+                            <button onclick="updateApp()" style="
+                                background: white;
+                                border: none;
+                                color: #3B82F6;
+                                padding: 6px 12px;
+                                border-radius: 6px;
+                                font-size: 14px;
+                                font-weight: 600;
+                                cursor: pointer;
+                            ">Update Sekarang</button>
+                        </div>
+                    </div>
+                `;
+
+                // Add animation styles
+                const style = document.createElement('style');
+                style.textContent = `
+                    @keyframes slideIn {
+                        from {
+                            transform: translateX(100%);
+                            opacity: 0;
+                        }
+                        to {
+                            transform: translateX(0);
+                            opacity: 1;
+                        }
+                    }
+                    @keyframes pulse {
+                        0%, 100% { opacity: 1; }
+                        50% { opacity: 0.5; }
+                    }
+                `;
+                document.head.appendChild(style);
+
+                document.body.appendChild(notification);
+
+                // Auto-dismiss after 10 seconds if not interacted
+                setTimeout(() => {
+                    const notification = document.getElementById('sw-update-notification');
+                    if (notification) {
+                        notification.style.animation = 'slideIn 0.3s ease-out reverse';
+                        setTimeout(() => notification.remove(), 300);
+                    }
+                }, 10000);
+            }
+
+            function updateApp() {
+                const notification = document.getElementById('sw-update-notification');
+                if (notification) {
+                    notification.style.animation = 'slideIn 0.3s ease-out reverse';
+                    setTimeout(() => notification.remove(), 300);
+                }
+
+                // Show loading indicator
+                const loadingIndicator = document.createElement('div');
+                loadingIndicator.innerHTML = `
+                    <div style="
+                        position: fixed;
+                        top: 50%;
+                        left: 50%;
+                        transform: translate(-50%, -50%);
+                        background: rgba(0,0,0,0.8);
+                        color: white;
+                        padding: 20px;
+                        border-radius: 12px;
+                        z-index: 10000;
+                        text-align: center;
+                        font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, sans-serif;
+                    ">
+                        <div style="
+                            width: 40px;
+                            height: 40px;
+                            border: 4px solid rgba(255,255,255,0.3);
+                            border-top: 4px solid white;
+                            border-radius: 50%;
+                            animation: spin 1s linear infinite;
+                            margin: 0 auto 12px;
+                        "></div>
+                        <div>Memperbarui aplikasi...</div>
+                    </div>
+                `;
+
+                const spinStyle = document.createElement('style');
+                spinStyle.textContent = `
+                    @keyframes spin {
+                        from { transform: rotate(0deg); }
+                        to { transform: rotate(360deg); }
+                    }
+                `;
+                document.head.appendChild(spinStyle);
+                document.body.appendChild(loadingIndicator);
+
+                // Reload after short delay
+                setTimeout(() => {
+                    window.location.reload();
+                }, 1000);
+            }
+
+            function dismissUpdateNotification() {
+                const notification = document.getElementById('sw-update-notification');
+                if (notification) {
+                    notification.style.animation = 'slideIn 0.3s ease-out reverse';
+                    setTimeout(() => notification.remove(), 300);
+                }
+            }
+
+            // Check for updates on app focus
+            window.addEventListener('focus', () => {
+                if ('serviceWorker' in navigator && navigator.serviceWorker.controller) {
+                    navigator.serviceWorker.controller.postMessage({ type: 'CHECK_UPDATE' });
+                }
             });
         </script>
     </body>

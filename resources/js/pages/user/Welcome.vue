@@ -867,49 +867,51 @@ onUnmounted(() => {
         </div>
 
         <!-- Main Content -->
-        <div class="px-4 py-4 pb-20">
+        <div class="px-4 py-6 pb-20">
             <!-- Today's Attendance - Moved to top -->
-            <div class="mb-6 rounded-lg border bg-card p-4">
-                <h3 class="mb-4 text-lg font-semibold flex items-center gap-2">
-                    <Clock class="h-4 w-4" />
-                    Absensi Hari Ini
-                </h3>
+            <div class="mb-8 rounded-lg border bg-card p-6">
 
-                <div class="grid gap-3 grid-cols-2">
-                    <div class="rounded-md border bg-card p-4">
+                <!-- Clean horizontal layout for attendance info -->
+                <div class="rounded-lg border bg-gradient-to-r from-card to-card/80 p-4">
+                    <div class="grid grid-cols-3 gap-4">
+                        <!-- Check In -->
                         <div class="text-center">
-                            <div class="mx-auto mb-2 w-10 h-10 rounded-md bg-green-100 dark:bg-green-900/20 flex items-center justify-center">
-                                <Clock class="h-5 w-5 text-green-600 dark:text-green-400" />
+                            <div class="flex items-center justify-center gap-2 mb-2">
+                                <div class="w-6 h-6 rounded-full bg-green-100 dark:bg-green-900/30 flex items-center justify-center">
+                                    <div class="w-2 h-2 rounded-full bg-green-600 dark:bg-green-400"></div>
+                                </div>
+                                <span class="text-xs font-semibold text-green-700 dark:text-green-400">MASUK</span>
                             </div>
-                            <p class="text-xs font-medium text-muted-foreground">MASUK</p>
-                            <p class="text-lg font-bold">
+                            <p class="text-lg font-bold text-foreground">
                                 {{ formatTime(todayAttendance?.check_in_time) }}
                             </p>
                         </div>
-                    </div>
 
-                    <div class="rounded-md border bg-card p-4">
+                        <!-- Check Out -->
                         <div class="text-center">
-                            <div class="mx-auto mb-2 w-10 h-10 rounded-md bg-red-100 dark:bg-red-900/20 flex items-center justify-center">
-                                <Clock class="h-5 w-5 text-red-600 dark:text-red-400" />
+                            <div class="flex items-center justify-center gap-2 mb-2">
+                                <div class="w-6 h-6 rounded-full bg-red-100 dark:bg-red-900/30 flex items-center justify-center">
+                                    <div class="w-2 h-2 rounded-full bg-red-600 dark:bg-red-400"></div>
+                                </div>
+                                <span class="text-xs font-semibold text-red-700 dark:text-red-400">KELUAR</span>
                             </div>
-                            <p class="text-xs font-medium text-muted-foreground">KELUAR</p>
-                            <p class="text-lg font-bold">
+                            <p class="text-lg font-bold text-foreground">
                                 {{ formatTime(todayAttendance?.check_out_time) }}
                             </p>
                         </div>
-                    </div>
-                </div>
 
-                <div class="mt-3 rounded-md border bg-card p-4">
-                    <div class="text-center">
-                        <div class="mx-auto mb-2 w-10 h-10 rounded-md bg-blue-100 dark:bg-blue-900/20 flex items-center justify-center">
-                            <Calendar class="h-5 w-5 text-blue-600 dark:text-blue-400" />
+                        <!-- Duration -->
+                        <div class="text-center">
+                            <div class="flex items-center justify-center gap-2 mb-2">
+                                <div class="w-6 h-6 rounded-full bg-blue-100 dark:bg-blue-900/30 flex items-center justify-center">
+                                    <div class="w-2 h-2 rounded-full bg-blue-600 dark:bg-blue-400"></div>
+                                </div>
+                                <span class="text-xs font-semibold text-blue-700 dark:text-blue-400">DURASI</span>
+                            </div>
+                            <p class="text-lg font-bold text-foreground">
+                                {{ formatDuration(todayAttendance?.work_duration) }}
+                            </p>
                         </div>
-                        <p class="text-xs font-medium text-muted-foreground">DURASI KERJA</p>
-                        <p class="text-lg font-bold">
-                            {{ formatDuration(todayAttendance?.work_duration) }}
-                        </p>
                     </div>
                 </div>
 
@@ -1084,7 +1086,7 @@ onUnmounted(() => {
                 </div>
 
                 <!-- Attendance Actions -->
-                <div class="mt-4 grid gap-3 grid-cols-2">
+                <div class="mt-6 grid gap-4 grid-cols-2">
                     <!-- Check In Button -->
                     <button
                         v-if="!todayAttendance?.check_in_time"
@@ -1156,21 +1158,10 @@ onUnmounted(() => {
                         <span class="text-xs font-medium">Belum Waktunya</span>
                     </div>
                 </div>
-
-                <!-- History Button -->
-                <div class="mt-3">
-                    <Link
-                        href="/attendance"
-                        class="flex w-full items-center justify-center gap-2 rounded-lg border-2 border-dashed border-muted-foreground/20 bg-background px-3 py-3 font-medium hover:bg-accent hover:text-accent-foreground hover:border-muted-foreground/40 transition-all min-h-[48px] touch-manipulation"
-                    >
-                        <Calendar class="h-4 w-4" />
-                        <span class="text-sm">Lihat Riwayat Absensi</span>
-                    </Link>
-                </div>
             </div>
 
             <!-- Welcome Section -->
-            <div class="mb-4 rounded-xl border bg-gradient-to-br from-card via-card to-card/80 p-4 shadow-sm">
+            <div class="mb-8 rounded-xl border bg-gradient-to-br from-card via-card to-card/80 p-6 shadow-sm">
                 <div class="text-center space-y-3">
                     <!-- Avatar Section -->
                     <div class="relative mx-auto">
@@ -1224,14 +1215,13 @@ onUnmounted(() => {
                 </div>
 
             <!-- Announcements Section -->
-            <div v-if="announcements && announcements.length > 0" class="mb-6">
-                <div class="mb-4 flex items-center gap-3">
+            <div v-if="announcements && announcements.length > 0" class="mb-8">
+                <div class="mb-6 flex items-center gap-3">
                     <div class="flex h-8 w-8 items-center justify-center rounded-lg bg-blue-500/10 ring-1 ring-blue-500/20">
                         <Calendar class="h-4 w-4 text-blue-600 dark:text-blue-400" />
                     </div>
                     <div>
                         <h2 class="text-lg font-semibold text-gray-900 dark:text-white">Pengumuman Terbaru</h2>
-                        <p class="text-sm text-gray-600 dark:text-gray-400">Informasi penting dari perusahaan</p>
                     </div>
                 </div>
                 <AnnouncementCarousel
@@ -1243,14 +1233,14 @@ onUnmounted(() => {
             </div>
 
             <!-- Monthly Stats -->
-            <div class="rounded-lg border bg-card p-4">
-                <h3 class="mb-4 text-lg font-semibold flex items-center gap-2">
+            <div class="rounded-lg border bg-card p-6">
+                <h3 class="mb-6 text-lg font-semibold flex items-center gap-2">
                     <BarChart3 class="h-4 w-4" />
                     Statistik Bulan Ini
                 </h3>
 
-                <div class="grid gap-3 grid-cols-2">
-                    <div class="rounded-md border bg-card p-3 text-center">
+                <div class="grid gap-4 grid-cols-2">
+                    <div class="rounded-md border bg-card p-4 text-center">
                         <div class="mx-auto mb-2 w-8 h-8 rounded-md bg-muted flex items-center justify-center">
                             <Calendar class="h-4 w-4 text-muted-foreground" />
                         </div>
