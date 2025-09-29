@@ -14,6 +14,9 @@ const props = defineProps<{
   max?: string
   disabled?: boolean
   required?: boolean
+  // New props for birth date optimization
+  birthDate?: boolean
+  defaultYear?: number
 }>()
 
 const emits = defineEmits<{
@@ -37,6 +40,12 @@ onMounted(() => {
   if (modelValue.value) {
     selectedDate.value = new Date(modelValue.value)
     currentDate.value = new Date(modelValue.value)
+  } else if (props.birthDate && props.defaultYear) {
+    // For birth date picker, start with the default year (e.g., 1993)
+    currentDate.value = new Date(props.defaultYear, 0, 1)
+  } else if (props.birthDate) {
+    // Default to 1990 for birth dates if no specific year provided
+    currentDate.value = new Date(1990, 0, 1)
   }
 })
 
@@ -104,6 +113,35 @@ const previousMonth = () => {
 const nextMonth = () => {
   currentDate.value = new Date(currentDate.value.getFullYear(), currentDate.value.getMonth() + 1, 1)
 }
+
+// Navigate years (for birth date optimization)
+const changeYear = (year: number) => {
+  currentDate.value = new Date(year, currentDate.value.getMonth(), 1)
+}
+
+const changeMonth = (month: number) => {
+  currentDate.value = new Date(currentDate.value.getFullYear(), month, 1)
+}
+
+// Generate year options for dropdown
+const yearOptions = computed(() => {
+  const currentYear = new Date().getFullYear()
+  const years = []
+
+  if (props.birthDate) {
+    // For birth dates, show years from 1950 to current year
+    for (let year = currentYear; year >= 1950; year--) {
+      years.push(year)
+    }
+  } else {
+    // For regular dates, show ±10 years from current
+    for (let year = currentYear + 10; year >= currentYear - 10; year--) {
+      years.push(year)
+    }
+  }
+
+  return years
+})
 
 // Select a date
 const selectDate = (date: Date) => {
@@ -237,24 +275,56 @@ onUnmounted(() => {
       )"
     >
       <!-- Month/Year Header -->
-      <div class="flex items-center justify-between mb-4">
-        <button
-          @click="previousMonth"
-          class="p-1 hover:bg-muted rounded-md transition-colors"
-          type="button"
-        >
-          <ChevronLeft class="h-4 w-4" />
-        </button>
-        <div class="font-medium text-center">
+      <div class="mb-4">
+        <div class="flex items-center justify-between mb-2">
+          <button
+            @click="previousMonth"
+            class="p-1 hover:bg-muted rounded-md transition-colors"
+            type="button"
+          >
+            <ChevronLeft class="h-4 w-4" />
+          </button>
+          <div class="font-medium text-center" v-if="!props.birthDate">
+            {{ monthNames[currentDate.getMonth()] }} {{ currentDate.getFullYear() }}
+          </div>
+          <button
+            @click="nextMonth"
+            class="p-1 hover:bg-muted rounded-md transition-colors"
+            type="button"
+          >
+            <ChevronRight class="h-4 w-4" />
+          </button>
+        </div>
+
+        <!-- Quick navigation dropdowns for birth dates -->
+        <div v-if="props.birthDate" class="grid grid-cols-2 gap-2">
+          <!-- Month Dropdown -->
+          <select
+            :value="currentDate.getMonth()"
+            @change="changeMonth(parseInt(($event.target as HTMLSelectElement).value))"
+            class="w-full rounded-md border border-input bg-background px-3 py-1 text-sm shadow-sm transition-colors focus:border-ring focus:outline-none focus:ring-1 focus:ring-ring"
+          >
+            <option v-for="(month, index) in monthNames" :key="index" :value="index">
+              {{ month }}
+            </option>
+          </select>
+
+          <!-- Year Dropdown -->
+          <select
+            :value="currentDate.getFullYear()"
+            @change="changeYear(parseInt(($event.target as HTMLSelectElement).value))"
+            class="w-full rounded-md border border-input bg-background px-3 py-1 text-sm shadow-sm transition-colors focus:border-ring focus:outline-none focus:ring-1 focus:ring-ring"
+          >
+            <option v-for="year in yearOptions" :key="year" :value="year">
+              {{ year }}
+            </option>
+          </select>
+        </div>
+
+        <!-- Regular header for non-birth dates -->
+        <div v-if="props.birthDate" class="text-center font-medium mt-2">
           {{ monthNames[currentDate.getMonth()] }} {{ currentDate.getFullYear() }}
         </div>
-        <button
-          @click="nextMonth"
-          class="p-1 hover:bg-muted rounded-md transition-colors"
-          type="button"
-        >
-          <ChevronRight class="h-4 w-4" />
-        </button>
       </div>
 
       <!-- Weekday Headers -->

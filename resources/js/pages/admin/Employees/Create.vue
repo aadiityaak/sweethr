@@ -88,6 +88,8 @@
                                     <DatePicker
                                         v-model="form.date_of_birth"
                                         placeholder="Pilih tanggal lahir"
+                                        :birth-date="true"
+                                        :default-year="1993"
                                     />
                                     <p v-if="form.errors.date_of_birth" class="text-sm text-red-600 mt-1">
                                         {{ form.errors.date_of_birth }}

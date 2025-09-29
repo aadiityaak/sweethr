@@ -271,49 +271,51 @@ const confirmCheckOut = () => {
             <div class="px-4 py-6 pb-24">
 
                 <!-- Today's Status -->
-                <div class="mb-6 rounded-lg border bg-card p-6">
-                    <h2 class="mb-4 text-lg font-semibold flex items-center gap-2">
-                        <Clock class="h-4 w-4" />
+                <div class="mb-8 rounded-lg border bg-card p-6">
+                    <h2 class="mb-6 text-lg font-semibold">
                         Status Hari Ini
                     </h2>
-                    <div class="space-y-3">
-                        <div class="rounded-md border bg-card p-4">
-                            <div class="flex items-center gap-3">
-                                <div class="rounded-md bg-muted p-2">
-                                    <Clock class="h-4 w-4 text-muted-foreground" />
+
+                    <!-- Clean horizontal layout for today's attendance -->
+                    <div class="rounded-lg border bg-gradient-to-r from-card to-card/80 p-4">
+                        <div class="grid grid-cols-3 gap-4">
+                            <!-- Check In -->
+                            <div class="text-center">
+                                <div class="flex items-center justify-center gap-2 mb-2">
+                                    <div class="w-6 h-6 rounded-full bg-green-100 dark:bg-green-900/30 flex items-center justify-center">
+                                        <div class="w-2 h-2 rounded-full bg-green-600 dark:bg-green-400"></div>
+                                    </div>
+                                    <span class="text-xs font-semibold text-green-700 dark:text-green-400">MASUK</span>
                                 </div>
-                                <div>
-                                    <p class="text-xs font-medium text-muted-foreground">MASUK</p>
-                                    <p class="font-semibold">
-                                        {{ formatTime(todayAttendance?.check_in_time) }}
-                                    </p>
-                                </div>
+                                <p class="text-lg font-bold text-foreground">
+                                    {{ formatTime(todayAttendance?.check_in_time) }}
+                                </p>
                             </div>
-                        </div>
-                        <div class="rounded-md border bg-card p-4">
-                            <div class="flex items-center gap-3">
-                                <div class="rounded-md bg-muted p-2">
-                                    <Clock class="h-4 w-4 text-muted-foreground" />
+
+                            <!-- Check Out -->
+                            <div class="text-center">
+                                <div class="flex items-center justify-center gap-2 mb-2">
+                                    <div class="w-6 h-6 rounded-full bg-red-100 dark:bg-red-900/30 flex items-center justify-center">
+                                        <div class="w-2 h-2 rounded-full bg-red-600 dark:bg-red-400"></div>
+                                    </div>
+                                    <span class="text-xs font-semibold text-red-700 dark:text-red-400">KELUAR</span>
                                 </div>
-                                <div>
-                                    <p class="text-xs font-medium text-muted-foreground">KELUAR</p>
-                                    <p class="font-semibold">
-                                        {{ formatTime(todayAttendance?.check_out_time) }}
-                                    </p>
-                                </div>
+                                <p class="text-lg font-bold text-foreground">
+                                    {{ formatTime(todayAttendance?.check_out_time) }}
+                                </p>
                             </div>
-                        </div>
-                        <div class="rounded-md border bg-card p-4">
-                            <div class="flex items-center gap-3">
-                                <div class="rounded-md bg-muted p-2">
-                                    <Calendar class="h-4 w-4 text-muted-foreground" />
+
+                            <!-- Duration -->
+                            <div class="text-center">
+                                <div class="flex items-center justify-center gap-2 mb-2">
+                                    <div class="w-6 h-6 rounded-full bg-blue-100 dark:bg-blue-900/30 flex items-center justify-center">
+                                        <div class="w-2 h-2 rounded-full bg-blue-600 dark:bg-blue-400"></div>
+                                    </div>
+                                    <span class="text-xs font-semibold text-blue-700 dark:text-blue-400">DURASI</span>
                                 </div>
-                                <div>
-                                    <p class="text-xs font-medium text-muted-foreground">DURASI</p>
-                                    <p class="font-semibold">
-                                        {{ formatDuration(todayAttendance?.work_duration) }}
-                                    </p>
-                                </div>
+                                <p class="text-lg font-bold text-foreground">
+                                    {{ formatDuration(todayAttendance?.work_duration) }}
+                                </p>
                             </div>
                         </div>
                     </div>
@@ -338,9 +340,9 @@ const confirmCheckOut = () => {
                 </div>
 
                 <!-- View Toggle -->
-                <div class="mb-6 rounded-lg border bg-card p-4">
-                    <div class="flex items-center justify-between mb-4">
-                        <h3 class="text-sm font-medium">Tampilan Riwayat</h3>
+                <div class="mb-8 rounded-lg border bg-card p-6">
+                    <div class="flex items-center justify-between mb-6">
+                        <h3 class="text-lg font-semibold">Tampilan Riwayat</h3>
                         <div class="flex rounded-lg border bg-background">
                             <button
                                 @click="showCalendarView = true"
@@ -401,15 +403,14 @@ const confirmCheckOut = () => {
 
                 <!-- Attendance History -->
                 <div class="rounded-lg border bg-card">
-                    <div class="p-4 border-b">
-                        <h2 class="text-lg font-semibold flex items-center gap-2">
-                            <Calendar class="h-4 w-4" />
+                    <div class="p-6 border-b">
+                        <h2 class="text-lg font-semibold">
                             Riwayat Kehadiran
                         </h2>
                     </div>
 
                     <!-- Calendar View -->
-                    <div v-if="showCalendarView" class="p-4">
+                    <div v-if="showCalendarView" class="p-6">
                         <AttendanceCalendar
                             :attendance-data="calendarAttendanceData"
                             :selected-month="selectedMonth"
@@ -424,9 +425,9 @@ const confirmCheckOut = () => {
                             <div
                                 v-for="attendance in attendances?.data || []"
                                 :key="attendance.id"
-                                class="p-4 hover:bg-muted/50 transition-colors"
+                                class="p-6 hover:bg-muted/50 transition-colors"
                             >
-                                <div class="flex items-center justify-between mb-2">
+                                <div class="flex items-center justify-between mb-4">
                                     <div class="flex items-center gap-2">
                                         <component
                                             :is="getStatusIcon(attendance.status)"
@@ -445,7 +446,7 @@ const confirmCheckOut = () => {
                                     </span>
                                 </div>
 
-                                <div class="grid grid-cols-3 gap-4 text-sm">
+                                <div class="grid grid-cols-3 gap-6 text-sm mt-4">
                                     <div>
                                         <p class="text-xs text-muted-foreground">Masuk</p>
                                         <p class="font-medium">{{ formatTime(attendance.check_in_time) }}</p>
@@ -473,7 +474,7 @@ const confirmCheckOut = () => {
                         </div>
 
                         <!-- Pagination -->
-                        <div v-if="attendances?.meta?.total > attendances?.meta?.per_page" class="p-4 border-t">
+                        <div v-if="attendances?.meta?.total > attendances?.meta?.per_page" class="p-6 border-t">
                             <p class="text-sm text-muted-foreground text-center">
                                 Menampilkan {{ attendances.meta.from }} - {{ attendances.meta.to }} dari {{ attendances.meta.total }} data
                             </p>
