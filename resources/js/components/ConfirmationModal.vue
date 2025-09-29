@@ -1,131 +1,111 @@
-<template>
-    <div v-if="open" class="fixed inset-0 z-50 overflow-y-auto">
-        <div class="flex min-h-full items-end justify-center p-4 text-center sm:items-center sm:p-0">
-            <div class="fixed inset-0 bg-gray-500/75 transition-opacity" @click="handleCancel" />
-
-            <div
-                class="relative transform overflow-hidden rounded-lg bg-white text-left shadow-xl transition-all sm:my-8 sm:w-full sm:max-w-lg dark:bg-gray-900"
-            >
-                <div class="bg-white px-4 pt-5 pb-4 sm:p-6 sm:pb-4 dark:bg-gray-900">
-                    <div class="sm:flex sm:items-start">
-                        <div
-                            class="mx-auto flex h-12 w-12 flex-shrink-0 items-center justify-center rounded-full sm:mx-0 sm:h-10 sm:w-10"
-                            :class="iconBgClass"
-                        >
-                            <component :is="icon" class="h-6 w-6" :class="iconClass" />
-                        </div>
-                        <div class="mt-3 text-center sm:mt-0 sm:ml-4 sm:text-left">
-                            <h3 class="text-base leading-6 font-semibold text-gray-900 dark:text-white">
-                                {{ title }}
-                            </h3>
-                            <div class="mt-2">
-                                <p class="text-sm text-gray-500 dark:text-gray-400">
-                                    {{ message }}
-                                </p>
-                                <slot />
-                            </div>
-                        </div>
-                    </div>
-                </div>
-                <div class="bg-gray-50 px-4 py-3 sm:flex sm:flex-row-reverse sm:px-6 dark:bg-gray-800">
-                    <button
-                        type="button"
-                        class="inline-flex w-full justify-center rounded-md px-3 py-2 text-sm font-semibold text-white shadow-sm sm:ml-3 sm:w-auto"
-                        :class="confirmButtonClass"
-                        @click="handleConfirm"
-                    >
-                        {{ confirmText }}
-                    </button>
-                    <button
-                        type="button"
-                        class="mt-3 inline-flex w-full justify-center rounded-md bg-white px-3 py-2 text-sm font-semibold text-gray-900 shadow-sm ring-1 ring-gray-300 ring-inset hover:bg-gray-50 sm:mt-0 sm:w-auto dark:bg-gray-700 dark:text-white dark:ring-gray-600 dark:hover:bg-gray-600"
-                        @click="handleCancel"
-                    >
-                        {{ cancelText }}
-                    </button>
-                </div>
-            </div>
-        </div>
-    </div>
-</template>
-
 <script setup lang="ts">
-import { AlertTriangle, CheckCircle, Info } from 'lucide-vue-next';
-import { computed } from 'vue';
+import { AlertTriangle, X } from 'lucide-vue-next';
 
 interface Props {
-    open?: boolean;
-    title: string;
-    message: string;
+    show: boolean;
+    title?: string;
+    message?: string;
     confirmText?: string;
     cancelText?: string;
-    confirmVariant?: 'primary' | 'danger' | 'success';
+    type?: 'danger' | 'warning' | 'info';
+    processing?: boolean;
 }
 
 const props = withDefaults(defineProps<Props>(), {
-    open: false,
-    confirmText: 'Confirm',
-    cancelText: 'Cancel',
-    confirmVariant: 'primary',
+    title: 'Konfirmasi',
+    message: 'Apakah Anda yakin ingin melanjutkan?',
+    confirmText: 'Ya',
+    cancelText: 'Batal',
+    type: 'warning',
+    processing: false,
 });
 
 const emit = defineEmits<{
     confirm: [];
     cancel: [];
-    'update:open': [value: boolean];
 }>();
 
 const handleConfirm = () => {
-    emit('confirm');
-    emit('update:open', false);
+    if (!props.processing) {
+        emit('confirm');
+    }
 };
 
 const handleCancel = () => {
-    emit('cancel');
-    emit('update:open', false);
+    if (!props.processing) {
+        emit('cancel');
+    }
 };
 
-const icon = computed(() => {
-    switch (props.confirmVariant) {
-        case 'danger':
-            return AlertTriangle;
-        case 'success':
-            return CheckCircle;
-        default:
-            return Info;
-    }
-});
+const typeStyles = {
+    danger: {
+        icon: 'text-red-600 dark:text-red-400',
+        iconBg: 'bg-red-100 dark:bg-red-900/30',
+        confirmBtn: 'bg-red-600 hover:bg-red-700 focus:ring-red-500',
+    },
+    warning: {
+        icon: 'text-amber-600 dark:text-amber-400',
+        iconBg: 'bg-amber-100 dark:bg-amber-900/30',
+        confirmBtn: 'bg-amber-600 hover:bg-amber-700 focus:ring-amber-500',
+    },
+    info: {
+        icon: 'text-blue-600 dark:text-blue-400',
+        iconBg: 'bg-blue-100 dark:bg-blue-900/30',
+        confirmBtn: 'bg-blue-600 hover:bg-blue-700 focus:ring-blue-500',
+    },
+};
 
-const iconBgClass = computed(() => {
-    switch (props.confirmVariant) {
-        case 'danger':
-            return 'bg-red-100 dark:bg-red-900/20';
-        case 'success':
-            return 'bg-green-100 dark:bg-green-900/20';
-        default:
-            return 'bg-blue-100 dark:bg-blue-900/20';
-    }
-});
-
-const iconClass = computed(() => {
-    switch (props.confirmVariant) {
-        case 'danger':
-            return 'text-red-600 dark:text-red-400';
-        case 'success':
-            return 'text-green-600 dark:text-green-400';
-        default:
-            return 'text-blue-600 dark:text-blue-400';
-    }
-});
-
-const confirmButtonClass = computed(() => {
-    switch (props.confirmVariant) {
-        case 'danger':
-            return 'bg-red-600 hover:bg-red-500 focus-visible:outline-red-600';
-        case 'success':
-            return 'bg-green-600 hover:bg-green-500 focus-visible:outline-green-600';
-        default:
-            return 'bg-blue-600 hover:bg-blue-500 focus-visible:outline-blue-600';
-    }
-});
+const currentStyles = typeStyles[props.type];
 </script>
+
+<template>
+    <div
+        v-if="show"
+        class="fixed inset-0 z-[9999] flex items-center justify-center bg-black/50 backdrop-blur-sm"
+        style="z-index: 9999 !important;"
+        @click="handleCancel"
+    >
+        <div
+            class="relative z-[10000] w-full max-w-md rounded-xl bg-white p-6 shadow-2xl dark:bg-gray-950"
+            style="z-index: 10000 !important;"
+            @click.stop
+        >
+            <!-- Header with Icon -->
+            <div class="flex items-start gap-4">
+                <div :class="`flex h-12 w-12 shrink-0 items-center justify-center rounded-full ${currentStyles.iconBg}`">
+                    <AlertTriangle :class="`h-6 w-6 ${currentStyles.icon}`" />
+                </div>
+                <div class="flex-1">
+                    <h3 class="text-lg font-semibold text-gray-900 dark:text-white">{{ title }}</h3>
+                    <p class="mt-2 text-sm text-gray-600 dark:text-gray-300">{{ message }}</p>
+                </div>
+                <button
+                    @click="handleCancel"
+                    :disabled="processing"
+                    class="rounded-lg p-1 text-gray-400 hover:text-gray-600 dark:hover:text-gray-300 disabled:opacity-50"
+                >
+                    <X class="h-5 w-5" />
+                </button>
+            </div>
+
+            <!-- Actions -->
+            <div class="mt-6 flex justify-end gap-3">
+                <button
+                    @click="handleCancel"
+                    :disabled="processing"
+                    class="rounded-lg border border-gray-300 px-4 py-2 text-sm font-medium text-gray-700 hover:bg-gray-50 dark:border-gray-600 dark:text-gray-300 dark:hover:bg-gray-800 disabled:opacity-50"
+                >
+                    {{ cancelText }}
+                </button>
+                <button
+                    @click="handleConfirm"
+                    :disabled="processing"
+                    :class="`rounded-lg px-4 py-2 text-sm font-medium text-white transition-colors focus:ring-2 focus:ring-offset-2 focus:outline-none disabled:opacity-50 ${currentStyles.confirmBtn}`"
+                >
+                    <span v-if="processing">Memproses...</span>
+                    <span v-else>{{ confirmText }}</span>
+                </button>
+            </div>
+        </div>
+    </div>
+</template>

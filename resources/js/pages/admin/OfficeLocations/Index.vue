@@ -1,10 +1,11 @@
 <script setup lang="ts">
+import ConfirmationModal from '@/components/ConfirmationModal.vue';
 import LeafletMap from '@/components/LeafletMap.vue';
 import AppLayout from '@/layouts/AppLayout.vue';
 import { type BreadcrumbItem } from '@/types';
 import { Head, Link, router } from '@inertiajs/vue3';
 import { Clock, Edit, Map, MapPin, Navigation, Plus, Search, Target, Trash2, Users } from 'lucide-vue-next';
-import { ref } from 'vue';
+import { computed, ref } from 'vue';
 
 interface OfficeLocation {
     id: number;
@@ -110,6 +111,17 @@ const calculateDistance = (lat1: number, lng1: number, lat2: number, lng2: numbe
 const selectedLocation = ref<OfficeLocation | null>(null);
 const showMapModal = ref(false);
 
+// Confirmation modal state
+const showDeleteModal = ref(false);
+const locationToDelete = ref<OfficeLocation | null>(null);
+const isDeleting = ref(false);
+
+// Computed property for delete message
+const deleteMessage = computed(() => {
+    if (!locationToDelete.value) return '';
+    return `Apakah Anda yakin ingin menghapus lokasi "${locationToDelete.value.name}"? Tindakan ini tidak dapat dibatalkan.`;
+});
+
 const viewOnMap = (location: OfficeLocation) => {
     selectedLocation.value = location;
     showMapModal.value = true;
@@ -121,17 +133,36 @@ const closeMapModal = () => {
 };
 
 const deleteLocation = (location: OfficeLocation) => {
-    if (confirm(`Apakah Anda yakin ingin menghapus lokasi "${location.name}"?\n\nTindakan ini tidak dapat dibatalkan.`)) {
-        router.delete(`/office-locations/${location.id}`, {
-            onSuccess: () => {
-                // Refresh data after successful deletion
-                router.reload();
-            },
-            onError: (errors) => {
-                console.error('Error deleting location:', errors);
-                alert('Gagal menghapus lokasi. Silakan coba lagi.');
-            },
-        });
+    locationToDelete.value = location;
+    showDeleteModal.value = true;
+};
+
+const confirmDelete = () => {
+    if (!locationToDelete.value) return;
+
+    isDeleting.value = true;
+
+    router.delete(`/office-locations/${locationToDelete.value.id}`, {
+        onSuccess: () => {
+            // Reset modal state
+            showDeleteModal.value = false;
+            locationToDelete.value = null;
+            isDeleting.value = false;
+            // Refresh data after successful deletion
+            router.reload();
+        },
+        onError: (errors) => {
+            console.error('Error deleting location:', errors);
+            isDeleting.value = false;
+            // Keep modal open to show error or add error handling
+        },
+    });
+};
+
+const cancelDelete = () => {
+    if (!isDeleting.value) {
+        showDeleteModal.value = false;
+        locationToDelete.value = null;
     }
 };
 </script>
@@ -498,5 +529,18 @@ const deleteLocation = (location: OfficeLocation) => {
                 </div>
             </div>
         </div>
+
+        <!-- Delete Confirmation Modal -->
+        <ConfirmationModal
+            :show="showDeleteModal"
+            type="danger"
+            title="Hapus Lokasi Kantor"
+            :message="deleteMessage"
+            confirm-text="Hapus"
+            cancel-text="Batal"
+            :processing="isDeleting"
+            @confirm="confirmDelete"
+            @cancel="cancelDelete"
+        />
     </AppLayout>
 </template>
