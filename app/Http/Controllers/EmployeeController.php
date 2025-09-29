@@ -48,6 +48,10 @@ class EmployeeController extends Controller
             'departments' => $departments,
             'positions' => $positions,
             'filters' => $request->only(['search', 'department', 'position', 'status']),
+            'flash' => [
+                'success' => session('success'),
+                'error' => session('error'),
+            ],
         ]);
     }
 
@@ -85,8 +89,8 @@ class EmployeeController extends Controller
 
         User::create($validated);
 
-        return redirect()->route('employees.index')
-            ->with('success', 'Employee created successfully.');
+        return to_route('employees.index')
+            ->with('success', 'Karyawan berhasil ditambahkan ke sistem.');
     }
 
     public function show(User $employee): Response
@@ -140,8 +144,8 @@ class EmployeeController extends Controller
 
         $employee->update($validated);
 
-        return redirect()->route('employees.index')
-            ->with('success', 'Employee updated successfully.');
+        return to_route('employees.index')
+            ->with('success', 'Data karyawan berhasil diperbarui.');
     }
 
     public function destroy(User $employee)

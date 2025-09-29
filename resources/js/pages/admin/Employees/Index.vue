@@ -1,9 +1,10 @@
 <script setup lang="ts">
 import AppLayout from '@/layouts/AppLayout.vue';
+import { useToast } from '@/components/ui/toast/use-toast';
 import { type BreadcrumbItem } from '@/types';
 import { Head, Link, router } from '@inertiajs/vue3';
 import { Edit, Mail, Phone, Plus, Search, Trash2, UserCheck, Users } from 'lucide-vue-next';
-import { ref } from 'vue';
+import { ref, onMounted } from 'vue';
 
 interface Department {
     id: number;
@@ -44,9 +45,36 @@ interface Props {
         position?: string;
         status?: string;
     };
+    flash?: {
+        success?: string;
+        error?: string;
+    };
 }
 
-const { employees, departments, positions, filters } = defineProps<Props>();
+const { employees, departments, positions, filters, flash } = defineProps<Props>();
+
+const { toast } = useToast();
+
+// Handle flash messages
+onMounted(() => {
+    if (flash?.success) {
+        toast({
+            title: 'Berhasil!',
+            description: flash.success,
+            variant: 'success',
+            duration: 4000,
+        });
+    }
+
+    if (flash?.error) {
+        toast({
+            title: 'Error!',
+            description: flash.error,
+            variant: 'destructive',
+            duration: 5000,
+        });
+    }
+});
 
 const breadcrumbs: BreadcrumbItem[] = [
     {

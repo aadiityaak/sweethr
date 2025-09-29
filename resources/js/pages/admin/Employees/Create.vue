@@ -703,12 +703,7 @@ const submit = () => {
 
     form.post('/employees', {
         onSuccess: () => {
-            toast({
-                title: 'Karyawan Berhasil Ditambahkan',
-                description: 'Data karyawan baru telah berhasil disimpan ke sistem.',
-                variant: 'success',
-                duration: 4000,
-            });
+            // Toast akan ditampilkan di halaman index dari flash message
         },
         onError: (errors) => {
             // Toast untuk error dari server
