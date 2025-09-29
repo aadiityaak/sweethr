@@ -10,7 +10,9 @@
                     <p class="text-muted-foreground">Edit informasi karyawan "{{ employee.name }}"</p>
                 </div>
                 <Link
-                    href="/employees"
+                    :href="`/employees?v=${Date.now()}`"
+                    :preserve-state="false"
+                    :preserve-scroll="false"
                     class="inline-flex items-center gap-2 rounded-lg bg-secondary px-4 py-2 text-sm font-medium text-secondary-foreground hover:bg-secondary/80"
                 >
                     <ArrowLeft class="h-4 w-4" />
@@ -381,7 +383,7 @@
                                 >
                                     {{ form.processing ? 'Menyimpan...' : 'Simpan Perubahan' }}
                                 </Button>
-                                <Button type="button" variant="outline" @click="router.visit('/employees')"> Batal </Button>
+                                <Button type="button" variant="outline" @click="router.visit(`/employees?v=${Date.now()}`, { preserveState: false, preserveScroll: false })"> Batal </Button>
                             </div>
                         </form>
                     </div>
