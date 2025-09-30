@@ -54,6 +54,10 @@ const faceVerificationCompleted = ref(false);
 const faceVerificationRequired = ref(false);
 
 onMounted(() => {
+    // Debug: Log user data
+    console.log('User data:', user);
+    console.log('Allow outside radius:', user.allow_outside_radius);
+
     // Check if user already checked in today
     if (existingAttendance?.check_in_time) {
         hasCheckedInToday.value = true;
@@ -173,6 +177,12 @@ const checkOfficeProximity = () => {
 };
 
 const submitCheckIn = () => {
+    // Debug logging
+    console.log('Submit check-in clicked');
+    console.log('isInRange:', isInRange.value);
+    console.log('user.allow_outside_radius:', user.allow_outside_radius);
+    console.log('Will proceed?', isInRange.value || user.allow_outside_radius);
+
     // Check if user is in range OR has permission to check-in outside radius
     if (!isInRange.value && !user.allow_outside_radius) {
         if (selectedOffice.value) {

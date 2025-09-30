@@ -48,6 +48,8 @@ class AttendanceController extends Controller
     public function checkIn(): Response
     {
         $user = auth()->user();
+        // Force refresh user data from database to get latest allow_outside_radius value
+        $user->refresh();
         $today = Carbon::today();
 
         // Check if already checked in today
@@ -94,6 +96,8 @@ class AttendanceController extends Controller
 
             // Add face recognition validation if required
             $user = auth()->user();
+            // Force refresh user data from database to get latest settings
+            $user->refresh();
             if ($this->faceRecognitionService->isFaceRecognitionRequired($user)) {
                 $validationRules['face_confidence'] = 'required|numeric|min:0|max:100';
                 $validationRules['face_photo'] = 'required|string'; // Base64 image data
