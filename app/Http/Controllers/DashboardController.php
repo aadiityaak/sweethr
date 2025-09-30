@@ -149,6 +149,7 @@ class DashboardController extends Controller
             'faceRecognitionEnabled' => $faceRecognitionEnabled,
             'faceDescriptors' => $faceDescriptors,
             'announcements' => $announcements,
+            'allowOutsideRadius' => $user->allow_outside_radius ?? false,
         ]);
     }
 

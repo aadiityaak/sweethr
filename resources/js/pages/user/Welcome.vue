@@ -61,6 +61,7 @@ interface Props {
     faceRecognitionEnabled?: boolean;
     faceDescriptors?: number[][];
     announcements?: Announcement[];
+    allowOutsideRadius?: boolean;
 }
 
 interface AnnouncementCategory {
@@ -88,7 +89,7 @@ interface Announcement {
     image_url: string | null;
 }
 
-const { user, todayAttendance, officeLocations, stats, faceRecognitionEnabled, faceDescriptors, announcements } = defineProps<Props>();
+const { user, todayAttendance, officeLocations, stats, faceRecognitionEnabled, faceDescriptors, announcements, allowOutsideRadius } = defineProps<Props>();
 
 const { companyName, companyLogo } = useCompanySettings();
 const { toast } = useToast();
@@ -315,7 +316,8 @@ const performCheckIn = () => {
         isFaceCaptured.value,
     );
 
-    if (!isInRange.value) {
+    // Check if user is in range OR has permission to check-in outside radius
+    if (!isInRange.value && !allowOutsideRadius) {
         console.log('Not in range - distanceToOffice:', distanceToOffice.value, 'selectedOffice:', selectedOffice.value);
         if (selectedOffice.value) {
             const distanceNeeded = Math.round(distanceToOffice.value - selectedOffice.value.radius_meters);
@@ -427,21 +429,22 @@ const handleCheckInClick = () => {
     if (locationStatus.value === 'idle' || locationStatus.value === 'error') {
         console.log('Getting current location...');
         getCurrentLocation('checkin');
-    } else if (locationStatus.value === 'success' && isInRange.value) {
+    } else if (locationStatus.value === 'success' && (isInRange.value || allowOutsideRadius)) {
         console.log('Performing check-in...');
         performCheckIn();
     } else {
         console.log('Check-in conditions not met:', {
             locationStatus: locationStatus.value,
             isInRange: isInRange.value,
+            allowOutsideRadius: allowOutsideRadius,
             buttonDisabled:
                 isCheckingIn.value ||
-                (locationStatus.value === 'success' && !isInRange.value) ||
+                (locationStatus.value === 'success' && !isInRange.value && !allowOutsideRadius) ||
                 (faceRecognitionEnabled && faceDescriptors && !isFaceCaptured.value),
         });
 
         // Provide specific error message
-        if (locationStatus.value === 'success' && !isInRange.value) {
+        if (locationStatus.value === 'success' && !isInRange.value && !allowOutsideRadius) {
             toast({
                 title: '❌ Di Luar Area Kantor',
                 description: 'Anda berada di luar radius kantor. Mohon mendekat ke area kantor untuk check-in.',
