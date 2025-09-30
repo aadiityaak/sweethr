@@ -25,6 +25,7 @@ interface Props {
         face_recognition_enabled: boolean;
         face_recognition_mandatory: boolean;
         face_descriptors?: any;
+        allow_outside_radius?: boolean;
     };
 }
 
@@ -172,7 +173,8 @@ const checkOfficeProximity = () => {
 };
 
 const submitCheckIn = () => {
-    if (!isInRange.value) {
+    // Check if user is in range OR has permission to check-in outside radius
+    if (!isInRange.value && !user.allow_outside_radius) {
         if (selectedOffice.value) {
             const distanceNeeded = Math.round(distanceToOffice.value - selectedOffice.value.radius_meters);
             toast({
@@ -302,7 +304,7 @@ const handleFaceVerification = async (confidence: number) => {
             <div class="space-y-6 px-4 py-6 pb-20">
                 <!-- Out of Range Alert -->
                 <div
-                    v-if="locationStatus === 'success' && selectedOffice && !isInRange"
+                    v-if="locationStatus === 'success' && selectedOffice && !isInRange && !user.allow_outside_radius"
                     class="animate-pulse rounded-lg border-2 border-destructive/50 bg-destructive/10 p-4"
                 >
                     <div class="flex items-start gap-3">
@@ -316,6 +318,27 @@ const handleFaceVerification = async (confidence: number) => {
                             </p>
                             <p class="mt-2 text-sm font-medium text-destructive">
                                 📍 Mohon mendekat {{ Math.round(distanceToOffice - selectedOffice.radius_meters) }}m lagi
+                            </p>
+                        </div>
+                    </div>
+                </div>
+
+                <!-- Remote Attendance Enabled Alert -->
+                <div
+                    v-if="locationStatus === 'success' && selectedOffice && !isInRange && user.allow_outside_radius"
+                    class="rounded-lg border-2 border-blue-500/50 bg-blue-50 p-4 dark:bg-blue-950/50"
+                >
+                    <div class="flex items-start gap-3">
+                        <div class="rounded-lg bg-blue-100 p-2 dark:bg-blue-900/50">
+                            <CheckCircle class="h-5 w-5 text-blue-600 dark:text-blue-400" />
+                        </div>
+                        <div class="flex-1">
+                            <h3 class="font-semibold text-blue-800 dark:text-blue-300">Absen Diluar Lokasi Diizinkan</h3>
+                            <p class="mt-1 text-sm text-blue-700 dark:text-blue-400">
+                                Anda memiliki izin untuk melakukan absensi di luar radius kantor.
+                            </p>
+                            <p class="mt-2 text-sm text-blue-600 dark:text-blue-500">
+                                📍 Jarak dari {{ selectedOffice.name }}: {{ Math.round(distanceToOffice) }}m
                             </p>
                         </div>
                     </div>
@@ -474,7 +497,7 @@ const handleFaceVerification = async (confidence: number) => {
 
                 <!-- Face Recognition Required Alert -->
                 <div
-                    v-if="isInRange && faceVerificationRequired && !faceVerificationCompleted && !hasCheckedInToday"
+                    v-if="(isInRange || user.allow_outside_radius) && faceVerificationRequired && !faceVerificationCompleted && !hasCheckedInToday"
                     class="rounded-lg border-2 border-blue-500/50 bg-blue-50 p-4 dark:bg-blue-950/50"
                 >
                     <div class="flex items-start gap-3">
@@ -523,9 +546,9 @@ const handleFaceVerification = async (confidence: number) => {
                         <div
                             v-else
                             class="mx-auto flex h-16 w-16 items-center justify-center rounded-full"
-                            :class="isInRange ? 'bg-green-100 dark:bg-green-900/50' : 'bg-muted'"
+                            :class="isInRange || user.allow_outside_radius ? 'bg-green-100 dark:bg-green-900/50' : 'bg-muted'"
                         >
-                            <Clock class="h-8 w-8" :class="isInRange ? 'text-green-600 dark:text-green-400' : 'text-muted-foreground'" />
+                            <Clock class="h-8 w-8" :class="isInRange || user.allow_outside_radius ? 'text-green-600 dark:text-green-400' : 'text-muted-foreground'" />
                         </div>
 
                         <div>
@@ -534,10 +557,10 @@ const handleFaceVerification = async (confidence: number) => {
                                     hasCheckedInToday
                                         ? 'Sudah Check In Hari Ini'
                                         : faceVerificationRequired && !faceVerificationCompleted
-                                          ? isInRange
+                                          ? (isInRange || user.allow_outside_radius)
                                               ? 'Verifikasi Wajah'
                                               : 'Belum Bisa Check In'
-                                          : isInRange
+                                          : (isInRange || user.allow_outside_radius)
                                             ? 'Siap Check In!'
                                             : 'Belum Bisa Check In'
                                 }}
@@ -547,10 +570,10 @@ const handleFaceVerification = async (confidence: number) => {
                                     hasCheckedInToday
                                         ? 'Absensi masuk Anda sudah tercatat untuk hari ini'
                                         : faceVerificationRequired && !faceVerificationCompleted
-                                          ? isInRange
+                                          ? (isInRange || user.allow_outside_radius)
                                               ? 'Silakan verifikasi wajah untuk melanjutkan'
                                               : 'Mohon mendekat ke lokasi kantor'
-                                          : isInRange
+                                          : (isInRange || user.allow_outside_radius)
                                             ? 'Anda dapat melakukan absensi masuk sekarang'
                                             : 'Mohon mendekat ke lokasi kantor'
                                 }}
@@ -560,10 +583,10 @@ const handleFaceVerification = async (confidence: number) => {
                         <button
                             v-if="!hasCheckedInToday"
                             @click="submitCheckIn"
-                            :disabled="!isInRange || form.processing || faceLoading"
+                            :disabled="(!isInRange && !user.allow_outside_radius) || form.processing || faceLoading"
                             class="inline-flex w-full items-center justify-center gap-2 rounded-lg px-6 py-4 text-sm font-medium transition-colors disabled:cursor-not-allowed disabled:opacity-50"
                             :class="
-                                isInRange
+                                (isInRange || user.allow_outside_radius)
                                     ? faceVerificationRequired && !faceVerificationCompleted
                                         ? 'bg-blue-600 text-white shadow-sm hover:bg-blue-700'
                                         : 'bg-green-600 text-white shadow-sm hover:bg-green-700'

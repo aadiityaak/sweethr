@@ -1,13 +1,7 @@
 {
   "version": "1.0.0",
-<<<<<<< HEAD
-  "fullVersion": "v1.0.0.20250929.1344",
-  "buildDate": "2025-09-29T06:44:07.133Z",
-  "timestamp": "20250929.1344",
-=======
-  "fullVersion": "v1.0.0.20250929.1957",
-  "buildDate": "2025-09-29T12:57:05.764Z",
-  "timestamp": "20250929.1957",
->>>>>>> 625c00ae169290d36bbd225d854be6a2149b3507
+  "fullVersion": "v1.0.0.20250930.1008",
+  "buildDate": "2025-09-30T03:08:09.233Z",
+  "timestamp": "20250930.1008",
   "environment": "development"
 }

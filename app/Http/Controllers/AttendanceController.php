@@ -70,6 +70,7 @@ class AttendanceController extends Controller
                 'face_recognition_enabled' => $user->face_recognition_enabled ?? false,
                 'face_recognition_mandatory' => $user->face_recognition_mandatory ?? true,
                 'face_descriptors' => $user->face_descriptors,
+                'allow_outside_radius' => $user->allow_outside_radius ?? false,
             ],
         ]);
     }
