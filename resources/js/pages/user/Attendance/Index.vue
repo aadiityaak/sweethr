@@ -11,6 +11,14 @@ interface OfficeLocation {
     name: string;
 }
 
+interface WorkShift {
+    id: number;
+    name: string;
+    code: string;
+    start_time: string;
+    end_time: string;
+}
+
 interface Attendance {
     id: number;
     date: string;
@@ -20,6 +28,7 @@ interface Attendance {
     overtime_duration: number;
     status: string;
     office_location: OfficeLocation;
+    shift?: WorkShift | null;
 }
 
 interface TodayAttendance {
@@ -29,6 +38,7 @@ interface TodayAttendance {
     status: string;
     work_duration: number | null;
     office_location: OfficeLocation;
+    shift?: WorkShift | null;
 }
 
 interface Props {
@@ -322,11 +332,24 @@ const confirmCheckOut = () => {
                         </div>
                     </div>
 
-                    <div v-if="todayAttendance?.office_location" class="mt-4 flex items-center gap-2 rounded-md bg-muted p-3">
-                        <MapPin class="h-4 w-4 text-muted-foreground" />
-                        <span class="text-sm text-muted-foreground">
-                            {{ todayAttendance.office_location?.name || 'Remote' }}
-                        </span>
+                    <div class="mt-4 space-y-2">
+                        <div v-if="todayAttendance?.office_location" class="flex items-center gap-2 rounded-md bg-muted p-3">
+                            <MapPin class="h-4 w-4 text-muted-foreground" />
+                            <span class="text-sm text-muted-foreground">
+                                {{ todayAttendance.office_location?.name || 'Remote' }}
+                            </span>
+                        </div>
+                        <div v-if="todayAttendance?.shift" class="flex items-center gap-2 rounded-md bg-blue-50 dark:bg-blue-900/20 p-3">
+                            <Clock class="h-4 w-4 text-blue-600 dark:text-blue-400" />
+                            <div class="flex-1">
+                                <span class="text-sm font-medium text-blue-900 dark:text-blue-100">
+                                    {{ todayAttendance.shift.name }}
+                                </span>
+                                <span class="text-xs text-blue-600 dark:text-blue-400 ml-2">
+                                    ({{ formatTime(todayAttendance.shift.start_time) }} - {{ formatTime(todayAttendance.shift.end_time) }})
+                                </span>
+                            </div>
+                        </div>
                     </div>
 
                     <!-- Check Out Button -->
@@ -459,9 +482,17 @@ const confirmCheckOut = () => {
                                     </div>
                                 </div>
 
-                                <div v-if="attendance.office_location" class="mt-2 flex items-center gap-1">
-                                    <MapPin class="h-3 w-3 text-muted-foreground" />
-                                    <span class="text-xs text-muted-foreground">{{ attendance.office_location?.name || 'Remote' }}</span>
+                                <div class="mt-3 flex flex-col gap-2">
+                                    <div v-if="attendance.office_location" class="flex items-center gap-1">
+                                        <MapPin class="h-3 w-3 text-muted-foreground" />
+                                        <span class="text-xs text-muted-foreground">{{ attendance.office_location?.name || 'Remote' }}</span>
+                                    </div>
+                                    <div v-if="attendance.shift" class="flex items-center gap-1">
+                                        <Clock class="h-3 w-3 text-blue-600 dark:text-blue-400" />
+                                        <span class="text-xs text-blue-600 dark:text-blue-400">
+                                            {{ attendance.shift.name }} ({{ formatTime(attendance.shift.start_time) }} - {{ formatTime(attendance.shift.end_time) }})
+                                        </span>
+                                    </div>
                                 </div>
                             </div>
 

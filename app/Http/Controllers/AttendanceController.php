@@ -32,11 +32,40 @@ class AttendanceController extends Controller
             })
             ->paginate(20);
 
+        // Add shift information to each attendance record
+        $attendances->getCollection()->transform(function ($attendance) use ($user) {
+            $shift = $user->employeeShifts()
+                ->where('effective_date', '<=', $attendance->date)
+                ->where(function ($query) use ($attendance) {
+                    $query->whereNull('end_date')
+                        ->orWhere('end_date', '>=', $attendance->date);
+                })
+                ->with('workShift:id,name,code,start_time,end_time')
+                ->first();
+
+            $attendance->shift = $shift?->workShift;
+            return $attendance;
+        });
+
         // Get today's attendance
         $todayAttendance = Attendance::where('user_id', $user->id)
             ->where('date', Carbon::today())
             ->with('officeLocation')
             ->first();
+
+        // Add shift information to today's attendance
+        if ($todayAttendance) {
+            $todayShift = $user->employeeShifts()
+                ->where('effective_date', '<=', Carbon::today())
+                ->where(function ($query) {
+                    $query->whereNull('end_date')
+                        ->orWhere('end_date', '>=', Carbon::today());
+                })
+                ->with('workShift:id,name,code,start_time,end_time')
+                ->first();
+
+            $todayAttendance->shift = $todayShift?->workShift;
+        }
 
         return Inertia::render('user/Attendance/Index', [
             'attendances' => $attendances,
