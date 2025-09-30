@@ -627,6 +627,8 @@ const confirmApprove = () => {
         `/admin/leave-requests/${selectedRequest.value.id}/approve`,
         {},
         {
+            preserveState: false,
+            preserveScroll: false,
             onSuccess: () => {
                 toast({
                     title: 'Berhasil!',
@@ -659,6 +661,8 @@ const submitReject = () => {
     if (!selectedRequest.value) return;
 
     rejectForm.patch(`/admin/leave-requests/${selectedRequest.value.id}/reject`, {
+        preserveState: false,
+        preserveScroll: false,
         onSuccess: () => {
             toast({
                 title: 'Berhasil!',
