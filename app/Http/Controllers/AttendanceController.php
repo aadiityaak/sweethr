@@ -88,16 +88,24 @@ class AttendanceController extends Controller
         ]);
 
         try {
+            $user = auth()->user();
+            // Force refresh user data from database to get latest settings
+            $user->refresh();
+
+            // For users with remote attendance permission, office_location_id is optional
             $validationRules = [
-                'office_location_id' => 'required|exists:office_locations,id',
                 'latitude' => 'required|numeric|between:-90,90',
                 'longitude' => 'required|numeric|between:-180,180',
             ];
 
+            // Office location is required only if user doesn't have remote attendance permission
+            if (!$user->allow_outside_radius) {
+                $validationRules['office_location_id'] = 'required|exists:office_locations,id';
+            } else {
+                $validationRules['office_location_id'] = 'nullable|exists:office_locations,id';
+            }
+
             // Add face recognition validation if required
-            $user = auth()->user();
-            // Force refresh user data from database to get latest settings
-            $user->refresh();
             if ($this->faceRecognitionService->isFaceRecognitionRequired($user)) {
                 $validationRules['face_confidence'] = 'required|numeric|min:0|max:100';
                 $validationRules['face_photo'] = 'required|string'; // Base64 image data
@@ -119,20 +127,30 @@ class AttendanceController extends Controller
             return back()->withErrors(['message' => 'Anda sudah melakukan check in hari ini']);
         }
 
-        // Validate location
-        $office = OfficeLocation::findOrFail($request->office_location_id);
+        // Validate location - only if office_location_id is provided
+        $office = null;
+        if ($request->office_location_id) {
+            $office = OfficeLocation::findOrFail($request->office_location_id);
 
-        // Check if user is within radius OR has permission to check-in outside radius
-        if (! $office->isWithinRadius($request->latitude, $request->longitude)) {
-            if (! $user->allow_outside_radius) {
-                return back()->withErrors(['message' => 'Anda berada di luar radius kantor. Mohon mendekat ke lokasi kantor.']);
+            // Check if user is within radius OR has permission to check-in outside radius
+            if (! $office->isWithinRadius($request->latitude, $request->longitude)) {
+                if (! $user->allow_outside_radius) {
+                    return back()->withErrors(['message' => 'Anda berada di luar radius kantor. Mohon mendekat ke lokasi kantor.']);
+                }
+                // Log when user checks in outside radius but is allowed
+                \Log::info('User checked in outside radius with permission', [
+                    'user_id' => $user->id,
+                    'office_id' => $office->id,
+                    'distance_from_office' => $office->calculateDistance($request->latitude, $request->longitude),
+                    'allowed_radius' => $office->radius_meters,
+                ]);
             }
-            // Log when user checks in outside radius but is allowed
-            \Log::info('User checked in outside radius with permission', [
+        } else {
+            // User with remote attendance permission checking in without office location
+            \Log::info('User checked in remotely without office location', [
                 'user_id' => $user->id,
-                'office_id' => $office->id,
-                'distance_from_office' => $office->calculateDistance($request->latitude, $request->longitude),
-                'allowed_radius' => $office->radius_meters,
+                'latitude' => $request->latitude,
+                'longitude' => $request->longitude,
             ]);
         }
 
