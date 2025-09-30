@@ -44,18 +44,28 @@ const doughnutData = ref({
     datasets: [
         {
             data: [attendanceData?.present || 0, attendanceData?.absent || 0, attendanceData?.late || 0],
-            backgroundColor: [
-                '#10b981', // emerald-500
-                '#ef4444', // red-500
-                '#f59e0b', // amber-500
-            ],
-            borderColor: [
-                '#059669', // emerald-600
-                '#dc2626', // red-600
-                '#d97706', // amber-600
-            ],
-            borderWidth: 2,
-            hoverBackgroundColor: ['#059669', '#dc2626', '#d97706'],
+            backgroundColor: (context: any) => {
+                const chart = context.chart;
+                const { ctx } = chart;
+
+                const colors = [
+                    { start: '#10b981', end: '#34d399' }, // emerald gradient
+                    { start: '#ef4444', end: '#f87171' }, // red gradient
+                    { start: '#f59e0b', end: '#fbbf24' }, // amber gradient
+                ];
+
+                const color = colors[context.dataIndex];
+                if (!color) return '#10b981';
+
+                const gradient = ctx.createLinearGradient(0, 0, 200, 200);
+                gradient.addColorStop(0, color.start);
+                gradient.addColorStop(1, color.end);
+                return gradient;
+            },
+            borderColor: '#ffffff',
+            borderWidth: 4,
+            hoverBorderWidth: 6,
+            hoverOffset: 8,
         },
     ],
 });
@@ -67,14 +77,38 @@ const barData = ref({
         {
             label: 'Kehadiran',
             data: weeklyData?.data || [85, 92, 88, 95, 90, 0, 0],
-            backgroundColor: 'rgba(59, 130, 246, 0.8)', // blue-500 with opacity
-            borderColor: 'rgb(59, 130, 246)', // blue-500
-            borderWidth: 2,
-            borderRadius: 6,
+            backgroundColor: (context: any) => {
+                const chart = context.chart;
+                const { ctx, chartArea } = chart;
+
+                if (!chartArea) {
+                    return 'rgba(59, 130, 246, 0.8)';
+                }
+
+                const gradient = ctx.createLinearGradient(0, chartArea.bottom, 0, chartArea.top);
+                gradient.addColorStop(0, 'rgba(59, 130, 246, 0.5)'); // blue-500 at bottom
+                gradient.addColorStop(0.5, 'rgba(99, 102, 241, 0.7)'); // indigo-500 at middle
+                gradient.addColorStop(1, 'rgba(139, 92, 246, 0.9)'); // violet-500 at top
+                return gradient;
+            },
+            borderColor: (context: any) => {
+                return 'rgb(99, 102, 241)'; // indigo-500
+            },
+            borderWidth: 0,
+            borderRadius: 8,
             borderSkipped: false,
         },
     ],
 });
+
+// Create gradient for line chart
+const createGradient = (ctx: CanvasRenderingContext2D, chartArea: any) => {
+    const gradient = ctx.createLinearGradient(0, chartArea.bottom, 0, chartArea.top);
+    gradient.addColorStop(0, 'rgba(59, 130, 246, 0)'); // blue-500 transparent at bottom
+    gradient.addColorStop(0.5, 'rgba(59, 130, 246, 0.2)'); // blue-500 20% at middle
+    gradient.addColorStop(1, 'rgba(99, 102, 241, 0.4)'); // indigo-500 40% at top
+    return gradient;
+};
 
 // For line chart (30-day attendance)
 const lineData = ref({
@@ -83,15 +117,33 @@ const lineData = ref({
         {
             label: 'Tingkat Kehadiran',
             data: monthlyData?.data || [],
-            borderColor: 'rgb(59, 130, 246)', // blue-500
-            backgroundColor: 'rgba(59, 130, 246, 0.1)',
+            borderColor: (context: any) => {
+                const ctx = context.chart.ctx;
+                const gradient = ctx.createLinearGradient(0, 0, context.chart.width, 0);
+                gradient.addColorStop(0, 'rgb(59, 130, 246)'); // blue-500
+                gradient.addColorStop(0.5, 'rgb(99, 102, 241)'); // indigo-500
+                gradient.addColorStop(1, 'rgb(139, 92, 246)'); // violet-500
+                return gradient;
+            },
+            backgroundColor: (context: any) => {
+                const chart = context.chart;
+                const { ctx, chartArea } = chart;
+                if (!chartArea) {
+                    return 'rgba(59, 130, 246, 0.1)';
+                }
+                return createGradient(ctx, chartArea);
+            },
+            borderWidth: 3,
             tension: 0.4,
             fill: true,
-            pointBackgroundColor: 'rgb(59, 130, 246)',
-            pointBorderColor: '#fff',
-            pointBorderWidth: 2,
-            pointRadius: 4,
-            pointHoverRadius: 6,
+            pointBackgroundColor: 'rgb(255, 255, 255)',
+            pointBorderColor: 'rgb(59, 130, 246)',
+            pointBorderWidth: 3,
+            pointRadius: 5,
+            pointHoverRadius: 7,
+            pointHoverBackgroundColor: 'rgb(255, 255, 255)',
+            pointHoverBorderColor: 'rgb(99, 102, 241)',
+            pointHoverBorderWidth: 4,
         },
     ],
 });
@@ -105,12 +157,24 @@ const doughnutOptions = {
             labels: {
                 padding: 20,
                 usePointStyle: true,
+                pointStyle: 'circle',
                 font: {
                     size: 12,
+                    weight: '500' as const,
                 },
+                color: 'rgb(107, 114, 128)',
             },
         },
         tooltip: {
+            enabled: true,
+            backgroundColor: 'rgba(0, 0, 0, 0.8)',
+            titleColor: '#fff',
+            bodyColor: '#fff',
+            borderColor: 'rgba(255, 255, 255, 0.2)',
+            borderWidth: 1,
+            padding: 12,
+            cornerRadius: 8,
+            displayColors: true,
             callbacks: {
                 label: (context: any) => {
                     const label = context.label || '';
@@ -122,11 +186,16 @@ const doughnutOptions = {
             },
         },
     },
-    cutout: '60%',
+    cutout: '65%',
     elements: {
         arc: {
-            borderWidth: 0,
+            borderWidth: 4,
+            borderAlign: 'inner' as const,
         },
+    },
+    animation: {
+        animateRotate: true,
+        animateScale: true,
     },
 };
 
@@ -172,14 +241,18 @@ const lineOptions = {
             display: false,
         },
         tooltip: {
-            backgroundColor: 'rgba(0, 0, 0, 0.8)',
+            enabled: true,
+            backgroundColor: 'rgba(0, 0, 0, 0.9)',
             titleColor: '#fff',
             bodyColor: '#fff',
-            borderColor: 'rgb(59, 130, 246)',
-            borderWidth: 1,
+            borderColor: 'rgb(99, 102, 241)',
+            borderWidth: 2,
+            padding: 12,
+            cornerRadius: 8,
+            displayColors: true,
             callbacks: {
                 label: (context: any) => {
-                    return `${context.parsed.y}% kehadiran`;
+                    return `Kehadiran: ${context.parsed.y}%`;
                 },
                 title: (context: any) => {
                     return context[0].label;
@@ -194,18 +267,30 @@ const lineOptions = {
             ticks: {
                 callback: (value: any) => value + '%',
                 color: 'rgba(156, 163, 175, 0.8)',
+                font: {
+                    size: 11,
+                    weight: '500' as const,
+                },
+                padding: 8,
             },
             grid: {
-                color: 'rgba(156, 163, 175, 0.1)',
+                color: 'rgba(156, 163, 175, 0.08)',
+                lineWidth: 1,
             },
             border: {
                 display: false,
+                dash: [5, 5],
             },
         },
         x: {
             ticks: {
                 color: 'rgba(156, 163, 175, 0.8)',
-                maxTicksLimit: 10,
+                maxTicksLimit: 15,
+                font: {
+                    size: 10,
+                    weight: '500' as const,
+                },
+                padding: 8,
             },
             grid: {
                 display: false,
@@ -221,9 +306,17 @@ const lineOptions = {
     },
     elements: {
         point: {
-            hoverBackgroundColor: 'rgb(59, 130, 246)',
-            hoverBorderColor: '#fff',
+            hoverBackgroundColor: 'rgb(255, 255, 255)',
+            hoverBorderColor: 'rgb(99, 102, 241)',
+            hoverBorderWidth: 4,
         },
+        line: {
+            borderJoinStyle: 'round' as const,
+        },
+    },
+    animation: {
+        duration: 1000,
+        easing: 'easeInOutQuart' as const,
     },
 };
 
