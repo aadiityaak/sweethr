@@ -186,8 +186,8 @@ import AppLayout from '@/Layouts/AppLayout.vue';
 import { dashboard } from '@/routes/admin';
 import { edit, index as salarySettingsIndex, show } from '@/routes/admin/salary-settings';
 import { Link } from '@inertiajs/vue3';
-import { AlertCircle, CheckCircle, DollarSign, Edit, Eye, Users, XCircle } from 'lucide-vue-next';
-import { computed } from 'vue';
+import { AlertCircle, ArrowDownUp, CheckCircle, ChevronDown, ChevronUp, DollarSign, Edit, Eye, Users, XCircle } from 'lucide-vue-next';
+import { computed, ref } from 'vue';
 
 interface User {
     id: number;
@@ -195,8 +195,8 @@ interface User {
     employee_id: string;
     department: string | null;
     position: string | null;
-    current_salary: number;
-    total_allowances: number;
+    current_salary: number | null;
+    total_allowances: number | null;
     has_salary_setting: boolean;
 }
 
@@ -211,6 +211,59 @@ const breadcrumbs = [
     { name: 'Pengaturan Gaji', href: salarySettingsIndex.url() },
 ];
 
+// Sorting state
+type SortField = 'name' | 'employee_id' | 'department' | 'position' | 'current_salary' | 'total_allowances' | 'has_salary_setting';
+type SortDirection = 'asc' | 'desc' | null;
+
+const sortField = ref<SortField | null>(null);
+const sortDirection = ref<SortDirection>(null);
+
+// Sorted users
+const sortedUsers = computed(() => {
+    if (!sortField.value || !sortDirection.value) {
+        return props.users;
+    }
+
+    return [...props.users].sort((a, b) => {
+        const field = sortField.value as SortField;
+        let aValue = a[field];
+        let bValue = b[field];
+
+        // Handle null values
+        if (aValue === null || aValue === undefined) aValue = '';
+        if (bValue === null || bValue === undefined) bValue = '';
+
+        // Convert to lowercase for string comparison
+        if (typeof aValue === 'string') aValue = aValue.toLowerCase();
+        if (typeof bValue === 'string') bValue = bValue.toLowerCase();
+
+        // Compare
+        if (aValue < bValue) return sortDirection.value === 'asc' ? -1 : 1;
+        if (aValue > bValue) return sortDirection.value === 'asc' ? 1 : -1;
+        return 0;
+    });
+});
+
+const toggleSort = (field: SortField) => {
+    if (sortField.value === field) {
+        // Cycle through: asc -> desc -> null
+        if (sortDirection.value === 'asc') {
+            sortDirection.value = 'desc';
+        } else if (sortDirection.value === 'desc') {
+            sortDirection.value = null;
+            sortField.value = null;
+        }
+    } else {
+        sortField.value = field;
+        sortDirection.value = 'asc';
+    }
+};
+
+const getSortIcon = (field: SortField) => {
+    if (sortField.value !== field) return ArrowDownUp;
+    return sortDirection.value === 'asc' ? ChevronUp : ChevronDown;
+};
+
 const usersWithSalary = computed(() => {
     return props.users.filter((user) => user.has_salary_setting).length;
 });
@@ -220,14 +273,27 @@ const usersWithoutSalary = computed(() => {
 });
 
 const averageSalary = computed(() => {
-    const usersWithSalaryData = props.users.filter((user) => user.has_salary_setting);
+    // Debug: log data untuk troubleshooting
+    console.log('Users data:', props.users);
+
+    const usersWithSalaryData = props.users.filter((user) => {
+        console.log(`User ${user.name}: has_salary=${user.has_salary_setting}, salary=${user.current_salary}`);
+        return user.has_salary_setting && user.current_salary != null && user.current_salary > 0;
+    });
+
+    console.log('Users with salary data:', usersWithSalaryData);
+
     if (usersWithSalaryData.length === 0) return 0;
 
     const total = usersWithSalaryData.reduce((sum, user) => sum + user.current_salary, 0);
+    console.log('Total salary:', total, 'Count:', usersWithSalaryData.length);
+
     return Math.round(total / usersWithSalaryData.length);
 });
 
-const formatCurrency = (amount: number) => {
+const formatCurrency = (amount: number | null | undefined) => {
+    if (!amount || isNaN(amount)) return 'Rp0';
+
     return new Intl.NumberFormat('id-ID', {
         style: 'currency',
         currency: 'IDR',
