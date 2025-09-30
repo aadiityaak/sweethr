@@ -393,12 +393,12 @@
 
         <!-- Approve Confirmation Modal -->
         <ConfirmationModal
-            v-if="showApproveModal"
-            :title="`Setujui Pengajuan Cuti`"
+            :show="showApproveModal"
+            title="Setujui Pengajuan Cuti"
             :message="`Yakin ingin menyetujui pengajuan cuti ${selectedRequest?.user.name}?`"
             confirm-text="Setujui"
             cancel-text="Batal"
-            confirm-variant="success"
+            type="info"
             @confirm="confirmApprove"
             @cancel="showApproveModal = false"
         />
