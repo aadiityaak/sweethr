@@ -48,13 +48,10 @@ interface Props {
 
 const { attendance, officeLocations } = defineProps<Props>();
 
-const attendanceDate = ref(formatDateForInput(attendance.date));
-
-const breadcrumbs: BreadcrumbItem[] = [
-    { title: 'Dasbor', href: '/dashboard' },
-    { title: 'Kelola Kehadiran', href: '/admin/attendance' },
-    { title: 'Edit Kehadiran', href: '#' },
-];
+// Format date for input
+const formatDateForInput = (date: string) => {
+    return new Date(date).toISOString().split('T')[0];
+};
 
 // Format time for input (remove seconds if present)
 const formatTimeForInput = (time: string | null) => {
@@ -62,10 +59,13 @@ const formatTimeForInput = (time: string | null) => {
     return time.substring(0, 5); // Get HH:MM from HH:MM:SS
 };
 
-// Format date for input
-const formatDateForInput = (date: string) => {
-    return new Date(date).toISOString().split('T')[0];
-};
+const attendanceDate = ref(formatDateForInput(attendance.date));
+
+const breadcrumbs: BreadcrumbItem[] = [
+    { title: 'Dasbor', href: '/dashboard' },
+    { title: 'Kelola Kehadiran', href: '/admin/attendance' },
+    { title: 'Edit Kehadiran', href: '#' },
+];
 </script>
 
 <template>

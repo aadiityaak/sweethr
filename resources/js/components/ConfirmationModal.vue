@@ -77,7 +77,11 @@ const currentStyles = typeStyles[props.type];
                 </div>
                 <div class="flex-1">
                     <h3 class="text-lg font-semibold text-gray-900 dark:text-white">{{ title }}</h3>
-                    <p class="mt-2 text-sm text-gray-600 dark:text-gray-300">{{ message }}</p>
+                    <div class="mt-2 text-sm text-gray-600 dark:text-gray-300">
+                        <slot name="message">
+                            {{ message }}
+                        </slot>
+                    </div>
                 </div>
                 <button
                     @click="handleCancel"

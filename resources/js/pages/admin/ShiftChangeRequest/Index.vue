@@ -3,6 +3,7 @@ import { Badge } from '@/components/ui/badge';
 import { Button } from '@/components/ui/button';
 import { DatePicker } from '@/components/ui/date-picker';
 import AppLayout from '@/layouts/AppLayout.vue';
+import ConfirmationModal from '@/components/ConfirmationModal.vue';
 import { type BreadcrumbItem } from '@/types';
 import { Head, Link, router } from '@inertiajs/vue3';
 import { AlertCircle, Calendar, CheckCircle, Eye, Filter, XCircle } from 'lucide-vue-next';
@@ -71,6 +72,13 @@ const statusFilter = ref(filters.status || '');
 const fromDate = ref(filters.from_date || '');
 const toDate = ref(filters.to_date || '');
 
+// Modal states
+const showApproveModal = ref(false);
+const showRejectModal = ref(false);
+const selectedRequest = ref<number | null>(null);
+const rejectReason = ref('');
+const processing = ref(false);
+
 // Watch for filter changes and update URL
 watch([statusFilter, fromDate, toDate], () => {
     const params = new URLSearchParams();
@@ -128,18 +136,60 @@ const clearFilters = () => {
 };
 
 const approveRequest = (requestId: number) => {
-    if (confirm('Apakah Anda yakin ingin menyetujui request ini?')) {
-        router.patch(`/admin/shift-change-requests/${requestId}/approve`);
-    }
+    selectedRequest.value = requestId;
+    showApproveModal.value = true;
 };
 
 const rejectRequest = (requestId: number) => {
-    const reason = prompt('Alasan penolakan (opsional):');
-    if (reason !== null) {
-        router.patch(`/admin/shift-change-requests/${requestId}/reject`, {
-            admin_notes: reason,
+    selectedRequest.value = requestId;
+    rejectReason.value = '';
+    showRejectModal.value = true;
+};
+
+const handleApprove = () => {
+    if (selectedRequest.value) {
+        processing.value = true;
+        router.patch(`/admin/shift-change-requests/${selectedRequest.value}/approve`, {}, {
+            onSuccess: () => {
+                processing.value = false;
+                showApproveModal.value = false;
+                selectedRequest.value = null;
+            },
+            onError: () => {
+                processing.value = false;
+            },
         });
     }
+};
+
+const handleReject = () => {
+    if (selectedRequest.value) {
+        processing.value = true;
+        router.patch(`/admin/shift-change-requests/${selectedRequest.value}/reject`, {
+            admin_notes: rejectReason.value,
+        }, {
+            onSuccess: () => {
+                processing.value = false;
+                showRejectModal.value = false;
+                selectedRequest.value = null;
+                rejectReason.value = '';
+            },
+            onError: () => {
+                processing.value = false;
+            },
+        });
+    }
+};
+
+const cancelApprove = () => {
+    showApproveModal.value = false;
+    selectedRequest.value = null;
+};
+
+const cancelReject = () => {
+    showRejectModal.value = false;
+    selectedRequest.value = null;
+    rejectReason.value = '';
 };
 </script>
 
@@ -354,13 +404,13 @@ const rejectRequest = (requestId: number) => {
                 <div v-if="requests.links && requests.links.length > 3" class="border-t border-gray-200 px-6 py-4 dark:border-gray-700">
                     <div class="flex items-center justify-between">
                         <div class="text-sm text-gray-700 dark:text-gray-300">
-                            Menampilkan {{ requests.meta.from }} sampai {{ requests.meta.to }} dari {{ requests.meta.total }} hasil
+                            Menampilkan {{ requests.meta?.from || 0 }} sampai {{ requests.meta?.to || 0 }} dari {{ requests.meta?.total || 0 }} hasil
                         </div>
                         <div class="flex gap-2">
                             <Link
                                 v-for="(link, index) in requests.links"
                                 :key="index"
-                                :href="link.url"
+                                :href="link.url || '#'"
                                 v-html="link.label"
                                 :class="[
                                     'rounded-md px-3 py-2 text-sm transition-colors',
@@ -376,5 +426,49 @@ const rejectRequest = (requestId: number) => {
                 </div>
             </div>
         </div>
+
+        <!-- Approve Confirmation Modal -->
+        <ConfirmationModal
+            :show="showApproveModal"
+            title="Setujui Request"
+            message="Apakah Anda yakin ingin menyetujui request tukar libur ini?"
+            confirm-text="Ya, Setujui"
+            cancel-text="Batal"
+            type="info"
+            :processing="processing"
+            @confirm="handleApprove"
+            @cancel="cancelApprove"
+        />
+
+        <!-- Reject Confirmation Modal -->
+        <ConfirmationModal
+            :show="showRejectModal"
+            title="Tolak Request"
+            message="Apakah Anda yakin ingin menolak request tukar libur ini?"
+            confirm-text="Ya, Tolak"
+            cancel-text="Batal"
+            type="danger"
+            :processing="processing"
+            @confirm="handleReject"
+            @cancel="cancelReject"
+        >
+            <template #message>
+                <div class="space-y-3">
+                    <p>Apakah Anda yakin ingin menolak request tukar libur ini?</p>
+                    <div>
+                        <label class="mb-2 block text-sm font-medium text-gray-700 dark:text-gray-300">
+                            Alasan Penolakan (opsional)
+                        </label>
+                        <textarea
+                            v-model="rejectReason"
+                            rows="3"
+                            class="w-full rounded-lg border border-gray-300 px-3 py-2 text-sm dark:border-gray-600 dark:bg-gray-800 dark:text-white"
+                            placeholder="Masukkan alasan penolakan..."
+                            :disabled="processing"
+                        ></textarea>
+                    </div>
+                </div>
+            </template>
+        </ConfirmationModal>
     </AppLayout>
 </template>

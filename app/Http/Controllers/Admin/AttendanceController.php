@@ -19,37 +19,81 @@ class AttendanceController extends Controller
 {
     public function index(Request $request): Response
     {
+        // Prevent caching
+        header('Cache-Control: no-store, no-cache, must-revalidate, max-age=0');
+        header('Pragma: no-cache');
+        header('Expires: 0');
+
         // Get filters
         $filters = $request->only(['date', 'status', 'department', 'office_location', 'search']);
         $date = $filters['date'] ?? Carbon::today()->format('Y-m-d');
 
-        // Query attendance records with filters
-        $attendanceQuery = Attendance::with([
-            'user' => function ($query) {
-                $query->with(['department:id,name', 'position:id,title']);
-            },
-            'officeLocation:id,name,address',
-        ])
-            ->where('date', $date)
-            ->when($filters['status'] ?? false, function ($query, $status) {
-                $query->where('status', $status);
-            })
-            ->when($filters['department'] ?? false, function ($query, $department) {
-                $query->whereHas('user', function ($q) use ($department) {
-                    $q->where('department_id', $department);
+        // Special handling for absent status - show employees without attendance records
+        if (($filters['status'] ?? '') === 'absent') {
+            // Get employees who don't have attendance record for the date
+            $employeesQuery = User::with(['department:id,name', 'position:id,title'])
+                ->where('is_admin', false)
+                ->whereDoesntHave('attendances', function ($query) use ($date) {
+                    $query->where('date', $date);
+                })
+                ->when($filters['department'] ?? false, function ($query, $department) {
+                    $query->where('department_id', $department);
+                })
+                ->when($filters['search'] ?? false, function ($query, $search) {
+                    $query->where(function ($q) use ($search) {
+                        $q->where('name', 'like', "%{$search}%")
+                            ->orWhere('employee_id', 'like', "%{$search}%");
+                    });
                 });
-            })
-            ->when($filters['office_location'] ?? false, function ($query, $officeLocation) {
-                $query->where('office_location_id', $officeLocation);
-            })
-            ->when($filters['search'] ?? false, function ($query, $search) {
-                $query->whereHas('user', function ($q) use ($search) {
-                    $q->where('name', 'like', "%{$search}%")
-                        ->orWhere('employee_id', 'like', "%{$search}%");
-                });
-            });
 
-        $attendanceRecords = $attendanceQuery->orderBy('created_at', 'desc')->get();
+            $absentEmployees = $employeesQuery->orderBy('name')->get();
+
+            // Convert to attendance record format for consistency
+            $attendanceRecords = $absentEmployees->map(function ($user) use ($date) {
+                return (object) [
+                    'id' => null,
+                    'user_id' => $user->id,
+                    'date' => $date,
+                    'check_in_time' => null,
+                    'check_out_time' => null,
+                    'status' => 'absent',
+                    'work_duration' => null,
+                    'late_duration' => null,
+                    'overtime_duration' => null,
+                    'office_location' => null,
+                    'notes' => null,
+                    'user' => $user,
+                ];
+            });
+        } else {
+            // Query attendance records with filters (normal statuses)
+            $attendanceQuery = Attendance::with([
+                'user' => function ($query) {
+                    $query->with(['department:id,name', 'position:id,title']);
+                },
+                'officeLocation:id,name,address',
+            ])
+                ->where('date', $date)
+                ->when($filters['status'] ?? false, function ($query, $status) {
+                    $query->where('status', $status);
+                })
+                ->when($filters['department'] ?? false, function ($query, $department) {
+                    $query->whereHas('user', function ($q) use ($department) {
+                        $q->where('department_id', $department);
+                    });
+                })
+                ->when($filters['office_location'] ?? false, function ($query, $officeLocation) {
+                    $query->where('office_location_id', $officeLocation);
+                })
+                ->when($filters['search'] ?? false, function ($query, $search) {
+                    $query->whereHas('user', function ($q) use ($search) {
+                        $q->where('name', 'like', "%{$search}%")
+                            ->orWhere('employee_id', 'like', "%{$search}%");
+                    });
+                });
+
+            $attendanceRecords = $attendanceQuery->orderBy('created_at', 'desc')->get();
+        }
 
         // Calculate attendance statistics for the selected date
         $totalEmployees = User::where('is_admin', false)->count();

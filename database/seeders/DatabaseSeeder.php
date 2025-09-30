@@ -45,6 +45,8 @@ class DatabaseSeeder extends Seeder
 
             // Sample Data (optional for testing)
             LeaveRequestSeeder::class,
+            LeaveExchangeSeeder::class,
+            ShiftChangeRequestSeeder::class,
             AttendanceSeeder::class,
             EmployeeDocumentSeeder::class,
             ShiftSwapSeeder::class,

@@ -160,6 +160,61 @@ vue-tsc --noEmit
 
 **Key Lesson**: When using mass assignment methods like `updateOrCreate()`, all fields must be explicitly listed in the model's `$fillable` array, even if the database column exists and data is being passed correctly.
 
+## Caching Strategy
+
+### Network-First Approach (CRITICAL)
+**Strategy**: All data should use **Network-First, Cache-Fallback** strategy to prevent stale data issues.
+
+**Problem**: Cache-First strategy causes data to not update after modifications (create/update/delete operations). Users see outdated data even after changes.
+
+**Solution Implemented**:
+
+1. **Service Worker (`public/sw.js`)**:
+   - All requests (API and pages) use **Network-First** strategy
+   - Cache is ONLY used when offline (network fails)
+   - When online, always fetch fresh data from server
+   - Cache updates in background for offline fallback
+
+2. **Backend Controllers**:
+   - Add cache-control headers to prevent browser/proxy caching:
+   ```php
+   header('Cache-Control: no-store, no-cache, must-revalidate, max-age=0');
+   header('Pragma: no-cache');
+   header('Expires: 0');
+   ```
+
+3. **Frontend (Inertia.js)**:
+   - Use `preserveState: false` on mutations (delete/update) to force fresh data reload
+   - Use `preserveScroll: false` to reset scroll position after mutations
+   - Use `router.reload()` instead of `window.location.reload()` for better UX
+
+**Why This Matters**:
+- ✅ Users expect real-time data updates
+- ✅ Prevents confusion (deleted items still showing, updates not reflecting)
+- ✅ Offline support maintained through cache fallback
+- ✅ Performance acceptable as network is typically fast
+- ⚠️ **IMPORTANT**: Do NOT cache data except when offline (no internet connection)
+
+**Files Modified**:
+- `public/sw.js` - Simplified to Network-First for ALL requests
+- Various controllers - Added cache-control headers where needed
+- Frontend pages - Use `preserveState: false` for mutations
+
+**Implementation Pattern**:
+```javascript
+// Service Worker - Network First
+fetch(request)
+  .then(response => {
+    // Cache for offline fallback
+    cache.put(request, response.clone());
+    return response;
+  })
+  .catch(() => {
+    // Only use cache if offline
+    return cache.match(request);
+  });
+```
+
 ## Admin UI Standards
 
 ### Standard Admin Layout Pattern

@@ -229,11 +229,12 @@
 
         <!-- Delete Modal -->
         <ConfirmationModal
-            v-if="showDeleteModal"
+            :show="showDeleteModal"
             title="Hapus Dokumen"
             :message="`Apakah Anda yakin ingin menghapus dokumen '${document.title}'? Tindakan ini tidak dapat dibatalkan.`"
             confirm-text="Hapus"
-            confirm-variant="danger"
+            cancel-text="Batal"
+            type="danger"
             @confirm="handleDeleteDocument"
             @cancel="showDeleteModal = false"
         />

@@ -15,6 +15,11 @@ class LeaveRequestController extends Controller
 {
     public function index(Request $request): Response
     {
+        // Prevent caching
+        header('Cache-Control: no-store, no-cache, must-revalidate, max-age=0');
+        header('Pragma: no-cache');
+        header('Expires: 0');
+
         $query = LeaveRequest::with(['user:id,name,employee_id', 'leaveType:id,name', 'approvedBy:id,name'])
             ->orderByDesc('created_at');
 
@@ -94,6 +99,7 @@ class LeaveRequestController extends Controller
             ->whereHas('department')
             ->get()
             ->pluck('department')
+            ->filter() // Remove null values
             ->unique('id')
             ->values();
 

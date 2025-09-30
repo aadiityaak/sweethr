@@ -564,7 +564,7 @@ onUnmounted(() => {
                                 <td class="px-6 py-4">
                                     <div class="flex items-center gap-2 text-sm text-gray-600 dark:text-gray-400">
                                         <MapPin class="h-3 w-3" />
-                                        {{ record.office_location.name }}
+                                        {{ record.office_location?.name || 'Remote' }}
                                     </div>
                                 </td>
                                 <td class="px-6 py-4">
