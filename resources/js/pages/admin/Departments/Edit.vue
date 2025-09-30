@@ -10,7 +10,9 @@
                     <p class="text-muted-foreground">Edit informasi departemen "{{ department.name }}"</p>
                 </div>
                 <Link
-                    href="/admin/departments"
+                    :href="`/admin/departments?v=${Date.now()}`"
+                    :preserve-state="false"
+                    :preserve-scroll="false"
                     class="inline-flex items-center gap-2 rounded-lg bg-secondary px-4 py-2 text-sm font-medium text-secondary-foreground hover:bg-secondary/80"
                 >
                     <ArrowLeft class="h-4 w-4" />
@@ -166,7 +168,7 @@
                                 <Button type="submit" :disabled="form.processing">
                                     {{ form.processing ? 'Menyimpan...' : 'Update Departemen' }}
                                 </Button>
-                                <Button type="button" variant="outline" @click="router.visit('/admin/departments')"> Batal </Button>
+                                <Button type="button" variant="outline" @click="router.visit(`/admin/departments?v=${Date.now()}`, { preserveState: false, preserveScroll: false })"> Batal </Button>
                             </div>
                         </form>
                     </div>

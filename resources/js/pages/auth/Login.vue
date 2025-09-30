@@ -49,7 +49,7 @@ defineProps<{
                             :tabindex="1"
                             autocomplete="email"
                             placeholder="Masukkan email Anda"
-                            class="h-12 min-h-[48px] touch-manipulation rounded-lg border-2 bg-background/50 backdrop-blur-sm transition-all duration-200 placeholder:text-muted-foreground/70 focus:border-primary focus:bg-background focus:ring-2 focus:ring-primary/20"
+                            class="h-12 min-h-[48px] touch-manipulation rounded-lg border bg-background transition-all duration-200 placeholder:text-muted-foreground/70 focus:border-primary focus:ring-2 focus:ring-primary/20"
                         />
                     </div>
                     <InputError :message="errors.email" class="text-xs" />
@@ -77,7 +77,7 @@ defineProps<{
                             :tabindex="2"
                             autocomplete="current-password"
                             placeholder="Masukkan password Anda"
-                            class="h-12 min-h-[48px] touch-manipulation rounded-lg border-2 bg-background/50 backdrop-blur-sm transition-all duration-200 placeholder:text-muted-foreground/70 focus:border-primary focus:bg-background focus:ring-2 focus:ring-primary/20"
+                            class="h-12 min-h-[48px] touch-manipulation rounded-lg border bg-background transition-all duration-200 placeholder:text-muted-foreground/70 focus:border-primary focus:ring-2 focus:ring-primary/20"
                         />
                     </div>
                     <InputError :message="errors.password" class="text-xs" />
@@ -90,7 +90,7 @@ defineProps<{
                             id="remember"
                             name="remember"
                             :tabindex="3"
-                            class="rounded border-2 transition-all duration-200 focus:ring-2 focus:ring-primary/20"
+                            class="rounded border transition-all duration-200 focus:ring-2 focus:ring-primary/20"
                         />
                         <span class="text-sm text-muted-foreground">Ingat saya</span>
                     </Label>
@@ -99,7 +99,7 @@ defineProps<{
                 <!-- Login Button -->
                 <Button
                     type="submit"
-                    class="h-12 min-h-[48px] w-full touch-manipulation rounded-lg bg-gradient-to-r from-primary to-primary/90 font-semibold text-primary-foreground shadow-lg transition-all duration-200 hover:shadow-xl hover:shadow-primary/25 disabled:scale-100 disabled:opacity-70"
+                    class="h-12 min-h-[48px] w-full touch-manipulation rounded-lg bg-primary font-semibold text-primary-foreground transition-colors duration-200 hover:bg-primary/90 disabled:opacity-70"
                     :tabindex="4"
                     :disabled="processing"
                     data-test="login-button"

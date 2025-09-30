@@ -13,21 +13,12 @@ const { companyName, companyLogo } = useCompanySettings();
 </script>
 
 <template>
-    <div class="mx-auto min-h-screen max-w-[480px] bg-gradient-to-br from-background via-background to-muted/20">
-        <!-- Background Pattern -->
-        <div class="bg-grid-white/[0.02] absolute inset-0 bg-[size:60px_60px]" />
-        <div class="absolute inset-0 bg-gradient-to-t from-transparent via-background/50 to-background" />
-
+    <div class="mx-auto min-h-screen max-w-[480px] bg-background">
         <!-- Main Content -->
-        <div class="relative flex flex-1 items-center justify-center p-6">
+        <div class="flex flex-1 items-center justify-center p-6">
             <div class="w-full max-w-md">
-                <!-- Card Container -->
-                <div class="relative">
-                    <!-- Glow Effect -->
-                    <div class="absolute -inset-0.5 rounded-2xl bg-gradient-to-r from-primary/20 via-primary/10 to-primary/20 opacity-75 blur"></div>
-
-                    <!-- Main Card -->
-                    <div class="relative rounded-2xl border bg-card/50 p-8 shadow-2xl backdrop-blur-xl">
+                <!-- Main Card -->
+                <div class="rounded-lg border bg-card p-8">
                         <div class="flex flex-col gap-8">
                             <!-- Logo and Branding -->
                             <div class="flex flex-col items-center gap-6">
@@ -60,7 +51,6 @@ const { companyName, companyLogo } = useCompanySettings();
                     </div>
                 </div>
             </div>
-        </div>
 
         <!-- Footer -->
         <div class="absolute right-0 bottom-6 left-0 text-center">

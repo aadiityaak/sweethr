@@ -140,11 +140,15 @@ class EmployeeController extends Controller
 
     public function edit(User $employee): Response
     {
+        // Get fresh data from database with relationships to avoid any caching issues
+        $freshEmployee = User::with(['department', 'position'])
+            ->findOrFail($employee->id);
+
         $departments = Department::orderBy('name')->get(['id', 'name']);
         $positions = Position::orderBy('title')->get(['id', 'title', 'level']);
 
         return Inertia::render('admin/Employees/Edit', [
-            'employee' => $employee,
+            'employee' => $freshEmployee,
             'departments' => $departments,
             'positions' => $positions,
         ]);

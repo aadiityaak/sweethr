@@ -1,10 +1,11 @@
 <script setup lang="ts">
+import ConfirmationModal from '@/components/ConfirmationModal.vue';
 import LeafletMap from '@/components/LeafletMap.vue';
 import AppLayout from '@/layouts/AppLayout.vue';
 import { type BreadcrumbItem } from '@/types';
 import { Head, Link, router } from '@inertiajs/vue3';
 import { Clock, Edit, Map, MapPin, Navigation, Plus, Search, Target, Trash2, Users } from 'lucide-vue-next';
-import { ref } from 'vue';
+import { computed, ref } from 'vue';
 
 interface OfficeLocation {
     id: number;
@@ -110,6 +111,17 @@ const calculateDistance = (lat1: number, lng1: number, lat2: number, lng2: numbe
 const selectedLocation = ref<OfficeLocation | null>(null);
 const showMapModal = ref(false);
 
+// Confirmation modal state
+const showDeleteModal = ref(false);
+const locationToDelete = ref<OfficeLocation | null>(null);
+const isDeleting = ref(false);
+
+// Computed property for delete message
+const deleteMessage = computed(() => {
+    if (!locationToDelete.value) return '';
+    return `Apakah Anda yakin ingin menghapus lokasi "${locationToDelete.value.name}"? Tindakan ini tidak dapat dibatalkan.`;
+});
+
 const viewOnMap = (location: OfficeLocation) => {
     selectedLocation.value = location;
     showMapModal.value = true;
@@ -118,6 +130,40 @@ const viewOnMap = (location: OfficeLocation) => {
 const closeMapModal = () => {
     showMapModal.value = false;
     selectedLocation.value = null;
+};
+
+const deleteLocation = (location: OfficeLocation) => {
+    locationToDelete.value = location;
+    showDeleteModal.value = true;
+};
+
+const confirmDelete = () => {
+    if (!locationToDelete.value) return;
+
+    isDeleting.value = true;
+
+    router.delete(`/office-locations/${locationToDelete.value.id}`, {
+        onSuccess: () => {
+            // Reset modal state
+            showDeleteModal.value = false;
+            locationToDelete.value = null;
+            isDeleting.value = false;
+            // Refresh data after successful deletion
+            router.reload();
+        },
+        onError: (errors) => {
+            console.error('Error deleting location:', errors);
+            isDeleting.value = false;
+            // Keep modal open to show error or add error handling
+        },
+    });
+};
+
+const cancelDelete = () => {
+    if (!isDeleting.value) {
+        showDeleteModal.value = false;
+        locationToDelete.value = null;
+    }
 };
 </script>
 
@@ -376,12 +422,16 @@ const closeMapModal = () => {
                                             <Map class="h-4 w-4" />
                                         </button>
                                         <Link
-                                            :href="`/office-locations/${location.id}/edit`"
+                                            :href="`/office-locations/${location.id}/edit?v=${Date.now()}`"
+                                            :preserve-state="false"
+                                            :preserve-scroll="false"
                                             class="rounded-lg bg-blue-100 p-2 text-blue-600 hover:bg-blue-200 dark:bg-blue-900/30 dark:text-blue-400 dark:hover:bg-blue-900/50"
                                         >
                                             <Edit class="h-4 w-4" />
                                         </Link>
                                         <button
+                                            @click="deleteLocation(location)"
+                                            title="Hapus Lokasi"
                                             class="rounded-lg bg-red-100 p-2 text-red-600 hover:bg-red-200 dark:bg-red-900/30 dark:text-red-400 dark:hover:bg-red-900/50"
                                         >
                                             <Trash2 class="h-4 w-4" />
@@ -436,8 +486,8 @@ const closeMapModal = () => {
         </div>
 
         <!-- Map Modal -->
-        <div v-if="showMapModal && selectedLocation" class="fixed inset-0 z-50 flex items-center justify-center bg-black/50" @click="closeMapModal">
-            <div class="w-full max-w-4xl rounded-xl border-0 bg-white p-6 dark:bg-gray-950" @click.stop>
+        <div v-if="showMapModal && selectedLocation" class="fixed inset-0 z-[9999] flex items-center justify-center bg-black/50 backdrop-blur-sm" @click="closeMapModal" style="z-index: 9999 !important;">
+            <div class="relative z-[10000] w-full max-w-4xl rounded-xl border-0 bg-white p-6 shadow-2xl dark:bg-gray-950" @click.stop style="z-index: 10000 !important;">
                 <div class="mb-4 flex items-center justify-between">
                     <div>
                         <h3 class="text-lg font-semibold text-gray-900 dark:text-white">{{ selectedLocation.name }}</h3>
@@ -479,5 +529,18 @@ const closeMapModal = () => {
                 </div>
             </div>
         </div>
+
+        <!-- Delete Confirmation Modal -->
+        <ConfirmationModal
+            :show="showDeleteModal"
+            type="danger"
+            title="Hapus Lokasi Kantor"
+            :message="deleteMessage"
+            confirm-text="Hapus"
+            cancel-text="Batal"
+            :processing="isDeleting"
+            @confirm="confirmDelete"
+            @cancel="cancelDelete"
+        />
     </AppLayout>
 </template>

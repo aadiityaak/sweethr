@@ -138,8 +138,8 @@ class DepartmentController extends Controller
 
     public function edit(Department $department)
     {
-        // Load department with positions
-        $department->load('positions');
+        // Get fresh data from database with positions to avoid any caching issues
+        $freshDepartment = Department::with('positions')->findOrFail($department->id);
 
         // Get potential managers (active employees, excluding current manager)
         $managers = User::where('employment_status', 'active')
@@ -149,7 +149,7 @@ class DepartmentController extends Controller
             ->get();
 
         return Inertia::render('admin/Departments/Edit', [
-            'department' => $department,
+            'department' => $freshDepartment,
             'managers' => $managers,
         ]);
     }

@@ -488,7 +488,9 @@ const formatDate = (dateString: string) => {
                                 <td class="px-6 py-4">
                                     <div class="flex items-center gap-2">
                                         <Link
-                                            :href="`/employees/${employee.id}/edit`"
+                                            :href="`/employees/${employee.id}/edit?v=${Date.now()}`"
+                                            :preserve-state="false"
+                                            :preserve-scroll="false"
                                             class="rounded-lg bg-blue-100 p-2 text-blue-600 hover:bg-blue-200 dark:bg-blue-900/30 dark:text-blue-400 dark:hover:bg-blue-900/50"
                                         >
                                             <Edit class="h-4 w-4" />

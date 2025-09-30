@@ -85,8 +85,11 @@ class OfficeLocationController extends Controller
 
     public function edit(OfficeLocation $officeLocation): Response
     {
+        // Get fresh data from database to avoid any caching issues
+        $freshOfficeLocation = OfficeLocation::findOrFail($officeLocation->id);
+
         return Inertia::render('admin/OfficeLocations/Edit', [
-            'officeLocation' => $officeLocation,
+            'officeLocation' => $freshOfficeLocation,
         ]);
     }
 

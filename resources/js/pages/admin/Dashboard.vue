@@ -214,9 +214,9 @@ const generateMockAttendanceData = () => {
                             {{ user.employee_id }}
                         </span>
                         <span class="text-gray-400">•</span>
-                        <span>{{ user.department?.name }}</span>
+                        <span>{{ user.department?.name || 'No Department' }}</span>
                         <span class="text-gray-400">•</span>
-                        <span>{{ user.position?.title }}</span>
+                        <span>{{ user.position?.title || 'No Position' }}</span>
                     </p>
                 </div>
                 <!-- Decorative elements -->
@@ -407,7 +407,7 @@ const generateMockAttendanceData = () => {
                             <Calendar class="h-5 w-5 text-blue-600 dark:text-blue-400" />
                         </div>
                         <div class="text-right">
-                            <div class="text-2xl font-bold text-blue-600 dark:text-blue-400">{{ stats.leave_balance }}</div>
+                            <div class="text-2xl font-bold text-blue-600 dark:text-blue-400">{{ stats.leave_balance || 0 }}</div>
                             <div class="text-sm font-medium text-gray-600 dark:text-gray-400">Sisa Cuti</div>
                         </div>
                     </div>
@@ -429,7 +429,7 @@ const generateMockAttendanceData = () => {
                         </div>
                         <div class="text-right">
                             <div class="text-2xl font-bold text-purple-600 dark:text-purple-400">
-                                {{ user.is_admin ? stats.monthly_attendance_rate + '%' : stats.monthly_attendance_days }}
+                                {{ user.is_admin ? (stats.monthly_attendance_rate || 0) + '%' : (stats.monthly_attendance_days || 0) }}
                             </div>
                             <div class="text-sm font-medium text-gray-600 dark:text-gray-400">Bulan Ini</div>
                         </div>
@@ -453,7 +453,7 @@ const generateMockAttendanceData = () => {
                             <AlertCircle class="h-5 w-5 text-amber-600 dark:text-amber-400" />
                         </div>
                         <div class="text-right">
-                            <div class="text-2xl font-bold text-amber-600 dark:text-amber-400">{{ stats.pending_leave_requests }}</div>
+                            <div class="text-2xl font-bold text-amber-600 dark:text-amber-400">{{ stats.pending_leave_requests || 0 }}</div>
                             <div class="text-sm font-medium text-gray-600 dark:text-gray-400">Menunggu</div>
                         </div>
                     </div>
@@ -496,18 +496,18 @@ const generateMockAttendanceData = () => {
                                     <div
                                         class="flex h-8 w-8 items-center justify-center rounded-full bg-gray-100 text-sm font-medium text-gray-700 dark:bg-gray-800 dark:text-gray-300"
                                     >
-                                        {{ leave.user.name.charAt(0) }}
+                                        {{ leave.user?.name?.charAt(0) || '?' }}
                                     </div>
                                     <div>
-                                        <p class="font-medium text-gray-900 dark:text-white">{{ leave.user.name }}</p>
-                                        <p class="text-xs text-gray-500 dark:text-gray-400">{{ leave.user.employee_id }}</p>
+                                        <p class="font-medium text-gray-900 dark:text-white">{{ leave.user?.name || 'Unknown User' }}</p>
+                                        <p class="text-xs text-gray-500 dark:text-gray-400">{{ leave.user?.employee_id || 'N/A' }}</p>
                                     </div>
                                 </div>
                                 <div class="ml-10 space-y-1">
                                     <div
                                         class="inline-flex items-center rounded-full bg-blue-50 px-2.5 py-0.5 text-xs font-medium text-blue-700 dark:bg-blue-950/50 dark:text-blue-300"
                                     >
-                                        {{ leave.leave_type.name }}
+                                        {{ leave.leave_type?.name || 'Unknown Type' }}
                                     </div>
                                     <p class="text-sm text-gray-600 dark:text-gray-400">
                                         {{ formatDate(leave.start_date) }} - {{ formatDate(leave.end_date) }}
