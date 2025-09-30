@@ -80,7 +80,7 @@ import { usePWAInstall } from '@/composables/usePWAInstall';
 import { Check, Download, Info, Loader2, Smartphone, Zap } from 'lucide-vue-next';
 import { computed, ref } from 'vue';
 
-const { isInstallable, isInstalled, isLoading, installPWA, getInstallInstructions, getInstallationInfo } = usePWAInstall();
+const { isInstalled, isLoading, installPWA, getInstallInstructions, getInstallationInfo } = usePWAInstall();
 
 const showInstructions = ref(false);
 

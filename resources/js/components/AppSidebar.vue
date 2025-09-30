@@ -6,7 +6,6 @@ import { Sidebar, SidebarContent, SidebarFooter, SidebarHeader, SidebarMenu, Sid
 import { type NavItem } from '@/types';
 import { Link, usePage } from '@inertiajs/vue3';
 import {
-    BookOpen,
     Building,
     Calendar,
     Clock,
@@ -19,7 +18,6 @@ import {
     Minus,
     RefreshCw,
     Settings,
-    Shield,
     UserCheck,
     Users,
     UsersRound,
@@ -158,43 +156,7 @@ const mainNavItems = computed<NavItem[]>(() => {
     return user.value?.is_admin ? adminNavItems : userNavItems;
 });
 
-// Footer menu items for regular users
-const userFooterNavItems: NavItem[] = [
-    {
-        title: 'Profil Saya',
-        href: '/user/profile',
-        icon: Settings,
-    },
-    {
-        title: 'Bantuan & Dukungan',
-        href: '/help',
-        icon: BookOpen,
-    },
-];
 
-// Footer menu items for admins
-const adminFooterNavItems: NavItem[] = [
-    {
-        title: 'Profil Saya',
-        href: '/user/profile',
-        icon: Settings,
-    },
-    {
-        title: 'Admin Panel',
-        href: '/admin',
-        icon: Shield,
-    },
-    {
-        title: 'Bantuan & Dukungan',
-        href: '/help',
-        icon: BookOpen,
-    },
-];
-
-// Computed property to get the appropriate footer items based on user role
-const footerNavItems = computed<NavItem[]>(() => {
-    return user.value?.is_admin ? adminFooterNavItems : userFooterNavItems;
-});
 </script>
 
 <template>

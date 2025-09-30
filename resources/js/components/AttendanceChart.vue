@@ -91,7 +91,7 @@ const barData = ref({
                 gradient.addColorStop(1, 'rgba(139, 92, 246, 0.9)'); // violet-500 at top
                 return gradient;
             },
-            borderColor: (context: any) => {
+            borderColor: () => {
                 return 'rgb(99, 102, 241)'; // indigo-500
             },
             borderWidth: 0,

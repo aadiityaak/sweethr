@@ -183,12 +183,12 @@ const handleFileSelect = (event: Event) => {
     }
 };
 
-const handleDragOver = (event: DragEvent) => {
+const handleDragOver = () => {
     if (props.disabled) return;
     isDragOver.value = true;
 };
 
-const handleDragLeave = (event: DragEvent) => {
+const handleDragLeave = () => {
     if (props.disabled) return;
     isDragOver.value = false;
 };

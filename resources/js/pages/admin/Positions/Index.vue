@@ -317,7 +317,7 @@ const getLevelLabel = (level: number) => {
         5: 'Manager',
         6: 'Director',
     };
-    return labels[level] || 'Unknown';
+    return labels[level as keyof typeof labels] || 'Unknown';
 };
 
 const formatCurrency = (amount: number) => {

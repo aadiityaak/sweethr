@@ -138,7 +138,7 @@ onUnmounted(() => {
             <!-- Slides Container -->
             <div class="relative">
                 <div class="flex transition-transform duration-500 ease-in-out" :style="{ transform: `translateX(-${currentIndex * 100}%)` }">
-                    <div v-for="(announcement, index) in announcements" :key="announcement.id" class="w-full flex-shrink-0">
+                    <div v-for="announcement in announcements" :key="announcement.id" class="w-full flex-shrink-0">
                         <!-- Banner Content -->
                         <div
                             class="flex cursor-pointer items-center gap-6 p-6 transition-colors hover:bg-gray-50 dark:hover:bg-gray-900/50"

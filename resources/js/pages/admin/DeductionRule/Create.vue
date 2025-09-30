@@ -199,7 +199,7 @@ interface Props {
     errors: Record<string, string>;
 }
 
-const props = defineProps<Props>();
+defineProps<Props>();
 
 const breadcrumbs = [
     { name: 'Dashboard', href: dashboard.url() },

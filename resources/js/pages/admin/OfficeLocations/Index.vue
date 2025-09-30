@@ -91,22 +91,6 @@ const openInGoogleMaps = (location: OfficeLocation) => {
     window.open(url, '_blank');
 };
 
-const _calculateDistance = (lat1: number, lng1: number, lat2: number, lng2: number) => {
-    const earthRadius = 6371000; // meters
-    const lat1Rad = (lat1 * Math.PI) / 180;
-    const lng1Rad = (lng1 * Math.PI) / 180;
-    const lat2Rad = (lat2 * Math.PI) / 180;
-    const lng2Rad = (lng2 * Math.PI) / 180;
-
-    const deltaLat = lat2Rad - lat1Rad;
-    const deltaLng = lng2Rad - lng1Rad;
-
-    const a =
-        Math.sin(deltaLat / 2) * Math.sin(deltaLat / 2) + Math.cos(lat1Rad) * Math.cos(lat2Rad) * Math.sin(deltaLng / 2) * Math.sin(deltaLng / 2);
-    const c = 2 * Math.atan2(Math.sqrt(a), Math.sqrt(1 - a));
-
-    return earthRadius * c;
-};
 
 const selectedLocation = ref<OfficeLocation | null>(null);
 const showMapModal = ref(false);
@@ -462,12 +446,12 @@ const cancelDelete = () => {
                 <div v-if="officeLocations?.meta?.total > officeLocations?.meta?.per_page" class="border-t border-gray-200 p-4 dark:border-gray-700">
                     <div class="flex items-center justify-between">
                         <p class="text-sm text-gray-500 dark:text-gray-400">
-                            Menampilkan {{ officeLocations.meta.from }} sampai {{ officeLocations.meta.to }} dari
-                            {{ officeLocations.meta.total }} hasil
+                            Menampilkan {{ officeLocations?.meta?.from || 0 }} sampai {{ officeLocations?.meta?.to || 0 }} dari
+                            {{ officeLocations?.meta?.total || 0 }} hasil
                         </p>
                         <div class="flex gap-2">
                             <Link
-                                v-for="link in officeLocations.links"
+                                v-for="link in officeLocations?.links || []"
                                 :key="link.label"
                                 :href="link.url"
                                 v-html="link.label"

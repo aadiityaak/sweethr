@@ -370,7 +370,7 @@ const averageSalary = computed(() => {
 
     if (usersWithSalaryData.length === 0) return 0;
 
-    const total = usersWithSalaryData.reduce((sum, user) => sum + user.current_salary, 0);
+    const total = usersWithSalaryData.reduce((sum, user) => sum + (user.current_salary || 0), 0);
     return Math.round(total / usersWithSalaryData.length);
 });
 

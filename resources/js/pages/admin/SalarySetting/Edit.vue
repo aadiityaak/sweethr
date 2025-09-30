@@ -322,7 +322,7 @@ const submit = () => {
         effective_date: form.effective_date,
     };
 
-    form.transform((data) => formData).put(update.url(props.user.id), {
+    form.transform(() => formData).put(update.url(props.user.id), {
         onFinish: () => {
             processing.value = false;
         },
