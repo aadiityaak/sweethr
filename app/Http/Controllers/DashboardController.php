@@ -67,6 +67,11 @@ class DashboardController extends Controller
 
     public function welcome(): Response
     {
+        // Prevent browser and proxy caching of this response
+        header('Cache-Control: no-store, no-cache, must-revalidate, max-age=0');
+        header('Pragma: no-cache');
+        header('Expires: 0');
+
         // Get fresh user data from database to avoid cache issues
         $userId = auth()->id();
         $user = \App\Models\User::find($userId);

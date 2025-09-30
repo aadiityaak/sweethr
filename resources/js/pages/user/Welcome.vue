@@ -7,7 +7,7 @@ import { Dialog, DialogContent, DialogDescription, DialogHeader, DialogTitle } f
 import { useToast } from '@/components/ui/toast/use-toast';
 import { useCompanySettings } from '@/composables/useCompanySettings';
 import { useFaceRecognition } from '@/composables/useFaceRecognition';
-import { Head, Link, useForm } from '@inertiajs/vue3';
+import { Head, Link, router, useForm } from '@inertiajs/vue3';
 import * as faceapi from 'face-api.js';
 import { BarChart3, Calendar, CheckCircle, Clock, Eye, Loader2, LogOut, MapPin, User, UserCircle } from 'lucide-vue-next';
 import { onMounted, onUnmounted, ref, watch } from 'vue';
@@ -393,8 +393,10 @@ const executeCheckIn = () => {
                 variant: 'success',
                 duration: 5000,
             });
-            // Refresh the page to update attendance data
-            window.location.reload();
+
+            // Use Inertia router.reload() to fetch fresh data from server
+            // This forces a fresh request and bypasses any cache
+            router.reload({ only: ['todayAttendance'] });
         },
         onError: (errors) => {
             isCheckingIn.value = false;
@@ -407,8 +409,8 @@ const executeCheckIn = () => {
                 duration: 6000,
             });
         },
-        preserveState: true,
-        preserveScroll: true,
+        preserveState: false,
+        preserveScroll: false,
     });
 };
 
