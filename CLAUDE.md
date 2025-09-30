@@ -248,7 +248,7 @@ All admin pages should follow this standardized layout for consistency and bette
 
 ```vue
 <AppLayout :breadcrumbs="breadcrumbs">
-    <div class="mx-auto w-full max-w-[1200px] px-4 py-6 sm:px-6 lg:px-8">
+    <div class="mx-auto w-full px-4 py-6 sm:px-6 lg:px-8">
         <!-- Content goes here -->
     </div>
 </AppLayout>
@@ -700,13 +700,13 @@ Route::get('/users', function () {
 
 - When listing items, use gap utilities for spacing, don't use margins.
 
-      <code-snippet name="Valid Flex Gap Spacing Example" lang="html">
-          <div class="flex gap-8">
-              <div>Superior</div>
-              <div>Michigan</div>
-              <div>Erie</div>
-          </div>
-      </code-snippet>
+        <code-snippet name="Valid Flex Gap Spacing Example" lang="html">
+            <div class="flex gap-8">
+                <div>Superior</div>
+                <div>Michigan</div>
+                <div>Erie</div>
+            </div>
+        </code-snippet>
 
 ### Dark Mode
 

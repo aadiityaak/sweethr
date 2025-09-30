@@ -14,6 +14,20 @@ class DepartmentController extends Controller
 {
     public function index(Request $request)
     {
+        $sortField = $request->get('sort', 'created_at');
+        $sortDirection = $request->get('direction', 'desc');
+
+        // Validate sort field
+        $allowedSortFields = ['name', 'code', 'manager', 'employees_count', 'is_active', 'created_at'];
+        if (! in_array($sortField, $allowedSortFields)) {
+            $sortField = 'created_at';
+        }
+
+        // Validate sort direction
+        if (! in_array($sortDirection, ['asc', 'desc'])) {
+            $sortDirection = 'desc';
+        }
+
         $query = Department::with(['manager:id,name,employee_id'])
             ->withCount(['employees' => function ($query) {
                 $query->where('employment_status', 'active');
@@ -35,7 +49,46 @@ class DepartmentController extends Controller
             $query->where('is_active', $isActive);
         }
 
-        $departments = $query->latest()->paginate(15)->withQueryString();
+        // Apply sorting based on field
+        switch ($sortField) {
+            case 'manager':
+                $query->leftJoin('users', 'departments.manager_id', '=', 'users.id')
+                    ->orderBy('users.name', $sortDirection)
+                    ->select('departments.*');
+                break;
+
+            case 'employees_count':
+                // For employees_count, we need to order after the count is computed
+                $departments = $query->get()
+                    ->sortBy(function ($department) {
+                        return $department->employees_count;
+                    }, SORT_REGULAR, $sortDirection === 'desc')
+                    ->values();
+
+                // Manual pagination
+                $currentPage = $request->get('page', 1);
+                $perPage = 15;
+                $total = $departments->count();
+                $departments = $departments->slice(($currentPage - 1) * $perPage, $perPage)->values();
+
+                $departments = new \Illuminate\Pagination\LengthAwarePaginator(
+                    $departments,
+                    $total,
+                    $perPage,
+                    $currentPage,
+                    ['path' => $request->url(), 'query' => $request->query()]
+                );
+                break;
+
+            default:
+                $departments = $query->orderBy($sortField, $sortDirection)->paginate(15)->withQueryString();
+                break;
+        }
+
+        // If not manually paginated yet
+        if (!isset($departments)) {
+            $departments = $query->paginate(15)->withQueryString();
+        }
 
         // Statistics
         $stats = [
@@ -48,7 +101,12 @@ class DepartmentController extends Controller
         return Inertia::render('admin/Departments/Index', [
             'departments' => $departments,
             'stats' => $stats,
-            'filters' => $request->only(['search', 'status']),
+            'filters' => [
+                'search' => $request->search,
+                'status' => $request->status,
+                'sort' => $sortField,
+                'direction' => $sortDirection,
+            ],
         ]);
     }
 

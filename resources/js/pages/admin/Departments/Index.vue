@@ -2,7 +2,7 @@
     <Head title="Admin - Kelola Departemen" />
 
     <AppLayout :breadcrumbs="breadcrumbs">
-        <div class="mx-auto w-full max-w-[1200px] px-4 py-6 sm:px-6 lg:px-8">
+        <div class="mx-auto w-full px-4 py-6 sm:px-6 lg:px-8">
             <!-- Header -->
             <div class="mb-8">
                 <div class="flex items-center justify-between">
@@ -127,11 +127,51 @@
                     <table class="w-full">
                         <thead class="border-t border-gray-200 dark:border-gray-700">
                             <tr class="border-b border-gray-200 dark:border-gray-700">
-                                <th class="px-6 py-3 text-left text-sm font-medium text-gray-500 dark:text-gray-400">Departemen</th>
-                                <th class="px-6 py-3 text-left text-sm font-medium text-gray-500 dark:text-gray-400">Kode</th>
-                                <th class="px-6 py-3 text-left text-sm font-medium text-gray-500 dark:text-gray-400">Manajer</th>
-                                <th class="px-6 py-3 text-left text-sm font-medium text-gray-500 dark:text-gray-400">Jumlah Karyawan</th>
-                                <th class="px-6 py-3 text-left text-sm font-medium text-gray-500 dark:text-gray-400">Status</th>
+                                <th class="px-6 py-3 text-left text-sm font-medium text-gray-500 dark:text-gray-400">
+                                    <button
+                                        @click="toggleSort('name')"
+                                        class="flex items-center gap-1 hover:text-gray-700 dark:hover:text-gray-300"
+                                    >
+                                        Departemen
+                                        <component :is="getSortIcon('name')" class="h-4 w-4" />
+                                    </button>
+                                </th>
+                                <th class="px-6 py-3 text-left text-sm font-medium text-gray-500 dark:text-gray-400">
+                                    <button
+                                        @click="toggleSort('code')"
+                                        class="flex items-center gap-1 hover:text-gray-700 dark:hover:text-gray-300"
+                                    >
+                                        Kode
+                                        <component :is="getSortIcon('code')" class="h-4 w-4" />
+                                    </button>
+                                </th>
+                                <th class="px-6 py-3 text-left text-sm font-medium text-gray-500 dark:text-gray-400">
+                                    <button
+                                        @click="toggleSort('manager')"
+                                        class="flex items-center gap-1 hover:text-gray-700 dark:hover:text-gray-300"
+                                    >
+                                        Manajer
+                                        <component :is="getSortIcon('manager')" class="h-4 w-4" />
+                                    </button>
+                                </th>
+                                <th class="px-6 py-3 text-left text-sm font-medium text-gray-500 dark:text-gray-400">
+                                    <button
+                                        @click="toggleSort('employees_count')"
+                                        class="flex items-center gap-1 hover:text-gray-700 dark:hover:text-gray-300"
+                                    >
+                                        Jumlah Karyawan
+                                        <component :is="getSortIcon('employees_count')" class="h-4 w-4" />
+                                    </button>
+                                </th>
+                                <th class="px-6 py-3 text-left text-sm font-medium text-gray-500 dark:text-gray-400">
+                                    <button
+                                        @click="toggleSort('is_active')"
+                                        class="flex items-center gap-1 hover:text-gray-700 dark:hover:text-gray-300"
+                                    >
+                                        Status
+                                        <component :is="getSortIcon('is_active')" class="h-4 w-4" />
+                                    </button>
+                                </th>
                                 <th class="px-6 py-3 text-left text-sm font-medium text-gray-500 dark:text-gray-400">Aksi</th>
                             </tr>
                         </thead>
@@ -259,8 +299,8 @@ import AppLayout from '@/layouts/AppLayout.vue';
 import { type BreadcrumbItem } from '@/types';
 import { Head, Link, router } from '@inertiajs/vue3';
 import { debounce } from 'lodash';
-import { Building, CheckCircle, Edit, Eye, FilterX, Plus, Trash, Users, XCircle } from 'lucide-vue-next';
-import { ref } from 'vue';
+import { ArrowUpDown, Building, CheckCircle, ChevronDown, ChevronUp, Edit, Eye, FilterX, Plus, Trash, Users, XCircle } from 'lucide-vue-next';
+import { computed, ref } from 'vue';
 
 interface Department {
     id: number;
@@ -295,8 +335,12 @@ interface Props {
     filters: {
         search?: string;
         status?: string;
+        sort?: string;
+        direction?: string;
     };
 }
+
+type SortField = 'name' | 'code' | 'manager' | 'employees_count' | 'is_active';
 
 const props = defineProps<Props>();
 
@@ -386,6 +430,43 @@ const confirmDelete = () => {
             selectedDepartment.value = null;
         }
     });
+};
+
+// Sorting
+const currentSort = computed(() => props.filters.sort || 'created_at');
+const currentDirection = computed(() => props.filters.direction || 'desc');
+
+const toggleSort = (field: SortField) => {
+    let newDirection: 'asc' | 'desc' | undefined = 'asc';
+
+    if (currentSort.value === field) {
+        if (currentDirection.value === 'asc') {
+            newDirection = 'desc';
+        } else {
+            newDirection = undefined;
+        }
+    }
+
+    router.get(
+        '/admin/departments',
+        {
+            search: search.value || undefined,
+            status: selectedStatus.value || undefined,
+            sort: newDirection ? field : undefined,
+            direction: newDirection || undefined,
+        },
+        {
+            preserveState: true,
+            preserveScroll: true,
+        }
+    );
+};
+
+const getSortIcon = (field: SortField) => {
+    if (currentSort.value !== field) {
+        return ArrowUpDown;
+    }
+    return currentDirection.value === 'asc' ? ChevronUp : ChevronDown;
 };
 </script>
 

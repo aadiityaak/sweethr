@@ -192,7 +192,7 @@ const generateMockAttendanceData = () => {
     <Head title="Dasbor" />
 
     <AppLayout :breadcrumbs="breadcrumbs">
-        <div class="mx-auto w-full max-w-[1200px] px-4 py-6 sm:px-6 lg:px-8">
+        <div class="mx-auto w-full px-4 py-6 sm:px-6 lg:px-8">
             <!-- Welcome Hero Section -->
             <div
                 class="relative mb-8 overflow-hidden rounded-xl border border-gray-200/50 bg-gradient-to-br from-blue-50 via-indigo-50/80 to-purple-50/60 p-8 shadow-sm dark:border-gray-800/50 dark:from-blue-950/20 dark:via-indigo-950/20 dark:to-purple-950/20"
