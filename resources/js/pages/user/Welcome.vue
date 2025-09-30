@@ -1063,7 +1063,7 @@ onUnmounted(() => {
                 <div v-if="todayAttendance?.office_location" class="mt-4 flex items-center gap-2 rounded-md bg-muted p-3">
                     <MapPin class="h-4 w-4 text-muted-foreground" />
                     <span class="text-sm text-muted-foreground">
-                        {{ todayAttendance.office_location.name }}
+                        {{ todayAttendance.office_location?.name || 'Remote' }}
                     </span>
                 </div>
 

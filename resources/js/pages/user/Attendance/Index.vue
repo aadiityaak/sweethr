@@ -322,10 +322,10 @@ const confirmCheckOut = () => {
                         </div>
                     </div>
 
-                    <div v-if="todayAttendance" class="mt-4 flex items-center gap-2 rounded-md bg-muted p-3">
+                    <div v-if="todayAttendance?.office_location" class="mt-4 flex items-center gap-2 rounded-md bg-muted p-3">
                         <MapPin class="h-4 w-4 text-muted-foreground" />
                         <span class="text-sm text-muted-foreground">
-                            {{ todayAttendance.office_location.name }}
+                            {{ todayAttendance.office_location?.name || 'Remote' }}
                         </span>
                     </div>
 
@@ -461,7 +461,7 @@ const confirmCheckOut = () => {
 
                                 <div v-if="attendance.office_location" class="mt-2 flex items-center gap-1">
                                     <MapPin class="h-3 w-3 text-muted-foreground" />
-                                    <span class="text-xs text-muted-foreground">{{ attendance.office_location.name }}</span>
+                                    <span class="text-xs text-muted-foreground">{{ attendance.office_location?.name || 'Remote' }}</span>
                                 </div>
                             </div>
 
