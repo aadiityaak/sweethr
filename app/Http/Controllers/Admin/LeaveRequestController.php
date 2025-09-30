@@ -146,4 +146,10 @@ class LeaveRequestController extends Controller
 
         return back()->with('success', 'Leave request rejected successfully.');
     }
+
+    public function destroy(LeaveRequest $leaveRequest)
+    {
+        $leaveRequest->delete();
+        return back()->with('success', 'Leave request deleted successfully.');
+    }
 }

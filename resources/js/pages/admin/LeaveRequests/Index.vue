@@ -257,6 +257,14 @@
                                         <Button size="sm" variant="ghost" @click="viewDetails(request)">
                                             <Eye class="h-4 w-4" />
                                         </Button>
+                                        <Button
+                                            size="sm"
+                                            @click="openDeleteModal(request)"
+                                            class="text-red-600 hover:bg-red-50"
+                                            variant="ghost"
+                                        >
+                                            <Trash2 class="h-4 w-4" />
+                                        </Button>
                                     </div>
                                 </td>
                             </tr>
@@ -428,6 +436,18 @@
                 </DialogFooter>
             </DialogContent>
         </Dialog>
+
+        <!-- Delete Confirmation Modal -->
+        <ConfirmationModal
+            :show="showDeleteModal"
+            title="Hapus Pengajuan Cuti"
+            :message="`Yakin ingin menghapus pengajuan cuti ${selectedRequest?.user?.name || 'N/A'}? Tindakan ini tidak dapat dibatalkan.`"
+            confirm-text="Hapus"
+            cancel-text="Batal"
+            type="danger"
+            @confirm="confirmDelete"
+            @cancel="showDeleteModal = false"
+        />
     </AppLayout>
 </template>
 
@@ -443,7 +463,7 @@ import AppLayout from '@/layouts/AppLayout.vue';
 import { type BreadcrumbItem } from '@/types';
 import { Head, router, useForm } from '@inertiajs/vue3';
 import { debounce } from 'lodash';
-import { Calendar, Check, CheckCircle, Clock, Eye, FilterX, X, XCircle } from 'lucide-vue-next';
+import { Calendar, Check, CheckCircle, Clock, Eye, FilterX, Trash2, X, XCircle } from 'lucide-vue-next';
 import { computed, ref } from 'vue';
 
 interface LeaveRequest {
@@ -520,6 +540,7 @@ const selectedDepartment = ref(props.filters.department || '');
 const showRejectModal = ref(false);
 const showDetailsModal = ref(false);
 const showApproveModal = ref(false);
+const showDeleteModal = ref(false);
 const selectedRequest = ref<LeaveRequest | null>(null);
 
 // Toast
@@ -688,6 +709,38 @@ const submitReject = () => {
 const viewDetails = (request: LeaveRequest) => {
     selectedRequest.value = request;
     showDetailsModal.value = true;
+};
+
+const openDeleteModal = (request: LeaveRequest) => {
+    selectedRequest.value = request;
+    showDeleteModal.value = true;
+};
+
+const confirmDelete = () => {
+    if (!selectedRequest.value) return;
+
+    router.delete(`/admin/leave-requests/${selectedRequest.value.id}`, {
+        preserveState: false,
+        preserveScroll: false,
+        onSuccess: () => {
+            toast({
+                title: 'Berhasil!',
+                description: `Pengajuan cuti ${selectedRequest.value?.user?.name || 'N/A'} telah dihapus.`,
+                variant: 'success',
+                duration: 3000,
+            });
+            showDeleteModal.value = false;
+            selectedRequest.value = null;
+        },
+        onError: () => {
+            toast({
+                title: 'Gagal!',
+                description: 'Terjadi kesalahan saat menghapus pengajuan.',
+                variant: 'destructive',
+                duration: 4000,
+            });
+        },
+    });
 };
 </script>
 
