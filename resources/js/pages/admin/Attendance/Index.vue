@@ -20,6 +20,14 @@ import {
     XCircle,
 } from 'lucide-vue-next';
 import { onMounted, onUnmounted, ref } from 'vue';
+import Dialog from '@/components/ui/dialog/Dialog.vue';
+import DialogContent from '@/components/ui/dialog/DialogContent.vue';
+import DialogDescription from '@/components/ui/dialog/DialogDescription.vue';
+import DialogFooter from '@/components/ui/dialog/DialogFooter.vue';
+import DialogHeader from '@/components/ui/dialog/DialogHeader.vue';
+import DialogTitle from '@/components/ui/dialog/DialogTitle.vue';
+import DialogTrigger from '@/components/ui/dialog/DialogTrigger.vue';
+import { Button } from '@/components/ui/button';
 
 interface User {
     id: number;
@@ -101,6 +109,10 @@ const selectedDate = ref(filters.date || '');
 
 // Action dropdown state
 const activeDropdown = ref<number | null>(null);
+
+// Delete confirmation modal state
+const showDeleteModal = ref(false);
+const attendanceToDelete = ref<AttendanceRecord | null>(null);
 
 // Debounce search
 let searchTimeout: NodeJS.Timeout;
@@ -240,12 +252,26 @@ const generateAttendanceBreakdown = () => {
 
 // Delete attendance record
 const deleteAttendance = (attendance: AttendanceRecord) => {
-    if (confirm(`Apakah Anda yakin ingin menghapus data kehadiran ${attendance.user.name} pada tanggal ${formatDate(attendance.date)}?`)) {
-        router.delete(`/admin/attendance/${attendance.id}`, {
+    attendanceToDelete.value = attendance;
+    showDeleteModal.value = true;
+    activeDropdown.value = null;
+};
+
+// Confirm delete attendance
+const confirmDelete = () => {
+    if (attendanceToDelete.value) {
+        router.delete(`/admin/attendance/${attendanceToDelete.value.id}`, {
             preserveScroll: true,
         });
+        attendanceToDelete.value = null;
+        showDeleteModal.value = false;
     }
-    activeDropdown.value = null;
+};
+
+// Cancel delete
+const cancelDelete = () => {
+    attendanceToDelete.value = null;
+    showDeleteModal.value = false;
 };
 
 // Toggle dropdown
@@ -642,5 +668,45 @@ onUnmounted(() => {
                 </div>
             </div>
         </div>
+
+        <!-- Delete Confirmation Modal -->
+        <Dialog :open="showDeleteModal" @update:open="showDeleteModal = $event">
+            <DialogContent class="sm:max-w-md">
+                <DialogHeader>
+                    <DialogTitle>Konfirmasi Hapus</DialogTitle>
+                    <DialogDescription>
+                        Apakah Anda yakin ingin menghapus data kehadiran
+                        <span v-if="attendanceToDelete" class="font-semibold">
+                            {{ attendanceToDelete.user.name }}
+                        </span>
+                        pada tanggal
+                        <span v-if="attendanceToDelete" class="font-semibold">
+                            {{ formatDate(attendanceToDelete.date) }}
+                        </span>?
+                        <br><br>
+                        <span class="text-red-600 dark:text-red-400">
+                            Tindakan ini tidak dapat dibatalkan.
+                        </span>
+                    </DialogDescription>
+                </DialogHeader>
+                <DialogFooter class="flex flex-col-reverse gap-2 sm:flex-row sm:justify-end">
+                    <Button
+                        @click="cancelDelete"
+                        variant="outline"
+                        class="border-gray-300 bg-white text-gray-700 hover:bg-gray-50 dark:border-gray-600 dark:bg-gray-800 dark:text-gray-300 dark:hover:bg-gray-700"
+                    >
+                        Batal
+                    </Button>
+                    <Button
+                        @click="confirmDelete"
+                        variant="destructive"
+                        class="bg-red-600 hover:bg-red-700"
+                    >
+                        <Trash2 class="mr-2 h-4 w-4" />
+                        Hapus
+                    </Button>
+                </DialogFooter>
+            </DialogContent>
+        </Dialog>
     </AppLayout>
 </template>

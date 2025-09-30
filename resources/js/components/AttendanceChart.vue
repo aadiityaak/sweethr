@@ -322,20 +322,22 @@ const lineOptions = {
 
 // Update chart data when props change
 watch(
-    [attendanceData, weeklyData, monthlyData],
-    () => {
-        if (attendanceData) {
-            doughnutData.value.datasets[0].data = [attendanceData.present, attendanceData.absent, attendanceData.late];
+    () => [attendanceData, weeklyData, monthlyData],
+    (newValues) => {
+        const [newAttendanceData, newWeeklyData, newMonthlyData] = newValues;
+        
+        if (newAttendanceData && 'present' in newAttendanceData) {
+            doughnutData.value.datasets[0].data = [newAttendanceData.present, newAttendanceData.absent, newAttendanceData.late];
         }
 
-        if (weeklyData) {
-            barData.value.labels = weeklyData.labels;
-            barData.value.datasets[0].data = weeklyData.data;
+        if (newWeeklyData && 'labels' in newWeeklyData) {
+            barData.value.labels = newWeeklyData.labels;
+            barData.value.datasets[0].data = newWeeklyData.data;
         }
 
-        if (monthlyData) {
-            lineData.value.labels = monthlyData.labels;
-            lineData.value.datasets[0].data = monthlyData.data;
+        if (newMonthlyData && 'labels' in newMonthlyData) {
+            lineData.value.labels = newMonthlyData.labels;
+            lineData.value.datasets[0].data = newMonthlyData.data;
         }
     },
     { deep: true },

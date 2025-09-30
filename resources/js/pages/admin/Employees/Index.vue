@@ -4,7 +4,7 @@ import { useToast } from '@/components/ui/toast/use-toast';
 import { type BreadcrumbItem } from '@/types';
 import { Head, Link, router } from '@inertiajs/vue3';
 import { ArrowDown, ArrowUp, ArrowUpDown, Edit, Mail, Phone, Plus, Search, Trash2, UserCheck, Users } from 'lucide-vue-next';
-import { ref } from 'vue';
+import { onMounted, ref } from 'vue';
 
 interface Department {
     id: number;
@@ -512,11 +512,11 @@ const formatDate = (dateString: string) => {
                 <div v-if="employees?.meta?.total > employees?.meta?.per_page" class="border-t border-gray-200 p-4 dark:border-gray-700">
                     <div class="flex items-center justify-between">
                         <p class="text-sm text-gray-500 dark:text-gray-400">
-                            Menampilkan {{ employees.meta.from }} sampai {{ employees.meta.to }} dari {{ employees.meta.total }} hasil
+                            Menampilkan {{ employees?.meta?.from || 0 }} sampai {{ employees?.meta?.to || 0 }} dari {{ employees?.meta?.total || 0 }} hasil
                         </p>
                         <div class="flex gap-2">
                             <Link
-                                v-for="link in employees.links"
+                                v-for="link in employees?.links || []"
                                 :key="link.label"
                                 :href="link.url"
                                 :class="[

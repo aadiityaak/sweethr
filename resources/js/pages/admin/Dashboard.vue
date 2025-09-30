@@ -1,10 +1,12 @@
 <script setup lang="ts">
 import AttendanceChart from '@/components/AttendanceChart.vue';
 import AppLayout from '@/layouts/AppLayout.vue';
+import ConfirmationModal from '@/components/ConfirmationModal.vue';
 // Admin dashboard uses direct URL
 import { type BreadcrumbItem } from '@/types';
 import { Head, Link, useForm } from '@inertiajs/vue3';
 import { AlertCircle, Calendar, CheckCircle, Clock, Users, XCircle } from 'lucide-vue-next';
+import { ref } from 'vue';
 
 interface User {
     id: number;
@@ -91,12 +93,17 @@ const breadcrumbs: BreadcrumbItem[] = [
     },
 ];
 
-const formatTime = (time: string | null) => {
+// State for rejection modal
+const showRejectionModal = ref(false);
+const rejectionReason = ref('');
+const currentLeaveId = ref<number | null>(null);
+
+const formatTime = (time: string | null | undefined) => {
     if (!time) return '--:--';
     return time.substring(0, 5);
 };
 
-const formatDuration = (minutes: number | null) => {
+const formatDuration = (minutes: number | null | undefined) => {
     if (!minutes) return '--';
     const hours = Math.floor(minutes / 60);
     const mins = minutes % 60;
@@ -133,18 +140,39 @@ const generateLast30Days = () => {
 // Leave request approval functions
 const approveLeave = (leaveId: number) => {
     const form = useForm({});
-    form.patch(`/leave-requests/${leaveId}/approve`, {
+    form.patch(`/admin/leave-requests/${leaveId}/approve`, {
         preserveState: false,
         preserveScroll: true,
     });
 };
 
 const rejectLeave = (leaveId: number) => {
-    const form = useForm({});
-    form.patch(`/leave-requests/${leaveId}/reject`, {
+    currentLeaveId.value = leaveId;
+    rejectionReason.value = '';
+    showRejectionModal.value = true;
+};
+
+const confirmRejection = () => {
+    if (!currentLeaveId.value || !rejectionReason.value.trim()) return;
+    
+    const form = useForm({
+        admin_notes: rejectionReason.value,
+    });
+    form.patch(`/admin/leave-requests/${currentLeaveId.value}/reject`, {
         preserveState: false,
         preserveScroll: true,
+        onSuccess: () => {
+            showRejectionModal.value = false;
+            currentLeaveId.value = null;
+            rejectionReason.value = '';
+        }
     });
+};
+
+const cancelRejection = () => {
+    showRejectionModal.value = false;
+    currentLeaveId.value = null;
+    rejectionReason.value = '';
 };
 
 // Generate mock attendance data (replace with real data from backend)
@@ -228,6 +256,8 @@ const generateMockAttendanceData = () => {
                         :monthly-data="{
                             labels: generateLast30Days(),
                             data: generateMockAttendanceData(),
+                            presentData: [],
+                            absentData: [],
                         }"
                     />
                 </div>
@@ -499,17 +529,17 @@ const generateMockAttendanceData = () => {
                                     </p>
                                 </div>
                             </div>
-                            <div v-if="user.is_admin" class="flex gap-2">
+                            <div v-if="user.is_admin" class="flex gap-2 relative z-10">
                                 <button
                                     @click="approveLeave(leave.id)"
-                                    class="inline-flex items-center rounded-md bg-emerald-50 px-3 py-1.5 text-xs font-medium text-emerald-700 ring-1 ring-emerald-600/20 transition-colors hover:bg-emerald-100 dark:bg-emerald-950/50 dark:text-emerald-400 dark:ring-emerald-400/30 dark:hover:bg-emerald-950"
+                                    class="inline-flex items-center rounded-md bg-emerald-50 px-3 py-1.5 text-xs font-medium text-emerald-700 ring-1 ring-emerald-600/20 transition-colors hover:bg-emerald-100 cursor-pointer dark:bg-emerald-950/50 dark:text-emerald-400 dark:ring-emerald-400/30 dark:hover:bg-emerald-950"
                                 >
                                     <CheckCircle class="mr-1 h-3 w-3" />
                                     Setujui
                                 </button>
                                 <button
                                     @click="rejectLeave(leave.id)"
-                                    class="inline-flex items-center rounded-md bg-red-50 px-3 py-1.5 text-xs font-medium text-red-700 ring-1 ring-red-600/20 transition-colors hover:bg-red-100 dark:bg-red-950/50 dark:text-red-400 dark:ring-red-400/30 dark:hover:bg-red-950"
+                                    class="inline-flex items-center rounded-md bg-red-50 px-3 py-1.5 text-xs font-medium text-red-700 ring-1 ring-red-600/20 transition-colors hover:bg-red-100 cursor-pointer dark:bg-red-950/50 dark:text-red-400 dark:ring-red-400/30 dark:hover:bg-red-950"
                                 >
                                     <XCircle class="mr-1 h-3 w-3" />
                                     Tolak
@@ -654,4 +684,33 @@ const generateMockAttendanceData = () => {
             </div>
         </div>
     </AppLayout>
+
+    <!-- Rejection Confirmation Modal -->
+    <ConfirmationModal
+        :show="showRejectionModal"
+        title="Tolak Pengajuan Cuti"
+        type="danger"
+        confirm-text="Tolak"
+        cancel-text="Batal"
+        @confirm="confirmRejection"
+        @cancel="cancelRejection"
+    >
+        <template #message>
+            <div class="space-y-4">
+                <p>Apakah Anda yakin ingin menolak pengajuan cuti ini?</p>
+                <div>
+                    <label for="rejection-reason" class="block text-sm font-medium text-gray-700 dark:text-gray-300 mb-1">
+                        Alasan Penolakan
+                    </label>
+                    <textarea
+                        id="rejection-reason"
+                        v-model="rejectionReason"
+                        rows="3"
+                        class="w-full rounded-lg border border-gray-300 px-3 py-2 text-sm focus:border-red-500 focus:outline-none focus:ring-1 focus:ring-red-500 dark:border-gray-600 dark:bg-gray-800 dark:text-white"
+                        placeholder="Mohon berikan alasan penolakan..."
+                    ></textarea>
+                </div>
+            </div>
+        </template>
+    </ConfirmationModal>
 </template>
