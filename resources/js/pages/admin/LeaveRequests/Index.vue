@@ -194,12 +194,12 @@
                                     <div class="flex items-center gap-3">
                                         <div class="flex h-8 w-8 items-center justify-center rounded-full bg-gray-100 dark:bg-gray-800">
                                             <span class="text-xs font-medium text-gray-600 dark:text-gray-300">{{
-                                                getInitials(request.user.name)
+                                                getInitials(request.user?.name || '')
                                             }}</span>
                                         </div>
                                         <div>
-                                            <p class="font-medium text-gray-900 dark:text-white">{{ request.user.name }}</p>
-                                            <p class="text-sm text-gray-500 dark:text-gray-400">{{ request.user.employee_id }}</p>
+                                            <p class="font-medium text-gray-900 dark:text-white">{{ request.user?.name || 'N/A' }}</p>
+                                            <p class="text-sm text-gray-500 dark:text-gray-400">{{ request.user?.employee_id || 'N/A' }}</p>
                                         </div>
                                     </div>
                                 </td>
@@ -207,7 +207,7 @@
                                     <span
                                         class="inline-flex items-center rounded-full bg-blue-100 px-2.5 py-0.5 text-xs font-medium text-blue-800 dark:bg-blue-900/20 dark:text-blue-400"
                                     >
-                                        {{ request.leave_type.name }}
+                                        {{ request.leave_type?.name || 'N/A' }}
                                     </span>
                                 </td>
                                 <td class="px-6 py-4">
@@ -293,7 +293,7 @@
             <DialogContent class="flex max-h-[90vh] flex-col sm:max-w-2xl">
                 <DialogHeader class="shrink-0">
                     <DialogTitle>Detail Pengajuan Cuti</DialogTitle>
-                    <DialogDescription> Informasi lengkap pengajuan cuti {{ selectedRequest?.user.name }} </DialogDescription>
+                    <DialogDescription> Informasi lengkap pengajuan cuti {{ selectedRequest?.user?.name || 'N/A' }} </DialogDescription>
                 </DialogHeader>
                 <div v-if="selectedRequest" class="flex-1 space-y-6 overflow-y-auto pr-2">
                     <!-- Employee Info -->
@@ -302,11 +302,11 @@
                         <div class="grid gap-3 md:grid-cols-2">
                             <div>
                                 <label class="text-sm font-medium text-muted-foreground">Nama</label>
-                                <p class="text-sm">{{ selectedRequest.user.name }}</p>
+                                <p class="text-sm">{{ selectedRequest.user?.name || 'N/A' }}</p>
                             </div>
                             <div>
                                 <label class="text-sm font-medium text-muted-foreground">ID Karyawan</label>
-                                <p class="text-sm">{{ selectedRequest.user.employee_id }}</p>
+                                <p class="text-sm">{{ selectedRequest.user?.employee_id || 'N/A' }}</p>
                             </div>
                         </div>
                     </div>
@@ -317,7 +317,7 @@
                         <div class="grid gap-3 md:grid-cols-2">
                             <div>
                                 <label class="text-sm font-medium text-muted-foreground">Tipe Cuti</label>
-                                <p class="text-sm">{{ selectedRequest.leave_type.name }}</p>
+                                <p class="text-sm">{{ selectedRequest.leave_type?.name || 'N/A' }}</p>
                             </div>
                             <div>
                                 <label class="text-sm font-medium text-muted-foreground">Status</label>
@@ -396,7 +396,7 @@
         <ConfirmationModal
             :show="showApproveModal"
             title="Setujui Pengajuan Cuti"
-            :message="`Yakin ingin menyetujui pengajuan cuti ${selectedRequest?.user.name}?`"
+            :message="`Yakin ingin menyetujui pengajuan cuti ${selectedRequest?.user?.name || 'N/A'}?`"
             confirm-text="Setujui"
             cancel-text="Batal"
             type="info"
@@ -409,12 +409,12 @@
             <DialogContent class="sm:max-w-md">
                 <DialogHeader>
                     <DialogTitle>Tolak Pengajuan Cuti</DialogTitle>
-                    <DialogDescription> Berikan alasan penolakan untuk {{ selectedRequest?.user.name }} </DialogDescription>
+                    <DialogDescription> Berikan alasan penolakan untuk {{ selectedRequest?.user?.name || 'N/A' }} </DialogDescription>
                 </DialogHeader>
                 <div class="space-y-4">
                     <div>
                         <label class="text-sm font-medium">Alasan Penolakan *</label>
-                        <Textarea v-model="rejectForm.admin_notes" placeholder="Jelaskan alasan penolakan..." class="mt-1" rows="4" />
+                        <Textarea v-model="rejectForm.admin_notes" placeholder="Jelaskan alasan penolakan..." class="mt-1" :rows="4" />
                         <p v-if="rejectForm.errors.admin_notes" class="mt-1 text-sm text-red-600">
                             {{ rejectForm.errors.admin_notes }}
                         </p>
@@ -633,7 +633,7 @@ const confirmApprove = () => {
             onSuccess: () => {
                 toast({
                     title: 'Berhasil!',
-                    description: `Pengajuan cuti ${selectedRequest.value?.user.name} telah disetujui.`,
+                    description: `Pengajuan cuti ${selectedRequest.value?.user?.name || 'N/A'} telah disetujui.`,
                     variant: 'success',
                     duration: 3000,
                 });
@@ -667,7 +667,7 @@ const submitReject = () => {
         onSuccess: () => {
             toast({
                 title: 'Berhasil!',
-                description: `Pengajuan cuti ${selectedRequest.value?.user.name} telah ditolak.`,
+                description: `Pengajuan cuti ${selectedRequest.value?.user?.name || 'N/A'} telah ditolak.`,
                 variant: 'warning',
                 duration: 3000,
             });

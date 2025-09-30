@@ -3,11 +3,13 @@
 namespace App\Http\Controllers\Admin;
 
 use App\Http\Controllers\Controller;
+use App\Models\Department;
 use App\Models\LeaveRequest;
 use App\Models\LeaveType;
 use App\Models\User;
 use Carbon\Carbon;
 use Illuminate\Http\Request;
+use Illuminate\Support\Facades\Auth;
 use Inertia\Inertia;
 use Inertia\Response;
 
@@ -26,8 +28,8 @@ class LeaveRequestController extends Controller
         // Apply filters
         if ($request->search) {
             $query->whereHas('user', function ($q) use ($request) {
-                $q->where('name', 'like', '%'.$request->search.'%')
-                    ->orWhere('employee_id', 'like', '%'.$request->search.'%');
+                $q->where('name', 'like', '%' . $request->search . '%')
+                    ->orWhere('employee_id', 'like', '%' . $request->search . '%');
             });
         }
 
@@ -95,13 +97,10 @@ class LeaveRequestController extends Controller
 
         // Get filter options
         $leaveTypes = LeaveType::select('id', 'name')->orderBy('name')->get();
-        $departments = User::with('department:id,name')
-            ->whereHas('department')
-            ->get()
-            ->pluck('department')
-            ->filter() // Remove null values
-            ->unique('id')
-            ->values();
+        $departments = Department::select('id', 'name')
+            ->where('is_active', true)
+            ->orderBy('name')
+            ->get();
 
         return Inertia::render('admin/LeaveRequests/Index', [
             'leaveRequests' => $leaveRequests,
@@ -124,7 +123,7 @@ class LeaveRequestController extends Controller
     {
         $leaveRequest->update([
             'status' => 'approved',
-            'approved_by' => auth()->id(),
+            'approved_by' => Auth::id(),
             'approved_at' => now(),
             'admin_notes' => $request->admin_notes,
         ]);
@@ -140,7 +139,7 @@ class LeaveRequestController extends Controller
 
         $leaveRequest->update([
             'status' => 'rejected',
-            'approved_by' => auth()->id(),
+            'approved_by' => Auth::id(),
             'approved_at' => now(),
             'admin_notes' => $request->admin_notes,
         ]);

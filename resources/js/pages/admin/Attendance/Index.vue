@@ -26,7 +26,6 @@ import DialogDescription from '@/components/ui/dialog/DialogDescription.vue';
 import DialogFooter from '@/components/ui/dialog/DialogFooter.vue';
 import DialogHeader from '@/components/ui/dialog/DialogHeader.vue';
 import DialogTitle from '@/components/ui/dialog/DialogTitle.vue';
-import DialogTrigger from '@/components/ui/dialog/DialogTrigger.vue';
 import { Button } from '@/components/ui/button';
 
 interface User {
@@ -676,7 +675,7 @@ onUnmounted(() => {
                     <DialogTitle>Konfirmasi Hapus</DialogTitle>
                     <DialogDescription>
                         Apakah Anda yakin ingin menghapus data kehadiran
-                        <span v-if="attendanceToDelete" class="font-semibold">
+                        <span v-if="attendanceToDelete && attendanceToDelete.user" class="font-semibold">
                             {{ attendanceToDelete.user.name }}
                         </span>
                         pada tanggal
