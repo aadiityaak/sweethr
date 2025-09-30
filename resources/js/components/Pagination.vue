@@ -39,18 +39,21 @@
                             v-if="link.url && !link.active"
                             :href="link.url"
                             class="relative inline-flex items-center px-4 py-2 text-sm font-semibold text-gray-900 ring-1 ring-gray-300 ring-inset hover:bg-gray-50 focus:z-20 focus:outline-offset-0 dark:text-gray-300 dark:ring-gray-600 dark:hover:bg-gray-700"
-                            v-html="link.label"
-                        />
+                        >
+                            <span v-html="link.label"></span>
+                        </Link>
                         <span
                             v-else-if="link.active"
                             class="relative z-10 inline-flex items-center bg-blue-600 px-4 py-2 text-sm font-semibold text-white focus:z-20 focus-visible:outline focus-visible:outline-2 focus-visible:outline-offset-2 focus-visible:outline-blue-600"
-                            v-html="link.label"
-                        />
+                        >
+                            <span v-html="link.label"></span>
+                        </span>
                         <span
                             v-else
                             class="relative inline-flex items-center px-4 py-2 text-sm font-semibold text-gray-700 ring-1 ring-gray-300 ring-inset dark:text-gray-300 dark:ring-gray-600"
-                            v-html="link.label"
-                        />
+                        >
+                            <span v-html="link.label"></span>
+                        </span>
                     </template>
 
                     <Link

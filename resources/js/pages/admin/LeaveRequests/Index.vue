@@ -278,9 +278,10 @@
                                 :variant="link.active ? 'default' : 'outline'"
                                 size="sm"
                                 @click="link.url && router.visit(link.url)"
-                                v-html="link.label"
                                 class="pagination-btn"
-                            />
+                            >
+                                <span v-html="link.label"></span>
+                            </Button>
                         </div>
                     </div>
                 </div>

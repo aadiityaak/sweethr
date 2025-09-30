@@ -14,7 +14,7 @@
 
         <!-- Form -->
         <div class="space-y-6 p-4">
-            <Form action="/leave-requests" method="post" enctype="multipart/form-data" #default="{ errors, processing, wasSuccessful }">
+            <Form action="/leave-requests" method="post" enctype="multipart/form-data" #default="{ errors, processing }">
                 <div class="space-y-4">
                     <!-- Leave Type -->
                     <div class="space-y-2">

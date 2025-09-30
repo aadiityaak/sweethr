@@ -6,10 +6,6 @@ import { Head, useForm } from '@inertiajs/vue3';
 import { MapPin, Navigation, Plus, Target } from 'lucide-vue-next';
 import { computed, nextTick, onMounted, ref, watch } from 'vue';
 
-interface Props {
-    // No props needed for create page
-}
-
 const breadcrumbs: BreadcrumbItem[] = [
     {
         title: 'Dashboard',

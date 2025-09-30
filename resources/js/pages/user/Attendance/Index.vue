@@ -97,7 +97,7 @@ const calendarAttendanceData = computed(() => {
 });
 
 // Handle calendar day click
-const handleDayClick = (date: string, record?: any) => {
+const handleDayClick = (_date: string, _record?: any) => {
     // You can add navigation to detail view here
 };
 

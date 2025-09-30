@@ -35,7 +35,7 @@ const { companyName, companyLogo } = useCompanySettings();
 const { toast } = useToast();
 
 // Face Recognition
-const { isLoading: faceLoading, showFaceCapture, verifyFace, openFaceVerification, closeFaceCapture, verificationResult } = useFaceRecognition();
+const { isLoading: faceLoading, showFaceCapture, verifyFace, openFaceVerification, closeFaceCapture } = useFaceRecognition();
 
 const form = useForm({
     office_location_id: '',

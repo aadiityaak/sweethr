@@ -2,7 +2,7 @@
 import AppLogoIcon from '@/components/AppLogoIcon.vue';
 import { useCompanySettings } from '@/composables/useCompanySettings';
 
-const { companyName, companyLogo, getCurrentLogo } = useCompanySettings();
+const { companyName, companyLogo } = useCompanySettings();
 </script>
 
 <template>

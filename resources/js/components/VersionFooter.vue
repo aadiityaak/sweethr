@@ -93,7 +93,7 @@ const loadVersionInfo = async () => {
             const data = await response.json();
             versionInfo.value = data;
         }
-    } catch (error) {
+    } catch {
         console.warn('Could not load version info, using default');
     }
 };

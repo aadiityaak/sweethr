@@ -225,11 +225,11 @@ const calculatedWorkHours = computed(() => {
     if (!form.start_time || !form.end_time) return '--';
 
     const start = new Date(`2000-01-01 ${form.start_time}`);
-    const end = new Date(`2000-01-01 ${form.end_time}`);
+    let end = new Date(`2000-01-01 ${form.end_time}`);
 
     // Handle overnight shifts
     if (end < start) {
-        end.setDate(end.getDate() + 1);
+        end = new Date(end.getTime() + 24 * 60 * 60 * 1000);
     }
 
     const totalMinutes = (end.getTime() - start.getTime()) / (1000 * 60);

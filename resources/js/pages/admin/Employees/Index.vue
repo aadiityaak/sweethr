@@ -4,7 +4,7 @@ import { useToast } from '@/components/ui/toast/use-toast';
 import { type BreadcrumbItem } from '@/types';
 import { Head, Link, router } from '@inertiajs/vue3';
 import { ArrowDown, ArrowUp, ArrowUpDown, Edit, Mail, Phone, Plus, Search, Trash2, UserCheck, Users } from 'lucide-vue-next';
-import { ref, onMounted, onUnmounted } from 'vue';
+import { ref } from 'vue';
 
 interface Department {
     id: number;
@@ -519,7 +519,6 @@ const formatDate = (dateString: string) => {
                                 v-for="link in employees.links"
                                 :key="link.label"
                                 :href="link.url"
-                                v-html="link.label"
                                 :class="[
                                     'rounded border px-3 py-1 text-sm',
                                     link.active
@@ -527,7 +526,9 @@ const formatDate = (dateString: string) => {
                                         : 'border-gray-300 text-gray-600 hover:bg-gray-50 dark:border-gray-600 dark:text-gray-300 dark:hover:bg-gray-800',
                                 ]"
                                 :disabled="!link.url"
-                            />
+                            >
+                                <span v-html="link.label"></span>
+                            </Link>
                         </div>
                     </div>
                 </div>

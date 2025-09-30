@@ -95,7 +95,7 @@ const { companyName, companyLogo } = useCompanySettings();
 const { toast } = useToast();
 
 // Face recognition composable for reactive status
-const { faceRecognitionStatus, faceDescriptors: reactiveFaceDescriptors, initializeFaceRecognitionStatus, refreshStatus } = useFaceRecognition();
+const { faceRecognitionStatus, faceDescriptors: reactiveFaceDescriptors, initializeFaceRecognitionStatus } = useFaceRecognition();
 
 // Alert modal function
 const showAlert = (title: string, message: string, variant: 'success' | 'destructive' | 'warning' | 'default' = 'destructive') => {

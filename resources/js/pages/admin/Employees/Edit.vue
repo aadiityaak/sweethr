@@ -631,7 +631,7 @@ const checkEmployeeId = async (employeeId: string) => {
             status: data.available ? 'available' : 'taken',
             message: data.message,
         };
-    } catch (error) {
+    } catch {
         employeeIdValidation.value = {
             status: 'idle',
             message: 'Gagal mengecek ID karyawan',

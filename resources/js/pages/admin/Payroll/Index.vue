@@ -398,7 +398,7 @@ const confirmGenerate = () => {
 
                 // Handle different types of errors
                 let errorMessage = 'Terjadi kesalahan saat generate payroll';
-                let errorDetails: string[] = [];
+                const errorDetails: string[] = [];
 
                 if (errors.validation) {
                     errorMessage = errors.validation;

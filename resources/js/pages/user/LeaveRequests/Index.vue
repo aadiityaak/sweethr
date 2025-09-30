@@ -52,7 +52,7 @@ interface Props {
     };
 }
 
-const { leaveRequests, leaveTypes, filters, stats } = defineProps<Props>();
+const { leaveRequests, filters, stats } = defineProps<Props>();
 
 const selectedStatus = ref(filters.status || '');
 

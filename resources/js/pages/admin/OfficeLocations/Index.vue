@@ -91,7 +91,7 @@ const openInGoogleMaps = (location: OfficeLocation) => {
     window.open(url, '_blank');
 };
 
-const calculateDistance = (lat1: number, lng1: number, lat2: number, lng2: number) => {
+const _calculateDistance = (lat1: number, lng1: number, lat2: number, lng2: number) => {
     const earthRadius = 6371000; // meters
     const lat1Rad = (lat1 * Math.PI) / 180;
     const lng1Rad = (lng1 * Math.PI) / 180;

@@ -342,8 +342,9 @@ const formatDate = (dateString: string) => {
                                             index === announcements.links.length - 1 ? 'rounded-r-md' : '',
                                             'border',
                                         ]"
-                                        v-html="link.label"
-                                    />
+                                    >
+                                        <span v-html="link.label"></span>
+                                    </Link>
                                 </nav>
                             </div>
                         </div>

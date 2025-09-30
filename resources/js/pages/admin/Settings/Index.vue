@@ -207,7 +207,7 @@ const formData: Record<string, any> = {};
 const fileInputs: Record<string, File | null> = {};
 
 // Populate form with current values
-Object.entries(props.settings).forEach(([group, groupSettings]) => {
+Object.entries(props.settings).forEach(([_group, groupSettings]) => {
     Object.entries(groupSettings).forEach(([key, setting]) => {
         formData[key] = setting.current_value || '';
         if (setting.type === 'image') {
@@ -218,7 +218,7 @@ Object.entries(props.settings).forEach(([group, groupSettings]) => {
 
 const form = reactive(formData);
 const processing = ref(false);
-const errors = ref<Record<string, string>>({});
+const errors = ref<Record<string, string>>(props.errors || {});
 
 const handleFileChange = (key: string, event: Event) => {
     const target = event.target as HTMLInputElement;

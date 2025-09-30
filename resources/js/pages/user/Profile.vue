@@ -574,7 +574,6 @@ const {
     handleFaceCaptureError,
     faceRecognitionStatus,
     initializeFaceRecognitionStatus,
-    refreshStatus,
 } = useFaceRecognition();
 
 // Edit states

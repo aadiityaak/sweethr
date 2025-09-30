@@ -134,32 +134,16 @@ const generateLast30Days = () => {
 const approveLeave = (leaveId: number) => {
     const form = useForm({});
     form.patch(`/leave-requests/${leaveId}/approve`, {
-        onSuccess: () => {
-            // Remove from pending leaves list
-            const index = pendingLeaves.findIndex((leave) => leave.id === leaveId);
-            if (index > -1) {
-                pendingLeaves.splice(index, 1);
-            }
-        },
-        onError: (errors) => {
-            console.error('Error approving leave:', errors);
-        },
+        preserveState: false,
+        preserveScroll: true,
     });
 };
 
 const rejectLeave = (leaveId: number) => {
     const form = useForm({});
     form.patch(`/leave-requests/${leaveId}/reject`, {
-        onSuccess: () => {
-            // Remove from pending leaves list
-            const index = pendingLeaves.findIndex((leave) => leave.id === leaveId);
-            if (index > -1) {
-                pendingLeaves.splice(index, 1);
-            }
-        },
-        onError: (errors) => {
-            console.error('Error rejecting leave:', errors);
-        },
+        preserveState: false,
+        preserveScroll: true,
     });
 };
 
