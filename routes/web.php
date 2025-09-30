@@ -129,6 +129,8 @@ Route::middleware(['auth', 'verified', 'admin'])->group(function () {
         ->name('admin.leave-requests.approve');
     Route::patch('admin/leave-requests/{leaveRequest}/reject', [App\Http\Controllers\Admin\LeaveRequestController::class, 'reject'])
         ->name('admin.leave-requests.reject');
+    Route::delete('admin/leave-requests/{leaveRequest}', [App\Http\Controllers\Admin\LeaveRequestController::class, 'destroy'])
+        ->name('admin.leave-requests.destroy');
 
     // Admin Work Shifts Management
     Route::resource('admin/work-shifts', App\Http\Controllers\Admin\WorkShiftController::class, [
@@ -260,5 +262,5 @@ Route::get('/offline', function () {
     return \Inertia\Inertia::render('PWA/Offline');
 })->name('pwa.offline');
 
-require __DIR__.'/settings.php';
-require __DIR__.'/auth.php';
+require __DIR__ . '/settings.php';
+require __DIR__ . '/auth.php';
