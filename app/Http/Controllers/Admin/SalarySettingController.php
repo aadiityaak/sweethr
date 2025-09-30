@@ -10,12 +10,73 @@ use Inertia\Inertia;
 
 class SalarySettingController extends Controller
 {
-    public function index()
+    public function index(Request $request)
     {
-        $users = User::with(['currentSalarySetting', 'department', 'position'])
-            ->active()
-            ->get()
-            ->map(function ($user) {
+        $sortField = $request->get('sort', 'name');
+        $sortDirection = $request->get('direction', 'asc');
+
+        // Validate sort field
+        $allowedSortFields = ['name', 'employee_id', 'department', 'position', 'current_salary', 'total_allowances', 'has_salary_setting'];
+        if (! in_array($sortField, $allowedSortFields)) {
+            $sortField = 'name';
+        }
+
+        // Validate sort direction
+        if (! in_array($sortDirection, ['asc', 'desc'])) {
+            $sortDirection = 'asc';
+        }
+
+        $query = User::with(['currentSalarySetting', 'department', 'position'])
+            ->active();
+
+        // Apply sorting based on field
+        switch ($sortField) {
+            case 'department':
+                $query->leftJoin('departments', 'users.department_id', '=', 'departments.id')
+                    ->orderBy('departments.name', $sortDirection)
+                    ->select('users.*');
+                break;
+
+            case 'position':
+                $query->leftJoin('positions', 'users.position_id', '=', 'positions.id')
+                    ->orderBy('positions.name', $sortDirection)
+                    ->select('users.*');
+                break;
+
+            case 'current_salary':
+                $query->leftJoin('salary_settings', function ($join) {
+                    $join->on('users.id', '=', 'salary_settings.user_id')
+                        ->where('salary_settings.is_active', true);
+                })
+                    ->orderBy('salary_settings.base_salary', $sortDirection)
+                    ->select('users.*');
+                break;
+
+            case 'total_allowances':
+                $query->leftJoin('salary_settings as ss', function ($join) {
+                    $join->on('users.id', '=', 'ss.user_id')
+                        ->where('ss.is_active', true);
+                })
+                    ->orderByRaw("COALESCE(ss.total_allowances, 0) $sortDirection")
+                    ->select('users.*');
+                break;
+
+            case 'has_salary_setting':
+                $query->leftJoin('salary_settings as ss2', function ($join) {
+                    $join->on('users.id', '=', 'ss2.user_id')
+                        ->where('ss2.is_active', true);
+                })
+                    ->orderByRaw("CASE WHEN ss2.id IS NOT NULL THEN 1 ELSE 0 END $sortDirection")
+                    ->select('users.*');
+                break;
+
+            default:
+                $query->orderBy($sortField, $sortDirection);
+                break;
+        }
+
+        $users = $query->paginate(20)
+            ->through(function ($user) {
                 return [
                     'id' => $user->id,
                     'name' => $user->name,
@@ -30,6 +91,10 @@ class SalarySettingController extends Controller
 
         return Inertia::render('admin/SalarySetting/Index', [
             'users' => $users,
+            'filters' => [
+                'sort' => $sortField,
+                'direction' => $sortDirection,
+            ],
         ]);
     }
 
