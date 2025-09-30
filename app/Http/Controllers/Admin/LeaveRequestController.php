@@ -94,6 +94,7 @@ class LeaveRequestController extends Controller
             ->whereHas('department')
             ->get()
             ->pluck('department')
+            ->filter() // Remove null values
             ->unique('id')
             ->values();
 

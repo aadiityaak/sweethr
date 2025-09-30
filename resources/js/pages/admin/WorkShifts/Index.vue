@@ -151,17 +151,12 @@
                                 class="border-b border-gray-100 hover:bg-gray-50 dark:border-gray-800 dark:hover:bg-gray-900/50"
                             >
                                 <td class="px-6 py-4">
-                                    <div class="flex items-center gap-3">
-                                        <div class="flex h-8 w-8 items-center justify-center rounded-full bg-gray-100 dark:bg-gray-800">
-                                            <span class="text-xs font-medium text-gray-600 dark:text-gray-300">{{ shift.code }}</span>
-                                        </div>
-                                        <div>
-                                            <p class="font-medium text-gray-900 dark:text-white">{{ shift.name }}</p>
-                                            <p v-if="shift.is_night_shift" class="text-xs text-amber-600 dark:text-amber-400">
-                                                <Moon class="mr-1 inline h-3 w-3" />
-                                                Shift Malam
-                                            </p>
-                                        </div>
+                                    <div>
+                                        <p class="font-medium text-gray-900 dark:text-white">{{ shift.name }}</p>
+                                        <p v-if="shift.is_night_shift" class="text-xs text-amber-600 dark:text-amber-400">
+                                            <Moon class="mr-1 inline h-3 w-3" />
+                                            Shift Malam
+                                        </p>
                                     </div>
                                 </td>
                                 <td class="px-6 py-4">
@@ -260,12 +255,13 @@
 
         <!-- Delete Confirmation Modal -->
         <ConfirmationModal
-            v-model:open="showDeleteModal"
+            :show="showDeleteModal"
             title="Hapus Shift"
-            :description="`Yakin ingin menghapus shift '${selectedShift?.name}'? Aksi ini tidak dapat dibatalkan.`"
+            :message="`Yakin ingin menghapus shift '${selectedShift?.name}'? Aksi ini tidak dapat dibatalkan.`"
             confirm-text="Hapus"
-            variant="destructive"
+            type="danger"
             @confirm="confirmDelete"
+            @cancel="showDeleteModal = false"
         />
     </AppLayout>
 </template>
@@ -401,6 +397,8 @@ const confirmDelete = () => {
     if (!selectedShift.value) return;
 
     router.delete(`/admin/work-shifts/${selectedShift.value.id}`, {
+        preserveState: false,
+        preserveScroll: false,
         onSuccess: () => {
             toast({
                 title: 'Berhasil!',

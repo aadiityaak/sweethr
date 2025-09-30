@@ -109,45 +109,13 @@ self.addEventListener('fetch', (event) => {
     return;
   }
 
-  // Handle API requests differently
+  // Handle API requests - Network First, Cache Fallback Strategy
   if (event.request.url.includes('/api/')) {
-    // DO NOT cache face recognition or user profile APIs to avoid stale data
-    const sensitiveAPIs = [
-      '/api/face-recognition/',
-      '/api/user/profile',
-      '/user/profile',
-      '/api/attendance',
-      '/api/user/'
-    ];
-
-    const isSensitiveAPI = sensitiveAPIs.some(api => event.request.url.includes(api));
-
-    if (isSensitiveAPI) {
-      // Always fetch fresh data for sensitive APIs, no caching
-      event.respondWith(
-        fetch(event.request).catch(() => {
-          // If network fails, return error without cache fallback
-          return new Response(
-            JSON.stringify({
-              error: 'Offline',
-              message: 'Anda sedang offline. Data terbaru tidak tersedia.'
-            }),
-            {
-              status: 503,
-              statusText: 'Service Unavailable',
-              headers: { 'Content-Type': 'application/json' }
-            }
-          );
-        })
-      );
-      return;
-    }
-
-    // Cache other non-sensitive API requests
+    // Always try network first, only use cache if offline
     event.respondWith(
       fetch(event.request)
         .then((response) => {
-          // Cache successful responses for non-sensitive APIs
+          // Only cache successful responses for offline fallback
           if (response.status === 200) {
             const responseClone = response.clone();
             caches.open(CACHE_NAME).then((cache) => {
@@ -157,12 +125,12 @@ self.addEventListener('fetch', (event) => {
           return response;
         })
         .catch(() => {
-          // If network fails, try to serve from cache
+          // If network fails (offline), try to serve from cache
           return caches.match(event.request).then((cachedResponse) => {
             if (cachedResponse) {
               return cachedResponse;
             }
-            // Return offline page for API requests if no cache
+            // Return offline message if no cache available
             return new Response(
               JSON.stringify({
                 error: 'Offline',
@@ -195,67 +163,35 @@ self.addEventListener('fetch', (event) => {
     return;
   }
 
-  // Handle page requests - BUT exclude sensitive pages with face recognition data
-  const sensitivePages = [
-    '/',
-    '/user/profile',
-    '/dashboard',
-    '/welcome',
-    '/admin/settings',
-    '/admin/dashboard',
-    '/admin/salary-settings',
-    '/settings/profile'
-  ];
-
-  const isSensitivePage = sensitivePages.some(page => {
-    const url = new URL(event.request.url);
-    return url.pathname === page || url.pathname.startsWith(page + '/');
-  });
-
-  if (isSensitivePage) {
-    // Always fetch fresh data for sensitive pages, no caching
-    event.respondWith(
-      fetch(event.request).catch(() => {
-        // If network fails, return offline page
-        if (event.request.destination === 'document') {
-          return caches.match('/offline.html');
-        }
-      })
-    );
-    return;
-  }
-
-  // Handle other page requests with normal caching
+  // Handle all page requests - Network First, Cache Fallback Strategy
+  // This ensures users always get fresh data when online
   event.respondWith(
-    caches.match(event.request)
+    fetch(event.request)
       .then((response) => {
-        // Return cached version or fetch from network
-        if (response) {
+        // Check if we received a valid response
+        if (!response || response.status !== 200 || response.type !== 'basic') {
           return response;
         }
 
-        return fetch(event.request).then((response) => {
-          // Check if we received a valid response
-          if (!response || response.status !== 200 || response.type !== 'basic') {
-            return response;
-          }
-
-          // Clone the response
-          const responseToCache = response.clone();
-
-          caches.open(CACHE_NAME)
-            .then((cache) => {
-              cache.put(event.request, responseToCache);
-            });
-
-          return response;
+        // Cache the response for offline fallback only
+        const responseToCache = response.clone();
+        caches.open(CACHE_NAME).then((cache) => {
+          cache.put(event.request, responseToCache);
         });
+
+        return response;
       })
       .catch(() => {
-        // If both cache and network fail, show offline page
-        if (event.request.destination === 'document') {
-          return caches.match('/offline.html');
-        }
+        // If network fails (offline), try to serve from cache
+        return caches.match(event.request).then((cachedResponse) => {
+          if (cachedResponse) {
+            return cachedResponse;
+          }
+          // If no cache and offline, show offline page for documents
+          if (event.request.destination === 'document') {
+            return caches.match('/offline.html');
+          }
+        });
       })
   );
 });
