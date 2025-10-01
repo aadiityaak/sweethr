@@ -11,6 +11,7 @@ use App\Models\OfficeLocation;
 use App\Models\User;
 use Carbon\Carbon;
 use Illuminate\Http\Request;
+use Illuminate\Support\Facades\Log;
 use Inertia\Inertia;
 use Inertia\Response;
 use Maatwebsite\Excel\Facades\Excel;
@@ -50,6 +51,36 @@ class AttendanceController extends Controller
 
             // Convert to attendance record format for consistency
             $attendanceRecords = $absentEmployees->map(function ($user) use ($date) {
+                // Get user's shift for the attendance date
+                $shift = $user->employeeShifts()
+                    ->where('effective_date', '<=', $date)
+                    ->where(function ($query) use ($date) {
+                        $query->whereNull('end_date')
+                            ->orWhere('end_date', '>=', $date);
+                    })
+                    ->with('workShift')
+                    ->first();
+
+                if ($shift && $shift->workShift) {
+                    // Add shift info for display - format times as strings
+                    $shiftInfo = [
+                        'start_time' => $shift->workShift->start_time instanceof \DateTime
+                            ? $shift->workShift->start_time->format('H:i:s')
+                            : $shift->workShift->start_time,
+                        'end_time' => $shift->workShift->end_time instanceof \DateTime
+                            ? $shift->workShift->end_time->format('H:i:s')
+                            : $shift->workShift->end_time,
+                        'name' => $shift->workShift->name ?? $shift->workShift->start_time . ' - ' . $shift->workShift->end_time,
+                    ];
+                } else {
+                    // Add default shift info
+                    $shiftInfo = [
+                        'start_time' => '08:30:00',
+                        'end_time' => '17:00:00',
+                        'name' => '08:30 - 17:00',
+                    ];
+                }
+
                 return (object) [
                     'id' => null,
                     'user_id' => $user->id,
@@ -63,6 +94,7 @@ class AttendanceController extends Controller
                     'office_location' => null,
                     'notes' => null,
                     'user' => $user,
+                    'shift_info' => $shiftInfo,
                 ];
             });
         } else {
@@ -106,7 +138,7 @@ class AttendanceController extends Controller
                     ->with('workShift')
                     ->first();
 
-                \Log::debug('Shift query result for attendance ' . $record->id . ' for user ' . $record->user->name, [
+                Log::debug('Shift query result for attendance ' . $record->id . ' for user ' . $record->user->name, [
                     'attendance_date' => $record->date,
                     'employee_shift_found' => $shift ? 'yes' : 'no',
                     'shift_name' => $shift ? $shift->workShift->name : null,

@@ -304,20 +304,6 @@ const formatDate = (dateString: string) => {
                     </div>
                 </div>
 
-                <!-- Positions -->
-                <div class="overflow-hidden rounded-xl bg-white shadow-sm ring-1 ring-gray-900/5 dark:bg-gray-900 dark:ring-white/10">
-                    <div class="p-6">
-                        <div class="flex items-center">
-                            <div class="flex h-12 w-12 shrink-0 items-center justify-center rounded-full bg-orange-500/10">
-                                <Users class="h-6 w-6 text-orange-600 dark:text-orange-400" />
-                            </div>
-                            <div class="ml-4 flex-1">
-                                <p class="text-sm font-medium text-gray-600 dark:text-gray-400">Posisi</p>
-                                <p class="text-2xl font-bold text-gray-900 dark:text-white">{{ positions.length }}</p>
-                            </div>
-                        </div>
-                    </div>
-                </div>
             </div>
 
             <!-- Filters -->

@@ -25,8 +25,8 @@ class WorkShiftController extends Controller
         // Apply search filter
         if ($request->search) {
             $query->where(function ($q) use ($request) {
-                $q->where('name', 'like', '%'.$request->search.'%')
-                    ->orWhere('code', 'like', '%'.$request->search.'%');
+                $q->where('name', 'like', '%' . $request->search . '%')
+                    ->orWhere('code', 'like', '%' . $request->search . '%');
             });
         }
 
@@ -35,8 +35,23 @@ class WorkShiftController extends Controller
             $query->where('is_active', $request->status === 'active');
         }
 
+        // Apply sorting
+        $sortField = $request->input('sort_field', 'name');
+        $sortDirection = $request->input('sort_direction', 'asc');
+
+        // Validate sort field to prevent SQL injection
+        $allowedSortFields = ['name', 'code', 'start_time', 'end_time', 'work_hours', 'is_active', 'employee_shifts_count'];
+        if (in_array($sortField, $allowedSortFields)) {
+            if ($sortField === 'employee_shifts_count') {
+                $query->orderBy('employee_shifts_count', $sortDirection);
+            } else {
+                $query->orderBy($sortField, $sortDirection);
+            }
+        } else {
+            $query->orderBy('name', 'asc');
+        }
+
         $workShifts = $query->withCount(['employeeShifts'])
-            ->orderBy('name')
             ->paginate(15)
             ->withQueryString();
 
@@ -54,6 +69,8 @@ class WorkShiftController extends Controller
             'filters' => [
                 'search' => $request->search,
                 'status' => $request->status,
+                'sort_field' => $sortField,
+                'sort_direction' => $sortDirection,
             ],
         ]);
     }
@@ -247,8 +264,8 @@ class WorkShiftController extends Controller
         // Apply search filter
         if ($request->search) {
             $query->where(function ($q) use ($request) {
-                $q->where('name', 'like', '%'.$request->search.'%')
-                    ->orWhere('employee_id', 'like', '%'.$request->search.'%');
+                $q->where('name', 'like', '%' . $request->search . '%')
+                    ->orWhere('employee_id', 'like', '%' . $request->search . '%');
             });
         }
 

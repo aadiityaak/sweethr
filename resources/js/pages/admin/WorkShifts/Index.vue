@@ -134,13 +134,97 @@
                     <table class="w-full">
                         <thead class="border-t border-gray-200 dark:border-gray-700">
                             <tr class="border-b border-gray-200 dark:border-gray-700">
-                                <th class="px-6 py-3 text-left text-sm font-medium text-gray-500 dark:text-gray-400">Nama Shift</th>
-                                <th class="px-6 py-3 text-left text-sm font-medium text-gray-500 dark:text-gray-400">Kode</th>
-                                <th class="px-6 py-3 text-left text-sm font-medium text-gray-500 dark:text-gray-400">Waktu</th>
-                                <th class="px-6 py-3 text-left text-sm font-medium text-gray-500 dark:text-gray-400">Durasi Kerja</th>
+                                <th class="px-6 py-3 text-left">
+                                    <button
+                                        @click="handleSort('name')"
+                                        class="group inline-flex items-center text-sm font-medium text-gray-500 hover:text-gray-700 dark:text-gray-400 dark:hover:text-gray-300"
+                                    >
+                                        Nama Shift
+                                        <span v-if="sortField === 'name'" class="ml-1">
+                                            <ChevronUp v-if="sortDirection === 'asc'" class="h-4 w-4" />
+                                            <ChevronDown v-else class="h-4 w-4" />
+                                        </span>
+                                        <span v-else class="ml-1 opacity-0 group-hover:opacity-100">
+                                            <ChevronUp class="h-4 w-4" />
+                                        </span>
+                                    </button>
+                                </th>
+                                <th class="px-6 py-3 text-left">
+                                    <button
+                                        @click="handleSort('code')"
+                                        class="group inline-flex items-center text-sm font-medium text-gray-500 hover:text-gray-700 dark:text-gray-400 dark:hover:text-gray-300"
+                                    >
+                                        Kode
+                                        <span v-if="sortField === 'code'" class="ml-1">
+                                            <ChevronUp v-if="sortDirection === 'asc'" class="h-4 w-4" />
+                                            <ChevronDown v-else class="h-4 w-4" />
+                                        </span>
+                                        <span v-else class="ml-1 opacity-0 group-hover:opacity-100">
+                                            <ChevronUp class="h-4 w-4" />
+                                        </span>
+                                    </button>
+                                </th>
+                                <th class="px-6 py-3 text-left">
+                                    <button
+                                        @click="handleSort('start_time')"
+                                        class="group inline-flex items-center text-sm font-medium text-gray-500 hover:text-gray-700 dark:text-gray-400 dark:hover:text-gray-300"
+                                    >
+                                        Waktu
+                                        <span v-if="sortField === 'start_time'" class="ml-1">
+                                            <ChevronUp v-if="sortDirection === 'asc'" class="h-4 w-4" />
+                                            <ChevronDown v-else class="h-4 w-4" />
+                                        </span>
+                                        <span v-else class="ml-1 opacity-0 group-hover:opacity-100">
+                                            <ChevronUp class="h-4 w-4" />
+                                        </span>
+                                    </button>
+                                </th>
+                                <th class="px-6 py-3 text-left">
+                                    <button
+                                        @click="handleSort('work_hours')"
+                                        class="group inline-flex items-center text-sm font-medium text-gray-500 hover:text-gray-700 dark:text-gray-400 dark:hover:text-gray-300"
+                                    >
+                                        Durasi Kerja
+                                        <span v-if="sortField === 'work_hours'" class="ml-1">
+                                            <ChevronUp v-if="sortDirection === 'asc'" class="h-4 w-4" />
+                                            <ChevronDown v-else class="h-4 w-4" />
+                                        </span>
+                                        <span v-else class="ml-1 opacity-0 group-hover:opacity-100">
+                                            <ChevronUp class="h-4 w-4" />
+                                        </span>
+                                    </button>
+                                </th>
                                 <th class="px-6 py-3 text-left text-sm font-medium text-gray-500 dark:text-gray-400">Hari Kerja</th>
-                                <th class="px-6 py-3 text-left text-sm font-medium text-gray-500 dark:text-gray-400">Status</th>
-                                <th class="px-6 py-3 text-left text-sm font-medium text-gray-500 dark:text-gray-400">Karyawan</th>
+                                <th class="px-6 py-3 text-left">
+                                    <button
+                                        @click="handleSort('is_active')"
+                                        class="group inline-flex items-center text-sm font-medium text-gray-500 hover:text-gray-700 dark:text-gray-400 dark:hover:text-gray-300"
+                                    >
+                                        Status
+                                        <span v-if="sortField === 'is_active'" class="ml-1">
+                                            <ChevronUp v-if="sortDirection === 'asc'" class="h-4 w-4" />
+                                            <ChevronDown v-else class="h-4 w-4" />
+                                        </span>
+                                        <span v-else class="ml-1 opacity-0 group-hover:opacity-100">
+                                            <ChevronUp class="h-4 w-4" />
+                                        </span>
+                                    </button>
+                                </th>
+                                <th class="px-6 py-3 text-left">
+                                    <button
+                                        @click="handleSort('employee_shifts_count')"
+                                        class="group inline-flex items-center text-sm font-medium text-gray-500 hover:text-gray-700 dark:text-gray-400 dark:hover:text-gray-300"
+                                    >
+                                        Karyawan
+                                        <span v-if="sortField === 'employee_shifts_count'" class="ml-1">
+                                            <ChevronUp v-if="sortDirection === 'asc'" class="h-4 w-4" />
+                                            <ChevronDown v-else class="h-4 w-4" />
+                                        </span>
+                                        <span v-else class="ml-1 opacity-0 group-hover:opacity-100">
+                                            <ChevronUp class="h-4 w-4" />
+                                        </span>
+                                    </button>
+                                </th>
                                 <th class="px-6 py-3 text-left text-sm font-medium text-gray-500 dark:text-gray-400">Aksi</th>
                             </tr>
                         </thead>
@@ -275,7 +359,7 @@ import AppLayout from '@/layouts/AppLayout.vue';
 import { type BreadcrumbItem } from '@/types';
 import { Head, Link, router } from '@inertiajs/vue3';
 import { debounce } from 'lodash';
-import { CheckCircle, Clock, Edit, Eye, FilterX, Moon, Plus, Trash, Users, XCircle } from 'lucide-vue-next';
+import { CheckCircle, ChevronDown, ChevronUp, Clock, Edit, Eye, FilterX, Moon, Plus, Trash, Users, XCircle } from 'lucide-vue-next';
 import { ref } from 'vue';
 
 interface WorkShift {
@@ -312,6 +396,8 @@ interface Props {
     filters: {
         search?: string;
         status?: string;
+        sort_field?: string;
+        sort_direction?: string;
     };
 }
 
@@ -331,6 +417,10 @@ const breadcrumbs: BreadcrumbItem[] = [
 // Filter states
 const search = ref(props.filters.search || '');
 const selectedStatus = ref(props.filters.status || '');
+
+// Sorting states
+const sortField = ref(props.filters.sort_field || 'name');
+const sortDirection = ref(props.filters.sort_direction || 'asc');
 
 // Modal states
 const showDeleteModal = ref(false);
@@ -365,6 +455,8 @@ const applyFilters = () => {
         {
             search: search.value,
             status: selectedStatus.value,
+            sort_field: sortField.value,
+            sort_direction: sortDirection.value,
         },
         {
             preserveState: true,
@@ -376,7 +468,22 @@ const applyFilters = () => {
 const clearFilters = () => {
     search.value = '';
     selectedStatus.value = '';
+    sortField.value = 'name';
+    sortDirection.value = 'asc';
     router.get('/admin/work-shifts');
+};
+
+const handleSort = (field: string) => {
+    if (sortField.value === field) {
+        // Toggle direction if same field
+        sortDirection.value = sortDirection.value === 'asc' ? 'desc' : 'asc';
+    } else {
+        // Set new field and default to asc
+        sortField.value = field;
+        sortDirection.value = 'asc';
+    }
+    
+    applyFilters();
 };
 
 const deleteShift = (shift: WorkShift) => {
