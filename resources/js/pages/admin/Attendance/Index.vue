@@ -178,20 +178,64 @@ const handleDateChange = (date: string | undefined) => {
     updateFilters();
 };
 
-const formatTime = (time: string | null) => {
+const formatTime = (time: string | null | any) => {
     if (!time) return '--:--';
 
-    // Handle time in HH:mm:ss format from database
-    if (time.length === 8) {
-        const [hours, minutes, seconds] = time.split(':');
-        return `${hours}:${minutes}`;
-    }
+    try {
+        // Handle time in HH:mm:ss format from database
+        if (typeof time === 'string' && time.length === 8) {
+            const [hours, minutes] = time.split(':');
+            return `${hours}:${minutes}`;
+        }
 
-    // Fallback to original method for other formats
-    return new Date(`2000-01-01T${time}`).toLocaleTimeString('id-ID', {
-        hour: '2-digit',
-        minute: '2-digit',
-    });
+        // Handle time in HH:mm format
+        if (typeof time === 'string' && time.length === 5) {
+            return time;
+        }
+
+        // Handle time as DateTime object (converted to string by JSON serialization)
+        if (typeof time === 'string' && time.includes('T')) {
+            // Extract time part from ISO string
+            const timePart = time.split('T')[1]?.split('.')[0] || time;
+            const [hours, minutes] = timePart.split(':');
+            return `${hours}:${minutes}`;
+        }
+
+        // Handle time as object (from Laravel datetime cast)
+        if (typeof time === 'object' && time !== null) {
+            // Try to extract time from various possible object structures
+            let timeStr: string;
+            if ('time' in time) {
+                timeStr = (time as any).time;
+            } else if ('datetime' in time) {
+                timeStr = (time as any).datetime;
+            } else if ('date' in time) {
+                timeStr = (time as any).date;
+            } else {
+                timeStr = time.toString();
+            }
+            
+            if (timeStr.includes('T')) {
+                const timePart = timeStr.split('T')[1]?.split('.')[0] || timeStr;
+                const [hours, minutes] = timePart.split(':');
+                return `${hours}:${minutes}`;
+            }
+        }
+
+        // Fallback: try to parse as time string
+        const dateObj = new Date(`2000-01-01T${time}`);
+        if (!isNaN(dateObj.getTime())) {
+            return dateObj.toLocaleTimeString('id-ID', {
+                hour: '2-digit',
+                minute: '2-digit',
+            });
+        }
+
+        return '--:--';
+    } catch (error) {
+        console.error('Error formatting time:', error, 'Input:', time);
+        return '--:--';
+    }
 };
 
 const formatDuration = (minutes: number | null) => {
@@ -201,19 +245,6 @@ const formatDuration = (minutes: number | null) => {
     return hours > 0 ? `${hours}j ${mins}m` : `${mins}m`;
 };
 
-const calculateLateDuration = (checkInTime: string | null, standardTime: string = '08:30') => {
-    if (!checkInTime) return null;
-
-    const checkIn = new Date(`2000-01-01T${checkInTime}`);
-    const standard = new Date(`2000-01-01T${standardTime}`);
-
-    if (checkIn <= standard) return null;
-
-    const diffMs = checkIn.getTime() - standard.getTime();
-    const diffMinutes = Math.floor(diffMs / (1000 * 60));
-
-    return diffMinutes;
-};
 
 const formatDate = (dateString: string) => {
     return new Date(dateString).toLocaleDateString('id-ID', {

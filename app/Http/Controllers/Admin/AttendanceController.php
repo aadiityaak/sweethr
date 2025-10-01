@@ -106,7 +106,7 @@ class AttendanceController extends Controller
                     ->with('workShift')
                     ->first();
 
-                \Log::debug('Shift query result for attendance '.$record->id.' for user '.$record->user->name, [
+                \Log::debug('Shift query result for attendance ' . $record->id . ' for user ' . $record->user->name, [
                     'attendance_date' => $record->date,
                     'employee_shift_found' => $shift ? 'yes' : 'no',
                     'shift_name' => $shift ? $shift->workShift->name : null,
@@ -119,11 +119,15 @@ class AttendanceController extends Controller
                     $shiftStartTime = $shift->workShift->start_time;
                     $record->late_duration = $record->getLateDuration($shiftStartTime);
 
-                    // Add shift info for display
+                    // Add shift info for display - format times as strings
                     $record->shift_info = [
-                        'start_time' => $shift->workShift->start_time,
-                        'end_time' => $shift->workShift->end_time,
-                        'name' => $shift->workShift->name ?? $shift->workShift->start_time.' - '.$shift->workShift->end_time,
+                        'start_time' => $shift->workShift->start_time instanceof \DateTime
+                            ? $shift->workShift->start_time->format('H:i:s')
+                            : $shift->workShift->start_time,
+                        'end_time' => $shift->workShift->end_time instanceof \DateTime
+                            ? $shift->workShift->end_time->format('H:i:s')
+                            : $shift->workShift->end_time,
+                        'name' => $shift->workShift->name ?? $shift->workShift->start_time . ' - ' . $shift->workShift->end_time,
                     ];
                 } else {
                     // Default to 08:30 if no shift found (for existing data)
@@ -207,7 +211,7 @@ class AttendanceController extends Controller
 
         // Convert face photo path to URL if exists
         if ($attendance->face_photo_path) {
-            $attendance->face_photo_url = asset('storage/'.$attendance->face_photo_path);
+            $attendance->face_photo_url = asset('storage/' . $attendance->face_photo_path);
         }
 
         return Inertia::render('admin/Attendance/Show', [
