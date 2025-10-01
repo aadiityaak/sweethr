@@ -397,75 +397,157 @@ onUnmounted(() => {
             </div>
 
             <!-- Overview Cards -->
-            <div class="mb-10 grid grid-cols-1 gap-8 sm:grid-cols-2 lg:grid-cols-4">
+            <div class="mb-10 grid gap-6 md:grid-cols-2 lg:grid-cols-4">
                 <!-- Present Today -->
-                <div class="overflow-hidden rounded-xl bg-white shadow-sm ring-1 ring-gray-900/5 dark:bg-gray-900 dark:ring-white/10">
-                    <div class="p-6">
-                        <div class="flex items-center">
-                            <div class="flex h-12 w-12 shrink-0 items-center justify-center rounded-full bg-green-500/10">
-                                <CheckCircle class="h-6 w-6 text-green-600 dark:text-green-400" />
+                <div
+                    class="group relative overflow-hidden rounded-xl border border-gray-200/50 bg-gradient-to-br from-white to-emerald-50/30 p-6 shadow-sm transition-all hover:shadow-md dark:border-gray-800/50 dark:from-gray-950 dark:to-emerald-950/30"
+                >
+                    <div class="flex items-start justify-between">
+                        <div class="flex items-center gap-3">
+                            <div class="flex h-10 w-10 items-center justify-center rounded-full bg-emerald-500/10 ring-1 ring-emerald-500/20">
+                                <CheckCircle class="h-5 w-5 text-emerald-600 dark:text-emerald-400" />
                             </div>
-                            <div class="ml-4 flex-1">
-                                <p class="text-sm font-medium text-gray-600 dark:text-gray-400">Hadir Hari Ini</p>
-                                <p class="text-2xl font-bold text-gray-900 dark:text-white">{{ stats.present_today }}</p>
-                                <p class="text-sm text-gray-500 dark:text-gray-500">
-                                    {{ Math.round((stats.present_today / stats.total_employees) * 100) }}% dari total
+                            <div>
+                                <h3 class="font-medium text-gray-900 dark:text-white">Hadir Hari Ini</h3>
+                                <p class="text-sm text-gray-600 dark:text-gray-400">
+                                    {{ stats.present_today }} dari {{ stats.total_employees }} karyawan
                                 </p>
                             </div>
                         </div>
+                        <div class="flex h-2 w-2 rounded-full bg-emerald-400"></div>
                     </div>
+
+                    <div class="mt-6 space-y-3">
+                        <div class="flex items-center justify-between rounded-lg bg-emerald-50/50 px-3 py-2 dark:bg-emerald-950/30">
+                            <span class="text-sm font-medium text-emerald-700 dark:text-emerald-400">Hadir</span>
+                            <span class="text-sm font-semibold text-emerald-800 dark:text-emerald-300">{{ stats.present_today }}</span>
+                        </div>
+                        <div class="flex items-center justify-between rounded-lg bg-gray-50/50 px-3 py-2 dark:bg-gray-800/50">
+                            <span class="text-sm font-medium text-gray-600 dark:text-gray-400">Tingkat Kehadiran</span>
+                            <span class="text-sm font-semibold text-gray-900 dark:text-white">
+                                {{ Math.round((stats.present_today / stats.total_employees) * 100) }}%
+                            </span>
+                        </div>
+                    </div>
+
+                    <!-- Hover effect overlay -->
+                    <div
+                        class="absolute inset-0 rounded-xl bg-gradient-to-br from-emerald-500/5 to-teal-500/5 opacity-0 transition-opacity group-hover:opacity-100"
+                    ></div>
                 </div>
 
                 <!-- Late Today -->
-                <div class="overflow-hidden rounded-xl bg-white shadow-sm ring-1 ring-gray-900/5 dark:bg-gray-900 dark:ring-white/10">
-                    <div class="p-6">
-                        <div class="flex items-center">
-                            <div class="flex h-12 w-12 shrink-0 items-center justify-center rounded-full bg-orange-500/10">
-                                <AlertCircle class="h-6 w-6 text-orange-600 dark:text-orange-400" />
+                <div
+                    class="group relative overflow-hidden rounded-xl border border-gray-200/50 bg-gradient-to-br from-white to-amber-50/30 p-6 shadow-sm transition-all hover:shadow-md dark:border-gray-800/50 dark:from-gray-950 dark:to-amber-950/30"
+                >
+                    <div class="flex items-start justify-between">
+                        <div class="flex items-center gap-3">
+                            <div class="flex h-10 w-10 items-center justify-center rounded-full bg-amber-500/10 ring-1 ring-amber-500/20">
+                                <AlertCircle class="h-5 w-5 text-amber-600 dark:text-amber-400" />
                             </div>
-                            <div class="ml-4 flex-1">
-                                <p class="text-sm font-medium text-gray-600 dark:text-gray-400">Terlambat</p>
-                                <p class="text-2xl font-bold text-gray-900 dark:text-white">{{ stats.late_today }}</p>
-                                <p class="text-sm text-gray-500 dark:text-gray-500">
-                                    {{ Math.round((stats.late_today / stats.total_employees) * 100) }}% dari total
+                            <div>
+                                <h3 class="font-medium text-gray-900 dark:text-white">Terlambat</h3>
+                                <p class="text-sm text-gray-600 dark:text-gray-400">
+                                    {{ stats.late_today }} dari {{ stats.total_employees }} karyawan
                                 </p>
                             </div>
                         </div>
+                        <div class="flex h-2 w-2 rounded-full bg-amber-400"></div>
                     </div>
+
+                    <div class="mt-6 space-y-3">
+                        <div class="flex items-center justify-between rounded-lg bg-amber-50/50 px-3 py-2 dark:bg-amber-950/30">
+                            <span class="text-sm font-medium text-amber-700 dark:text-amber-400">Terlambat</span>
+                            <span class="text-sm font-semibold text-amber-800 dark:text-amber-300">{{ stats.late_today }}</span>
+                        </div>
+                        <div class="flex items-center justify-between rounded-lg bg-gray-50/50 px-3 py-2 dark:bg-gray-800/50">
+                            <span class="text-sm font-medium text-gray-600 dark:text-gray-400">Persentase</span>
+                            <span class="text-sm font-semibold text-gray-900 dark:text-white">
+                                {{ Math.round((stats.late_today / stats.total_employees) * 100) }}%
+                            </span>
+                        </div>
+                    </div>
+
+                    <!-- Hover effect overlay -->
+                    <div
+                        class="absolute inset-0 rounded-xl bg-gradient-to-br from-amber-500/5 to-orange-500/5 opacity-0 transition-opacity group-hover:opacity-100"
+                    ></div>
                 </div>
 
                 <!-- Absent Today -->
-                <div class="overflow-hidden rounded-xl bg-white shadow-sm ring-1 ring-gray-900/5 dark:bg-gray-900 dark:ring-white/10">
-                    <div class="p-6">
-                        <div class="flex items-center">
-                            <div class="flex h-12 w-12 shrink-0 items-center justify-center rounded-full bg-red-500/10">
-                                <XCircle class="h-6 w-6 text-red-600 dark:text-red-400" />
+                <div
+                    class="group relative overflow-hidden rounded-xl border border-gray-200/50 bg-gradient-to-br from-white to-red-50/30 p-6 shadow-sm transition-all hover:shadow-md dark:border-gray-800/50 dark:from-gray-950 dark:to-red-950/30"
+                >
+                    <div class="flex items-start justify-between">
+                        <div class="flex items-center gap-3">
+                            <div class="flex h-10 w-10 items-center justify-center rounded-full bg-red-500/10 ring-1 ring-red-500/20">
+                                <XCircle class="h-5 w-5 text-red-600 dark:text-red-400" />
                             </div>
-                            <div class="ml-4 flex-1">
-                                <p class="text-sm font-medium text-gray-600 dark:text-gray-400">Tidak Hadir</p>
-                                <p class="text-2xl font-bold text-gray-900 dark:text-white">{{ stats.absent_today }}</p>
-                                <p class="text-sm text-gray-500 dark:text-gray-500">
-                                    {{ Math.round((stats.absent_today / stats.total_employees) * 100) }}% dari total
+                            <div>
+                                <h3 class="font-medium text-gray-900 dark:text-white">Tidak Hadir</h3>
+                                <p class="text-sm text-gray-600 dark:text-gray-400">
+                                    {{ stats.absent_today }} dari {{ stats.total_employees }} karyawan
                                 </p>
                             </div>
                         </div>
+                        <div class="flex h-2 w-2 rounded-full bg-red-400"></div>
                     </div>
+
+                    <div class="mt-6 space-y-3">
+                        <div class="flex items-center justify-between rounded-lg bg-red-50/50 px-3 py-2 dark:bg-red-950/30">
+                            <span class="text-sm font-medium text-red-700 dark:text-red-400">Tidak Hadir</span>
+                            <span class="text-sm font-semibold text-red-800 dark:text-red-300">{{ stats.absent_today }}</span>
+                        </div>
+                        <div class="flex items-center justify-between rounded-lg bg-gray-50/50 px-3 py-2 dark:bg-gray-800/50">
+                            <span class="text-sm font-medium text-gray-600 dark:text-gray-400">Persentase</span>
+                            <span class="text-sm font-semibold text-gray-900 dark:text-white">
+                                {{ Math.round((stats.absent_today / stats.total_employees) * 100) }}%
+                            </span>
+                        </div>
+                    </div>
+
+                    <!-- Hover effect overlay -->
+                    <div
+                        class="absolute inset-0 rounded-xl bg-gradient-to-br from-red-500/5 to-rose-500/5 opacity-0 transition-opacity group-hover:opacity-100"
+                    ></div>
                 </div>
 
                 <!-- Total Employees -->
-                <div class="overflow-hidden rounded-xl bg-white shadow-sm ring-1 ring-gray-900/5 dark:bg-gray-900 dark:ring-white/10">
-                    <div class="p-6">
-                        <div class="flex items-center">
-                            <div class="flex h-12 w-12 shrink-0 items-center justify-center rounded-full bg-blue-500/10">
-                                <Users class="h-6 w-6 text-blue-600 dark:text-blue-400" />
+                <div
+                    class="group relative overflow-hidden rounded-xl border border-gray-200/50 bg-gradient-to-br from-white to-blue-50/30 p-6 shadow-sm transition-all hover:shadow-md dark:border-gray-800/50 dark:from-gray-950 dark:to-blue-950/30"
+                >
+                    <div class="flex items-start justify-between">
+                        <div class="flex items-center gap-3">
+                            <div class="flex h-10 w-10 items-center justify-center rounded-full bg-blue-500/10 ring-1 ring-blue-500/20">
+                                <Users class="h-5 w-5 text-blue-600 dark:text-blue-400" />
                             </div>
-                            <div class="ml-4 flex-1">
-                                <p class="text-sm font-medium text-gray-600 dark:text-gray-400">Total Karyawan</p>
-                                <p class="text-2xl font-bold text-gray-900 dark:text-white">{{ stats.total_employees }}</p>
-                                <p class="text-sm text-gray-500 dark:text-gray-500">{{ stats.attendance_rate }}% tingkat kehadiran</p>
+                            <div>
+                                <h3 class="font-medium text-gray-900 dark:text-white">Total Karyawan</h3>
+                                <p class="text-sm text-gray-600 dark:text-gray-400">
+                                    Semua karyawan terdaftar
+                                </p>
                             </div>
                         </div>
+                        <div class="flex h-2 w-2 rounded-full bg-blue-400"></div>
                     </div>
+
+                    <div class="mt-6 space-y-3">
+                        <div class="flex items-center justify-between rounded-lg bg-blue-50/50 px-3 py-2 dark:bg-blue-950/30">
+                            <span class="text-sm font-medium text-blue-700 dark:text-blue-400">Total</span>
+                            <span class="text-sm font-semibold text-blue-800 dark:text-blue-300">{{ stats.total_employees }}</span>
+                        </div>
+                        <div class="flex items-center justify-between rounded-lg bg-gray-50/50 px-3 py-2 dark:bg-gray-800/50">
+                            <span class="text-sm font-medium text-gray-600 dark:text-gray-400">Tingkat Kehadiran</span>
+                            <span class="text-sm font-semibold text-gray-900 dark:text-white">
+                                {{ stats.attendance_rate }}%
+                            </span>
+                        </div>
+                    </div>
+
+                    <!-- Hover effect overlay -->
+                    <div
+                        class="absolute inset-0 rounded-xl bg-gradient-to-br from-blue-500/5 to-indigo-500/5 opacity-0 transition-opacity group-hover:opacity-100"
+                    ></div>
                 </div>
             </div>
 
@@ -473,7 +555,7 @@ onUnmounted(() => {
             <div class="mb-10 grid gap-8 lg:grid-cols-2">
                 <!-- Weekly Attendance Chart -->
                 <div
-                    class="rounded-xl border border-gray-200/50 bg-gradient-to-br from-white to-gray-50/30 p-6 shadow-sm dark:border-gray-800/50 dark:from-gray-950 dark:to-gray-900/30"
+                    class="group relative overflow-hidden rounded-xl border border-gray-200/50 bg-gradient-to-br from-white to-purple-50/30 p-6 shadow-sm transition-all hover:shadow-md dark:border-gray-800/50 dark:from-gray-950 dark:to-purple-950/30"
                 >
                     <div class="mb-6 flex items-center gap-3">
                         <div class="flex h-8 w-8 items-center justify-center rounded-lg bg-purple-500/10 ring-1 ring-purple-500/20">
@@ -487,11 +569,14 @@ onUnmounted(() => {
                     <div class="h-64">
                         <AttendanceChart type="bar" :weekly-data="generateWeeklyData()" />
                     </div>
+                    <div
+                        class="absolute inset-0 rounded-xl bg-gradient-to-br from-purple-500/5 to-violet-500/5 opacity-0 transition-opacity group-hover:opacity-100"
+                    ></div>
                 </div>
 
                 <!-- Attendance Breakdown -->
                 <div
-                    class="rounded-xl border border-gray-200/50 bg-gradient-to-br from-white to-gray-50/30 p-6 shadow-sm dark:border-gray-800/50 dark:from-gray-950 dark:to-gray-900/30"
+                    class="group relative overflow-hidden rounded-xl border border-gray-200/50 bg-gradient-to-br from-white to-blue-50/30 p-6 shadow-sm transition-all hover:shadow-md dark:border-gray-800/50 dark:from-gray-950 dark:to-blue-950/30"
                 >
                     <div class="mb-6 flex items-center gap-3">
                         <div class="flex h-8 w-8 items-center justify-center rounded-lg bg-blue-500/10 ring-1 ring-blue-500/20">
@@ -505,11 +590,25 @@ onUnmounted(() => {
                     <div class="h-64">
                         <AttendanceChart type="doughnut" :attendance-data="generateAttendanceBreakdown()" />
                     </div>
+                    <div
+                        class="absolute inset-0 rounded-xl bg-gradient-to-br from-blue-500/5 to-indigo-500/5 opacity-0 transition-opacity group-hover:opacity-100"
+                    ></div>
                 </div>
             </div>
 
             <!-- Search and Filters -->
-            <div class="mb-10 rounded-xl border border-gray-200/50 bg-white p-6 shadow-sm dark:border-gray-800/50 dark:bg-gray-950">
+            <div
+                class="group relative overflow-hidden rounded-xl border border-gray-200/50 bg-gradient-to-br from-white to-gray-50/30 p-6 shadow-sm transition-all hover:shadow-md dark:border-gray-800/50 dark:from-gray-950 dark:to-gray-900/30"
+            >
+                <div class="mb-6 flex items-center gap-3">
+                    <div class="flex h-8 w-8 items-center justify-center rounded-lg bg-blue-500/10 ring-1 ring-blue-500/20">
+                        <Search class="h-4 w-4 text-blue-600 dark:text-blue-400" />
+                    </div>
+                    <div>
+                        <h2 class="text-lg font-semibold text-gray-900 dark:text-white">Pencarian & Filter</h2>
+                        <p class="text-sm text-gray-600 dark:text-gray-400">Temukan data kehadiran yang Anda butuhkan</p>
+                    </div>
+                </div>
                 <div class="flex flex-col gap-6 sm:flex-row sm:items-center sm:justify-between">
                     <div class="relative max-w-md flex-1">
                         <Search class="absolute top-1/2 left-3 h-4 w-4 -translate-y-1/2 text-gray-400" />
@@ -559,13 +658,25 @@ onUnmounted(() => {
                         </div>
                     </div>
                 </div>
+                <div
+                    class="absolute inset-0 rounded-xl bg-gradient-to-br from-blue-500/5 to-indigo-500/5 opacity-0 transition-opacity group-hover:opacity-100"
+                ></div>
             </div>
 
             <!-- Attendance Records Table -->
-            <div class="rounded-xl border border-gray-200/50 bg-white shadow-sm dark:border-gray-800/50 dark:bg-gray-950">
+            <div
+                class="group relative overflow-hidden rounded-xl border border-gray-200/50 bg-gradient-to-br from-white to-gray-50/30 shadow-sm transition-all hover:shadow-md dark:border-gray-800/50 dark:from-gray-950 dark:to-gray-900/30"
+            >
                 <div class="border-b border-gray-200/50 p-8 dark:border-gray-800/50">
-                    <h3 class="text-lg font-semibold text-gray-900 dark:text-white">Catatan Kehadiran</h3>
-                    <p class="text-sm text-gray-600 dark:text-gray-400">{{ attendanceRecords.length }} catatan kehadiran ditemukan</p>
+                    <div class="flex items-center gap-3">
+                        <div class="flex h-8 w-8 items-center justify-center rounded-lg bg-blue-500/10 ring-1 ring-blue-500/20">
+                            <Calendar class="h-4 w-4 text-blue-600 dark:text-blue-400" />
+                        </div>
+                        <div>
+                            <h2 class="text-lg font-semibold text-gray-900 dark:text-white">Catatan Kehadiran</h2>
+                            <p class="text-sm text-gray-600 dark:text-gray-400">{{ attendanceRecords.length }} catatan kehadiran ditemukan</p>
+                        </div>
+                    </div>
                 </div>
                 <div class="overflow-x-auto">
                     <table class="w-full">
@@ -761,6 +872,9 @@ onUnmounted(() => {
                                                     Hapus
                                                 </button>
                                             </div>
+                                            <div
+                                                class="absolute inset-0 rounded-xl bg-gradient-to-br from-blue-500/5 to-indigo-500/5 opacity-0 transition-opacity group-hover:opacity-100"
+                                            ></div>
                                         </div>
                                     </div>
                                 </td>

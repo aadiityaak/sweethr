@@ -14,102 +14,220 @@
             </div>
 
             <!-- Overview Cards -->
-            <div class="mb-8 grid grid-cols-1 gap-6 sm:grid-cols-2 lg:grid-cols-4">
+            <div class="mb-10 grid gap-6 md:grid-cols-2 lg:grid-cols-4">
                 <!-- Total Requests -->
-                <div class="overflow-hidden rounded-xl bg-white shadow-sm ring-1 ring-gray-900/5 dark:bg-gray-900 dark:ring-white/10">
-                    <div class="p-6">
-                        <div class="flex items-center">
-                            <div class="flex h-12 w-12 shrink-0 items-center justify-center rounded-full bg-blue-500/10">
-                                <Calendar class="h-6 w-6 text-blue-600 dark:text-blue-400" />
+                <div
+                    class="group relative overflow-hidden rounded-xl border border-gray-200/50 bg-gradient-to-br from-white to-blue-50/30 p-6 shadow-sm transition-all hover:shadow-md dark:border-gray-800/50 dark:from-gray-950 dark:to-blue-950/30"
+                >
+                    <div class="flex items-start justify-between">
+                        <div class="flex items-center gap-3">
+                            <div class="flex h-10 w-10 items-center justify-center rounded-full bg-blue-500/10 ring-1 ring-blue-500/20">
+                                <Calendar class="h-5 w-5 text-blue-600 dark:text-blue-400" />
                             </div>
-                            <div class="ml-4 flex-1">
-                                <p class="text-sm font-medium text-gray-600 dark:text-gray-400">Total Pengajuan</p>
-                                <p class="text-2xl font-bold text-gray-900 dark:text-white">{{ stats.total_requests }}</p>
+                            <div>
+                                <h3 class="font-medium text-gray-900 dark:text-white">Total Pengajuan</h3>
+                                <p class="text-sm text-gray-600 dark:text-gray-400">
+                                    Semua pengajuan cuti
+                                </p>
                             </div>
                         </div>
+                        <div class="flex h-2 w-2 rounded-full bg-blue-400"></div>
                     </div>
+
+                    <div class="mt-6 space-y-3">
+                        <div class="flex items-center justify-between rounded-lg bg-blue-50/50 px-3 py-2 dark:bg-blue-950/30">
+                            <span class="text-sm font-medium text-blue-700 dark:text-blue-400">Total</span>
+                            <span class="text-sm font-semibold text-blue-800 dark:text-blue-300">{{ stats.total_requests }}</span>
+                        </div>
+                        <div class="flex items-center justify-between rounded-lg bg-gray-50/50 px-3 py-2 dark:bg-gray-800/50">
+                            <span class="text-sm font-medium text-gray-600 dark:text-gray-400">Bulan Ini</span>
+                            <span class="text-sm font-semibold text-gray-900 dark:text-white">
+                                {{ stats.this_month_count }}
+                            </span>
+                        </div>
+                    </div>
+
+                    <!-- Hover effect overlay -->
+                    <div
+                        class="absolute inset-0 rounded-xl bg-gradient-to-br from-blue-500/5 to-indigo-500/5 opacity-0 transition-opacity group-hover:opacity-100"
+                    ></div>
                 </div>
 
                 <!-- Pending -->
-                <div class="overflow-hidden rounded-xl bg-white shadow-sm ring-1 ring-gray-900/5 dark:bg-gray-900 dark:ring-white/10">
-                    <div class="p-6">
-                        <div class="flex items-center">
-                            <div class="flex h-12 w-12 shrink-0 items-center justify-center rounded-full bg-yellow-500/10">
-                                <Clock class="h-6 w-6 text-yellow-600 dark:text-yellow-400" />
+                <div
+                    class="group relative overflow-hidden rounded-xl border border-gray-200/50 bg-gradient-to-br from-white to-amber-50/30 p-6 shadow-sm transition-all hover:shadow-md dark:border-gray-800/50 dark:from-gray-950 dark:to-amber-950/30"
+                >
+                    <div class="flex items-start justify-between">
+                        <div class="flex items-center gap-3">
+                            <div class="flex h-10 w-10 items-center justify-center rounded-full bg-amber-500/10 ring-1 ring-amber-500/20">
+                                <Clock class="h-5 w-5 text-amber-600 dark:text-amber-400" />
                             </div>
-                            <div class="ml-4 flex-1">
-                                <p class="text-sm font-medium text-gray-600 dark:text-gray-400">Menunggu</p>
-                                <div class="flex items-baseline gap-2">
-                                    <p class="text-2xl font-bold text-gray-900 dark:text-white">{{ stats.pending_count }}</p>
-                                    <p class="text-sm text-gray-600 dark:text-gray-400">({{ stats.pending_percentage }}%)</p>
-                                </div>
+                            <div>
+                                <h3 class="font-medium text-gray-900 dark:text-white">Menunggu</h3>
+                                <p class="text-sm text-gray-600 dark:text-gray-400">
+                                    Menunggu persetujuan
+                                </p>
                             </div>
                         </div>
+                        <div class="flex h-2 w-2 rounded-full bg-amber-400"></div>
                     </div>
+
+                    <div class="mt-6 space-y-3">
+                        <div class="flex items-center justify-between rounded-lg bg-amber-50/50 px-3 py-2 dark:bg-amber-950/30">
+                            <span class="text-sm font-medium text-amber-700 dark:text-amber-400">Menunggu</span>
+                            <span class="text-sm font-semibold text-amber-800 dark:text-amber-300">{{ stats.pending_count }}</span>
+                        </div>
+                        <div class="flex items-center justify-between rounded-lg bg-gray-50/50 px-3 py-2 dark:bg-gray-800/50">
+                            <span class="text-sm font-medium text-gray-600 dark:text-gray-400">Persentase</span>
+                            <span class="text-sm font-semibold text-gray-900 dark:text-white">
+                                {{ stats.pending_percentage }}%
+                            </span>
+                        </div>
+                    </div>
+
+                    <!-- Hover effect overlay -->
+                    <div
+                        class="absolute inset-0 rounded-xl bg-gradient-to-br from-amber-500/5 to-orange-500/5 opacity-0 transition-opacity group-hover:opacity-100"
+                    ></div>
                 </div>
 
                 <!-- Approved -->
-                <div class="overflow-hidden rounded-xl bg-white shadow-sm ring-1 ring-gray-900/5 dark:bg-gray-900 dark:ring-white/10">
-                    <div class="p-6">
-                        <div class="flex items-center">
-                            <div class="flex h-12 w-12 shrink-0 items-center justify-center rounded-full bg-green-500/10">
-                                <CheckCircle class="h-6 w-6 text-green-600 dark:text-green-400" />
+                <div
+                    class="group relative overflow-hidden rounded-xl border border-gray-200/50 bg-gradient-to-br from-white to-emerald-50/30 p-6 shadow-sm transition-all hover:shadow-md dark:border-gray-800/50 dark:from-gray-950 dark:to-emerald-950/30"
+                >
+                    <div class="flex items-start justify-between">
+                        <div class="flex items-center gap-3">
+                            <div class="flex h-10 w-10 items-center justify-center rounded-full bg-emerald-500/10 ring-1 ring-emerald-500/20">
+                                <CheckCircle class="h-5 w-5 text-emerald-600 dark:text-emerald-400" />
                             </div>
-                            <div class="ml-4 flex-1">
-                                <p class="text-sm font-medium text-gray-600 dark:text-gray-400">Disetujui</p>
-                                <p class="text-2xl font-bold text-gray-900 dark:text-white">{{ stats.approved_count }}</p>
+                            <div>
+                                <h3 class="font-medium text-gray-900 dark:text-white">Disetujui</h3>
+                                <p class="text-sm text-gray-600 dark:text-gray-400">
+                                    Pengajuan disetujui
+                                </p>
                             </div>
                         </div>
+                        <div class="flex h-2 w-2 rounded-full bg-emerald-400"></div>
                     </div>
+
+                    <div class="mt-6 space-y-3">
+                        <div class="flex items-center justify-between rounded-lg bg-emerald-50/50 px-3 py-2 dark:bg-emerald-950/30">
+                            <span class="text-sm font-medium text-emerald-700 dark:text-emerald-400">Disetujui</span>
+                            <span class="text-sm font-semibold text-emerald-800 dark:text-emerald-300">{{ stats.approved_count }}</span>
+                        </div>
+                        <div class="flex items-center justify-between rounded-lg bg-gray-50/50 px-3 py-2 dark:bg-gray-800/50">
+                            <span class="text-sm font-medium text-gray-600 dark:text-gray-400">Persentase</span>
+                            <span class="text-sm font-semibold text-gray-900 dark:text-white">
+                                {{ Math.round((stats.approved_count / stats.total_requests) * 100) }}%
+                            </span>
+                        </div>
+                    </div>
+
+                    <!-- Hover effect overlay -->
+                    <div
+                        class="absolute inset-0 rounded-xl bg-gradient-to-br from-emerald-500/5 to-teal-500/5 opacity-0 transition-opacity group-hover:opacity-100"
+                    ></div>
                 </div>
 
                 <!-- Rejected -->
-                <div class="overflow-hidden rounded-xl bg-white shadow-sm ring-1 ring-gray-900/5 dark:bg-gray-900 dark:ring-white/10">
-                    <div class="p-6">
-                        <div class="flex items-center">
-                            <div class="flex h-12 w-12 shrink-0 items-center justify-center rounded-full bg-red-500/10">
-                                <XCircle class="h-6 w-6 text-red-600 dark:text-red-400" />
+                <div
+                    class="group relative overflow-hidden rounded-xl border border-gray-200/50 bg-gradient-to-br from-white to-red-50/30 p-6 shadow-sm transition-all hover:shadow-md dark:border-gray-800/50 dark:from-gray-950 dark:to-red-950/30"
+                >
+                    <div class="flex items-start justify-between">
+                        <div class="flex items-center gap-3">
+                            <div class="flex h-10 w-10 items-center justify-center rounded-full bg-red-500/10 ring-1 ring-red-500/20">
+                                <XCircle class="h-5 w-5 text-red-600 dark:text-red-400" />
                             </div>
-                            <div class="ml-4 flex-1">
-                                <p class="text-sm font-medium text-gray-600 dark:text-gray-400">Ditolak</p>
-                                <p class="text-2xl font-bold text-gray-900 dark:text-white">{{ stats.rejected_count }}</p>
+                            <div>
+                                <h3 class="font-medium text-gray-900 dark:text-white">Ditolak</h3>
+                                <p class="text-sm text-gray-600 dark:text-gray-400">
+                                    Pengajuan ditolak
+                                </p>
                             </div>
                         </div>
+                        <div class="flex h-2 w-2 rounded-full bg-red-400"></div>
                     </div>
+
+                    <div class="mt-6 space-y-3">
+                        <div class="flex items-center justify-between rounded-lg bg-red-50/50 px-3 py-2 dark:bg-red-950/30">
+                            <span class="text-sm font-medium text-red-700 dark:text-red-400">Ditolak</span>
+                            <span class="text-sm font-semibold text-red-800 dark:text-red-300">{{ stats.rejected_count }}</span>
+                        </div>
+                        <div class="flex items-center justify-between rounded-lg bg-gray-50/50 px-3 py-2 dark:bg-gray-800/50">
+                            <span class="text-sm font-medium text-gray-600 dark:text-gray-400">Persentase</span>
+                            <span class="text-sm font-semibold text-gray-900 dark:text-white">
+                                {{ Math.round((stats.rejected_count / stats.total_requests) * 100) }}%
+                            </span>
+                        </div>
+                    </div>
+
+                    <!-- Hover effect overlay -->
+                    <div
+                        class="absolute inset-0 rounded-xl bg-gradient-to-br from-red-500/5 to-rose-500/5 opacity-0 transition-opacity group-hover:opacity-100"
+                    ></div>
                 </div>
             </div>
 
             <!-- Charts Row -->
-            <div class="mb-8 grid gap-6 lg:grid-cols-2">
+            <div class="mb-10 grid gap-8 lg:grid-cols-2">
                 <!-- Monthly Trend Chart -->
-                <div class="overflow-hidden rounded-xl bg-white shadow-sm ring-1 ring-gray-900/5 dark:bg-gray-900 dark:ring-white/10">
-                    <div class="p-6">
-                        <div class="mb-4">
-                            <h3 class="text-lg font-semibold text-gray-900 dark:text-white">Tren Pengajuan 6 Bulan Terakhir</h3>
+                <div
+                    class="group relative overflow-hidden rounded-xl border border-gray-200/50 bg-gradient-to-br from-white to-purple-50/30 p-6 shadow-sm transition-all hover:shadow-md dark:border-gray-800/50 dark:from-gray-950 dark:to-purple-950/30"
+                >
+                    <div class="mb-6 flex items-center gap-3">
+                        <div class="flex h-8 w-8 items-center justify-center rounded-lg bg-purple-500/10 ring-1 ring-purple-500/20">
+                            <Calendar class="h-4 w-4 text-purple-600 dark:text-purple-400" />
+                        </div>
+                        <div>
+                            <h2 class="text-lg font-semibold text-gray-900 dark:text-white">Tren Pengajuan 6 Bulan Terakhir</h2>
                             <p class="text-sm text-gray-600 dark:text-gray-400">Statistik pengajuan cuti bulanan</p>
                         </div>
-                        <div class="h-80">
-                            <Chart :data="monthlyChartData" type="line" :options="{ responsive: true, maintainAspectRatio: false }" />
-                        </div>
                     </div>
+                    <div class="h-64">
+                        <Chart :data="monthlyChartData" type="line" :options="{ responsive: true, maintainAspectRatio: false }" />
+                    </div>
+                    <div
+                        class="absolute inset-0 rounded-xl bg-gradient-to-br from-purple-500/5 to-violet-500/5 opacity-0 transition-opacity group-hover:opacity-100"
+                    ></div>
                 </div>
 
                 <!-- Status Distribution -->
-                <div class="overflow-hidden rounded-xl bg-white shadow-sm ring-1 ring-gray-900/5 dark:bg-gray-900 dark:ring-white/10">
-                    <div class="p-6">
-                        <div class="mb-4">
-                            <h3 class="text-lg font-semibold text-gray-900 dark:text-white">Distribusi Status</h3>
+                <div
+                    class="group relative overflow-hidden rounded-xl border border-gray-200/50 bg-gradient-to-br from-white to-blue-50/30 p-6 shadow-sm transition-all hover:shadow-md dark:border-gray-800/50 dark:from-gray-950 dark:to-blue-950/30"
+                >
+                    <div class="mb-6 flex items-center gap-3">
+                        <div class="flex h-8 w-8 items-center justify-center rounded-lg bg-blue-500/10 ring-1 ring-blue-500/20">
+                            <CheckCircle class="h-4 w-4 text-blue-600 dark:text-blue-400" />
+                        </div>
+                        <div>
+                            <h2 class="text-lg font-semibold text-gray-900 dark:text-white">Distribusi Status</h2>
                             <p class="text-sm text-gray-600 dark:text-gray-400">Perbandingan status pengajuan</p>
                         </div>
-                        <div class="h-80">
-                            <Chart :data="statusChartData" type="doughnut" :options="{ responsive: true, maintainAspectRatio: false }" />
-                        </div>
                     </div>
+                    <div class="h-64">
+                        <Chart :data="statusChartData" type="doughnut" :options="{ responsive: true, maintainAspectRatio: false }" />
+                    </div>
+                    <div
+                        class="absolute inset-0 rounded-xl bg-gradient-to-br from-blue-500/5 to-indigo-500/5 opacity-0 transition-opacity group-hover:opacity-100"
+                    ></div>
                 </div>
             </div>
 
             <!-- Filters -->
-            <div class="mb-8 overflow-hidden rounded-xl bg-white shadow-sm ring-1 ring-gray-900/5 dark:bg-gray-900 dark:ring-white/10">
+            <div
+                class="group relative mb-10 overflow-hidden rounded-xl border border-gray-200/50 bg-gradient-to-br from-white to-gray-50/30 shadow-sm transition-all hover:shadow-md dark:border-gray-800/50 dark:from-gray-950 dark:to-gray-900/30"
+            >
+                <div class="border-b border-gray-200/50 p-6 dark:border-gray-800/50">
+                    <div class="flex items-center gap-3">
+                        <div class="flex h-8 w-8 items-center justify-center rounded-lg bg-gray-500/10 ring-1 ring-gray-500/20">
+                            <FilterX class="h-4 w-4 text-gray-600 dark:text-gray-400" />
+                        </div>
+                        <div>
+                            <h2 class="text-lg font-semibold text-gray-900 dark:text-white">Filter & Pencarian</h2>
+                            <p class="text-sm text-gray-600 dark:text-gray-400">Filter pengajuan cuti berdasarkan kriteria</p>
+                        </div>
+                    </div>
+                </div>
                 <div class="p-6">
                     <div class="grid gap-4 md:grid-cols-6">
                         <div class="md:col-span-2">
@@ -159,16 +277,25 @@
                         </div>
                     </div>
                 </div>
+                <div
+                    class="absolute inset-0 rounded-xl bg-gradient-to-br from-gray-500/5 to-slate-500/5 opacity-0 transition-opacity group-hover:opacity-100"
+                ></div>
             </div>
 
             <!-- Leave Requests Table -->
-            <div class="overflow-hidden rounded-xl bg-white shadow-sm ring-1 ring-gray-900/5 dark:bg-gray-900 dark:ring-white/10">
-                <div class="border-b border-gray-200 px-6 py-4 dark:border-gray-700">
-                    <h3 class="flex items-center text-lg font-semibold text-gray-900 dark:text-white">
-                        <Calendar class="mr-2 h-5 w-5 text-blue-600 dark:text-blue-400" />
-                        Daftar Pengajuan Cuti
-                    </h3>
-                    <p class="text-sm text-gray-600 dark:text-gray-400">{{ leaveRequests.total }} pengajuan ditemukan</p>
+            <div
+                class="group relative overflow-hidden rounded-xl border border-gray-200/50 bg-gradient-to-br from-white to-blue-50/30 shadow-sm transition-all hover:shadow-md dark:border-gray-800/50 dark:from-gray-950 dark:to-blue-950/30"
+            >
+                <div class="border-b border-gray-200/50 px-6 py-4 dark:border-gray-800/50">
+                    <div class="flex items-center gap-3">
+                        <div class="flex h-8 w-8 items-center justify-center rounded-lg bg-blue-500/10 ring-1 ring-blue-500/20">
+                            <Calendar class="h-4 w-4 text-blue-600 dark:text-blue-400" />
+                        </div>
+                        <div>
+                            <h2 class="text-lg font-semibold text-gray-900 dark:text-white">Daftar Pengajuan Cuti</h2>
+                            <p class="text-sm text-gray-600 dark:text-gray-400">{{ leaveRequests.total }} pengajuan ditemukan</p>
+                        </div>
+                    </div>
                 </div>
 
                 <div class="overflow-x-auto">
@@ -287,6 +414,9 @@
                             </Button>
                         </div>
                     </div>
+                    <div
+                        class="absolute inset-0 rounded-xl bg-gradient-to-br from-blue-500/5 to-indigo-500/5 opacity-0 transition-opacity group-hover:opacity-100"
+                    ></div>
                 </div>
             </div>
         </div>
