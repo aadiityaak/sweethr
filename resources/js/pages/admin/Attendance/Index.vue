@@ -240,9 +240,17 @@ const formatTime = (time: string | null | any) => {
 
 const formatDuration = (minutes: number | null) => {
     if (!minutes) return '--';
-    const hours = Math.floor(minutes / 60);
-    const mins = minutes % 60;
-    return hours > 0 ? `${hours}j ${mins}m` : `${mins}m`;
+    
+    // Round to 1 decimal place to avoid long decimals
+    const roundedMinutes = Math.round(minutes * 10) / 10;
+    
+    const hours = Math.floor(roundedMinutes / 60);
+    const mins = roundedMinutes % 60;
+    
+    // Format minutes with 1 decimal place if it has decimals
+    const minsFormatted = mins % 1 !== 0 ? mins.toFixed(1) : mins.toString();
+    
+    return hours > 0 ? `${hours}j ${minsFormatted}m` : `${minsFormatted}m`;
 };
 
 const formatDate = (dateString: string) => {
