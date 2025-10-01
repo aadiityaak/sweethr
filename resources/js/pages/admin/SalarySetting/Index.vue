@@ -12,146 +12,274 @@
             </div>
 
             <!-- Overview Cards -->
-            <div class="mb-8 grid grid-cols-1 gap-6 sm:grid-cols-2 lg:grid-cols-4">
-                <div class="overflow-hidden rounded-xl bg-white shadow-sm ring-1 ring-gray-900/5 dark:bg-gray-900 dark:ring-white/10">
-                    <div class="p-6">
-                        <div class="flex items-center">
-                            <div class="flex h-12 w-12 shrink-0 items-center justify-center rounded-full bg-blue-500/10">
-                                <Users class="h-6 w-6 text-blue-600 dark:text-blue-400" />
+            <div class="mb-10 grid gap-6 md:grid-cols-2 lg:grid-cols-4">
+                <!-- Total Employees -->
+                <div
+                    class="group relative overflow-hidden rounded-xl border border-gray-200/50 bg-gradient-to-br from-white to-blue-50/30 p-6 shadow-sm transition-all hover:shadow-md dark:border-gray-800/50 dark:from-gray-950 dark:to-blue-950/30"
+                >
+                    <div class="flex items-start justify-between">
+                        <div class="flex items-center gap-3">
+                            <div class="flex h-10 w-10 items-center justify-center rounded-full bg-blue-500/10 ring-1 ring-blue-500/20">
+                                <Users class="h-5 w-5 text-blue-600 dark:text-blue-400" />
                             </div>
-                            <div class="ml-4 flex-1">
-                                <p class="text-sm font-medium text-gray-600 dark:text-gray-400">Total Karyawan</p>
-                                <p class="text-2xl font-bold text-gray-900 dark:text-white">{{ users.meta?.total || 0 }}</p>
+                            <div>
+                                <h3 class="font-medium text-gray-900 dark:text-white">Total Karyawan</h3>
+                                <p class="text-sm text-gray-600 dark:text-gray-400">
+                                    Semua karyawan terdaftar
+                                </p>
                             </div>
                         </div>
+                        <div class="flex h-2 w-2 rounded-full bg-blue-400"></div>
                     </div>
+
+                    <div class="mt-6 space-y-3">
+                        <div class="flex items-center justify-between rounded-lg bg-blue-50/50 px-3 py-2 dark:bg-blue-950/30">
+                            <span class="text-sm font-medium text-blue-700 dark:text-blue-400">Total</span>
+                            <span class="text-sm font-semibold text-blue-800 dark:text-blue-300">{{ users.meta?.total || 0 }}</span>
+                        </div>
+                        <div class="flex items-center justify-between rounded-lg bg-gray-50/50 px-3 py-2 dark:bg-gray-800/50">
+                            <span class="text-sm font-medium text-gray-600 dark:text-gray-400">Persentase</span>
+                            <span class="text-sm font-semibold text-gray-900 dark:text-white">
+                                {{ users.meta?.total ? 100 : 0 }}%
+                            </span>
+                        </div>
+                    </div>
+
+                    <!-- Hover effect overlay -->
+                    <div
+                        class="absolute inset-0 rounded-xl bg-gradient-to-br from-blue-500/5 to-indigo-500/5 opacity-0 transition-opacity group-hover:opacity-100"
+                    ></div>
                 </div>
 
-                <div class="overflow-hidden rounded-xl bg-white shadow-sm ring-1 ring-gray-900/5 dark:bg-gray-900 dark:ring-white/10">
-                    <div class="p-6">
-                        <div class="flex items-center">
-                            <div class="flex h-12 w-12 shrink-0 items-center justify-center rounded-full bg-green-500/10">
-                                <CheckCircle class="h-6 w-6 text-green-600 dark:text-green-400" />
+                <!-- Employees with Salary Set -->
+                <div
+                    class="group relative overflow-hidden rounded-xl border border-gray-200/50 bg-gradient-to-br from-white to-emerald-50/30 p-6 shadow-sm transition-all hover:shadow-md dark:border-gray-800/50 dark:from-gray-950 dark:to-emerald-950/30"
+                >
+                    <div class="flex items-start justify-between">
+                        <div class="flex items-center gap-3">
+                            <div class="flex h-10 w-10 items-center justify-center rounded-full bg-emerald-500/10 ring-1 ring-emerald-500/20">
+                                <CheckCircle class="h-5 w-5 text-emerald-600 dark:text-emerald-400" />
                             </div>
-                            <div class="ml-4 flex-1">
-                                <p class="text-sm font-medium text-gray-600 dark:text-gray-400">Sudah Diatur</p>
-                                <p class="text-2xl font-bold text-gray-900 dark:text-white">{{ usersWithSalary }}</p>
+                            <div>
+                                <h3 class="font-medium text-gray-900 dark:text-white">Sudah Diatur</h3>
+                                <p class="text-sm text-gray-600 dark:text-gray-400">
+                                    Karyawan dengan gaji
+                                </p>
                             </div>
                         </div>
+                        <div class="flex h-2 w-2 rounded-full bg-emerald-400"></div>
                     </div>
+
+                    <div class="mt-6 space-y-3">
+                        <div class="flex items-center justify-between rounded-lg bg-emerald-50/50 px-3 py-2 dark:bg-emerald-950/30">
+                            <span class="text-sm font-medium text-emerald-700 dark:text-emerald-400">Diatur</span>
+                            <span class="text-sm font-semibold text-emerald-800 dark:text-emerald-300">
+                                {{ usersWithSalary }}
+                            </span>
+                        </div>
+                        <div class="flex items-center justify-between rounded-lg bg-gray-50/50 px-3 py-2 dark:bg-gray-800/50">
+                            <span class="text-sm font-medium text-gray-600 dark:text-gray-400">Persentase</span>
+                            <span class="text-sm font-semibold text-gray-900 dark:text-white">
+                                {{ users.meta?.total ? Math.round((usersWithSalary / users.meta.total) * 100) : 0 }}%
+                            </span>
+                        </div>
+                    </div>
+
+                    <!-- Hover effect overlay -->
+                    <div
+                        class="absolute inset-0 rounded-xl bg-gradient-to-br from-emerald-500/5 to-teal-500/5 opacity-0 transition-opacity group-hover:opacity-100"
+                    ></div>
                 </div>
 
-                <div class="overflow-hidden rounded-xl bg-white shadow-sm ring-1 ring-gray-900/5 dark:bg-gray-900 dark:ring-white/10">
-                    <div class="p-6">
-                        <div class="flex items-center">
-                            <div class="flex h-12 w-12 shrink-0 items-center justify-center rounded-full bg-orange-500/10">
-                                <AlertCircle class="h-6 w-6 text-orange-600 dark:text-orange-400" />
+                <!-- Employees without Salary Set -->
+                <div
+                    class="group relative overflow-hidden rounded-xl border border-gray-200/50 bg-gradient-to-br from-white to-amber-50/30 p-6 shadow-sm transition-all hover:shadow-md dark:border-gray-800/50 dark:from-gray-950 dark:to-amber-950/30"
+                >
+                    <div class="flex items-start justify-between">
+                        <div class="flex items-center gap-3">
+                            <div class="flex h-10 w-10 items-center justify-center rounded-full bg-amber-500/10 ring-1 ring-amber-500/20">
+                                <AlertCircle class="h-5 w-5 text-amber-600 dark:text-amber-400" />
                             </div>
-                            <div class="ml-4 flex-1">
-                                <p class="text-sm font-medium text-gray-600 dark:text-gray-400">Belum Diatur</p>
-                                <p class="text-2xl font-bold text-gray-900 dark:text-white">{{ usersWithoutSalary }}</p>
+                            <div>
+                                <h3 class="font-medium text-gray-900 dark:text-white">Belum Diatur</h3>
+                                <p class="text-sm text-gray-600 dark:text-gray-400">
+                                    Karyawan tanpa gaji
+                                </p>
                             </div>
                         </div>
+                        <div class="flex h-2 w-2 rounded-full bg-amber-400"></div>
                     </div>
+
+                    <div class="mt-6 space-y-3">
+                        <div class="flex items-center justify-between rounded-lg bg-amber-50/50 px-3 py-2 dark:bg-amber-950/30">
+                            <span class="text-sm font-medium text-amber-700 dark:text-amber-400">Belum</span>
+                            <span class="text-sm font-semibold text-amber-800 dark:text-amber-300">
+                                {{ usersWithoutSalary }}
+                            </span>
+                        </div>
+                        <div class="flex items-center justify-between rounded-lg bg-gray-50/50 px-3 py-2 dark:bg-gray-800/50">
+                            <span class="text-sm font-medium text-gray-600 dark:text-gray-400">Persentase</span>
+                            <span class="text-sm font-semibold text-gray-900 dark:text-white">
+                                {{ users.meta?.total ? Math.round((usersWithoutSalary / users.meta.total) * 100) : 0 }}%
+                            </span>
+                        </div>
+                    </div>
+
+                    <!-- Hover effect overlay -->
+                    <div
+                        class="absolute inset-0 rounded-xl bg-gradient-to-br from-amber-500/5 to-orange-500/5 opacity-0 transition-opacity group-hover:opacity-100"
+                    ></div>
                 </div>
 
-                <div class="overflow-hidden rounded-xl bg-white shadow-sm ring-1 ring-gray-900/5 dark:bg-gray-900 dark:ring-white/10">
-                    <div class="p-6">
-                        <div class="flex items-center">
-                            <div class="flex h-12 w-12 shrink-0 items-center justify-center rounded-full bg-emerald-500/10">
-                                <DollarSign class="h-6 w-6 text-emerald-600 dark:text-emerald-400" />
+                <!-- Average Salary -->
+                <div
+                    class="group relative overflow-hidden rounded-xl border border-gray-200/50 bg-gradient-to-br from-white to-purple-50/30 p-6 shadow-sm transition-all hover:shadow-md dark:border-gray-800/50 dark:from-gray-950 dark:to-purple-950/30"
+                >
+                    <div class="flex items-start justify-between">
+                        <div class="flex items-center gap-3">
+                            <div class="flex h-10 w-10 items-center justify-center rounded-full bg-purple-500/10 ring-1 ring-purple-500/20">
+                                <DollarSign class="h-5 w-5 text-purple-600 dark:text-purple-400" />
                             </div>
-                            <div class="ml-4 flex-1">
-                                <p class="text-sm font-medium text-gray-600 dark:text-gray-400">Rata-rata Gaji</p>
-                                <p class="text-2xl font-bold text-gray-900 dark:text-white">{{ formatCurrency(averageSalary) }}</p>
+                            <div>
+                                <h3 class="font-medium text-gray-900 dark:text-white">Rata-rata Gaji</h3>
+                                <p class="text-sm text-gray-600 dark:text-gray-400">
+                                    Gaji pokok rata-rata
+                                </p>
                             </div>
                         </div>
+                        <div class="flex h-2 w-2 rounded-full bg-purple-400"></div>
                     </div>
+
+                    <div class="mt-6 space-y-3">
+                        <div class="flex items-center justify-between rounded-lg bg-purple-50/50 px-3 py-2 dark:bg-purple-950/30">
+                            <span class="text-sm font-medium text-purple-700 dark:text-purple-400">Rata-rata</span>
+                            <span class="text-sm font-semibold text-purple-800 dark:text-purple-300">
+                                {{ formatCurrency(averageSalary) }}
+                            </span>
+                        </div>
+                        <div class="flex items-center justify-between rounded-lg bg-gray-50/50 px-3 py-2 dark:bg-gray-800/50">
+                            <span class="text-sm font-medium text-gray-600 dark:text-gray-400">Karyawan</span>
+                            <span class="text-sm font-semibold text-gray-900 dark:text-white">
+                                {{ usersWithSalary }}
+                            </span>
+                        </div>
+                    </div>
+
+                    <!-- Hover effect overlay -->
+                    <div
+                        class="absolute inset-0 rounded-xl bg-gradient-to-br from-purple-500/5 to-violet-500/5 opacity-0 transition-opacity group-hover:opacity-100"
+                    ></div>
                 </div>
             </div>
 
             <!-- Employee List -->
-            <div class="overflow-hidden rounded-xl bg-white shadow-sm ring-1 ring-gray-900/5 dark:bg-gray-900 dark:ring-white/10">
-                <div class="border-b border-gray-200 px-6 py-4 dark:border-gray-700">
-                    <h3 class="flex items-center text-lg font-semibold text-gray-900 dark:text-white">
-                        <Users class="mr-2 h-5 w-5 text-blue-600 dark:text-blue-400" />
-                        Daftar Karyawan
-                    </h3>
+            <div
+                class="group relative overflow-hidden rounded-xl border border-gray-200/50 bg-gradient-to-br from-white to-blue-50/30 shadow-sm transition-all hover:shadow-md dark:border-gray-800/50 dark:from-gray-950 dark:to-blue-950/30"
+            >
+                <div class="border-b border-gray-200/50 px-6 py-4 dark:border-gray-800/50">
+                    <div class="flex items-center gap-3">
+                        <div class="flex h-8 w-8 items-center justify-center rounded-lg bg-blue-500/10 ring-1 ring-blue-500/20">
+                            <Users class="h-4 w-4 text-blue-600 dark:text-blue-400" />
+                        </div>
+                        <div>
+                            <h2 class="text-lg font-semibold text-gray-900 dark:text-white">Daftar Gaji Karyawan</h2>
+                            <p class="text-sm text-gray-600 dark:text-gray-400">{{ users.meta?.total || 0 }} karyawan ditemukan</p>
+                        </div>
+                    </div>
                 </div>
                 <div class="overflow-x-auto">
-                    <table class="w-full divide-y divide-gray-200 dark:divide-gray-700">
-                        <thead class="bg-gray-50 dark:bg-gray-800">
-                            <tr>
-                                <th
-                                    @click="toggleSort('name')"
-                                    class="cursor-pointer px-6 py-3 text-left text-xs font-medium tracking-wider text-gray-500 uppercase transition-colors hover:bg-gray-100 hover:text-gray-700 dark:text-gray-400 dark:hover:bg-gray-700 dark:hover:text-gray-300"
-                                >
-                                    <div class="flex items-center gap-2">
+                    <table class="w-full">
+                        <thead class="border-t border-gray-200 dark:border-gray-700">
+                            <tr class="border-b border-gray-200 dark:border-gray-700">
+                                <th class="px-6 py-3 text-left text-sm font-medium text-gray-500 dark:text-gray-400">
+                                    <button
+                                        @click="toggleSort('name')"
+                                        :class="[
+                                            'flex items-center gap-2 hover:text-gray-700 dark:hover:text-gray-200',
+                                            filters.sort === 'name' ? 'text-blue-600 dark:text-blue-400' : '',
+                                        ]"
+                                    >
                                         Karyawan
                                         <component :is="getSortIcon('name')" class="h-4 w-4" />
-                                    </div>
+                                    </button>
                                 </th>
-                                <th
-                                    @click="toggleSort('employee_id')"
-                                    class="cursor-pointer px-6 py-3 text-left text-xs font-medium tracking-wider text-gray-500 uppercase transition-colors hover:bg-gray-100 hover:text-gray-700 dark:text-gray-400 dark:hover:bg-gray-700 dark:hover:text-gray-300"
-                                >
-                                    <div class="flex items-center gap-2">
+                                <th class="px-6 py-3 text-left text-sm font-medium text-gray-500 dark:text-gray-400">
+                                    <button
+                                        @click="toggleSort('employee_id')"
+                                        :class="[
+                                            'flex items-center gap-2 hover:text-gray-700 dark:hover:text-gray-200',
+                                            filters.sort === 'employee_id' ? 'text-blue-600 dark:text-blue-400' : '',
+                                        ]"
+                                    >
                                         ID Karyawan
                                         <component :is="getSortIcon('employee_id')" class="h-4 w-4" />
-                                    </div>
+                                    </button>
                                 </th>
-                                <th
-                                    @click="toggleSort('department')"
-                                    class="cursor-pointer px-6 py-3 text-left text-xs font-medium tracking-wider text-gray-500 uppercase transition-colors hover:bg-gray-100 hover:text-gray-700 dark:text-gray-400 dark:hover:bg-gray-700 dark:hover:text-gray-300"
-                                >
-                                    <div class="flex items-center gap-2">
+                                <th class="px-6 py-3 text-left text-sm font-medium text-gray-500 dark:text-gray-400">
+                                    <button
+                                        @click="toggleSort('department')"
+                                        :class="[
+                                            'flex items-center gap-2 hover:text-gray-700 dark:hover:text-gray-200',
+                                            filters.sort === 'department' ? 'text-blue-600 dark:text-blue-400' : '',
+                                        ]"
+                                    >
                                         Departemen
                                         <component :is="getSortIcon('department')" class="h-4 w-4" />
-                                    </div>
+                                    </button>
                                 </th>
-                                <th
-                                    @click="toggleSort('position')"
-                                    class="cursor-pointer px-6 py-3 text-left text-xs font-medium tracking-wider text-gray-500 uppercase transition-colors hover:bg-gray-100 hover:text-gray-700 dark:text-gray-400 dark:hover:bg-gray-700 dark:hover:text-gray-300"
-                                >
-                                    <div class="flex items-center gap-2">
+                                <th class="px-6 py-3 text-left text-sm font-medium text-gray-500 dark:text-gray-400">
+                                    <button
+                                        @click="toggleSort('position')"
+                                        :class="[
+                                            'flex items-center gap-2 hover:text-gray-700 dark:hover:text-gray-200',
+                                            filters.sort === 'position' ? 'text-blue-600 dark:text-blue-400' : '',
+                                        ]"
+                                    >
                                         Jabatan
                                         <component :is="getSortIcon('position')" class="h-4 w-4" />
-                                    </div>
+                                    </button>
                                 </th>
-                                <th
-                                    @click="toggleSort('current_salary')"
-                                    class="cursor-pointer px-6 py-3 text-left text-xs font-medium tracking-wider text-gray-500 uppercase transition-colors hover:bg-gray-100 hover:text-gray-700 dark:text-gray-400 dark:hover:bg-gray-700 dark:hover:text-gray-300"
-                                >
-                                    <div class="flex items-center gap-2">
+                                <th class="px-6 py-3 text-left text-sm font-medium text-gray-500 dark:text-gray-400">
+                                    <button
+                                        @click="toggleSort('current_salary')"
+                                        :class="[
+                                            'flex items-center gap-2 hover:text-gray-700 dark:hover:text-gray-200',
+                                            filters.sort === 'current_salary' ? 'text-blue-600 dark:text-blue-400' : '',
+                                        ]"
+                                    >
                                         Gaji Pokok
                                         <component :is="getSortIcon('current_salary')" class="h-4 w-4" />
-                                    </div>
+                                    </button>
                                 </th>
-                                <th
-                                    @click="toggleSort('total_allowances')"
-                                    class="cursor-pointer px-6 py-3 text-left text-xs font-medium tracking-wider text-gray-500 uppercase transition-colors hover:bg-gray-100 hover:text-gray-700 dark:text-gray-400 dark:hover:bg-gray-700 dark:hover:text-gray-300"
-                                >
-                                    <div class="flex items-center gap-2">
+                                <th class="px-6 py-3 text-left text-sm font-medium text-gray-500 dark:text-gray-400">
+                                    <button
+                                        @click="toggleSort('total_allowances')"
+                                        :class="[
+                                            'flex items-center gap-2 hover:text-gray-700 dark:hover:text-gray-200',
+                                            filters.sort === 'total_allowances' ? 'text-blue-600 dark:text-blue-400' : '',
+                                        ]"
+                                    >
                                         Total Tunjangan
                                         <component :is="getSortIcon('total_allowances')" class="h-4 w-4" />
-                                    </div>
+                                    </button>
                                 </th>
-                                <th
-                                    @click="toggleSort('has_salary_setting')"
-                                    class="cursor-pointer px-6 py-3 text-left text-xs font-medium tracking-wider text-gray-500 uppercase transition-colors hover:bg-gray-100 hover:text-gray-700 dark:text-gray-400 dark:hover:bg-gray-700 dark:hover:text-gray-300"
-                                >
-                                    <div class="flex items-center gap-2">
+                                <th class="px-6 py-3 text-left text-sm font-medium text-gray-500 dark:text-gray-400">
+                                    <button
+                                        @click="toggleSort('has_salary_setting')"
+                                        :class="[
+                                            'flex items-center gap-2 hover:text-gray-700 dark:hover:text-gray-200',
+                                            filters.sort === 'has_salary_setting' ? 'text-blue-600 dark:text-blue-400' : '',
+                                        ]"
+                                    >
                                         Status
                                         <component :is="getSortIcon('has_salary_setting')" class="h-4 w-4" />
-                                    </div>
+                                    </button>
                                 </th>
-                                <th class="px-6 py-3 text-left text-xs font-medium tracking-wider text-gray-500 uppercase dark:text-gray-400">
-                                    Aksi
-                                </th>
+                                <th class="px-6 py-3 text-left text-sm font-medium text-gray-500 dark:text-gray-400">Aksi</th>
                             </tr>
                         </thead>
-                        <tbody class="divide-y divide-gray-200 bg-white dark:divide-gray-700 dark:bg-gray-900">
-                            <tr v-for="user in users?.data || []" :key="user.id" class="hover:bg-gray-50 dark:hover:bg-gray-800">
+                        <tbody>
+                            <tr v-for="user in users?.data || []" :key="user.id" class="border-b border-gray-100 hover:bg-gray-50 dark:border-gray-800 dark:hover:bg-gray-900/50">
                                 <td class="px-6 py-4 whitespace-nowrap">
                                     <div class="text-sm font-medium text-gray-900 dark:text-white">
                                         {{ user.name }}
@@ -198,17 +326,17 @@
                                         Belum Diatur
                                     </span>
                                 </td>
-                                <td class="px-6 py-4 text-sm font-medium whitespace-nowrap">
-                                    <div class="flex space-x-2">
+                                <td class="px-6 py-4">
+                                    <div class="flex items-center gap-2">
                                         <Link
                                             :href="edit.url(user.id)"
-                                            class="text-blue-600 hover:text-blue-900 dark:text-blue-400 dark:hover:text-blue-300"
+                                            class="rounded-lg bg-blue-100 p-2 text-blue-600 hover:bg-blue-200 dark:bg-blue-900/30 dark:text-blue-400 dark:hover:bg-blue-900/50"
                                         >
                                             <Edit class="h-4 w-4" />
                                         </Link>
                                         <Link
                                             :href="show.url(user.id)"
-                                            class="text-gray-600 hover:text-gray-900 dark:text-gray-400 dark:hover:text-gray-300"
+                                            class="rounded-lg bg-gray-100 p-2 text-gray-600 hover:bg-gray-200 dark:bg-gray-900/30 dark:text-gray-400 dark:hover:bg-gray-900/50"
                                         >
                                             <Eye class="h-4 w-4" />
                                         </Link>
@@ -220,59 +348,32 @@
                 </div>
 
                 <!-- Pagination -->
-                <div
-                    v-if="users?.links && users.links.length > 3"
-                    class="flex items-center justify-between border-t border-gray-200 bg-white px-6 py-3 dark:border-gray-700 dark:bg-gray-900"
-                >
-                    <div class="flex flex-1 justify-between sm:hidden">
-                        <Link
-                            v-if="users.links[0]?.url"
-                            :href="users.links[0].url"
-                            class="relative inline-flex items-center rounded-md border border-gray-300 bg-white px-4 py-2 text-sm font-medium text-gray-700 hover:bg-gray-50 dark:border-gray-600 dark:bg-gray-800 dark:text-gray-300 dark:hover:bg-gray-700"
-                        >
-                            Previous
-                        </Link>
-                        <Link
-                            v-if="users.links[users.links.length - 1]?.url"
-                            :href="users.links[users.links.length - 1].url"
-                            class="relative ml-3 inline-flex items-center rounded-md border border-gray-300 bg-white px-4 py-2 text-sm font-medium text-gray-700 hover:bg-gray-50 dark:border-gray-600 dark:bg-gray-800 dark:text-gray-300 dark:hover:bg-gray-700"
-                        >
-                            Next
-                        </Link>
-                    </div>
-                    <div class="hidden sm:flex sm:flex-1 sm:items-center sm:justify-between">
-                        <div>
-                            <p class="text-sm text-gray-700 dark:text-gray-300">
-                                Showing
-                                <span class="font-medium">{{ users.meta?.from || 0 }}</span>
-                                to
-                                <span class="font-medium">{{ users.meta?.to || 0 }}</span>
-                                of
-                                <span class="font-medium">{{ users.meta?.total || 0 }}</span>
-                                results
-                            </p>
-                        </div>
-                        <div>
-                            <nav class="isolate inline-flex -space-x-px rounded-md shadow-sm" aria-label="Pagination">
-                                <Link
-                                    v-for="(link, index) in users.links"
-                                    :key="index"
-                                    :href="link.url || '#'"
-                                    :class="[
-                                        'relative inline-flex items-center px-4 py-2 text-sm font-medium',
-                                        link.active
-                                            ? 'z-10 bg-blue-600 text-white focus:z-20'
-                                            : 'bg-white text-gray-700 hover:bg-gray-50 dark:bg-gray-800 dark:text-gray-300 dark:hover:bg-gray-700',
-                                        !link.url ? 'cursor-not-allowed opacity-50' : '',
-                                        index === 0 ? 'rounded-l-md' : '',
-                                        index === users.links.length - 1 ? 'rounded-r-md' : '',
-                                        'border border-gray-300 dark:border-gray-600',
-                                    ]"
-                                    v-html="link.label"
-                                />
-                            </nav>
+                <div v-if="users?.links && users.links.length > 3" class="border-t border-gray-200 p-4 dark:border-gray-700">
+                    <div class="flex items-center justify-between">
+                        <p class="text-sm text-gray-500 dark:text-gray-400">
+                            Menampilkan {{ users.meta?.from || 0 }} sampai {{ users.meta?.to || 0 }} dari
+                            {{ users.meta?.total || 0 }} hasil
+                        </p>
+                        <div class="flex gap-2">
+                            <Link
+                                v-for="(link, index) in users.links"
+                                :key="index"
+                                :href="link.url || '#'"
+                                :class="[
+                                    'rounded border px-3 py-1 text-sm',
+                                    link.active
+                                        ? 'border-blue-600 bg-blue-600 text-white'
+                                        : 'border-gray-300 text-gray-600 hover:bg-gray-50 dark:border-gray-600 dark:text-gray-300 dark:hover:bg-gray-800',
+                                    !link.url ? 'cursor-not-allowed opacity-50' : '',
+                                ]"
+                            >
+                                <span v-html="link.label"></span>
+                            </Link>
                         </div>
                     </div>
+                    <div
+                        class="absolute inset-0 rounded-xl bg-gradient-to-br from-blue-500/5 to-indigo-500/5 opacity-0 transition-opacity group-hover:opacity-100"
+                    ></div>
                 </div>
             </div>
         </div>
@@ -280,7 +381,7 @@
 </template>
 
 <script setup lang="ts">
-import AppLayout from '@/Layouts/AppLayout.vue';
+import AppLayout from '@/layouts/AppLayout.vue';
 import { dashboard } from '@/routes/admin';
 import { edit, index as salarySettingsIndex, show } from '@/routes/admin/salary-settings';
 import { Link, router } from '@inertiajs/vue3';
@@ -313,8 +414,8 @@ interface Props {
 const props = defineProps<Props>();
 
 const breadcrumbs = [
-    { name: 'Dashboard', href: dashboard.url() },
-    { name: 'Pengaturan Gaji', href: salarySettingsIndex.url() },
+    { title: 'Dashboard', href: dashboard.url() },
+    { title: 'Pengaturan Gaji', href: salarySettingsIndex.url() },
 ];
 
 // Sorting state
