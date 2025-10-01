@@ -143,9 +143,16 @@ const getSortIcon = (field: string) => {
 };
 
 const getStatusBadge = (employmentStatus: string) => {
-    return employmentStatus === 'active'
-        ? 'bg-green-100 text-green-800 border-green-200 dark:bg-green-900/30 dark:text-green-400 dark:border-green-600'
-        : 'bg-red-100 text-red-800 border-red-200 dark:bg-red-900/30 dark:text-red-400 dark:border-red-600';
+    switch (employmentStatus) {
+        case 'active':
+            return 'bg-green-100 text-green-800 border-green-200 dark:bg-green-900/30 dark:text-green-400 dark:border-green-600';
+        case 'inactive':
+            return 'bg-yellow-100 text-yellow-800 border-yellow-200 dark:bg-yellow-900/30 dark:text-yellow-400 dark:border-yellow-600';
+        case 'terminated':
+            return 'bg-red-100 text-red-800 border-red-200 dark:bg-red-900/30 dark:text-red-400 dark:border-red-600';
+        default:
+            return 'bg-gray-100 text-gray-800 border-gray-200 dark:bg-gray-900/30 dark:text-gray-400 dark:border-gray-600';
+    }
 };
 
 // Delete functions
@@ -280,6 +287,23 @@ const formatDate = (dateString: string) => {
                     </div>
                 </div>
 
+                <!-- Inactive Employees -->
+                <div class="overflow-hidden rounded-xl bg-white shadow-sm ring-1 ring-gray-900/5 dark:bg-gray-900 dark:ring-white/10">
+                    <div class="p-6">
+                        <div class="flex items-center">
+                            <div class="flex h-12 w-12 shrink-0 items-center justify-center rounded-full bg-yellow-500/10">
+                                <Users class="h-6 w-6 text-yellow-600 dark:text-yellow-400" />
+                            </div>
+                            <div class="ml-4 flex-1">
+                                <p class="text-sm font-medium text-gray-600 dark:text-gray-400">Karyawan Tidak Aktif</p>
+                                <p class="text-2xl font-bold text-gray-900 dark:text-white">
+                                    {{ employees?.data?.filter((emp) => emp.employment_status === 'inactive').length || 0 }}
+                                </p>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+
                 <!-- Positions -->
                 <div class="overflow-hidden rounded-xl bg-white shadow-sm ring-1 ring-gray-900/5 dark:bg-gray-900 dark:ring-white/10">
                     <div class="p-6">
@@ -338,6 +362,7 @@ const formatDate = (dateString: string) => {
                             <option value="">Semua Status</option>
                             <option value="active">Aktif</option>
                             <option value="inactive">Tidak Aktif</option>
+                            <option value="terminated">Dihentikan</option>
                         </select>
                     </div>
                 </div>
@@ -480,7 +505,12 @@ const formatDate = (dateString: string) => {
                                             class="inline-flex rounded-full border px-2 py-1 text-xs font-medium"
                                             :class="getStatusBadge(employee.employment_status)"
                                         >
-                                            {{ employee.employment_status === 'active' ? 'Aktif' : 'Tidak Aktif' }}
+                                            {{
+                                                employee.employment_status === 'active' ? 'Aktif' :
+                                                employee.employment_status === 'inactive' ? 'Tidak Aktif' :
+                                                employee.employment_status === 'terminated' ? 'Dihentikan' :
+                                                employee.employment_status
+                                            }}
                                         </span>
                                         <div v-if="employee.is_admin" class="text-xs text-blue-600 dark:text-blue-400">Admin</div>
                                     </div>

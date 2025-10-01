@@ -47,7 +47,8 @@
       "Bash(tasklist:*)",
       "mcp__laravel-boost__database-connections",
       "Bash(npm run format:*)",
-      "mcp__laravel-boost__list-available-env-vars"
+      "mcp__laravel-boost__list-available-env-vars",
+      "Bash(git rm:*)"
     ],
     "deny": [],
     "ask": []

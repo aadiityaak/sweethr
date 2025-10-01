@@ -16,6 +16,11 @@ class EmployeeController extends Controller
         // Force fresh data from database, clear any caching
         \Cache::forget('employees_index');
 
+        // Add cache-control headers to prevent browser caching
+        header('Cache-Control: no-store, no-cache, must-revalidate, max-age=0');
+        header('Pragma: no-cache');
+        header('Expires: 0');
+
         $query = User::with(['department', 'position']);
 
         // Apply filters
@@ -60,12 +65,12 @@ class EmployeeController extends Controller
             // Handle relationship sorting
             if ($sortField === 'department') {
                 $query->leftJoin('departments', 'users.department_id', '=', 'departments.id')
-                      ->orderBy('departments.name', $sortDirection)
-                      ->select('users.*');
+                    ->orderBy('departments.name', $sortDirection)
+                    ->select('users.*');
             } elseif ($sortField === 'position') {
                 $query->leftJoin('positions', 'users.position_id', '=', 'positions.id')
-                      ->orderBy('positions.title', $sortDirection)
-                      ->select('users.*');
+                    ->orderBy('positions.title', $sortDirection)
+                    ->select('users.*');
             } else {
                 $query->orderBy($sortColumn, $sortDirection);
             }
@@ -203,13 +208,15 @@ class EmployeeController extends Controller
         // Prevent self-deletion
         if ($employee->id === auth()->id()) {
             \Log::warning('Self-deletion attempt blocked', ['employee_id' => $employee->id]);
+
             return back()->with('error', 'Anda tidak dapat menghapus akun Anda sendiri.');
         }
 
         // Check if employee exists before deletion
         $employeeExists = User::find($employee->id);
-        if (!$employeeExists) {
+        if (! $employeeExists) {
             \Log::warning('Attempted to delete non-existent employee', ['employee_id' => $employee->id]);
+
             return back()->with('error', 'Karyawan tidak ditemukan.');
         }
 
@@ -238,7 +245,7 @@ class EmployeeController extends Controller
                 }
 
                 if ($hasConstraints) {
-                    throw new \Exception('Cannot delete employee: still referenced by ' . implode(', ', $constraintMessages));
+                    throw new \Exception('Cannot delete employee: still referenced by '.implode(', ', $constraintMessages));
                 }
 
                 // Delete related records that can be safely deleted
@@ -258,10 +265,10 @@ class EmployeeController extends Controller
 
                 \Log::info('Employee deletion result', [
                     'employee_id' => $employee->id,
-                    'deletion_result' => $result
+                    'deletion_result' => $result,
                 ]);
 
-                if (!$result) {
+                if (! $result) {
                     throw new \Exception('Employee deletion failed');
                 }
             });
@@ -273,8 +280,9 @@ class EmployeeController extends Controller
             if ($stillExists) {
                 \Log::error('Employee still exists after deletion!', [
                     'employee_id' => $employee->id,
-                    'still_exists' => true
+                    'still_exists' => true,
                 ]);
+
                 return back()->with('error', 'Gagal menghapus karyawan dari sistem.');
             }
 
@@ -284,10 +292,10 @@ class EmployeeController extends Controller
             \Log::error('Employee deletion failed', [
                 'employee_id' => $employee->id,
                 'error' => $e->getMessage(),
-                'trace' => $e->getTraceAsString()
+                'trace' => $e->getTraceAsString(),
             ]);
 
-            return back()->with('error', 'Gagal menghapus karyawan: ' . $e->getMessage());
+            return back()->with('error', 'Gagal menghapus karyawan: '.$e->getMessage());
         }
 
         return to_route('employees.index')
