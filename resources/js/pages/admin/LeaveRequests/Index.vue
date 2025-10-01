@@ -170,7 +170,7 @@
 
             <!-- Charts Row -->
             <div class="mb-10 grid gap-8 lg:grid-cols-2">
-                <!-- Monthly Trend Chart -->
+                <!-- 30-Day Trend Chart -->
                 <div
                     class="group relative overflow-hidden rounded-xl border border-gray-200/50 bg-gradient-to-br from-white to-purple-50/30 p-6 shadow-sm transition-all hover:shadow-md dark:border-gray-800/50 dark:from-gray-950 dark:to-purple-950/30"
                 >
@@ -179,12 +179,21 @@
                             <Calendar class="h-4 w-4 text-purple-600 dark:text-purple-400" />
                         </div>
                         <div>
-                            <h2 class="text-lg font-semibold text-gray-900 dark:text-white">Tren Pengajuan 6 Bulan Terakhir</h2>
-                            <p class="text-sm text-gray-600 dark:text-gray-400">Statistik pengajuan cuti bulanan</p>
+                            <h2 class="text-lg font-semibold text-gray-900 dark:text-white">Tren Pengajuan 30 Hari Terakhir</h2>
+                            <p class="text-sm text-gray-600 dark:text-gray-400">Statistik pengajuan cuti harian</p>
                         </div>
                     </div>
                     <div class="h-64">
-                        <Chart :data="monthlyChartData" type="line" :options="{ responsive: true, maintainAspectRatio: false }" />
+                        <LeaveRequestChart
+                            type="line"
+                            :trend-data="{
+                                labels: dailyTrend.map(item => item.date),
+                                data: dailyTrend.map(item => item.count),
+                                approvedData: dailyTrend.map(item => item.approved),
+                                pendingData: dailyTrend.map(item => item.pending),
+                                rejectedData: dailyTrend.map(item => item.rejected)
+                            }"
+                        />
                     </div>
                     <div
                         class="absolute inset-0 rounded-xl bg-gradient-to-br from-purple-500/5 to-violet-500/5 opacity-0 transition-opacity group-hover:opacity-100"
@@ -205,10 +214,74 @@
                         </div>
                     </div>
                     <div class="h-64">
-                        <Chart :data="statusChartData" type="doughnut" :options="{ responsive: true, maintainAspectRatio: false }" />
+                        <LeaveRequestChart
+                            type="doughnut"
+                            :status-data="{
+                                pending: stats.pending_count,
+                                approved: stats.approved_count,
+                                rejected: stats.rejected_count
+                            }"
+                        />
                     </div>
                     <div
                         class="absolute inset-0 rounded-xl bg-gradient-to-br from-blue-500/5 to-indigo-500/5 opacity-0 transition-opacity group-hover:opacity-100"
+                    ></div>
+                </div>
+            </div>
+
+            <!-- Additional Charts Row -->
+            <div class="mb-10 grid gap-8 lg:grid-cols-2">
+                <!-- Department-wise Leave Requests -->
+                <div
+                    class="group relative overflow-hidden rounded-xl border border-gray-200/50 bg-gradient-to-br from-white to-emerald-50/30 p-6 shadow-sm transition-all hover:shadow-md dark:border-gray-800/50 dark:from-gray-950 dark:to-emerald-950/30"
+                >
+                    <div class="mb-6 flex items-center gap-3">
+                        <div class="flex h-8 w-8 items-center justify-center rounded-lg bg-emerald-500/10 ring-1 ring-emerald-500/20">
+                            <Users class="h-4 w-4 text-emerald-600 dark:text-emerald-400" />
+                        </div>
+                        <div>
+                            <h2 class="text-lg font-semibold text-gray-900 dark:text-white">Pengajuan per Departemen</h2>
+                            <p class="text-sm text-gray-600 dark:text-gray-400">Distribusi pengajuan cuti per departemen</p>
+                        </div>
+                    </div>
+                    <div class="h-64">
+                        <LeaveRequestChart
+                            type="bar"
+                            :department-data="{
+                                labels: departmentStats.map(item => item.department),
+                                data: departmentStats.map(item => item.total)
+                            }"
+                        />
+                    </div>
+                    <div
+                        class="absolute inset-0 rounded-xl bg-gradient-to-br from-emerald-500/5 to-teal-500/5 opacity-0 transition-opacity group-hover:opacity-100"
+                    ></div>
+                </div>
+
+                <!-- Leave Type Distribution -->
+                <div
+                    class="group relative overflow-hidden rounded-xl border border-gray-200/50 bg-gradient-to-br from-white to-amber-50/30 p-6 shadow-sm transition-all hover:shadow-md dark:border-gray-800/50 dark:from-gray-950 dark:to-amber-950/30"
+                >
+                    <div class="mb-6 flex items-center gap-3">
+                        <div class="flex h-8 w-8 items-center justify-center rounded-lg bg-amber-500/10 ring-1 ring-amber-500/20">
+                            <Calendar class="h-4 w-4 text-amber-600 dark:text-amber-400" />
+                        </div>
+                        <div>
+                            <h2 class="text-lg font-semibold text-gray-900 dark:text-white">Distribusi Tipe Cuti</h2>
+                            <p class="text-sm text-gray-600 dark:text-gray-400">Pengajuan cuti berdasarkan tipe</p>
+                        </div>
+                    </div>
+                    <div class="h-64">
+                        <LeaveRequestChart
+                            type="bar"
+                            :leave-type-data="{
+                                labels: leaveTypeStats.map(item => item.type),
+                                data: leaveTypeStats.map(item => item.total)
+                            }"
+                        />
+                    </div>
+                    <div
+                        class="absolute inset-0 rounded-xl bg-gradient-to-br from-amber-500/5 to-orange-500/5 opacity-0 transition-opacity group-hover:opacity-100"
                     ></div>
                 </div>
             </div>
@@ -579,9 +652,9 @@
 <script setup lang="ts">
 import ConfirmationModal from '@/components/ConfirmationModal.vue';
 import { Button } from '@/components/ui/button';
-import Chart from '@/components/ui/Chart.vue';
 import { Dialog, DialogContent, DialogDescription, DialogFooter, DialogHeader, DialogTitle } from '@/components/ui/dialog';
 import { Input } from '@/components/ui/input';
+import LeaveRequestChart from '@/components/LeaveRequestChart.vue';
 import { Textarea } from '@/components/ui/textarea';
 import { useToast } from '@/components/ui/toast/use-toast';
 import AppLayout from '@/layouts/AppLayout.vue';
@@ -589,7 +662,7 @@ import { type BreadcrumbItem } from '@/types';
 import { Head, router, useForm } from '@inertiajs/vue3';
 import { debounce } from 'lodash';
 import { Calendar, Check, CheckCircle, Clock, Eye, FilterX, Trash2, X, XCircle } from 'lucide-vue-next';
-import { computed, ref } from 'vue';
+import { ref } from 'vue';
 
 interface LeaveRequest {
     id: number;
@@ -630,6 +703,9 @@ interface Props {
     };
     stats: Stats;
     monthlyTrend: any[];
+    dailyTrend: any[];
+    departmentStats: any[];
+    leaveTypeStats: any[];
     leaveTypes: any[];
     departments: any[];
     filters: {
@@ -676,37 +752,6 @@ const rejectForm = useForm({
     admin_notes: '',
 });
 
-// Chart data
-const monthlyChartData = computed(() => ({
-    labels: props.monthlyTrend.map((item) => item.month),
-    datasets: [
-        {
-            label: 'Total Pengajuan',
-            data: props.monthlyTrend.map((item) => item.count),
-            borderColor: '#3b82f6',
-            backgroundColor: 'rgba(59, 130, 246, 0.1)',
-            tension: 0.4,
-        },
-        {
-            label: 'Disetujui',
-            data: props.monthlyTrend.map((item) => item.approved),
-            borderColor: '#10b981',
-            backgroundColor: 'rgba(16, 185, 129, 0.1)',
-            tension: 0.4,
-        },
-    ],
-}));
-
-const statusChartData = computed(() => ({
-    labels: ['Menunggu', 'Disetujui', 'Ditolak'],
-    datasets: [
-        {
-            data: [props.stats.pending_count, props.stats.approved_count, props.stats.rejected_count],
-            backgroundColor: ['#f59e0b', '#10b981', '#ef4444'],
-            borderWidth: 0,
-        },
-    ],
-}));
 
 // Methods
 const formatDate = (dateString: string) => {
