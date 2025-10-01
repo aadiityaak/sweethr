@@ -134,95 +134,77 @@
                     <table class="w-full">
                         <thead class="border-t border-gray-200 dark:border-gray-700">
                             <tr class="border-b border-gray-200 dark:border-gray-700">
-                                <th class="px-6 py-3 text-left">
+                                <th class="px-6 py-3 text-left text-sm font-medium text-gray-500 dark:text-gray-400">
                                     <button
                                         @click="handleSort('name')"
-                                        class="group inline-flex items-center text-sm font-medium text-gray-500 hover:text-gray-700 dark:text-gray-400 dark:hover:text-gray-300"
+                                        :class="[
+                                            'flex items-center gap-2 hover:text-gray-700 dark:hover:text-gray-200',
+                                            sortField === 'name' ? 'text-blue-600 dark:text-blue-400' : ''
+                                        ]"
                                     >
                                         Nama Shift
-                                        <span v-if="sortField === 'name'" class="ml-1">
-                                            <ChevronUp v-if="sortDirection === 'asc'" class="h-4 w-4" />
-                                            <ChevronDown v-else class="h-4 w-4" />
-                                        </span>
-                                        <span v-else class="ml-1 opacity-0 group-hover:opacity-100">
-                                            <ChevronUp class="h-4 w-4" />
-                                        </span>
+                                        <component :is="getSortIcon('name')" class="h-4 w-4" />
                                     </button>
                                 </th>
-                                <th class="px-6 py-3 text-left">
+                                <th class="px-6 py-3 text-left text-sm font-medium text-gray-500 dark:text-gray-400">
                                     <button
                                         @click="handleSort('code')"
-                                        class="group inline-flex items-center text-sm font-medium text-gray-500 hover:text-gray-700 dark:text-gray-400 dark:hover:text-gray-300"
+                                        :class="[
+                                            'flex items-center gap-2 hover:text-gray-700 dark:hover:text-gray-200',
+                                            sortField === 'code' ? 'text-blue-600 dark:text-blue-400' : ''
+                                        ]"
                                     >
                                         Kode
-                                        <span v-if="sortField === 'code'" class="ml-1">
-                                            <ChevronUp v-if="sortDirection === 'asc'" class="h-4 w-4" />
-                                            <ChevronDown v-else class="h-4 w-4" />
-                                        </span>
-                                        <span v-else class="ml-1 opacity-0 group-hover:opacity-100">
-                                            <ChevronUp class="h-4 w-4" />
-                                        </span>
+                                        <component :is="getSortIcon('code')" class="h-4 w-4" />
                                     </button>
                                 </th>
-                                <th class="px-6 py-3 text-left">
+                                <th class="px-6 py-3 text-left text-sm font-medium text-gray-500 dark:text-gray-400">
                                     <button
                                         @click="handleSort('start_time')"
-                                        class="group inline-flex items-center text-sm font-medium text-gray-500 hover:text-gray-700 dark:text-gray-400 dark:hover:text-gray-300"
+                                        :class="[
+                                            'flex items-center gap-2 hover:text-gray-700 dark:hover:text-gray-200',
+                                            sortField === 'start_time' ? 'text-blue-600 dark:text-blue-400' : ''
+                                        ]"
                                     >
                                         Waktu
-                                        <span v-if="sortField === 'start_time'" class="ml-1">
-                                            <ChevronUp v-if="sortDirection === 'asc'" class="h-4 w-4" />
-                                            <ChevronDown v-else class="h-4 w-4" />
-                                        </span>
-                                        <span v-else class="ml-1 opacity-0 group-hover:opacity-100">
-                                            <ChevronUp class="h-4 w-4" />
-                                        </span>
+                                        <component :is="getSortIcon('start_time')" class="h-4 w-4" />
                                     </button>
                                 </th>
-                                <th class="px-6 py-3 text-left">
+                                <th class="px-6 py-3 text-left text-sm font-medium text-gray-500 dark:text-gray-400">
                                     <button
                                         @click="handleSort('work_hours')"
-                                        class="group inline-flex items-center text-sm font-medium text-gray-500 hover:text-gray-700 dark:text-gray-400 dark:hover:text-gray-300"
+                                        :class="[
+                                            'flex items-center gap-2 hover:text-gray-700 dark:hover:text-gray-200',
+                                            sortField === 'work_hours' ? 'text-blue-600 dark:text-blue-400' : ''
+                                        ]"
                                     >
                                         Durasi Kerja
-                                        <span v-if="sortField === 'work_hours'" class="ml-1">
-                                            <ChevronUp v-if="sortDirection === 'asc'" class="h-4 w-4" />
-                                            <ChevronDown v-else class="h-4 w-4" />
-                                        </span>
-                                        <span v-else class="ml-1 opacity-0 group-hover:opacity-100">
-                                            <ChevronUp class="h-4 w-4" />
-                                        </span>
+                                        <component :is="getSortIcon('work_hours')" class="h-4 w-4" />
                                     </button>
                                 </th>
                                 <th class="px-6 py-3 text-left text-sm font-medium text-gray-500 dark:text-gray-400">Hari Kerja</th>
-                                <th class="px-6 py-3 text-left">
+                                <th class="px-6 py-3 text-left text-sm font-medium text-gray-500 dark:text-gray-400">
                                     <button
                                         @click="handleSort('is_active')"
-                                        class="group inline-flex items-center text-sm font-medium text-gray-500 hover:text-gray-700 dark:text-gray-400 dark:hover:text-gray-300"
+                                        :class="[
+                                            'flex items-center gap-2 hover:text-gray-700 dark:hover:text-gray-200',
+                                            sortField === 'is_active' ? 'text-blue-600 dark:text-blue-400' : ''
+                                        ]"
                                     >
                                         Status
-                                        <span v-if="sortField === 'is_active'" class="ml-1">
-                                            <ChevronUp v-if="sortDirection === 'asc'" class="h-4 w-4" />
-                                            <ChevronDown v-else class="h-4 w-4" />
-                                        </span>
-                                        <span v-else class="ml-1 opacity-0 group-hover:opacity-100">
-                                            <ChevronUp class="h-4 w-4" />
-                                        </span>
+                                        <component :is="getSortIcon('is_active')" class="h-4 w-4" />
                                     </button>
                                 </th>
-                                <th class="px-6 py-3 text-left">
+                                <th class="px-6 py-3 text-left text-sm font-medium text-gray-500 dark:text-gray-400">
                                     <button
                                         @click="handleSort('employee_shifts_count')"
-                                        class="group inline-flex items-center text-sm font-medium text-gray-500 hover:text-gray-700 dark:text-gray-400 dark:hover:text-gray-300"
+                                        :class="[
+                                            'flex items-center gap-2 hover:text-gray-700 dark:hover:text-gray-200',
+                                            sortField === 'employee_shifts_count' ? 'text-blue-600 dark:text-blue-400' : ''
+                                        ]"
                                     >
                                         Karyawan
-                                        <span v-if="sortField === 'employee_shifts_count'" class="ml-1">
-                                            <ChevronUp v-if="sortDirection === 'asc'" class="h-4 w-4" />
-                                            <ChevronDown v-else class="h-4 w-4" />
-                                        </span>
-                                        <span v-else class="ml-1 opacity-0 group-hover:opacity-100">
-                                            <ChevronUp class="h-4 w-4" />
-                                        </span>
+                                        <component :is="getSortIcon('employee_shifts_count')" class="h-4 w-4" />
                                     </button>
                                 </th>
                                 <th class="px-6 py-3 text-left text-sm font-medium text-gray-500 dark:text-gray-400">Aksi</th>
@@ -359,7 +341,7 @@ import AppLayout from '@/layouts/AppLayout.vue';
 import { type BreadcrumbItem } from '@/types';
 import { Head, Link, router } from '@inertiajs/vue3';
 import { debounce } from 'lodash';
-import { CheckCircle, ChevronDown, ChevronUp, Clock, Edit, Eye, FilterX, Moon, Plus, Trash, Users, XCircle } from 'lucide-vue-next';
+import { ArrowDown, ArrowUp, ArrowUpDown, CheckCircle, Clock, Edit, Eye, FilterX, Moon, Plus, Trash, Users, XCircle } from 'lucide-vue-next';
 import { ref } from 'vue';
 
 interface WorkShift {
@@ -396,8 +378,8 @@ interface Props {
     filters: {
         search?: string;
         status?: string;
-        sort_field?: string;
-        sort_direction?: string;
+        sort?: string;
+        direction?: string;
     };
 }
 
@@ -419,8 +401,8 @@ const search = ref(props.filters.search || '');
 const selectedStatus = ref(props.filters.status || '');
 
 // Sorting states
-const sortField = ref(props.filters.sort_field || 'name');
-const sortDirection = ref(props.filters.sort_direction || 'asc');
+const sortField = ref(props.filters.sort || 'name');
+const sortDirection = ref(props.filters.direction || 'asc');
 
 // Modal states
 const showDeleteModal = ref(false);
@@ -455,8 +437,9 @@ const applyFilters = () => {
         {
             search: search.value,
             status: selectedStatus.value,
-            sort_field: sortField.value,
-            sort_direction: sortDirection.value,
+            sort: sortField.value,
+            direction: sortDirection.value,
+            _: Date.now(), // Cache-busting parameter
         },
         {
             preserveState: true,
@@ -470,7 +453,15 @@ const clearFilters = () => {
     selectedStatus.value = '';
     sortField.value = 'name';
     sortDirection.value = 'asc';
-    router.get('/admin/work-shifts');
+    router.get('/admin/work-shifts', { _: Date.now() });
+};
+
+// Get sort icon for column header
+const getSortIcon = (field: string) => {
+    if (sortField.value !== field) {
+        return ArrowUpDown;
+    }
+    return sortDirection.value === 'asc' ? ArrowUp : ArrowDown;
 };
 
 const handleSort = (field: string) => {

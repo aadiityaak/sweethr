@@ -31,29 +31,32 @@ class WorkShiftController extends Controller
         }
 
         // Apply status filter
-        if ($request->has('status')) {
+        if ($request->has('status') && $request->status !== '') {
             $query->where('is_active', $request->status === 'active');
         }
 
         // Apply sorting
-        $sortField = $request->input('sort_field', 'name');
-        $sortDirection = $request->input('sort_direction', 'asc');
+        $sort = $request->input('sort', 'name');
+        $direction = $request->input('direction', 'asc');
+
+        // Always include the count of active employee shifts
+        $query->withCount(['employeeShifts' => function ($q) {
+            $q->where('is_active', true);
+        }]);
 
         // Validate sort field to prevent SQL injection
         $allowedSortFields = ['name', 'code', 'start_time', 'end_time', 'work_hours', 'is_active', 'employee_shifts_count'];
-        if (in_array($sortField, $allowedSortFields)) {
-            if ($sortField === 'employee_shifts_count') {
-                $query->orderBy('employee_shifts_count', $sortDirection);
+        if (in_array($sort, $allowedSortFields)) {
+            if ($sort === 'employee_shifts_count') {
+                $query->orderBy('employee_shifts_count', $direction);
             } else {
-                $query->orderBy($sortField, $sortDirection);
+                $query->orderBy($sort, $direction);
             }
         } else {
             $query->orderBy('name', 'asc');
         }
 
-        $workShifts = $query->withCount(['employeeShifts'])
-            ->paginate(15)
-            ->withQueryString();
+        $workShifts = $query->paginate(15)->withQueryString();
 
         // Get statistics
         $stats = [
@@ -69,8 +72,8 @@ class WorkShiftController extends Controller
             'filters' => [
                 'search' => $request->search,
                 'status' => $request->status,
-                'sort_field' => $sortField,
-                'sort_direction' => $sortDirection,
+                'sort' => $sort,
+                'direction' => $direction,
             ],
         ]);
     }
