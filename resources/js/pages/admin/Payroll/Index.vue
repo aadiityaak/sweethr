@@ -247,9 +247,9 @@
                                 <td class="px-6 py-4">
                                     <div>
                                         <div class="text-sm font-medium text-gray-900 dark:text-white">
-                                            {{ payroll.user.name }}
+                                            {{ payroll.user?.name || 'Unknown User' }}
                                         </div>
-                                        <div class="text-sm text-gray-500 dark:text-gray-400">ID: {{ payroll.user.employee_id }}</div>
+                                        <div class="text-sm text-gray-500 dark:text-gray-400">ID: {{ payroll.user?.employee_id || 'N/A' }}</div>
                                     </div>
                                 </td>
                                 <td class="px-6 py-4">
@@ -528,13 +528,13 @@ const confirmGenerate = () => {
 };
 
 const regeneratePayroll = (payroll: Payroll) => {
-    if (confirm(`Yakin ingin regenerate payroll untuk ${payroll.user.name}?`)) {
+    if (confirm(`Yakin ingin regenerate payroll untuk ${payroll.user?.name || 'Unknown User'}?`)) {
         router.post(
             `/admin/payrolls/${payroll.id}/regenerate`,
             {},
             {
                 onSuccess: () => {
-                    showToastMessage(`Payroll ${payroll.user.name} berhasil diregenerate!`, 'success');
+                    showToastMessage(`Payroll ${payroll.user?.name || 'Unknown User'} berhasil diregenerate!`, 'success');
                 },
                 onError: (errors) => {
                     const errorMessage = Object.values(errors).flat().join(', ') || 'Terjadi kesalahan saat regenerate payroll';
