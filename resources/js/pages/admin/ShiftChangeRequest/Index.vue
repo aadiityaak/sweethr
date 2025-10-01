@@ -221,115 +221,235 @@ const cancelReject = () => {
                 </div>
             </div>
 
-            <!-- Stats Grid -->
-            <div class="mb-8 grid gap-6 sm:grid-cols-2 lg:grid-cols-4">
+            <!-- Stats Cards -->
+            <div class="mb-10 grid gap-6 md:grid-cols-2 lg:grid-cols-4">
+                <!-- Total Requests -->
                 <div
-                    class="rounded-xl border border-gray-200/50 bg-gradient-to-br from-white to-gray-50/30 p-6 shadow-sm dark:border-gray-800/50 dark:from-gray-950 dark:to-gray-900/30"
+                    class="group relative overflow-hidden rounded-xl border border-gray-200/50 bg-gradient-to-br from-white to-blue-50/30 p-6 shadow-sm transition-all hover:shadow-md dark:border-gray-800/50 dark:from-gray-950 dark:to-blue-950/30"
                 >
-                    <div class="flex items-center">
-                        <div class="flex h-10 w-10 items-center justify-center rounded-full bg-blue-500/10 ring-1 ring-blue-500/20">
-                            <Calendar class="h-5 w-5 text-blue-600 dark:text-blue-400" />
+                    <div class="flex items-start justify-between">
+                        <div class="flex items-center gap-3">
+                            <div class="flex h-10 w-10 items-center justify-center rounded-full bg-blue-500/10 ring-1 ring-blue-500/20">
+                                <Calendar class="h-5 w-5 text-blue-600 dark:text-blue-400" />
+                            </div>
+                            <div>
+                                <h3 class="font-medium text-gray-900 dark:text-white">Total Request</h3>
+                                <p class="text-sm text-gray-600 dark:text-gray-400">
+                                    Semua permintaan tukar libur
+                                </p>
+                            </div>
                         </div>
-                        <div class="ml-4">
-                            <p class="text-sm font-medium text-gray-600 dark:text-gray-400">Total Request</p>
-                            <p class="text-2xl font-bold text-gray-900 dark:text-white">{{ stats.total }}</p>
+                        <div class="flex h-2 w-2 rounded-full bg-blue-400"></div>
+                    </div>
+
+                    <div class="mt-6 space-y-3">
+                        <div class="flex items-center justify-between rounded-lg bg-blue-50/50 px-3 py-2 dark:bg-blue-950/30">
+                            <span class="text-sm font-medium text-blue-700 dark:text-blue-400">Total</span>
+                            <span class="text-sm font-semibold text-blue-800 dark:text-blue-300">{{ stats.total }}</span>
+                        </div>
+                        <div class="flex items-center justify-between rounded-lg bg-gray-50/50 px-3 py-2 dark:bg-gray-800/50">
+                            <span class="text-sm font-medium text-gray-600 dark:text-gray-400">Persentase</span>
+                            <span class="text-sm font-semibold text-gray-900 dark:text-white">100%</span>
                         </div>
                     </div>
+
+                    <!-- Hover effect overlay -->
+                    <div
+                        class="absolute inset-0 rounded-xl bg-gradient-to-br from-blue-500/5 to-indigo-500/5 opacity-0 transition-opacity group-hover:opacity-100"
+                    ></div>
                 </div>
 
+                <!-- Pending Requests -->
                 <div
-                    class="rounded-xl border border-gray-200/50 bg-gradient-to-br from-white to-amber-50/30 p-6 shadow-sm dark:border-gray-800/50 dark:from-gray-950 dark:to-amber-950/30"
+                    class="group relative overflow-hidden rounded-xl border border-gray-200/50 bg-gradient-to-br from-white to-amber-50/30 p-6 shadow-sm transition-all hover:shadow-md dark:border-gray-800/50 dark:from-gray-950 dark:to-amber-950/30"
                 >
-                    <div class="flex items-center">
-                        <div class="flex h-10 w-10 items-center justify-center rounded-full bg-amber-500/10 ring-1 ring-amber-500/20">
-                            <AlertCircle class="h-5 w-5 text-amber-600 dark:text-amber-400" />
+                    <div class="flex items-start justify-between">
+                        <div class="flex items-center gap-3">
+                            <div class="flex h-10 w-10 items-center justify-center rounded-full bg-amber-500/10 ring-1 ring-amber-500/20">
+                                <AlertCircle class="h-5 w-5 text-amber-600 dark:text-amber-400" />
+                            </div>
+                            <div>
+                                <h3 class="font-medium text-gray-900 dark:text-white">Menunggu</h3>
+                                <p class="text-sm text-gray-600 dark:text-gray-400">
+                                    Permintaan menunggu persetujuan
+                                </p>
+                            </div>
                         </div>
-                        <div class="ml-4">
-                            <p class="text-sm font-medium text-gray-600 dark:text-gray-400">Menunggu</p>
-                            <p class="text-2xl font-bold text-gray-900 dark:text-white">{{ stats.pending }}</p>
+                        <div class="flex h-2 w-2 rounded-full bg-amber-400"></div>
+                    </div>
+
+                    <div class="mt-6 space-y-3">
+                        <div class="flex items-center justify-between rounded-lg bg-amber-50/50 px-3 py-2 dark:bg-amber-950/30">
+                            <span class="text-sm font-medium text-amber-700 dark:text-amber-400">Menunggu</span>
+                            <span class="text-sm font-semibold text-amber-800 dark:text-amber-300">{{ stats.pending }}</span>
+                        </div>
+                        <div class="flex items-center justify-between rounded-lg bg-gray-50/50 px-3 py-2 dark:bg-gray-800/50">
+                            <span class="text-sm font-medium text-gray-600 dark:text-gray-400">Persentase</span>
+                            <span class="text-sm font-semibold text-gray-900 dark:text-white">
+                                {{ stats.total ? Math.round((stats.pending / stats.total) * 100) : 0 }}%
+                            </span>
                         </div>
                     </div>
+
+                    <!-- Hover effect overlay -->
+                    <div
+                        class="absolute inset-0 rounded-xl bg-gradient-to-br from-amber-500/5 to-orange-500/5 opacity-0 transition-opacity group-hover:opacity-100"
+                    ></div>
                 </div>
 
+                <!-- Approved Requests -->
                 <div
-                    class="rounded-xl border border-gray-200/50 bg-gradient-to-br from-white to-green-50/30 p-6 shadow-sm dark:border-gray-800/50 dark:from-gray-950 dark:to-green-950/30"
+                    class="group relative overflow-hidden rounded-xl border border-gray-200/50 bg-gradient-to-br from-white to-emerald-50/30 p-6 shadow-sm transition-all hover:shadow-md dark:border-gray-800/50 dark:from-gray-950 dark:to-emerald-950/30"
                 >
-                    <div class="flex items-center">
-                        <div class="flex h-10 w-10 items-center justify-center rounded-full bg-green-500/10 ring-1 ring-green-500/20">
-                            <CheckCircle class="h-5 w-5 text-green-600 dark:text-green-400" />
+                    <div class="flex items-start justify-between">
+                        <div class="flex items-center gap-3">
+                            <div class="flex h-10 w-10 items-center justify-center rounded-full bg-emerald-500/10 ring-1 ring-emerald-500/20">
+                                <CheckCircle class="h-5 w-5 text-emerald-600 dark:text-emerald-400" />
+                            </div>
+                            <div>
+                                <h3 class="font-medium text-gray-900 dark:text-white">Disetujui</h3>
+                                <p class="text-sm text-gray-600 dark:text-gray-400">
+                                    Permintaan yang disetujui
+                                </p>
+                            </div>
                         </div>
-                        <div class="ml-4">
-                            <p class="text-sm font-medium text-gray-600 dark:text-gray-400">Disetujui</p>
-                            <p class="text-2xl font-bold text-gray-900 dark:text-white">{{ stats.approved }}</p>
+                        <div class="flex h-2 w-2 rounded-full bg-emerald-400"></div>
+                    </div>
+
+                    <div class="mt-6 space-y-3">
+                        <div class="flex items-center justify-between rounded-lg bg-emerald-50/50 px-3 py-2 dark:bg-emerald-950/30">
+                            <span class="text-sm font-medium text-emerald-700 dark:text-emerald-400">Disetujui</span>
+                            <span class="text-sm font-semibold text-emerald-800 dark:text-emerald-300">{{ stats.approved }}</span>
+                        </div>
+                        <div class="flex items-center justify-between rounded-lg bg-gray-50/50 px-3 py-2 dark:bg-gray-800/50">
+                            <span class="text-sm font-medium text-gray-600 dark:text-gray-400">Persentase</span>
+                            <span class="text-sm font-semibold text-gray-900 dark:text-white">
+                                {{ stats.total ? Math.round((stats.approved / stats.total) * 100) : 0 }}%
+                            </span>
                         </div>
                     </div>
+
+                    <!-- Hover effect overlay -->
+                    <div
+                        class="absolute inset-0 rounded-xl bg-gradient-to-br from-emerald-500/5 to-teal-500/5 opacity-0 transition-opacity group-hover:opacity-100"
+                    ></div>
                 </div>
 
+                <!-- Rejected Requests -->
                 <div
-                    class="rounded-xl border border-gray-200/50 bg-gradient-to-br from-white to-red-50/30 p-6 shadow-sm dark:border-gray-800/50 dark:from-gray-950 dark:to-red-950/30"
+                    class="group relative overflow-hidden rounded-xl border border-gray-200/50 bg-gradient-to-br from-white to-red-50/30 p-6 shadow-sm transition-all hover:shadow-md dark:border-gray-800/50 dark:from-gray-950 dark:to-red-950/30"
                 >
-                    <div class="flex items-center">
-                        <div class="flex h-10 w-10 items-center justify-center rounded-full bg-red-500/10 ring-1 ring-red-500/20">
-                            <XCircle class="h-5 w-5 text-red-600 dark:text-red-400" />
+                    <div class="flex items-start justify-between">
+                        <div class="flex items-center gap-3">
+                            <div class="flex h-10 w-10 items-center justify-center rounded-full bg-red-500/10 ring-1 ring-red-500/20">
+                                <XCircle class="h-5 w-5 text-red-600 dark:text-red-400" />
+                            </div>
+                            <div>
+                                <h3 class="font-medium text-gray-900 dark:text-white">Ditolak</h3>
+                                <p class="text-sm text-gray-600 dark:text-gray-400">
+                                    Permintaan yang ditolak
+                                </p>
+                            </div>
                         </div>
-                        <div class="ml-4">
-                            <p class="text-sm font-medium text-gray-600 dark:text-gray-400">Ditolak</p>
-                            <p class="text-2xl font-bold text-gray-900 dark:text-white">{{ stats.rejected }}</p>
+                        <div class="flex h-2 w-2 rounded-full bg-red-400"></div>
+                    </div>
+
+                    <div class="mt-6 space-y-3">
+                        <div class="flex items-center justify-between rounded-lg bg-red-50/50 px-3 py-2 dark:bg-red-950/30">
+                            <span class="text-sm font-medium text-red-700 dark:text-red-400">Ditolak</span>
+                            <span class="text-sm font-semibold text-red-800 dark:text-red-300">{{ stats.rejected }}</span>
+                        </div>
+                        <div class="flex items-center justify-between rounded-lg bg-gray-50/50 px-3 py-2 dark:bg-gray-800/50">
+                            <span class="text-sm font-medium text-gray-600 dark:text-gray-400">Persentase</span>
+                            <span class="text-sm font-semibold text-gray-900 dark:text-white">
+                                {{ stats.total ? Math.round((stats.rejected / stats.total) * 100) : 0 }}%
+                            </span>
                         </div>
                     </div>
+
+                    <!-- Hover effect overlay -->
+                    <div
+                        class="absolute inset-0 rounded-xl bg-gradient-to-br from-red-500/5 to-rose-500/5 opacity-0 transition-opacity group-hover:opacity-100"
+                    ></div>
                 </div>
             </div>
 
             <!-- Filters -->
             <div
-                class="mb-8 rounded-xl border border-gray-200/50 bg-gradient-to-br from-white to-gray-50/30 p-6 shadow-sm dark:border-gray-800/50 dark:from-gray-950 dark:to-gray-900/30"
+                class="group relative mb-10 overflow-hidden rounded-xl border border-gray-200/50 bg-gradient-to-br from-white to-gray-50/30 shadow-sm transition-all hover:shadow-md dark:border-gray-800/50 dark:from-gray-950 dark:to-gray-900/30"
             >
-                <div class="mb-4 flex items-center gap-3">
-                    <div class="flex h-8 w-8 items-center justify-center rounded-lg bg-purple-500/10 ring-1 ring-purple-500/20">
-                        <Filter class="h-4 w-4 text-purple-600 dark:text-purple-400" />
+                <div class="border-b border-gray-200/50 p-6 dark:border-gray-800/50">
+                    <div class="flex items-center gap-3">
+                        <div class="flex h-8 w-8 items-center justify-center rounded-lg bg-gray-500/10 ring-1 ring-gray-500/20">
+                            <Filter class="h-4 w-4 text-gray-600 dark:text-gray-400" />
+                        </div>
+                        <div>
+                            <h2 class="text-lg font-semibold text-gray-900 dark:text-white">Filter & Pencarian</h2>
+                            <p class="text-sm text-gray-600 dark:text-gray-400">Filter request tukar libur berdasarkan kriteria</p>
+                        </div>
                     </div>
-                    <h3 class="text-lg font-semibold text-gray-900 dark:text-white">Filter</h3>
                 </div>
+                <div class="p-6">
+                    <div class="grid gap-4 md:grid-cols-4">
+                        <div>
+                            <label for="status" class="block text-sm font-medium text-gray-700 dark:text-gray-300">Status</label>
+                            <select
+                                id="status"
+                                v-model="statusFilter"
+                                class="mt-1 block w-full rounded-md border-0 py-1.5 text-gray-900 shadow-sm ring-1 ring-gray-300 ring-inset focus:ring-2 focus:ring-blue-600 focus:ring-inset sm:text-sm sm:leading-6 dark:bg-gray-800 dark:text-white dark:ring-gray-600"
+                            >
+                                <option value="">Semua Status</option>
+                                <option value="pending">Menunggu</option>
+                                <option value="approved">Disetujui</option>
+                                <option value="rejected">Ditolak</option>
+                            </select>
+                        </div>
 
-                <div class="grid gap-4 md:grid-cols-4">
-                    <div>
-                        <label class="mb-2 block text-sm font-medium text-gray-700 dark:text-gray-300">Status</label>
-                        <select
-                            v-model="statusFilter"
-                            class="w-full rounded-lg border border-gray-300 px-3 py-2 text-sm dark:border-gray-600 dark:bg-gray-800"
+                        <div>
+                            <label for="from_date" class="block text-sm font-medium text-gray-700 dark:text-gray-300">Dari Tanggal</label>
+                            <DatePicker id="from_date" v-model="fromDate" placeholder="Pilih tanggal mulai" class="mt-1 h-10 w-full" />
+                        </div>
+
+                        <div>
+                            <label for="to_date" class="block text-sm font-medium text-gray-700 dark:text-gray-300">Sampai Tanggal</label>
+                            <DatePicker id="to_date" v-model="toDate" placeholder="Pilih tanggal akhir" class="mt-1 h-10 w-full" />
+                        </div>
+
+                        <div class="flex items-end">
+                            <Button variant="outline" @click="clearFilters" class="h-10 w-full"> Reset Filter </Button>
+                        </div>
+                    </div>
+
+                    <!-- Clear Filters -->
+                    <div class="mt-4">
+                        <button
+                            type="button"
+                            class="text-sm text-gray-500 hover:text-gray-700 dark:text-gray-400 dark:hover:text-gray-300"
+                            @click="clearFilters"
                         >
-                            <option value="">Semua Status</option>
-                            <option value="pending">Menunggu</option>
-                            <option value="approved">Disetujui</option>
-                            <option value="rejected">Ditolak</option>
-                        </select>
-                    </div>
-
-                    <div>
-                        <label class="mb-2 block text-sm font-medium text-gray-700 dark:text-gray-300">Dari Tanggal</label>
-                        <DatePicker v-model="fromDate" placeholder="Pilih tanggal mulai" class="h-10" />
-                    </div>
-
-                    <div>
-                        <label class="mb-2 block text-sm font-medium text-gray-700 dark:text-gray-300">Sampai Tanggal</label>
-                        <DatePicker v-model="toDate" placeholder="Pilih tanggal akhir" class="h-10" />
-                    </div>
-
-                    <div class="flex items-end">
-                        <Button variant="outline" @click="clearFilters" class="h-10"> Reset Filter </Button>
+                            Bersihkan Filter
+                        </button>
                     </div>
                 </div>
+                <div
+                    class="absolute inset-0 rounded-xl bg-gradient-to-br from-gray-500/5 to-slate-500/5 opacity-0 transition-opacity group-hover:opacity-100"
+                ></div>
             </div>
 
-            <!-- Requests Table -->
+            <!-- Requests List -->
             <div
-                class="rounded-xl border border-gray-200/50 bg-gradient-to-br from-white to-gray-50/30 shadow-sm dark:border-gray-800/50 dark:from-gray-950 dark:to-gray-900/30"
+                class="group relative overflow-hidden rounded-xl border border-gray-200/50 bg-gradient-to-br from-white to-blue-50/30 shadow-sm transition-all hover:shadow-md dark:border-gray-800/50 dark:from-gray-950 dark:to-blue-950/30"
             >
-                <div class="border-b border-gray-200 px-6 py-4 dark:border-gray-700">
-                    <h3 class="flex items-center text-lg font-semibold text-gray-900 dark:text-white">
-                        <Calendar class="mr-2 h-5 w-5 text-blue-600 dark:text-blue-400" />
-                        Daftar Request
-                    </h3>
+                <div class="border-b border-gray-200/50 px-6 py-4 dark:border-gray-800/50">
+                    <div class="flex items-center gap-3">
+                        <div class="flex h-8 w-8 items-center justify-center rounded-lg bg-blue-500/10 ring-1 ring-blue-500/20">
+                            <Calendar class="h-4 w-4 text-blue-600 dark:text-blue-400" />
+                        </div>
+                        <div>
+                            <h2 class="text-lg font-semibold text-gray-900 dark:text-white">Daftar Request</h2>
+                            <p class="text-sm text-gray-600 dark:text-gray-400">{{ requests.data.length }} request ditemukan</p>
+                        </div>
+                    </div>
                 </div>
 
                 <div v-if="requests.data.length === 0" class="p-12 text-center">
@@ -409,7 +529,7 @@ const cancelReject = () => {
                 </div>
 
                 <!-- Pagination -->
-                <div v-if="requests.links && requests.links.length > 3" class="border-t border-gray-200 px-6 py-4 dark:border-gray-700">
+                <div v-if="requests.links && requests.links.length > 3" class="border-t border-gray-200/50 px-6 py-4 dark:border-gray-700">
                     <div class="flex items-center justify-between">
                         <div class="text-sm text-gray-700 dark:text-gray-300">
                             Menampilkan {{ requests.meta?.from || 0 }} sampai {{ requests.meta?.to || 0 }} dari {{ requests.meta?.total || 0 }} hasil
@@ -432,6 +552,9 @@ const cancelReject = () => {
                         </div>
                     </div>
                 </div>
+                <div
+                    class="absolute inset-0 rounded-xl bg-gradient-to-br from-blue-500/5 to-indigo-500/5 opacity-0 transition-opacity group-hover:opacity-100"
+                ></div>
             </div>
         </div>
 

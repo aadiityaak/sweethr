@@ -33,16 +33,6 @@ class DocumentController extends Controller
         }
 
 
-        // Filter expiring soon
-        if ($request->boolean('expiring_soon')) {
-            $query->expiringSoon();
-        }
-
-        // Filter expired
-        if ($request->boolean('expired')) {
-            $query->expired();
-        }
-
         $documents = $query->paginate(15)->withQueryString();
 
         // Get filter options
@@ -53,8 +43,10 @@ class DocumentController extends Controller
         $stats = [
             'total' => EmployeeDocument::count(),
             'active' => EmployeeDocument::where('is_active', true)->count(),
-            'expiring_soon' => EmployeeDocument::expiringSoon()->count(),
-            'expired' => EmployeeDocument::expired()->count(),
+            'inactive' => EmployeeDocument::where('is_active', false)->count(),
+            'total_size' => EmployeeDocument::sum('file_size'),
+            'unique_employees' => EmployeeDocument::distinct('user_id')->count('user_id'),
+            'document_types' => DocumentType::active()->count(),
         ];
 
         return Inertia::render('admin/Documents/Index', [
@@ -62,7 +54,7 @@ class DocumentController extends Controller
             'users' => $users,
             'documentTypes' => $documentTypes,
             'stats' => $stats,
-            'filters' => $request->only(['user_id', 'document_type_id', 'expiring_soon', 'expired']),
+            'filters' => $request->only(['user_id', 'document_type_id']),
         ]);
     }
 
@@ -92,7 +84,7 @@ class DocumentController extends Controller
         $file = $request->file('file');
 
         // Generate unique filename
-        $filename = time().'_'.$file->getClientOriginalName();
+        $filename = time() . '_' . $file->getClientOriginalName();
         $path = $file->storeAs('documents', $filename, 'private');
 
         $document = EmployeeDocument::create([
