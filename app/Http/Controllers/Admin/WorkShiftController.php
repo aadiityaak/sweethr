@@ -15,15 +15,10 @@ class WorkShiftController extends Controller
 {
     public function index(Request $request): Response
     {
-        // Prevent caching
-        header('Cache-Control: no-store, no-cache, must-revalidate, max-age=0');
-        header('Pragma: no-cache');
-        header('Expires: 0');
-
         $query = WorkShift::query();
 
         // Apply search filter
-        if ($request->search) {
+        if ($request->search && $request->search !== null) {
             $query->where(function ($q) use ($request) {
                 $q->where('name', 'like', '%' . $request->search . '%')
                     ->orWhere('code', 'like', '%' . $request->search . '%');
@@ -31,17 +26,29 @@ class WorkShiftController extends Controller
         }
 
         // Apply status filter
-        if ($request->has('status') && $request->status !== '') {
+        if ($request->has('status') && $request->status !== '' && $request->status !== null) {
             $query->where('is_active', $request->status === 'active');
+        }
+
+        // Apply sorting
+        $sortField = $request->input('sort', 'name');
+        $sortDirection = $request->input('direction', 'asc');
+
+        // Validate sort field to prevent SQL injection
+        $allowedSortFields = ['name', 'code', 'start_time', 'end_time', 'work_hours', 'is_active'];
+
+        // For other fields, use regular sorting
+        if (in_array($sortField, $allowedSortFields)) {
+            $query->orderBy($sortField, $sortDirection);
+        } else {
+            // Default ordering - sort by name for consistent display
+            $query->orderBy('name', 'asc');
         }
 
         // Always include the count of active employee shifts
         $query->withCount(['employeeShifts' => function ($q) {
             $q->where('is_active', true);
         }]);
-
-        // Default ordering - sort by name for consistent display
-        $query->orderBy('name', 'asc');
 
         $workShifts = $query->paginate(15)->withQueryString();
 
@@ -59,6 +66,8 @@ class WorkShiftController extends Controller
             'filters' => [
                 'search' => $request->search,
                 'status' => $request->status,
+                'sort' => $request->sort,
+                'direction' => $request->direction,
             ],
         ]);
     }

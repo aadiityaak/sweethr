@@ -134,13 +134,79 @@
                     <table class="w-full">
                         <thead class="border-t border-gray-200 dark:border-gray-700">
                             <tr class="border-b border-gray-200 dark:border-gray-700">
-                                <th class="px-6 py-3 text-left text-sm font-medium text-gray-500 dark:text-gray-400">Nama Shift</th>
-                                <th class="px-6 py-3 text-left text-sm font-medium text-gray-500 dark:text-gray-400">Kode</th>
-                                <th class="px-6 py-3 text-left text-sm font-medium text-gray-500 dark:text-gray-400">Waktu</th>
-                                <th class="px-6 py-3 text-left text-sm font-medium text-gray-500 dark:text-gray-400">Durasi Kerja</th>
+                                <th class="px-6 py-3 text-left text-sm font-medium text-gray-500 dark:text-gray-400">
+                                    <button
+                                        @click="sortBy('name')"
+                                        :class="[
+                                            'flex items-center gap-2 hover:text-gray-700 dark:hover:text-gray-200',
+                                            sortField === 'name' ? 'text-blue-600 dark:text-blue-400' : '',
+                                        ]"
+                                    >
+                                        Nama Shift
+                                        <component :is="getSortIcon('name')" class="h-4 w-4" />
+                                    </button>
+                                </th>
+                                <th class="px-6 py-3 text-left text-sm font-medium text-gray-500 dark:text-gray-400">
+                                    <button
+                                        @click="sortBy('code')"
+                                        :class="[
+                                            'flex items-center gap-2 hover:text-gray-700 dark:hover:text-gray-200',
+                                            sortField === 'code' ? 'text-blue-600 dark:text-blue-400' : '',
+                                        ]"
+                                    >
+                                        Kode
+                                        <component :is="getSortIcon('code')" class="h-4 w-4" />
+                                    </button>
+                                </th>
+                                <th class="px-6 py-3 text-left text-sm font-medium text-gray-500 dark:text-gray-400">
+                                    <button
+                                        @click="sortBy('start_time')"
+                                        :class="[
+                                            'flex items-center gap-2 hover:text-gray-700 dark:hover:text-gray-200',
+                                            sortField === 'start_time' ? 'text-blue-600 dark:text-blue-400' : '',
+                                        ]"
+                                    >
+                                        Waktu
+                                        <component :is="getSortIcon('start_time')" class="h-4 w-4" />
+                                    </button>
+                                </th>
+                                <th class="px-6 py-3 text-left text-sm font-medium text-gray-500 dark:text-gray-400">
+                                    <button
+                                        @click="sortBy('work_hours')"
+                                        :class="[
+                                            'flex items-center gap-2 hover:text-gray-700 dark:hover:text-gray-200',
+                                            sortField === 'work_hours' ? 'text-blue-600 dark:text-blue-400' : '',
+                                        ]"
+                                    >
+                                        Durasi Kerja
+                                        <component :is="getSortIcon('work_hours')" class="h-4 w-4" />
+                                    </button>
+                                </th>
                                 <th class="px-6 py-3 text-left text-sm font-medium text-gray-500 dark:text-gray-400">Hari Kerja</th>
-                                <th class="px-6 py-3 text-left text-sm font-medium text-gray-500 dark:text-gray-400">Status</th>
-                                <th class="px-6 py-3 text-left text-sm font-medium text-gray-500 dark:text-gray-400">Karyawan</th>
+                                <th class="px-6 py-3 text-left text-sm font-medium text-gray-500 dark:text-gray-400">
+                                    <button
+                                        @click="sortBy('is_active')"
+                                        :class="[
+                                            'flex items-center gap-2 hover:text-gray-700 dark:hover:text-gray-200',
+                                            sortField === 'is_active' ? 'text-blue-600 dark:text-blue-400' : '',
+                                        ]"
+                                    >
+                                        Status
+                                        <component :is="getSortIcon('is_active')" class="h-4 w-4" />
+                                    </button>
+                                </th>
+                                <th class="px-6 py-3 text-left text-sm font-medium text-gray-500 dark:text-gray-400">
+                                    <button
+                                        @click="sortBy('employee_shifts_count')"
+                                        :class="[
+                                            'flex items-center gap-2 hover:text-gray-700 dark:hover:text-gray-200',
+                                            sortField === 'employee_shifts_count' ? 'text-blue-600 dark:text-blue-400' : '',
+                                        ]"
+                                    >
+                                        Karyawan
+                                        <component :is="getSortIcon('employee_shifts_count')" class="h-4 w-4" />
+                                    </button>
+                                </th>
                                 <th class="px-6 py-3 text-left text-sm font-medium text-gray-500 dark:text-gray-400">Aksi</th>
                             </tr>
                         </thead>
@@ -275,7 +341,7 @@ import AppLayout from '@/layouts/AppLayout.vue';
 import { type BreadcrumbItem } from '@/types';
 import { Head, Link, router } from '@inertiajs/vue3';
 import { debounce } from 'lodash';
-import { CheckCircle, Clock, Edit, Eye, FilterX, Moon, Plus, Trash, Users, XCircle } from 'lucide-vue-next';
+import { ArrowDown, ArrowUp, ArrowUpDown, CheckCircle, Clock, Edit, Eye, FilterX, Moon, Plus, Trash, Users, XCircle } from 'lucide-vue-next';
 import { ref } from 'vue';
 
 interface WorkShift {
@@ -312,6 +378,8 @@ interface Props {
     filters: {
         search?: string;
         status?: string;
+        sort?: string;
+        direction?: string;
     };
 }
 
@@ -331,6 +399,10 @@ const breadcrumbs: BreadcrumbItem[] = [
 // Filter states
 const search = ref(props.filters.search || '');
 const selectedStatus = ref(props.filters.status || '');
+
+// Sorting states
+const sortField = ref(props.filters.sort || 'name');
+const sortDirection = ref(props.filters.direction || 'asc');
 
 // Modal states
 const showDeleteModal = ref(false);
@@ -356,35 +428,77 @@ const getDayInitial = (dayNumber: number) => {
 };
 
 const debouncedSearch = debounce(() => {
-    applyFilters();
+    router.visit('/admin/work-shifts', {
+        method: 'get',
+        data: {
+            search: search.value,
+            status: selectedStatus.value,
+            sort: sortField.value,
+            direction: sortDirection.value,
+        },
+        preserveState: true,
+        replace: true,
+    });
 }, 300);
 
 const applyFilters = () => {
-    router.get(
-        '/admin/work-shifts',
-        {
+    router.visit('/admin/work-shifts', {
+        method: 'get',
+        data: {
             search: search.value,
             status: selectedStatus.value,
-            _: Date.now(), // Cache-busting parameter
+            sort: sortField.value,
+            direction: sortDirection.value,
         },
-        {
-            preserveState: false, // Force refresh to ensure data updates properly
-            replace: true,
-        },
-    );
+        preserveState: true,
+        replace: true,
+    });
 };
 
 const clearFilters = () => {
     search.value = '';
     selectedStatus.value = '';
-    router.get(
-        '/admin/work-shifts',
-        { _: Date.now() },
-        {
-            preserveState: false,
-            replace: true,
+    sortField.value = 'name';
+    sortDirection.value = 'asc';
+    router.visit('/admin/work-shifts', {
+        method: 'get',
+        data: {},
+        preserveState: true,
+        replace: true,
+    });
+};
+
+// Sorting function
+const sortBy = (field: string) => {
+    if (sortField.value === field) {
+        // Toggle direction if same field
+        sortDirection.value = sortDirection.value === 'asc' ? 'desc' : 'asc';
+    } else {
+        // Set new field and default to ascending
+        sortField.value = field;
+        sortDirection.value = 'asc';
+    }
+
+    // Use router.visit instead of router.get to avoid page reload
+    router.visit('/admin/work-shifts', {
+        method: 'get',
+        data: {
+            search: search.value,
+            status: selectedStatus.value,
+            sort: sortField.value,
+            direction: sortDirection.value,
         },
-    );
+        preserveState: true,
+        replace: true,
+    });
+};
+
+// Get sort icon for column header
+const getSortIcon = (field: string) => {
+    if (sortField.value !== field) {
+        return ArrowUpDown;
+    }
+    return sortDirection.value === 'asc' ? ArrowUp : ArrowDown;
 };
 
 const deleteShift = (shift: WorkShift) => {
