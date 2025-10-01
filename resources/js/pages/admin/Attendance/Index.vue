@@ -59,6 +59,11 @@ interface AttendanceRecord {
         address: string;
     };
     notes?: string;
+    shift_info?: {
+        start_time: string;
+        end_time: string;
+        name: string;
+    };
 }
 
 interface AttendanceStats {
@@ -175,6 +180,14 @@ const handleDateChange = (date: string | undefined) => {
 
 const formatTime = (time: string | null) => {
     if (!time) return '--:--';
+
+    // Handle time in HH:mm:ss format from database
+    if (time.length === 8) {
+        const [hours, minutes, seconds] = time.split(':');
+        return `${hours}:${minutes}`;
+    }
+
+    // Fallback to original method for other formats
     return new Date(`2000-01-01T${time}`).toLocaleTimeString('id-ID', {
         hour: '2-digit',
         minute: '2-digit',
@@ -532,6 +545,9 @@ onUnmounted(() => {
                                     Karyawan
                                 </th>
                                 <th class="px-8 py-4 text-left text-xs font-medium tracking-wide text-gray-500 uppercase dark:text-gray-400">
+                                    Shift
+                                </th>
+                                <th class="px-8 py-4 text-left text-xs font-medium tracking-wide text-gray-500 uppercase dark:text-gray-400">
                                     Tanggal
                                 </th>
                                 <th class="px-8 py-4 text-left text-xs font-medium tracking-wide text-gray-500 uppercase dark:text-gray-400">
@@ -567,7 +583,17 @@ onUnmounted(() => {
                                         </div>
                                     </div>
                                 </td>
-                                <td class="px-6 py-4 text-sm text-gray-600 dark:text-gray-400">
+                                <td class="px-8 py-5">
+                                    <div class="space-y-1">
+                                        <div class="text-sm font-medium text-gray-900 dark:text-white">
+                                            {{ record.shift_info?.name || 'N/A' }}
+                                        </div>
+                                        <div v-if="record.shift_info" class="text-xs text-gray-500 dark:text-gray-400">
+                                            {{ formatTime(record.shift_info.start_time) }} - {{ formatTime(record.shift_info.end_time) }}
+                                        </div>
+                                    </div>
+                                </td>
+                                <td class="px-8 py-5 text-sm text-gray-600 dark:text-gray-400">
                                     {{ formatDate(record.date) }}
                                 </td>
                                 <td class="px-8 py-5">

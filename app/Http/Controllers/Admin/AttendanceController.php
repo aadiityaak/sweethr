@@ -94,20 +94,47 @@ class AttendanceController extends Controller
 
             $attendanceRecords = $attendanceQuery->orderBy('created_at', 'desc')->get();
 
-            // Calculate late duration for each attendance record
+            // Calculate late duration for each attendance record and add shift info
             $attendanceRecords = $attendanceRecords->map(function ($record) {
                 // Get user's shift for the attendance date
                 $shift = $record->user->employeeShifts()
-                    ->where('date', $record->date)
+                    ->where('effective_date', '<=', $record->date)
+                    ->where(function ($query) use ($record) {
+                        $query->whereNull('end_date')
+                            ->orWhere('end_date', '>=', $record->date);
+                    })
                     ->with('workShift')
                     ->first();
+
+                \Log::debug('Shift query result for attendance '.$record->id.' for user '.$record->user->name, [
+                    'attendance_date' => $record->date,
+                    'employee_shift_found' => $shift ? 'yes' : 'no',
+                    'shift_name' => $shift ? $shift->workShift->name : null,
+                    'shift_id' => $shift ? $shift->workShift->id : null,
+                    'effective_date' => $shift ? $shift->effective_date : null,
+                    'end_date' => $shift ? $shift->end_date : null,
+                ]);
 
                 if ($shift && $shift->workShift) {
                     $shiftStartTime = $shift->workShift->start_time;
                     $record->late_duration = $record->getLateDuration($shiftStartTime);
+
+                    // Add shift info for display
+                    $record->shift_info = [
+                        'start_time' => $shift->workShift->start_time,
+                        'end_time' => $shift->workShift->end_time,
+                        'name' => $shift->workShift->name ?? $shift->workShift->start_time.' - '.$shift->workShift->end_time,
+                    ];
                 } else {
                     // Default to 08:30 if no shift found (for existing data)
                     $record->late_duration = $record->getLateDuration('08:30:00');
+
+                    // Add default shift info
+                    $record->shift_info = [
+                        'start_time' => '08:30:00',
+                        'end_time' => '17:00:00',
+                        'name' => '08:30 - 17:00',
+                    ];
                 }
 
                 return $record;
