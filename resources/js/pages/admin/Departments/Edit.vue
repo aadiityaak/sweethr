@@ -168,7 +168,13 @@
                                 <Button type="submit" :disabled="form.processing">
                                     {{ form.processing ? 'Menyimpan...' : 'Update Departemen' }}
                                 </Button>
-                                <Button type="button" variant="outline" @click="router.visit(`/admin/departments?v=${Date.now()}`, { preserveState: false, preserveScroll: false })"> Batal </Button>
+                                <Button
+                                    type="button"
+                                    variant="outline"
+                                    @click="router.visit(`/admin/departments?v=${Date.now()}`, { preserveState: false, preserveScroll: false })"
+                                >
+                                    Batal
+                                </Button>
                             </div>
                         </form>
                     </div>

@@ -220,7 +220,10 @@
                 </div>
 
                 <!-- Pagination -->
-                <div v-if="users?.links && users.links.length > 3" class="flex items-center justify-between border-t border-gray-200 bg-white px-6 py-3 dark:border-gray-700 dark:bg-gray-900">
+                <div
+                    v-if="users?.links && users.links.length > 3"
+                    class="flex items-center justify-between border-t border-gray-200 bg-white px-6 py-3 dark:border-gray-700 dark:bg-gray-900"
+                >
                     <div class="flex flex-1 justify-between sm:hidden">
                         <Link
                             v-if="users.links[0]?.url"
@@ -342,7 +345,7 @@ const toggleSort = (field: SortField) => {
         {
             preserveState: true,
             preserveScroll: true,
-        }
+        },
     );
 };
 

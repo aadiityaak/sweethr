@@ -325,7 +325,7 @@ watch(
     () => [attendanceData, weeklyData, monthlyData],
     (newValues) => {
         const [newAttendanceData, newWeeklyData, newMonthlyData] = newValues;
-        
+
         if (newAttendanceData && 'present' in newAttendanceData) {
             doughnutData.value.datasets[0].data = [newAttendanceData.present, newAttendanceData.absent, newAttendanceData.late];
         }

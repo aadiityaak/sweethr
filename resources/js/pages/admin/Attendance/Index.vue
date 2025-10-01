@@ -1,6 +1,13 @@
 <script setup lang="ts">
 import AttendanceChart from '@/components/AttendanceChart.vue';
+import { Button } from '@/components/ui/button';
 import DatePicker from '@/components/ui/date-picker/DatePicker.vue';
+import Dialog from '@/components/ui/dialog/Dialog.vue';
+import DialogContent from '@/components/ui/dialog/DialogContent.vue';
+import DialogDescription from '@/components/ui/dialog/DialogDescription.vue';
+import DialogFooter from '@/components/ui/dialog/DialogFooter.vue';
+import DialogHeader from '@/components/ui/dialog/DialogHeader.vue';
+import DialogTitle from '@/components/ui/dialog/DialogTitle.vue';
 import AppLayout from '@/layouts/AppLayout.vue';
 import { type BreadcrumbItem } from '@/types';
 import { Head, Link, router } from '@inertiajs/vue3';
@@ -20,13 +27,6 @@ import {
     XCircle,
 } from 'lucide-vue-next';
 import { onMounted, onUnmounted, ref } from 'vue';
-import Dialog from '@/components/ui/dialog/Dialog.vue';
-import DialogContent from '@/components/ui/dialog/DialogContent.vue';
-import DialogDescription from '@/components/ui/dialog/DialogDescription.vue';
-import DialogFooter from '@/components/ui/dialog/DialogFooter.vue';
-import DialogHeader from '@/components/ui/dialog/DialogHeader.vue';
-import DialogTitle from '@/components/ui/dialog/DialogTitle.vue';
-import { Button } from '@/components/ui/button';
 
 interface User {
     id: number;
@@ -214,7 +214,7 @@ const formatTime = (time: string | null | any) => {
             } else {
                 timeStr = time.toString();
             }
-            
+
             if (timeStr.includes('T')) {
                 const timePart = timeStr.split('T')[1]?.split('.')[0] || timeStr;
                 const [hours, minutes] = timePart.split(':');
@@ -244,7 +244,6 @@ const formatDuration = (minutes: number | null) => {
     const mins = minutes % 60;
     return hours > 0 ? `${hours}j ${mins}m` : `${mins}m`;
 };
-
 
 const formatDate = (dateString: string) => {
     return new Date(dateString).toLocaleDateString('id-ID', {
@@ -635,15 +634,29 @@ onUnmounted(() => {
                                                 {{ formatTime(record.check_in_time) }}
                                             </div>
                                             <!-- Status indicator -->
-                                            <div v-if="record.status === 'late'" class="flex items-center gap-1 text-xs text-amber-600 dark:text-amber-400">
+                                            <div
+                                                v-if="record.status === 'late'"
+                                                class="flex items-center gap-1 text-xs text-amber-600 dark:text-amber-400"
+                                            >
                                                 <svg class="h-3 w-3" fill="currentColor" viewBox="0 0 20 20">
-                                                    <path fill-rule="evenodd" d="M18 10a8 8 0 11-16 0 8 8 0 0116 0zm-7-4a1 1 0 11-2 0 1 1 0 012 0zM9 9a1 1 0 000 2v3a1 1 0 001 1h1a1 1 0 100-2v-3a1 1 0 00-1-1H9z" clip-rule="evenodd" />
+                                                    <path
+                                                        fill-rule="evenodd"
+                                                        d="M18 10a8 8 0 11-16 0 8 8 0 0116 0zm-7-4a1 1 0 11-2 0 1 1 0 012 0zM9 9a1 1 0 000 2v3a1 1 0 001 1h1a1 1 0 100-2v-3a1 1 0 00-1-1H9z"
+                                                        clip-rule="evenodd"
+                                                    />
                                                 </svg>
                                                 <span>Terlambat</span>
                                             </div>
-                                            <div v-else-if="record.status === 'present'" class="flex items-center gap-1 text-xs text-green-600 dark:text-green-400">
+                                            <div
+                                                v-else-if="record.status === 'present'"
+                                                class="flex items-center gap-1 text-xs text-green-600 dark:text-green-400"
+                                            >
                                                 <svg class="h-3 w-3" fill="currentColor" viewBox="0 0 20 20">
-                                                    <path fill-rule="evenodd" d="M10 18a8 8 0 100-16 8 8 0 000 16zm3.707-9.293a1 1 0 00-1.414-1.414L9 10.586 7.707 9.293a1 1 0 00-1.414 1.414l2 2a1 1 0 001.414 0l4-4z" clip-rule="evenodd" />
+                                                    <path
+                                                        fill-rule="evenodd"
+                                                        d="M10 18a8 8 0 100-16 8 8 0 000 16zm3.707-9.293a1 1 0 00-1.414-1.414L9 10.586 7.707 9.293a1 1 0 00-1.414 1.414l2 2a1 1 0 001.414 0l4-4z"
+                                                        clip-rule="evenodd"
+                                                    />
                                                 </svg>
                                                 <span>Hadir</span>
                                             </div>
@@ -770,12 +783,9 @@ onUnmounted(() => {
                         </span>
                         pada tanggal
                         <span v-if="attendanceToDelete" class="font-semibold">
-                            {{ formatDate(attendanceToDelete.date) }}
-                        </span>?
-                        <br><br>
-                        <span class="text-red-600 dark:text-red-400">
-                            Tindakan ini tidak dapat dibatalkan.
-                        </span>
+                            {{ formatDate(attendanceToDelete.date) }} </span
+                        >? <br /><br />
+                        <span class="text-red-600 dark:text-red-400"> Tindakan ini tidak dapat dibatalkan. </span>
                     </DialogDescription>
                 </DialogHeader>
                 <DialogFooter class="flex flex-col-reverse gap-2 sm:flex-row sm:justify-end">
@@ -786,11 +796,7 @@ onUnmounted(() => {
                     >
                         Batal
                     </Button>
-                    <Button
-                        @click="confirmDelete"
-                        variant="destructive"
-                        class="bg-red-600 hover:bg-red-700"
-                    >
+                    <Button @click="confirmDelete" variant="destructive" class="bg-red-600 hover:bg-red-700">
                         <Trash2 class="mr-2 h-4 w-4" />
                         Hapus
                     </Button>

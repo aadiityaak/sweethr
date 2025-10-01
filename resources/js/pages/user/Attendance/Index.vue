@@ -339,13 +339,13 @@ const confirmCheckOut = () => {
                                 {{ todayAttendance.office_location?.name || 'Remote' }}
                             </span>
                         </div>
-                        <div v-if="todayAttendance?.shift" class="flex items-center gap-2 rounded-md bg-blue-50 dark:bg-blue-900/20 p-3">
+                        <div v-if="todayAttendance?.shift" class="flex items-center gap-2 rounded-md bg-blue-50 p-3 dark:bg-blue-900/20">
                             <Clock class="h-4 w-4 text-blue-600 dark:text-blue-400" />
                             <div class="flex-1">
                                 <span class="text-sm font-medium text-blue-900 dark:text-blue-100">
                                     {{ todayAttendance.shift.name }}
                                 </span>
-                                <span class="text-xs text-blue-600 dark:text-blue-400 ml-2">
+                                <span class="ml-2 text-xs text-blue-600 dark:text-blue-400">
                                     ({{ formatTime(todayAttendance.shift.start_time) }} - {{ formatTime(todayAttendance.shift.end_time) }})
                                 </span>
                             </div>
@@ -490,7 +490,8 @@ const confirmCheckOut = () => {
                                     <div v-if="attendance.shift" class="flex items-center gap-1">
                                         <Clock class="h-3 w-3 text-blue-600 dark:text-blue-400" />
                                         <span class="text-xs text-blue-600 dark:text-blue-400">
-                                            {{ attendance.shift.name }} ({{ formatTime(attendance.shift.start_time) }} - {{ formatTime(attendance.shift.end_time) }})
+                                            {{ attendance.shift.name }} ({{ formatTime(attendance.shift.start_time) }} -
+                                            {{ formatTime(attendance.shift.end_time) }})
                                         </span>
                                     </div>
                                 </div>

@@ -134,79 +134,13 @@
                     <table class="w-full">
                         <thead class="border-t border-gray-200 dark:border-gray-700">
                             <tr class="border-b border-gray-200 dark:border-gray-700">
-                                <th class="px-6 py-3 text-left text-sm font-medium text-gray-500 dark:text-gray-400">
-                                    <button
-                                        @click="handleSort('name')"
-                                        :class="[
-                                            'flex items-center gap-2 hover:text-gray-700 dark:hover:text-gray-200',
-                                            sortField === 'name' ? 'text-blue-600 dark:text-blue-400' : ''
-                                        ]"
-                                    >
-                                        Nama Shift
-                                        <component :is="getSortIcon('name')" class="h-4 w-4" />
-                                    </button>
-                                </th>
-                                <th class="px-6 py-3 text-left text-sm font-medium text-gray-500 dark:text-gray-400">
-                                    <button
-                                        @click="handleSort('code')"
-                                        :class="[
-                                            'flex items-center gap-2 hover:text-gray-700 dark:hover:text-gray-200',
-                                            sortField === 'code' ? 'text-blue-600 dark:text-blue-400' : ''
-                                        ]"
-                                    >
-                                        Kode
-                                        <component :is="getSortIcon('code')" class="h-4 w-4" />
-                                    </button>
-                                </th>
-                                <th class="px-6 py-3 text-left text-sm font-medium text-gray-500 dark:text-gray-400">
-                                    <button
-                                        @click="handleSort('start_time')"
-                                        :class="[
-                                            'flex items-center gap-2 hover:text-gray-700 dark:hover:text-gray-200',
-                                            sortField === 'start_time' ? 'text-blue-600 dark:text-blue-400' : ''
-                                        ]"
-                                    >
-                                        Waktu
-                                        <component :is="getSortIcon('start_time')" class="h-4 w-4" />
-                                    </button>
-                                </th>
-                                <th class="px-6 py-3 text-left text-sm font-medium text-gray-500 dark:text-gray-400">
-                                    <button
-                                        @click="handleSort('work_hours')"
-                                        :class="[
-                                            'flex items-center gap-2 hover:text-gray-700 dark:hover:text-gray-200',
-                                            sortField === 'work_hours' ? 'text-blue-600 dark:text-blue-400' : ''
-                                        ]"
-                                    >
-                                        Durasi Kerja
-                                        <component :is="getSortIcon('work_hours')" class="h-4 w-4" />
-                                    </button>
-                                </th>
+                                <th class="px-6 py-3 text-left text-sm font-medium text-gray-500 dark:text-gray-400">Nama Shift</th>
+                                <th class="px-6 py-3 text-left text-sm font-medium text-gray-500 dark:text-gray-400">Kode</th>
+                                <th class="px-6 py-3 text-left text-sm font-medium text-gray-500 dark:text-gray-400">Waktu</th>
+                                <th class="px-6 py-3 text-left text-sm font-medium text-gray-500 dark:text-gray-400">Durasi Kerja</th>
                                 <th class="px-6 py-3 text-left text-sm font-medium text-gray-500 dark:text-gray-400">Hari Kerja</th>
-                                <th class="px-6 py-3 text-left text-sm font-medium text-gray-500 dark:text-gray-400">
-                                    <button
-                                        @click="handleSort('is_active')"
-                                        :class="[
-                                            'flex items-center gap-2 hover:text-gray-700 dark:hover:text-gray-200',
-                                            sortField === 'is_active' ? 'text-blue-600 dark:text-blue-400' : ''
-                                        ]"
-                                    >
-                                        Status
-                                        <component :is="getSortIcon('is_active')" class="h-4 w-4" />
-                                    </button>
-                                </th>
-                                <th class="px-6 py-3 text-left text-sm font-medium text-gray-500 dark:text-gray-400">
-                                    <button
-                                        @click="handleSort('employee_shifts_count')"
-                                        :class="[
-                                            'flex items-center gap-2 hover:text-gray-700 dark:hover:text-gray-200',
-                                            sortField === 'employee_shifts_count' ? 'text-blue-600 dark:text-blue-400' : ''
-                                        ]"
-                                    >
-                                        Karyawan
-                                        <component :is="getSortIcon('employee_shifts_count')" class="h-4 w-4" />
-                                    </button>
-                                </th>
+                                <th class="px-6 py-3 text-left text-sm font-medium text-gray-500 dark:text-gray-400">Status</th>
+                                <th class="px-6 py-3 text-left text-sm font-medium text-gray-500 dark:text-gray-400">Karyawan</th>
                                 <th class="px-6 py-3 text-left text-sm font-medium text-gray-500 dark:text-gray-400">Aksi</th>
                             </tr>
                         </thead>
@@ -341,7 +275,7 @@ import AppLayout from '@/layouts/AppLayout.vue';
 import { type BreadcrumbItem } from '@/types';
 import { Head, Link, router } from '@inertiajs/vue3';
 import { debounce } from 'lodash';
-import { ArrowDown, ArrowUp, ArrowUpDown, CheckCircle, Clock, Edit, Eye, FilterX, Moon, Plus, Trash, Users, XCircle } from 'lucide-vue-next';
+import { CheckCircle, Clock, Edit, Eye, FilterX, Moon, Plus, Trash, Users, XCircle } from 'lucide-vue-next';
 import { ref } from 'vue';
 
 interface WorkShift {
@@ -378,8 +312,6 @@ interface Props {
     filters: {
         search?: string;
         status?: string;
-        sort?: string;
-        direction?: string;
     };
 }
 
@@ -399,10 +331,6 @@ const breadcrumbs: BreadcrumbItem[] = [
 // Filter states
 const search = ref(props.filters.search || '');
 const selectedStatus = ref(props.filters.status || '');
-
-// Sorting states
-const sortField = ref(props.filters.sort || 'name');
-const sortDirection = ref(props.filters.direction || 'asc');
 
 // Modal states
 const showDeleteModal = ref(false);
@@ -437,12 +365,10 @@ const applyFilters = () => {
         {
             search: search.value,
             status: selectedStatus.value,
-            sort: sortField.value,
-            direction: sortDirection.value,
             _: Date.now(), // Cache-busting parameter
         },
         {
-            preserveState: true,
+            preserveState: false, // Force refresh to ensure data updates properly
             replace: true,
         },
     );
@@ -451,30 +377,14 @@ const applyFilters = () => {
 const clearFilters = () => {
     search.value = '';
     selectedStatus.value = '';
-    sortField.value = 'name';
-    sortDirection.value = 'asc';
-    router.get('/admin/work-shifts', { _: Date.now() });
-};
-
-// Get sort icon for column header
-const getSortIcon = (field: string) => {
-    if (sortField.value !== field) {
-        return ArrowUpDown;
-    }
-    return sortDirection.value === 'asc' ? ArrowUp : ArrowDown;
-};
-
-const handleSort = (field: string) => {
-    if (sortField.value === field) {
-        // Toggle direction if same field
-        sortDirection.value = sortDirection.value === 'asc' ? 'desc' : 'asc';
-    } else {
-        // Set new field and default to asc
-        sortField.value = field;
-        sortDirection.value = 'asc';
-    }
-    
-    applyFilters();
+    router.get(
+        '/admin/work-shifts',
+        { _: Date.now() },
+        {
+            preserveState: false,
+            replace: true,
+        },
+    );
 };
 
 const deleteShift = (shift: WorkShift) => {

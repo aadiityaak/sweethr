@@ -35,26 +35,13 @@ class WorkShiftController extends Controller
             $query->where('is_active', $request->status === 'active');
         }
 
-        // Apply sorting
-        $sort = $request->input('sort', 'name');
-        $direction = $request->input('direction', 'asc');
-
         // Always include the count of active employee shifts
         $query->withCount(['employeeShifts' => function ($q) {
             $q->where('is_active', true);
         }]);
 
-        // Validate sort field to prevent SQL injection
-        $allowedSortFields = ['name', 'code', 'start_time', 'end_time', 'work_hours', 'is_active', 'employee_shifts_count'];
-        if (in_array($sort, $allowedSortFields)) {
-            if ($sort === 'employee_shifts_count') {
-                $query->orderBy('employee_shifts_count', $direction);
-            } else {
-                $query->orderBy($sort, $direction);
-            }
-        } else {
-            $query->orderBy('name', 'asc');
-        }
+        // Default ordering - sort by name for consistent display
+        $query->orderBy('name', 'asc');
 
         $workShifts = $query->paginate(15)->withQueryString();
 
@@ -72,8 +59,6 @@ class WorkShiftController extends Controller
             'filters' => [
                 'search' => $request->search,
                 'status' => $request->status,
-                'sort' => $sort,
-                'direction' => $direction,
             ],
         ]);
     }

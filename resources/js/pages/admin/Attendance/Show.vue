@@ -409,7 +409,10 @@ const getConfidenceLabel = (score: number | null) => {
                 <!-- Right Column -->
                 <div class="space-y-8">
                     <!-- Office Location -->
-                    <div v-if="attendance.office_location" class="overflow-hidden rounded-xl bg-white shadow-sm ring-1 ring-gray-900/5 dark:bg-gray-900 dark:ring-white/10">
+                    <div
+                        v-if="attendance.office_location"
+                        class="overflow-hidden rounded-xl bg-white shadow-sm ring-1 ring-gray-900/5 dark:bg-gray-900 dark:ring-white/10"
+                    >
                         <div class="border-b border-gray-200 px-6 py-4 dark:border-gray-700">
                             <h3 class="flex items-center text-lg font-semibold text-gray-900 dark:text-white">
                                 <Building class="mr-2 h-5 w-5 text-orange-600 dark:text-orange-400" />
@@ -433,7 +436,10 @@ const getConfidenceLabel = (score: number | null) => {
                     </div>
 
                     <!-- Remote Attendance Notice -->
-                    <div v-if="!attendance.office_location" class="overflow-hidden rounded-xl bg-blue-50 shadow-sm ring-1 ring-blue-500/20 dark:bg-blue-950/50 dark:ring-blue-500/30">
+                    <div
+                        v-if="!attendance.office_location"
+                        class="overflow-hidden rounded-xl bg-blue-50 shadow-sm ring-1 ring-blue-500/20 dark:bg-blue-950/50 dark:ring-blue-500/30"
+                    >
                         <div class="px-6 py-4">
                             <h3 class="flex items-center text-lg font-semibold text-blue-800 dark:text-blue-300">
                                 <Building class="mr-2 h-5 w-5 text-blue-600 dark:text-blue-400" />

@@ -558,7 +558,10 @@ const handleFaceVerification = async (confidence: number) => {
                             class="mx-auto flex h-16 w-16 items-center justify-center rounded-full"
                             :class="isInRange || user.allow_outside_radius ? 'bg-green-100 dark:bg-green-900/50' : 'bg-muted'"
                         >
-                            <Clock class="h-8 w-8" :class="isInRange || user.allow_outside_radius ? 'text-green-600 dark:text-green-400' : 'text-muted-foreground'" />
+                            <Clock
+                                class="h-8 w-8"
+                                :class="isInRange || user.allow_outside_radius ? 'text-green-600 dark:text-green-400' : 'text-muted-foreground'"
+                            />
                         </div>
 
                         <div>
@@ -567,10 +570,10 @@ const handleFaceVerification = async (confidence: number) => {
                                     hasCheckedInToday
                                         ? 'Sudah Check In Hari Ini'
                                         : faceVerificationRequired && !faceVerificationCompleted
-                                          ? (isInRange || user.allow_outside_radius)
+                                          ? isInRange || user.allow_outside_radius
                                               ? 'Verifikasi Wajah'
                                               : 'Belum Bisa Check In'
-                                          : (isInRange || user.allow_outside_radius)
+                                          : isInRange || user.allow_outside_radius
                                             ? 'Siap Check In!'
                                             : 'Belum Bisa Check In'
                                 }}
@@ -580,10 +583,10 @@ const handleFaceVerification = async (confidence: number) => {
                                     hasCheckedInToday
                                         ? 'Absensi masuk Anda sudah tercatat untuk hari ini'
                                         : faceVerificationRequired && !faceVerificationCompleted
-                                          ? (isInRange || user.allow_outside_radius)
+                                          ? isInRange || user.allow_outside_radius
                                               ? 'Silakan verifikasi wajah untuk melanjutkan'
                                               : 'Mohon mendekat ke lokasi kantor'
-                                          : (isInRange || user.allow_outside_radius)
+                                          : isInRange || user.allow_outside_radius
                                             ? 'Anda dapat melakukan absensi masuk sekarang'
                                             : 'Mohon mendekat ke lokasi kantor'
                                 }}
@@ -596,7 +599,7 @@ const handleFaceVerification = async (confidence: number) => {
                             :disabled="(!isInRange && !user.allow_outside_radius) || form.processing || faceLoading"
                             class="inline-flex w-full items-center justify-center gap-2 rounded-lg px-6 py-4 text-sm font-medium transition-colors disabled:cursor-not-allowed disabled:opacity-50"
                             :class="
-                                (isInRange || user.allow_outside_radius)
+                                isInRange || user.allow_outside_radius
                                     ? faceVerificationRequired && !faceVerificationCompleted
                                         ? 'bg-blue-600 text-white shadow-sm hover:bg-blue-700'
                                         : 'bg-green-600 text-white shadow-sm hover:bg-green-700'

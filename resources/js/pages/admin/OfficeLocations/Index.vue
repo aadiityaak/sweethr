@@ -91,7 +91,6 @@ const openInGoogleMaps = (location: OfficeLocation) => {
     window.open(url, '_blank');
 };
 
-
 const selectedLocation = ref<OfficeLocation | null>(null);
 const showMapModal = ref(false);
 
@@ -470,8 +469,17 @@ const cancelDelete = () => {
         </div>
 
         <!-- Map Modal -->
-        <div v-if="showMapModal && selectedLocation" class="fixed inset-0 z-[9999] flex items-center justify-center bg-black/50 backdrop-blur-sm" @click="closeMapModal" style="z-index: 9999 !important;">
-            <div class="relative z-[10000] w-full max-w-4xl rounded-xl border-0 bg-white p-6 shadow-2xl dark:bg-gray-950" @click.stop style="z-index: 10000 !important;">
+        <div
+            v-if="showMapModal && selectedLocation"
+            class="fixed inset-0 z-[9999] flex items-center justify-center bg-black/50 backdrop-blur-sm"
+            @click="closeMapModal"
+            style="z-index: 9999 !important"
+        >
+            <div
+                class="relative z-[10000] w-full max-w-4xl rounded-xl border-0 bg-white p-6 shadow-2xl dark:bg-gray-950"
+                @click.stop
+                style="z-index: 10000 !important"
+            >
                 <div class="mb-4 flex items-center justify-between">
                     <div>
                         <h3 class="text-lg font-semibold text-gray-900 dark:text-white">{{ selectedLocation.name }}</h3>

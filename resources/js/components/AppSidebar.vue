@@ -155,8 +155,6 @@ const adminNavItems: NavItem[] = [
 const mainNavItems = computed<NavItem[]>(() => {
     return user.value?.is_admin ? adminNavItems : userNavItems;
 });
-
-
 </script>
 
 <template>

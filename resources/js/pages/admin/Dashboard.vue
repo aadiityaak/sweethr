@@ -1,7 +1,7 @@
 <script setup lang="ts">
 import AttendanceChart from '@/components/AttendanceChart.vue';
-import AppLayout from '@/layouts/AppLayout.vue';
 import ConfirmationModal from '@/components/ConfirmationModal.vue';
+import AppLayout from '@/layouts/AppLayout.vue';
 // Admin dashboard uses direct URL
 import { type BreadcrumbItem } from '@/types';
 import { Head, Link, useForm } from '@inertiajs/vue3';
@@ -154,7 +154,7 @@ const rejectLeave = (leaveId: number) => {
 
 const confirmRejection = () => {
     if (!currentLeaveId.value || !rejectionReason.value.trim()) return;
-    
+
     const form = useForm({
         admin_notes: rejectionReason.value,
     });
@@ -165,7 +165,7 @@ const confirmRejection = () => {
             showRejectionModal.value = false;
             currentLeaveId.value = null;
             rejectionReason.value = '';
-        }
+        },
     });
 };
 
@@ -443,7 +443,7 @@ const generateMockAttendanceData = () => {
                         </div>
                         <div class="text-right">
                             <div class="text-2xl font-bold text-purple-600 dark:text-purple-400">
-                                {{ user.is_admin ? (stats.monthly_attendance_rate || 0) + '%' : (stats.monthly_attendance_days || 0) }}
+                                {{ user.is_admin ? (stats.monthly_attendance_rate || 0) + '%' : stats.monthly_attendance_days || 0 }}
                             </div>
                             <div class="text-sm font-medium text-gray-600 dark:text-gray-400">Bulan Ini</div>
                         </div>
@@ -529,17 +529,17 @@ const generateMockAttendanceData = () => {
                                     </p>
                                 </div>
                             </div>
-                            <div v-if="user.is_admin" class="flex gap-2 relative z-10">
+                            <div v-if="user.is_admin" class="relative z-10 flex gap-2">
                                 <button
                                     @click="approveLeave(leave.id)"
-                                    class="inline-flex items-center rounded-md bg-emerald-50 px-3 py-1.5 text-xs font-medium text-emerald-700 ring-1 ring-emerald-600/20 transition-colors hover:bg-emerald-100 cursor-pointer dark:bg-emerald-950/50 dark:text-emerald-400 dark:ring-emerald-400/30 dark:hover:bg-emerald-950"
+                                    class="inline-flex cursor-pointer items-center rounded-md bg-emerald-50 px-3 py-1.5 text-xs font-medium text-emerald-700 ring-1 ring-emerald-600/20 transition-colors hover:bg-emerald-100 dark:bg-emerald-950/50 dark:text-emerald-400 dark:ring-emerald-400/30 dark:hover:bg-emerald-950"
                                 >
                                     <CheckCircle class="mr-1 h-3 w-3" />
                                     Setujui
                                 </button>
                                 <button
                                     @click="rejectLeave(leave.id)"
-                                    class="inline-flex items-center rounded-md bg-red-50 px-3 py-1.5 text-xs font-medium text-red-700 ring-1 ring-red-600/20 transition-colors hover:bg-red-100 cursor-pointer dark:bg-red-950/50 dark:text-red-400 dark:ring-red-400/30 dark:hover:bg-red-950"
+                                    class="inline-flex cursor-pointer items-center rounded-md bg-red-50 px-3 py-1.5 text-xs font-medium text-red-700 ring-1 ring-red-600/20 transition-colors hover:bg-red-100 dark:bg-red-950/50 dark:text-red-400 dark:ring-red-400/30 dark:hover:bg-red-950"
                                 >
                                     <XCircle class="mr-1 h-3 w-3" />
                                     Tolak
@@ -699,14 +699,12 @@ const generateMockAttendanceData = () => {
             <div class="space-y-4">
                 <p>Apakah Anda yakin ingin menolak pengajuan cuti ini?</p>
                 <div>
-                    <label for="rejection-reason" class="block text-sm font-medium text-gray-700 dark:text-gray-300 mb-1">
-                        Alasan Penolakan
-                    </label>
+                    <label for="rejection-reason" class="mb-1 block text-sm font-medium text-gray-700 dark:text-gray-300"> Alasan Penolakan </label>
                     <textarea
                         id="rejection-reason"
                         v-model="rejectionReason"
                         rows="3"
-                        class="w-full rounded-lg border border-gray-300 px-3 py-2 text-sm focus:border-red-500 focus:outline-none focus:ring-1 focus:ring-red-500 dark:border-gray-600 dark:bg-gray-800 dark:text-white"
+                        class="w-full rounded-lg border border-gray-300 px-3 py-2 text-sm focus:border-red-500 focus:ring-1 focus:ring-red-500 focus:outline-none dark:border-gray-600 dark:bg-gray-800 dark:text-white"
                         placeholder="Mohon berikan alasan penolakan..."
                     ></textarea>
                 </div>

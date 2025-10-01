@@ -1,6 +1,6 @@
 <script setup lang="ts">
-import AppLayout from '@/layouts/AppLayout.vue';
 import { useToast } from '@/components/ui/toast/use-toast';
+import AppLayout from '@/layouts/AppLayout.vue';
 import { type BreadcrumbItem } from '@/types';
 import { Head, Link, router } from '@inertiajs/vue3';
 import { ArrowDown, ArrowUp, ArrowUpDown, Edit, Mail, Phone, Plus, Search, Trash2, UserCheck, Users } from 'lucide-vue-next';
@@ -303,7 +303,6 @@ const formatDate = (dateString: string) => {
                         </div>
                     </div>
                 </div>
-
             </div>
 
             <!-- Filters -->
@@ -372,7 +371,7 @@ const formatDate = (dateString: string) => {
                                         @click="sortBy('name')"
                                         :class="[
                                             'flex items-center gap-2 hover:text-gray-700 dark:hover:text-gray-200',
-                                            sortField === 'name' ? 'text-blue-600 dark:text-blue-400' : ''
+                                            sortField === 'name' ? 'text-blue-600 dark:text-blue-400' : '',
                                         ]"
                                     >
                                         Karyawan
@@ -384,7 +383,7 @@ const formatDate = (dateString: string) => {
                                         @click="sortBy('department')"
                                         :class="[
                                             'flex items-center gap-2 hover:text-gray-700 dark:hover:text-gray-200',
-                                            sortField === 'department' ? 'text-blue-600 dark:text-blue-400' : ''
+                                            sortField === 'department' ? 'text-blue-600 dark:text-blue-400' : '',
                                         ]"
                                     >
                                         Departemen
@@ -396,7 +395,7 @@ const formatDate = (dateString: string) => {
                                         @click="sortBy('position')"
                                         :class="[
                                             'flex items-center gap-2 hover:text-gray-700 dark:hover:text-gray-200',
-                                            sortField === 'position' ? 'text-blue-600 dark:text-blue-400' : ''
+                                            sortField === 'position' ? 'text-blue-600 dark:text-blue-400' : '',
                                         ]"
                                     >
                                         Posisi
@@ -408,7 +407,7 @@ const formatDate = (dateString: string) => {
                                         @click="sortBy('email')"
                                         :class="[
                                             'flex items-center gap-2 hover:text-gray-700 dark:hover:text-gray-200',
-                                            sortField === 'email' ? 'text-blue-600 dark:text-blue-400' : ''
+                                            sortField === 'email' ? 'text-blue-600 dark:text-blue-400' : '',
                                         ]"
                                     >
                                         Kontak
@@ -420,7 +419,7 @@ const formatDate = (dateString: string) => {
                                         @click="sortBy('hire_date')"
                                         :class="[
                                             'flex items-center gap-2 hover:text-gray-700 dark:hover:text-gray-200',
-                                            sortField === 'hire_date' ? 'text-blue-600 dark:text-blue-400' : ''
+                                            sortField === 'hire_date' ? 'text-blue-600 dark:text-blue-400' : '',
                                         ]"
                                     >
                                         Tanggal Masuk
@@ -432,7 +431,7 @@ const formatDate = (dateString: string) => {
                                         @click="sortBy('status')"
                                         :class="[
                                             'flex items-center gap-2 hover:text-gray-700 dark:hover:text-gray-200',
-                                            sortField === 'status' ? 'text-blue-600 dark:text-blue-400' : ''
+                                            sortField === 'status' ? 'text-blue-600 dark:text-blue-400' : '',
                                         ]"
                                     >
                                         Status
@@ -524,7 +523,8 @@ const formatDate = (dateString: string) => {
                 <div v-if="employees?.meta?.total > employees?.meta?.per_page" class="border-t border-gray-200 p-4 dark:border-gray-700">
                     <div class="flex items-center justify-between">
                         <p class="text-sm text-gray-500 dark:text-gray-400">
-                            Menampilkan {{ employees?.meta?.from || 0 }} sampai {{ employees?.meta?.to || 0 }} dari {{ employees?.meta?.total || 0 }} hasil
+                            Menampilkan {{ employees?.meta?.from || 0 }} sampai {{ employees?.meta?.to || 0 }} dari
+                            {{ employees?.meta?.total || 0 }} hasil
                         </p>
                         <div class="flex gap-2">
                             <Link
@@ -548,15 +548,8 @@ const formatDate = (dateString: string) => {
         </div>
 
         <!-- Delete Confirmation Dialog -->
-        <div
-            v-if="showDeleteDialog"
-            class="fixed inset-0 z-50 flex items-center justify-center bg-black/50"
-            @click="cancelDelete"
-        >
-            <div
-                class="mx-4 w-full max-w-md rounded-lg bg-white p-6 shadow-lg dark:bg-gray-800"
-                @click.stop
-            >
+        <div v-if="showDeleteDialog" class="fixed inset-0 z-50 flex items-center justify-center bg-black/50" @click="cancelDelete">
+            <div class="mx-4 w-full max-w-md rounded-lg bg-white p-6 shadow-lg dark:bg-gray-800" @click.stop>
                 <div class="mb-4 flex items-center gap-3">
                     <div class="flex h-12 w-12 items-center justify-center rounded-full bg-red-100 dark:bg-red-900/30">
                         <Trash2 class="h-6 w-6 text-red-600 dark:text-red-400" />
@@ -570,7 +563,8 @@ const formatDate = (dateString: string) => {
                 <div class="mb-6">
                     <p class="text-gray-700 dark:text-gray-300">
                         Apakah Anda yakin ingin menghapus karyawan
-                        <span class="font-semibold">{{ employeeToDelete?.name }}</span>?
+                        <span class="font-semibold">{{ employeeToDelete?.name }}</span
+                        >?
                     </p>
                     <p class="mt-2 text-sm text-gray-600 dark:text-gray-400">
                         Semua data yang terkait dengan karyawan ini akan terhapus secara permanen.

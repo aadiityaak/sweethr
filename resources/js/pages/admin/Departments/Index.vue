@@ -128,19 +128,13 @@
                         <thead class="border-t border-gray-200 dark:border-gray-700">
                             <tr class="border-b border-gray-200 dark:border-gray-700">
                                 <th class="px-6 py-3 text-left text-sm font-medium text-gray-500 dark:text-gray-400">
-                                    <button
-                                        @click="toggleSort('name')"
-                                        class="flex items-center gap-1 hover:text-gray-700 dark:hover:text-gray-300"
-                                    >
+                                    <button @click="toggleSort('name')" class="flex items-center gap-1 hover:text-gray-700 dark:hover:text-gray-300">
                                         Departemen
                                         <component :is="getSortIcon('name')" class="h-4 w-4" />
                                     </button>
                                 </th>
                                 <th class="px-6 py-3 text-left text-sm font-medium text-gray-500 dark:text-gray-400">
-                                    <button
-                                        @click="toggleSort('code')"
-                                        class="flex items-center gap-1 hover:text-gray-700 dark:hover:text-gray-300"
-                                    >
+                                    <button @click="toggleSort('code')" class="flex items-center gap-1 hover:text-gray-700 dark:hover:text-gray-300">
                                         Kode
                                         <component :is="getSortIcon('code')" class="h-4 w-4" />
                                     </button>
@@ -286,7 +280,10 @@
             confirm-text="Hapus"
             type="danger"
             @confirm="confirmDelete"
-            @cancel="showDeleteModal = false; selectedDepartment = null;"
+            @cancel="
+                showDeleteModal = false;
+                selectedDepartment = null;
+            "
         />
     </AppLayout>
 </template>
@@ -429,7 +426,7 @@ const confirmDelete = () => {
         onFinish: () => {
             showDeleteModal.value = false;
             selectedDepartment.value = null;
-        }
+        },
     });
 };
 
@@ -459,7 +456,7 @@ const toggleSort = (field: SortField) => {
         {
             preserveState: true,
             preserveScroll: true,
-        }
+        },
     );
 };
 

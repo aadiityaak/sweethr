@@ -78,12 +78,7 @@
                                                 stroke="currentColor"
                                                 viewBox="0 0 24 24"
                                             >
-                                                <path
-                                                    stroke-linecap="round"
-                                                    stroke-linejoin="round"
-                                                    stroke-width="2"
-                                                    d="M6 18L18 6M6 6l12 12"
-                                                ></path>
+                                                <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M6 18L18 6M6 6l12 12"></path>
                                             </svg>
                                         </div>
                                     </div>
@@ -135,7 +130,6 @@
                                     </p>
                                 </div>
                             </div>
-
 
                             <div class="grid gap-6 md:grid-cols-2">
                                 <div class="space-y-2">
@@ -383,7 +377,13 @@
                                 >
                                     {{ form.processing ? 'Menyimpan...' : 'Simpan Perubahan' }}
                                 </Button>
-                                <Button type="button" variant="outline" @click="router.visit(`/employees?v=${Date.now()}`, { preserveState: false, preserveScroll: false })"> Batal </Button>
+                                <Button
+                                    type="button"
+                                    variant="outline"
+                                    @click="router.visit(`/employees?v=${Date.now()}`, { preserveState: false, preserveScroll: false })"
+                                >
+                                    Batal
+                                </Button>
                             </div>
                         </form>
                     </div>
@@ -487,7 +487,7 @@ import { type BreadcrumbItem } from '@/types';
 import { Head, Link, router, useForm } from '@inertiajs/vue3';
 import { useDebounceFn } from '@vueuse/core';
 import { ArrowLeft } from 'lucide-vue-next';
-import { computed, watch, ref, onMounted } from 'vue';
+import { computed, onMounted, ref, watch } from 'vue';
 
 interface Employee {
     id: number;

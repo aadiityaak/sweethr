@@ -1,9 +1,9 @@
 <script setup lang="ts">
+import ConfirmationModal from '@/components/ConfirmationModal.vue';
 import { Badge } from '@/components/ui/badge';
 import { Button } from '@/components/ui/button';
 import { DatePicker } from '@/components/ui/date-picker';
 import AppLayout from '@/layouts/AppLayout.vue';
-import ConfirmationModal from '@/components/ConfirmationModal.vue';
 import { type BreadcrumbItem } from '@/types';
 import { Head, Link, router } from '@inertiajs/vue3';
 import { AlertCircle, Calendar, CheckCircle, Eye, Filter, XCircle } from 'lucide-vue-next';
@@ -149,35 +149,43 @@ const rejectRequest = (requestId: number) => {
 const handleApprove = () => {
     if (selectedRequest.value) {
         processing.value = true;
-        router.patch(`/admin/shift-change-requests/${selectedRequest.value}/approve`, {}, {
-            onSuccess: () => {
-                processing.value = false;
-                showApproveModal.value = false;
-                selectedRequest.value = null;
+        router.patch(
+            `/admin/shift-change-requests/${selectedRequest.value}/approve`,
+            {},
+            {
+                onSuccess: () => {
+                    processing.value = false;
+                    showApproveModal.value = false;
+                    selectedRequest.value = null;
+                },
+                onError: () => {
+                    processing.value = false;
+                },
             },
-            onError: () => {
-                processing.value = false;
-            },
-        });
+        );
     }
 };
 
 const handleReject = () => {
     if (selectedRequest.value) {
         processing.value = true;
-        router.patch(`/admin/shift-change-requests/${selectedRequest.value}/reject`, {
-            admin_notes: rejectReason.value,
-        }, {
-            onSuccess: () => {
-                processing.value = false;
-                showRejectModal.value = false;
-                selectedRequest.value = null;
-                rejectReason.value = '';
+        router.patch(
+            `/admin/shift-change-requests/${selectedRequest.value}/reject`,
+            {
+                admin_notes: rejectReason.value,
             },
-            onError: () => {
-                processing.value = false;
+            {
+                onSuccess: () => {
+                    processing.value = false;
+                    showRejectModal.value = false;
+                    selectedRequest.value = null;
+                    rejectReason.value = '';
+                },
+                onError: () => {
+                    processing.value = false;
+                },
             },
-        });
+        );
     }
 };
 
@@ -456,9 +464,7 @@ const cancelReject = () => {
                 <div class="space-y-3">
                     <p>Apakah Anda yakin ingin menolak request tukar libur ini?</p>
                     <div>
-                        <label class="mb-2 block text-sm font-medium text-gray-700 dark:text-gray-300">
-                            Alasan Penolakan (opsional)
-                        </label>
+                        <label class="mb-2 block text-sm font-medium text-gray-700 dark:text-gray-300"> Alasan Penolakan (opsional) </label>
                         <textarea
                             v-model="rejectReason"
                             rows="3"

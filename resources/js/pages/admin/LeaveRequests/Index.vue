@@ -257,12 +257,7 @@
                                         <Button size="sm" variant="ghost" @click="viewDetails(request)">
                                             <Eye class="h-4 w-4" />
                                         </Button>
-                                        <Button
-                                            size="sm"
-                                            @click="openDeleteModal(request)"
-                                            class="text-red-600 hover:bg-red-50"
-                                            variant="ghost"
-                                        >
+                                        <Button size="sm" @click="openDeleteModal(request)" class="text-red-600 hover:bg-red-50" variant="ghost">
                                             <Trash2 class="h-4 w-4" />
                                         </Button>
                                     </div>

@@ -62,12 +62,12 @@ const currentStyles = typeStyles[props.type];
     <div
         v-if="show"
         class="fixed inset-0 z-[9999] flex items-center justify-center bg-black/50 backdrop-blur-sm"
-        style="z-index: 9999 !important;"
+        style="z-index: 9999 !important"
         @click="handleCancel"
     >
         <div
             class="relative z-[10000] w-full max-w-md rounded-xl bg-white p-6 shadow-2xl dark:bg-gray-950"
-            style="z-index: 10000 !important;"
+            style="z-index: 10000 !important"
             @click.stop
         >
             <!-- Header with Icon -->
@@ -86,7 +86,7 @@ const currentStyles = typeStyles[props.type];
                 <button
                     @click="handleCancel"
                     :disabled="processing"
-                    class="rounded-lg p-1 text-gray-400 hover:text-gray-600 dark:hover:text-gray-300 disabled:opacity-50"
+                    class="rounded-lg p-1 text-gray-400 hover:text-gray-600 disabled:opacity-50 dark:hover:text-gray-300"
                 >
                     <X class="h-5 w-5" />
                 </button>
@@ -97,7 +97,7 @@ const currentStyles = typeStyles[props.type];
                 <button
                     @click="handleCancel"
                     :disabled="processing"
-                    class="rounded-lg border border-gray-300 px-4 py-2 text-sm font-medium text-gray-700 hover:bg-gray-50 dark:border-gray-600 dark:text-gray-300 dark:hover:bg-gray-800 disabled:opacity-50"
+                    class="rounded-lg border border-gray-300 px-4 py-2 text-sm font-medium text-gray-700 hover:bg-gray-50 disabled:opacity-50 dark:border-gray-600 dark:text-gray-300 dark:hover:bg-gray-800"
                 >
                     {{ cancelText }}
                 </button>

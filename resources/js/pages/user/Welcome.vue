@@ -89,7 +89,8 @@ interface Announcement {
     image_url: string | null;
 }
 
-const { user, todayAttendance, officeLocations, stats, faceRecognitionEnabled, faceDescriptors, announcements, allowOutsideRadius } = defineProps<Props>();
+const { user, todayAttendance, officeLocations, stats, faceRecognitionEnabled, faceDescriptors, announcements, allowOutsideRadius } =
+    defineProps<Props>();
 
 const { companyName, companyLogo } = useCompanySettings();
 const { toast } = useToast();
