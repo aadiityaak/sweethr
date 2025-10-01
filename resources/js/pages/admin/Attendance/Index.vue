@@ -306,6 +306,43 @@ const generateAttendanceBreakdown = () => {
     };
 };
 
+// Generate mock 30-day trend data
+const generateTrendData = () => {
+    const today = new Date();
+    const labels = [];
+    const data = [];
+    const presentData = [];
+    const lateData = [];
+    
+    for (let i = 29; i >= 0; i--) {
+        const date = new Date(today);
+        date.setDate(date.getDate() - i);
+        const dayOfWeek = date.getDay();
+        
+        // Skip weekends
+        if (dayOfWeek !== 0 && dayOfWeek !== 6) {
+            labels.push(date.toLocaleDateString('id-ID', { day: 'numeric', month: 'short' }));
+            const total = Math.floor(Math.random() * 20) + 80; // 80-100%
+            const present = Math.floor(total * 0.9);
+            const late = Math.floor(total * 0.1);
+            
+            data.push(total);
+            presentData.push(present);
+            lateData.push(late);
+        }
+    }
+    
+    return { labels, data, presentData, lateData };
+};
+
+// Generate mock department data
+const generateDepartmentData = () => {
+    return {
+        labels: ['IT', 'HR', 'Finance', 'Marketing', 'Operations'],
+        data: [45, 38, 42, 40, 48],
+    };
+};
+
 // Delete attendance record
 const deleteAttendance = (attendance: AttendanceRecord) => {
     attendanceToDelete.value = attendance;
@@ -551,9 +588,9 @@ onUnmounted(() => {
                 </div>
             </div>
 
-            <!-- Charts Section -->
+            <!-- Charts Row -->
             <div class="mb-10 grid gap-8 lg:grid-cols-2">
-                <!-- Weekly Attendance Chart -->
+                <!-- 30-Day Trend Chart -->
                 <div
                     class="group relative overflow-hidden rounded-xl border border-gray-200/50 bg-gradient-to-br from-white to-purple-50/30 p-6 shadow-sm transition-all hover:shadow-md dark:border-gray-800/50 dark:from-gray-950 dark:to-purple-950/30"
                 >
@@ -562,19 +599,22 @@ onUnmounted(() => {
                             <Calendar class="h-4 w-4 text-purple-600 dark:text-purple-400" />
                         </div>
                         <div>
-                            <h2 class="text-lg font-semibold text-gray-900 dark:text-white">Kehadiran Mingguan</h2>
-                            <p class="text-sm text-gray-600 dark:text-gray-400">Persentase kehadiran per hari</p>
+                            <h2 class="text-lg font-semibold text-gray-900 dark:text-white">Tren Kehadiran 30 Hari Terakhir</h2>
+                            <p class="text-sm text-gray-600 dark:text-gray-400">Statistik kehadiran harian</p>
                         </div>
                     </div>
                     <div class="h-64">
-                        <AttendanceChart type="bar" :weekly-data="generateWeeklyData()" />
+                        <AttendanceChart
+                            type="line"
+                            :trend-data="generateTrendData()"
+                        />
                     </div>
                     <div
                         class="absolute inset-0 rounded-xl bg-gradient-to-br from-purple-500/5 to-violet-500/5 opacity-0 transition-opacity group-hover:opacity-100"
                     ></div>
                 </div>
 
-                <!-- Attendance Breakdown -->
+                <!-- Status Distribution -->
                 <div
                     class="group relative overflow-hidden rounded-xl border border-gray-200/50 bg-gradient-to-br from-white to-blue-50/30 p-6 shadow-sm transition-all hover:shadow-md dark:border-gray-800/50 dark:from-gray-950 dark:to-blue-950/30"
                 >
@@ -583,15 +623,69 @@ onUnmounted(() => {
                             <CheckCircle class="h-4 w-4 text-blue-600 dark:text-blue-400" />
                         </div>
                         <div>
-                            <h2 class="text-lg font-semibold text-gray-900 dark:text-white">Breakdown Kehadiran</h2>
-                            <p class="text-sm text-gray-600 dark:text-gray-400">Status kehadiran hari ini</p>
+                            <h2 class="text-lg font-semibold text-gray-900 dark:text-white">Distribusi Status</h2>
+                            <p class="text-sm text-gray-600 dark:text-gray-400">Perbandingan status kehadiran</p>
                         </div>
                     </div>
                     <div class="h-64">
-                        <AttendanceChart type="doughnut" :attendance-data="generateAttendanceBreakdown()" />
+                        <AttendanceChart
+                            type="doughnut"
+                            :attendance-data="generateAttendanceBreakdown()"
+                        />
                     </div>
                     <div
                         class="absolute inset-0 rounded-xl bg-gradient-to-br from-blue-500/5 to-indigo-500/5 opacity-0 transition-opacity group-hover:opacity-100"
+                    ></div>
+                </div>
+            </div>
+
+            <!-- Additional Charts Row -->
+            <div class="mb-10 grid gap-8 lg:grid-cols-2">
+                <!-- Weekly Attendance Chart -->
+                <div
+                    class="group relative overflow-hidden rounded-xl border border-gray-200/50 bg-gradient-to-br from-white to-emerald-50/30 p-6 shadow-sm transition-all hover:shadow-md dark:border-gray-800/50 dark:from-gray-950 dark:to-emerald-950/30"
+                >
+                    <div class="mb-6 flex items-center gap-3">
+                        <div class="flex h-8 w-8 items-center justify-center rounded-lg bg-emerald-500/10 ring-1 ring-emerald-500/20">
+                            <Calendar class="h-4 w-4 text-emerald-600 dark:text-emerald-400" />
+                        </div>
+                        <div>
+                            <h2 class="text-lg font-semibold text-gray-900 dark:text-white">Kehadiran Mingguan</h2>
+                            <p class="text-sm text-gray-600 dark:text-gray-400">Persentase kehadiran per hari</p>
+                        </div>
+                    </div>
+                    <div class="h-64">
+                        <AttendanceChart
+                            type="bar"
+                            :weekly-data="generateWeeklyData()"
+                        />
+                    </div>
+                    <div
+                        class="absolute inset-0 rounded-xl bg-gradient-to-br from-emerald-500/5 to-teal-500/5 opacity-0 transition-opacity group-hover:opacity-100"
+                    ></div>
+                </div>
+
+                <!-- Department-wise Attendance -->
+                <div
+                    class="group relative overflow-hidden rounded-xl border border-gray-200/50 bg-gradient-to-br from-white to-amber-50/30 p-6 shadow-sm transition-all hover:shadow-md dark:border-gray-800/50 dark:from-gray-950 dark:to-amber-950/30"
+                >
+                    <div class="mb-6 flex items-center gap-3">
+                        <div class="flex h-8 w-8 items-center justify-center rounded-lg bg-amber-500/10 ring-1 ring-amber-500/20">
+                            <Users class="h-4 w-4 text-amber-600 dark:text-amber-400" />
+                        </div>
+                        <div>
+                            <h2 class="text-lg font-semibold text-gray-900 dark:text-white">Kehadiran per Departemen</h2>
+                            <p class="text-sm text-gray-600 dark:text-gray-400">Distribusi kehadiran per departemen</p>
+                        </div>
+                    </div>
+                    <div class="h-64">
+                        <AttendanceChart
+                            type="bar"
+                            :department-data="generateDepartmentData()"
+                        />
+                    </div>
+                    <div
+                        class="absolute inset-0 rounded-xl bg-gradient-to-br from-amber-500/5 to-orange-500/5 opacity-0 transition-opacity group-hover:opacity-100"
                     ></div>
                 </div>
             </div>

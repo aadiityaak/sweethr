@@ -31,12 +31,24 @@ interface Props {
     monthlyData?: {
         labels: string[];
         data: number[];
-        presentData: number[];
-        absentData: number[];
+        presentData?: number[];
+        absentData?: number[];
+        lateData?: number[];
+    };
+    trendData?: {
+        labels: string[];
+        data: number[];
+        presentData?: number[];
+        absentData?: number[];
+        lateData?: number[];
+    };
+    departmentData?: {
+        labels: string[];
+        data: number[];
     };
 }
 
-const { type = 'doughnut', attendanceData, weeklyData, monthlyData } = defineProps<Props>();
+const { type = 'doughnut', attendanceData, weeklyData, monthlyData, trendData, departmentData } = defineProps<Props>();
 
 // For doughnut chart (attendance breakdown)
 const doughnutData = ref({
@@ -70,29 +82,29 @@ const doughnutData = ref({
     ],
 });
 
-// For bar chart (weekly attendance)
+// For bar chart (weekly attendance or department data)
 const barData = ref({
-    labels: weeklyData?.labels || ['Sen', 'Sel', 'Rab', 'Kam', 'Jum', 'Sab', 'Min'],
+    labels: weeklyData?.labels || departmentData?.labels || ['Sen', 'Sel', 'Rab', 'Kam', 'Jum', 'Sab', 'Min'],
     datasets: [
         {
-            label: 'Kehadiran',
-            data: weeklyData?.data || [85, 92, 88, 95, 90, 0, 0],
+            label: weeklyData ? 'Kehadiran Mingguan' : (departmentData ? 'Kehadiran per Departemen' : 'Kehadiran'),
+            data: weeklyData?.data || departmentData?.data || [85, 92, 88, 95, 90, 0, 0],
             backgroundColor: (context: any) => {
                 const chart = context.chart;
                 const { ctx, chartArea } = chart;
 
                 if (!chartArea) {
-                    return 'rgba(59, 130, 246, 0.8)';
+                    return 'rgba(139, 92, 246, 0.8)';
                 }
 
                 const gradient = ctx.createLinearGradient(0, chartArea.bottom, 0, chartArea.top);
-                gradient.addColorStop(0, 'rgba(59, 130, 246, 0.5)'); // blue-500 at bottom
-                gradient.addColorStop(0.5, 'rgba(99, 102, 241, 0.7)'); // indigo-500 at middle
-                gradient.addColorStop(1, 'rgba(139, 92, 246, 0.9)'); // violet-500 at top
+                gradient.addColorStop(0, 'rgba(139, 92, 246, 0.5)'); // violet-500 at bottom
+                gradient.addColorStop(0.5, 'rgba(124, 58, 237, 0.7)'); // violet-600 at middle
+                gradient.addColorStop(1, 'rgba(109, 40, 217, 0.9)'); // violet-700 at top
                 return gradient;
             },
             borderColor: () => {
-                return 'rgb(99, 102, 241)'; // indigo-500
+                return 'rgb(124, 58, 237)'; // violet-600
             },
             borderWidth: 0,
             borderRadius: 8,
@@ -104,32 +116,32 @@ const barData = ref({
 // Create gradient for line chart
 const createGradient = (ctx: CanvasRenderingContext2D, chartArea: any) => {
     const gradient = ctx.createLinearGradient(0, chartArea.bottom, 0, chartArea.top);
-    gradient.addColorStop(0, 'rgba(59, 130, 246, 0)'); // blue-500 transparent at bottom
-    gradient.addColorStop(0.5, 'rgba(59, 130, 246, 0.2)'); // blue-500 20% at middle
-    gradient.addColorStop(1, 'rgba(99, 102, 241, 0.4)'); // indigo-500 40% at top
+    gradient.addColorStop(0, 'rgba(139, 92, 246, 0)'); // violet-500 transparent at bottom
+    gradient.addColorStop(0.5, 'rgba(139, 92, 246, 0.2)'); // violet-500 20% at middle
+    gradient.addColorStop(1, 'rgba(124, 58, 237, 0.4)'); // violet-600 40% at top
     return gradient;
 };
 
-// For line chart (30-day attendance)
+// For line chart (30-day attendance trend)
 const lineData = ref({
-    labels: monthlyData?.labels || [],
+    labels: trendData?.labels || monthlyData?.labels || [],
     datasets: [
         {
-            label: 'Tingkat Kehadiran',
-            data: monthlyData?.data || [],
+            label: 'Total Kehadiran',
+            data: trendData?.data || monthlyData?.data || [],
             borderColor: (context: any) => {
                 const ctx = context.chart.ctx;
                 const gradient = ctx.createLinearGradient(0, 0, context.chart.width, 0);
-                gradient.addColorStop(0, 'rgb(59, 130, 246)'); // blue-500
-                gradient.addColorStop(0.5, 'rgb(99, 102, 241)'); // indigo-500
-                gradient.addColorStop(1, 'rgb(139, 92, 246)'); // violet-500
+                gradient.addColorStop(0, 'rgb(139, 92, 246)'); // violet-500
+                gradient.addColorStop(0.5, 'rgb(124, 58, 237)'); // violet-600
+                gradient.addColorStop(1, 'rgb(109, 40, 217)'); // violet-700
                 return gradient;
             },
             backgroundColor: (context: any) => {
                 const chart = context.chart;
                 const { ctx, chartArea } = chart;
                 if (!chartArea) {
-                    return 'rgba(59, 130, 246, 0.1)';
+                    return 'rgba(139, 92, 246, 0.1)';
                 }
                 return createGradient(ctx, chartArea);
             },
@@ -137,14 +149,42 @@ const lineData = ref({
             tension: 0.4,
             fill: true,
             pointBackgroundColor: 'rgb(255, 255, 255)',
-            pointBorderColor: 'rgb(59, 130, 246)',
+            pointBorderColor: 'rgb(139, 92, 246)',
             pointBorderWidth: 3,
             pointRadius: 5,
             pointHoverRadius: 7,
             pointHoverBackgroundColor: 'rgb(255, 255, 255)',
-            pointHoverBorderColor: 'rgb(99, 102, 241)',
+            pointHoverBorderColor: 'rgb(124, 58, 237)',
             pointHoverBorderWidth: 4,
         },
+        ...(trendData?.presentData ? [{
+            label: 'Hadir',
+            data: trendData.presentData,
+            borderColor: 'rgb(16, 185, 129)',
+            backgroundColor: 'rgba(16, 185, 129, 0.1)',
+            borderWidth: 2,
+            tension: 0.4,
+            fill: false,
+            pointBackgroundColor: 'rgb(255, 255, 255)',
+            pointBorderColor: 'rgb(16, 185, 129)',
+            pointBorderWidth: 2,
+            pointRadius: 4,
+            pointHoverRadius: 6,
+        }] : []),
+        ...(trendData?.lateData ? [{
+            label: 'Terlambat',
+            data: trendData.lateData,
+            borderColor: 'rgb(245, 158, 11)',
+            backgroundColor: 'rgba(245, 158, 11, 0.1)',
+            borderWidth: 2,
+            tension: 0.4,
+            fill: false,
+            pointBackgroundColor: 'rgb(255, 255, 255)',
+            pointBorderColor: 'rgb(245, 158, 11)',
+            pointBorderWidth: 2,
+            pointRadius: 4,
+            pointHoverRadius: 6,
+        }] : []),
     ],
 });
 
@@ -160,7 +200,7 @@ const doughnutOptions = {
                 pointStyle: 'circle',
                 font: {
                     size: 12,
-                    weight: '500' as const,
+                    weight: 'bold' as const,
                 },
                 color: 'rgb(107, 114, 128)',
             },
@@ -209,7 +249,7 @@ const barOptions = {
         tooltip: {
             callbacks: {
                 label: (context: any) => {
-                    return `Kehadiran: ${context.parsed.y}%`;
+                    return weeklyData ? `Kehadiran: ${context.parsed.y}%` : `Kehadiran: ${context.parsed.y}`;
                 },
             },
         },
@@ -217,16 +257,37 @@ const barOptions = {
     scales: {
         y: {
             beginAtZero: true,
-            max: 100,
             ticks: {
-                callback: (value: any) => value + '%',
+                color: 'rgba(156, 163, 175, 0.8)',
+                font: {
+                    size: 11,
+                    weight: 500 as const,
+                },
+                padding: 8,
+                callback: weeklyData ? (value: any) => value + '%' : undefined,
             },
             grid: {
-                color: 'rgba(156, 163, 175, 0.1)', // gray-400 with opacity
+                color: 'rgba(156, 163, 175, 0.08)',
+                lineWidth: 1,
+            },
+            border: {
+                display: false,
             },
         },
         x: {
+            ticks: {
+                color: 'rgba(156, 163, 175, 0.8)',
+                maxTicksLimit: 8,
+                font: {
+                    size: 10,
+                    weight: 500 as const,
+                },
+                padding: 8,
+            },
             grid: {
+                display: false,
+            },
+            border: {
                 display: false,
             },
         },
@@ -238,21 +299,31 @@ const lineOptions = {
     maintainAspectRatio: false,
     plugins: {
         legend: {
-            display: false,
+            position: 'bottom' as const,
+            labels: {
+                padding: 15,
+                usePointStyle: true,
+                pointStyle: 'circle',
+                font: {
+                    size: 11,
+                    weight: 500 as const,
+                },
+                color: 'rgb(107, 114, 128)',
+            },
         },
         tooltip: {
             enabled: true,
             backgroundColor: 'rgba(0, 0, 0, 0.9)',
             titleColor: '#fff',
             bodyColor: '#fff',
-            borderColor: 'rgb(99, 102, 241)',
+            borderColor: 'rgb(124, 58, 237)',
             borderWidth: 2,
             padding: 12,
             cornerRadius: 8,
             displayColors: true,
             callbacks: {
                 label: (context: any) => {
-                    return `Kehadiran: ${context.parsed.y}%`;
+                    return `${context.dataset.label}: ${context.parsed.y}${weeklyData ? '%' : ''}`;
                 },
                 title: (context: any) => {
                     return context[0].label;
@@ -263,15 +334,14 @@ const lineOptions = {
     scales: {
         y: {
             beginAtZero: true,
-            max: 100,
             ticks: {
-                callback: (value: any) => value + '%',
                 color: 'rgba(156, 163, 175, 0.8)',
                 font: {
                     size: 11,
-                    weight: '500' as const,
+                    weight: 500 as const,
                 },
                 padding: 8,
+                callback: weeklyData ? (value: any) => value + '%' : undefined,
             },
             grid: {
                 color: 'rgba(156, 163, 175, 0.08)',
@@ -279,7 +349,6 @@ const lineOptions = {
             },
             border: {
                 display: false,
-                dash: [5, 5],
             },
         },
         x: {
@@ -288,7 +357,7 @@ const lineOptions = {
                 maxTicksLimit: 15,
                 font: {
                     size: 10,
-                    weight: '500' as const,
+                    weight: 500 as const,
                 },
                 padding: 8,
             },
@@ -307,7 +376,7 @@ const lineOptions = {
     elements: {
         point: {
             hoverBackgroundColor: 'rgb(255, 255, 255)',
-            hoverBorderColor: 'rgb(99, 102, 241)',
+            hoverBorderColor: 'rgb(124, 58, 237)',
             hoverBorderWidth: 4,
         },
         line: {
@@ -322,9 +391,9 @@ const lineOptions = {
 
 // Update chart data when props change
 watch(
-    () => [attendanceData, weeklyData, monthlyData],
+    () => [attendanceData, weeklyData, monthlyData, trendData, departmentData],
     (newValues) => {
-        const [newAttendanceData, newWeeklyData, newMonthlyData] = newValues;
+        const [newAttendanceData, newWeeklyData, newMonthlyData, newTrendData, newDepartmentData] = newValues;
 
         if (newAttendanceData && 'present' in newAttendanceData) {
             doughnutData.value.datasets[0].data = [newAttendanceData.present, newAttendanceData.absent, newAttendanceData.late];
@@ -333,11 +402,30 @@ watch(
         if (newWeeklyData && 'labels' in newWeeklyData) {
             barData.value.labels = newWeeklyData.labels;
             barData.value.datasets[0].data = newWeeklyData.data;
+            barData.value.datasets[0].label = 'Kehadiran Mingguan';
+        }
+
+        if (newDepartmentData && 'labels' in newDepartmentData) {
+            barData.value.labels = newDepartmentData.labels;
+            barData.value.datasets[0].data = newDepartmentData.data;
+            barData.value.datasets[0].label = 'Kehadiran per Departemen';
         }
 
         if (newMonthlyData && 'labels' in newMonthlyData) {
             lineData.value.labels = newMonthlyData.labels;
             lineData.value.datasets[0].data = newMonthlyData.data;
+        }
+
+        if (newTrendData && 'labels' in newTrendData) {
+            lineData.value.labels = newTrendData.labels;
+            lineData.value.datasets[0].data = newTrendData.data;
+            
+            if ('presentData' in newTrendData && newTrendData.presentData && lineData.value.datasets[1]) {
+                lineData.value.datasets[1].data = newTrendData.presentData as number[];
+            }
+            if ('lateData' in newTrendData && newTrendData.lateData && lineData.value.datasets[2]) {
+                lineData.value.datasets[2].data = newTrendData.lateData as number[];
+            }
         }
     },
     { deep: true },
