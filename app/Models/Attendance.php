@@ -96,4 +96,20 @@ class Attendance extends Model
 
         return Carbon::parse($this->check_in_time)->format('H:i:s') > $shiftStartTime;
     }
+
+    public function getLateDuration($shiftStartTime)
+    {
+        if (! $this->check_in_time) {
+            return null;
+        }
+
+        $checkIn = Carbon::parse($this->check_in_time);
+        $shiftStart = Carbon::parse($shiftStartTime);
+
+        if ($checkIn <= $shiftStart) {
+            return null; // Not late
+        }
+
+        return $checkIn->diffInMinutes($shiftStart);
+    }
 }

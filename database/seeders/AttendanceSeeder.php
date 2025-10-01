@@ -6,7 +6,6 @@ use App\Models\Attendance;
 use App\Models\OfficeLocation;
 use App\Models\User;
 use Carbon\Carbon;
-use Illuminate\Database\Console\Seeds\WithoutModelEvents;
 use Illuminate\Database\Seeder;
 
 class AttendanceSeeder extends Seeder
@@ -23,12 +22,13 @@ class AttendanceSeeder extends Seeder
 
         $officeLocation = OfficeLocation::first();
 
-        if ($employees->isEmpty() || !$officeLocation) {
+        if ($employees->isEmpty() || ! $officeLocation) {
             $this->command->warn('No active employees or office locations found. Skipping attendance seeding.');
+
             return;
         }
 
-        $this->command->info('Seeding attendance data for ' . $employees->count() . ' employees...');
+        $this->command->info('Seeding attendance data for '.$employees->count().' employees...');
 
         // Generate attendance data for the last 30 days
         for ($i = 29; $i >= 0; $i--) {
@@ -75,9 +75,10 @@ class AttendanceSeeder extends Seeder
 
     private function getRandomCheckInTime(): string
     {
-        // Check-in between 07:00 - 09:30
+        // Check-in between 07:00 - 10:00 (to accommodate 08:30 start time)
         $hour = rand(7, 9);
-        $minute = $hour === 9 ? rand(0, 30) : rand(0, 59);
+        $minute = ($hour === 7 || $hour === 8) ? rand(0, 59) : rand(0, 59);
+
         return sprintf('%02d:%02d:00', $hour, $minute);
     }
 
@@ -101,20 +102,21 @@ class AttendanceSeeder extends Seeder
     {
         $checkIn = Carbon::createFromFormat('H:i:s', $checkInTime);
         $checkOut = Carbon::createFromFormat('H:i:s', $checkOutTime);
+
         return $checkOut->diffInMinutes($checkIn);
     }
 
     private function getAttendanceStatus(string $checkInTime): string
     {
         $checkIn = Carbon::createFromFormat('H:i:s', $checkInTime);
-        $standardTime = Carbon::createFromFormat('H:i:s', '08:00:00');
+        $standardTime = Carbon::createFromFormat('H:i:s', '08:30:00'); // Updated to 08:30
 
         if ($checkIn->lessThanOrEqualTo($standardTime)) {
             return 'present';
         } elseif ($checkIn->lessThanOrEqualTo($standardTime->copy()->addMinutes(15))) {
             return 'late';
         } else {
-            return 'present'; // Still present but very late
+            return 'late'; // Very late is still considered late
         }
     }
 

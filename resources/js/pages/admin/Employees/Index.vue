@@ -142,16 +142,16 @@ const getSortIcon = (field: string) => {
     return sortDirection.value === 'asc' ? ArrowUp : ArrowDown;
 };
 
-const getStatusBadge = (employmentStatus: string) => {
+const getStatusCircle = (employmentStatus: string) => {
     switch (employmentStatus) {
         case 'active':
-            return 'bg-green-100 text-green-800 border-green-200 dark:bg-green-900/30 dark:text-green-400 dark:border-green-600';
+            return 'bg-green-500';
         case 'inactive':
-            return 'bg-yellow-100 text-yellow-800 border-yellow-200 dark:bg-yellow-900/30 dark:text-yellow-400 dark:border-yellow-600';
+            return 'bg-red-500';
         case 'terminated':
-            return 'bg-red-100 text-red-800 border-red-200 dark:bg-red-900/30 dark:text-red-400 dark:border-red-600';
+            return 'bg-red-500';
         default:
-            return 'bg-gray-100 text-gray-800 border-gray-200 dark:bg-gray-900/30 dark:text-gray-400 dark:border-gray-600';
+            return 'bg-gray-500';
     }
 };
 
@@ -501,18 +501,14 @@ const formatDate = (dateString: string) => {
                                 </td>
                                 <td class="px-6 py-4">
                                     <div class="space-y-1">
-                                        <span
-                                            class="inline-flex rounded-full border px-2 py-1 text-xs font-medium"
-                                            :class="getStatusBadge(employee.employment_status)"
-                                        >
-                                            {{
-                                                employee.employment_status === 'active' ? 'Aktif' :
-                                                employee.employment_status === 'inactive' ? 'Tidak Aktif' :
-                                                employee.employment_status === 'terminated' ? 'Dihentikan' :
-                                                employee.employment_status
-                                            }}
-                                        </span>
-                                        <div v-if="employee.is_admin" class="text-xs text-blue-600 dark:text-blue-400">Admin</div>
+                                        <div class="flex items-center gap-2">
+                                            <div
+                                                class="h-3 w-3 rounded-full"
+                                                :class="getStatusCircle(employee.employment_status)"
+                                                :title="employee.employment_status === 'active' ? 'Aktif' : 'Tidak Aktif'"
+                                            ></div>
+                                            <div v-if="employee.is_admin" class="text-xs text-blue-600 dark:text-blue-400">Admin</div>
+                                        </div>
                                     </div>
                                 </td>
                                 <td class="px-6 py-4">

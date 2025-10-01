@@ -188,6 +188,20 @@ const formatDuration = (minutes: number | null) => {
     return hours > 0 ? `${hours}j ${mins}m` : `${mins}m`;
 };
 
+const calculateLateDuration = (checkInTime: string | null, standardTime: string = '08:30') => {
+    if (!checkInTime) return null;
+
+    const checkIn = new Date(`2000-01-01T${checkInTime}`);
+    const standard = new Date(`2000-01-01T${standardTime}`);
+
+    if (checkIn <= standard) return null;
+
+    const diffMs = checkIn.getTime() - standard.getTime();
+    const diffMinutes = Math.floor(diffMs / (1000 * 60));
+
+    return diffMinutes;
+};
+
 const formatDate = (dateString: string) => {
     return new Date(dateString).toLocaleDateString('id-ID', {
         weekday: 'short',
@@ -340,7 +354,7 @@ onUnmounted(() => {
             </div>
 
             <!-- Overview Cards -->
-            <div class="mb-8 grid grid-cols-1 gap-6 sm:grid-cols-2 lg:grid-cols-4">
+            <div class="mb-10 grid grid-cols-1 gap-8 sm:grid-cols-2 lg:grid-cols-4">
                 <!-- Present Today -->
                 <div class="overflow-hidden rounded-xl bg-white shadow-sm ring-1 ring-gray-900/5 dark:bg-gray-900 dark:ring-white/10">
                     <div class="p-6">
@@ -413,7 +427,7 @@ onUnmounted(() => {
             </div>
 
             <!-- Charts Section -->
-            <div class="grid gap-6 lg:grid-cols-2">
+            <div class="mb-10 grid gap-8 lg:grid-cols-2">
                 <!-- Weekly Attendance Chart -->
                 <div
                     class="rounded-xl border border-gray-200/50 bg-gradient-to-br from-white to-gray-50/30 p-6 shadow-sm dark:border-gray-800/50 dark:from-gray-950 dark:to-gray-900/30"
@@ -452,8 +466,8 @@ onUnmounted(() => {
             </div>
 
             <!-- Search and Filters -->
-            <div class="rounded-xl border border-gray-200/50 bg-white p-4 shadow-sm dark:border-gray-800/50 dark:bg-gray-950">
-                <div class="flex flex-col gap-4 sm:flex-row sm:items-center sm:justify-between">
+            <div class="mb-10 rounded-xl border border-gray-200/50 bg-white p-6 shadow-sm dark:border-gray-800/50 dark:bg-gray-950">
+                <div class="flex flex-col gap-6 sm:flex-row sm:items-center sm:justify-between">
                     <div class="relative max-w-md flex-1">
                         <Search class="absolute top-1/2 left-3 h-4 w-4 -translate-y-1/2 text-gray-400" />
                         <input
@@ -464,7 +478,7 @@ onUnmounted(() => {
                             @input="handleSearchInput"
                         />
                     </div>
-                    <div class="flex gap-3">
+                    <div class="flex flex-wrap gap-4">
                         <select
                             class="rounded-lg border border-gray-300 bg-white px-3 py-2 text-sm focus:border-blue-500 focus:ring-1 focus:ring-blue-500 focus:outline-none dark:border-gray-600 dark:bg-gray-800 dark:text-gray-300"
                             :value="selectedStatus"
@@ -506,7 +520,7 @@ onUnmounted(() => {
 
             <!-- Attendance Records Table -->
             <div class="rounded-xl border border-gray-200/50 bg-white shadow-sm dark:border-gray-800/50 dark:bg-gray-950">
-                <div class="border-b border-gray-200/50 p-6 dark:border-gray-800/50">
+                <div class="border-b border-gray-200/50 p-8 dark:border-gray-800/50">
                     <h3 class="text-lg font-semibold text-gray-900 dark:text-white">Catatan Kehadiran</h3>
                     <p class="text-sm text-gray-600 dark:text-gray-400">{{ attendanceRecords.length }} catatan kehadiran ditemukan</p>
                 </div>
@@ -514,33 +528,33 @@ onUnmounted(() => {
                     <table class="w-full">
                         <thead class="border-b border-gray-200/50 bg-gray-50/50 dark:border-gray-800/50 dark:bg-gray-900/50">
                             <tr>
-                                <th class="px-6 py-3 text-left text-xs font-medium tracking-wide text-gray-500 uppercase dark:text-gray-400">
+                                <th class="px-8 py-4 text-left text-xs font-medium tracking-wide text-gray-500 uppercase dark:text-gray-400">
                                     Karyawan
                                 </th>
-                                <th class="px-6 py-3 text-left text-xs font-medium tracking-wide text-gray-500 uppercase dark:text-gray-400">
+                                <th class="px-8 py-4 text-left text-xs font-medium tracking-wide text-gray-500 uppercase dark:text-gray-400">
                                     Tanggal
                                 </th>
-                                <th class="px-6 py-3 text-left text-xs font-medium tracking-wide text-gray-500 uppercase dark:text-gray-400">
+                                <th class="px-8 py-4 text-left text-xs font-medium tracking-wide text-gray-500 uppercase dark:text-gray-400">
                                     Check In
                                 </th>
-                                <th class="px-6 py-3 text-left text-xs font-medium tracking-wide text-gray-500 uppercase dark:text-gray-400">
+                                <th class="px-8 py-4 text-left text-xs font-medium tracking-wide text-gray-500 uppercase dark:text-gray-400">
                                     Check Out
                                 </th>
-                                <th class="px-6 py-3 text-left text-xs font-medium tracking-wide text-gray-500 uppercase dark:text-gray-400">
+                                <th class="px-8 py-4 text-left text-xs font-medium tracking-wide text-gray-500 uppercase dark:text-gray-400">
                                     Durasi
                                 </th>
-                                <th class="px-6 py-3 text-left text-xs font-medium tracking-wide text-gray-500 uppercase dark:text-gray-400">
+                                <th class="px-8 py-4 text-left text-xs font-medium tracking-wide text-gray-500 uppercase dark:text-gray-400">
                                     Status
                                 </th>
-                                <th class="px-6 py-3 text-left text-xs font-medium tracking-wide text-gray-500 uppercase dark:text-gray-400">
+                                <th class="px-8 py-4 text-left text-xs font-medium tracking-wide text-gray-500 uppercase dark:text-gray-400">
                                     Lokasi
                                 </th>
-                                <th class="px-6 py-3 text-left text-xs font-medium tracking-wide text-gray-500 uppercase dark:text-gray-400">Aksi</th>
+                                <th class="px-8 py-4 text-left text-xs font-medium tracking-wide text-gray-500 uppercase dark:text-gray-400">Aksi</th>
                             </tr>
                         </thead>
                         <tbody class="divide-y divide-gray-200/50 dark:divide-gray-800/50">
                             <tr v-for="record in attendanceRecords" :key="record.id" class="group hover:bg-gray-50/50 dark:hover:bg-gray-900/50">
-                                <td class="px-6 py-4">
+                                <td class="px-8 py-5">
                                     <div class="flex items-center gap-3">
                                         <div
                                             class="flex h-8 w-8 items-center justify-center rounded-full bg-gray-100 text-sm font-medium text-gray-700 dark:bg-gray-800 dark:text-gray-300"
@@ -556,18 +570,37 @@ onUnmounted(() => {
                                 <td class="px-6 py-4 text-sm text-gray-600 dark:text-gray-400">
                                     {{ formatDate(record.date) }}
                                 </td>
-                                <td class="px-6 py-4">
-                                    <div class="text-sm font-medium text-gray-900 dark:text-white">
-                                        {{ formatTime(record.check_in_time) }}
-                                    </div>
-                                    <div v-if="record.late_duration" class="text-xs text-amber-600 dark:text-amber-400">
-                                        Terlambat {{ formatDuration(record.late_duration) }}
+                                <td class="px-8 py-5">
+                                    <div class="space-y-1">
+                                        <!-- Actual check-in time with status -->
+                                        <div class="flex items-center gap-2">
+                                            <div class="text-sm font-medium text-gray-900 dark:text-white">
+                                                {{ formatTime(record.check_in_time) }}
+                                            </div>
+                                            <!-- Status indicator -->
+                                            <div v-if="record.status === 'late'" class="flex items-center gap-1 text-xs text-amber-600 dark:text-amber-400">
+                                                <svg class="h-3 w-3" fill="currentColor" viewBox="0 0 20 20">
+                                                    <path fill-rule="evenodd" d="M18 10a8 8 0 11-16 0 8 8 0 0116 0zm-7-4a1 1 0 11-2 0 1 1 0 012 0zM9 9a1 1 0 000 2v3a1 1 0 001 1h1a1 1 0 100-2v-3a1 1 0 00-1-1H9z" clip-rule="evenodd" />
+                                                </svg>
+                                                <span>Terlambat</span>
+                                            </div>
+                                            <div v-else-if="record.status === 'present'" class="flex items-center gap-1 text-xs text-green-600 dark:text-green-400">
+                                                <svg class="h-3 w-3" fill="currentColor" viewBox="0 0 20 20">
+                                                    <path fill-rule="evenodd" d="M10 18a8 8 0 100-16 8 8 0 000 16zm3.707-9.293a1 1 0 00-1.414-1.414L9 10.586 7.707 9.293a1 1 0 00-1.414 1.414l2 2a1 1 0 001.414 0l4-4z" clip-rule="evenodd" />
+                                                </svg>
+                                                <span>Hadir</span>
+                                            </div>
+                                        </div>
+                                        <!-- Late duration if applicable -->
+                                        <div v-if="record.late_duration" class="text-xs text-amber-600 dark:text-amber-400">
+                                            Terlambat {{ formatDuration(record.late_duration) }}
+                                        </div>
                                     </div>
                                 </td>
                                 <td class="px-6 py-4 text-sm text-gray-600 dark:text-gray-400">
                                     {{ formatTime(record.check_out_time) }}
                                 </td>
-                                <td class="px-6 py-4">
+                                <td class="px-8 py-5">
                                     <div class="text-sm font-medium text-gray-900 dark:text-white">
                                         {{ formatDuration(record.work_duration) }}
                                     </div>
@@ -575,7 +608,7 @@ onUnmounted(() => {
                                         Lembur {{ formatDuration(record.overtime_duration) }}
                                     </div>
                                 </td>
-                                <td class="px-6 py-4">
+                                <td class="px-8 py-5">
                                     <div class="flex items-center gap-2">
                                         <component :is="getStatusIcon(record.status)" class="h-3 w-3" />
                                         <span
@@ -586,13 +619,13 @@ onUnmounted(() => {
                                         </span>
                                     </div>
                                 </td>
-                                <td class="px-6 py-4">
+                                <td class="px-8 py-5">
                                     <div class="flex items-center gap-2 text-sm text-gray-600 dark:text-gray-400">
                                         <MapPin class="h-3 w-3" />
                                         {{ record.office_location?.name || 'Remote' }}
                                     </div>
                                 </td>
-                                <td class="px-6 py-4">
+                                <td class="px-8 py-5">
                                     <div class="relative">
                                         <!-- Quick action buttons for larger screens -->
                                         <div class="hidden items-center gap-2 sm:flex">

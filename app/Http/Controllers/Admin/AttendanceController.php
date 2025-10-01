@@ -2,13 +2,13 @@
 
 namespace App\Http\Controllers\Admin;
 
+use App\Exports\AttendanceExport;
 use App\Http\Controllers\Controller;
 use App\Http\Requests\Admin\UpdateAttendanceRequest;
 use App\Models\Attendance;
 use App\Models\Department;
 use App\Models\OfficeLocation;
 use App\Models\User;
-use App\Exports\AttendanceExport;
 use Carbon\Carbon;
 use Illuminate\Http\Request;
 use Inertia\Inertia;
@@ -93,6 +93,25 @@ class AttendanceController extends Controller
                 });
 
             $attendanceRecords = $attendanceQuery->orderBy('created_at', 'desc')->get();
+
+            // Calculate late duration for each attendance record
+            $attendanceRecords = $attendanceRecords->map(function ($record) {
+                // Get user's shift for the attendance date
+                $shift = $record->user->employeeShifts()
+                    ->where('date', $record->date)
+                    ->with('workShift')
+                    ->first();
+
+                if ($shift && $shift->workShift) {
+                    $shiftStartTime = $shift->workShift->start_time;
+                    $record->late_duration = $record->getLateDuration($shiftStartTime);
+                } else {
+                    // Default to 08:30 if no shift found (for existing data)
+                    $record->late_duration = $record->getLateDuration('08:30:00');
+                }
+
+                return $record;
+            });
         }
 
         // Calculate attendance statistics for the selected date
@@ -161,7 +180,7 @@ class AttendanceController extends Controller
 
         // Convert face photo path to URL if exists
         if ($attendance->face_photo_path) {
-            $attendance->face_photo_url = asset('storage/' . $attendance->face_photo_path);
+            $attendance->face_photo_url = asset('storage/'.$attendance->face_photo_path);
         }
 
         return Inertia::render('admin/Attendance/Show', [
