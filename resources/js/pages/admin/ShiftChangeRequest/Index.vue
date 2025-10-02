@@ -253,7 +253,7 @@ const cancelReject = () => {
 
                     <!-- Hover effect overlay -->
                     <div
-                        class="absolute inset-0 rounded-xl bg-gradient-to-br from-blue-500/5 to-indigo-500/5 opacity-0 transition-opacity group-hover:opacity-100 pointer-events-none
+                        class="pointer-events-none absolute inset-0 rounded-xl bg-gradient-to-br from-blue-500/5 to-indigo-500/5 opacity-0 transition-opacity group-hover:opacity-100"
                     ></div>
                 </div>
 
@@ -289,7 +289,7 @@ const cancelReject = () => {
 
                     <!-- Hover effect overlay -->
                     <div
-                        class="absolute inset-0 rounded-xl bg-gradient-to-br from-amber-500/5 to-orange-500/5 opacity-0 transition-opacity group-hover:opacity-100 pointer-events-none
+                        class="pointer-events-none absolute inset-0 rounded-xl bg-gradient-to-br from-amber-500/5 to-orange-500/5 opacity-0 transition-opacity group-hover:opacity-100"
                     ></div>
                 </div>
 
@@ -325,7 +325,7 @@ const cancelReject = () => {
 
                     <!-- Hover effect overlay -->
                     <div
-                        class="absolute inset-0 rounded-xl bg-gradient-to-br from-emerald-500/5 to-teal-500/5 opacity-0 transition-opacity group-hover:opacity-100 pointer-events-none
+                        class="pointer-events-none absolute inset-0 rounded-xl bg-gradient-to-br from-emerald-500/5 to-teal-500/5 opacity-0 transition-opacity group-hover:opacity-100"
                     ></div>
                 </div>
 
@@ -361,7 +361,7 @@ const cancelReject = () => {
 
                     <!-- Hover effect overlay -->
                     <div
-                        class="absolute inset-0 rounded-xl bg-gradient-to-br from-red-500/5 to-rose-500/5 opacity-0 transition-opacity group-hover:opacity-100 pointer-events-none
+                        class="pointer-events-none absolute inset-0 rounded-xl bg-gradient-to-br from-red-500/5 to-rose-500/5 opacity-0 transition-opacity group-hover:opacity-100"
                     ></div>
                 </div>
             </div>
@@ -424,7 +424,7 @@ const cancelReject = () => {
                     </div>
                 </div>
                 <div
-                    class="absolute inset-0 rounded-xl bg-gradient-to-br from-gray-500/5 to-slate-500/5 opacity-0 transition-opacity group-hover:opacity-100 pointer-events-none
+                    class="pointer-events-none absolute inset-0 rounded-xl bg-gradient-to-br from-gray-500/5 to-slate-500/5 opacity-0 transition-opacity group-hover:opacity-100"
                 ></div>
             </div>
 
@@ -545,7 +545,7 @@ const cancelReject = () => {
                     </div>
                 </div>
                 <div
-                    class="absolute inset-0 rounded-xl bg-gradient-to-br from-blue-500/5 to-indigo-500/5 opacity-0 transition-opacity group-hover:opacity-100 pointer-events-none
+                    class="pointer-events-none absolute inset-0 rounded-xl bg-gradient-to-br from-blue-500/5 to-indigo-500/5 opacity-0 transition-opacity group-hover:opacity-100"
                 ></div>
             </div>
         </div>
