@@ -56,6 +56,11 @@ interface Props {
 
 const { attendances, todayAttendance, filters } = defineProps<Props>();
 
+// Debug logging
+console.log('Attendance Index - Props:', { attendances, todayAttendance, filters });
+console.log('Today Attendance with Shift:', todayAttendance);
+console.log('Attendances Data:', attendances?.data);
+
 const { toast } = useToast();
 
 // State for calendar
@@ -117,12 +122,18 @@ const formatTime = (time: string | null) => {
 const formatDuration = (minutes: number | null) => {
     if (!minutes) return '--';
     
+    // Log the original value for debugging
+    console.log('formatDuration - original value:', minutes);
+    
     // Always use absolute value for duration
     const absMinutes = Math.abs(minutes);
     const hours = Math.floor(absMinutes / 60);
     const mins = absMinutes % 60;
     
-    return `${hours}h ${mins}m`;
+    const result = `${hours}h ${mins}m`;
+    console.log('formatDuration - result:', result);
+    
+    return result;
 };
 
 const getStatusColor = (status: string) => {
@@ -471,7 +482,7 @@ const confirmCheckOut = () => {
                                     </span>
                                 </div>
 
-                                <div class="mt-4 grid grid-cols-3 gap-6 text-sm">
+                                <div class="mt-4 grid grid-cols-2 gap-6 text-sm">
                                     <div>
                                         <p class="text-xs text-muted-foreground">Masuk</p>
                                         <p class="font-medium">{{ formatTime(attendance.check_in_time) }}</p>
@@ -480,23 +491,23 @@ const confirmCheckOut = () => {
                                         <p class="text-xs text-muted-foreground">Keluar</p>
                                         <p class="font-medium">{{ formatTime(attendance.check_out_time) }}</p>
                                     </div>
-                                    <div>
-                                        <p class="text-xs text-muted-foreground">Durasi</p>
-                                        <p class="font-medium">{{ formatDuration(attendance.work_duration) }}</p>
-                                    </div>
                                 </div>
 
                                 <div class="mt-3 flex flex-col gap-2">
+                                    <div v-if="attendance.workShift" class="flex items-center gap-1">
+                                        <Clock class="h-3 w-3 text-blue-600 dark:text-blue-400" />
+                                        <span class="text-xs text-blue-600 dark:text-blue-400">
+                                            Shift: {{ attendance.workShift.name }} ({{ formatTime(attendance.workShift.start_time) }} -
+                                            {{ formatTime(attendance.workShift.end_time) }})
+                                        </span>
+                                    </div>
                                     <div v-if="attendance.office_location" class="flex items-center gap-1">
                                         <MapPin class="h-3 w-3 text-muted-foreground" />
                                         <span class="text-xs text-muted-foreground">{{ attendance.office_location?.name || 'Remote' }}</span>
                                     </div>
-                                    <div v-if="attendance.workShift" class="flex items-center gap-1">
-                                        <Clock class="h-3 w-3 text-blue-600 dark:text-blue-400" />
-                                        <span class="text-xs text-blue-600 dark:text-blue-400">
-                                            {{ attendance.workShift.name }} ({{ formatTime(attendance.workShift.start_time) }} -
-                                            {{ formatTime(attendance.workShift.end_time) }})
-                                        </span>
+                                    <div class="flex items-center gap-1">
+                                        <Clock class="h-3 w-3 text-muted-foreground" />
+                                        <span class="text-xs text-muted-foreground">Durasi: {{ formatDuration(attendance.work_duration) }}</span>
                                     </div>
                                 </div>
                             </div>

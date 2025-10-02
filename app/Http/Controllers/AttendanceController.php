@@ -22,6 +22,21 @@ class AttendanceController extends Controller
     {
         $user = auth()->user();
 
+        // Check if work_shift_id column exists in attendances table
+        if (!\Illuminate\Support\Facades\Schema::hasColumn('attendances', 'work_shift_id')) {
+            Log::warning('work_shift_id column does not exist in attendances table');
+
+            // Try to add the column if it doesn't exist
+            try {
+                \Illuminate\Support\Facades\Schema::table('attendances', function (\Illuminate\Database\Schema\Blueprint $table) {
+                    $table->foreignId('work_shift_id')->nullable()->constrained('work_shifts')->nullOnDelete();
+                });
+                Log::info('work_shift_id column added to attendances table');
+            } catch (\Exception $e) {
+                Log::error('Failed to add work_shift_id column: ' . $e->getMessage());
+            }
+        }
+
         $attendances = Attendance::where('user_id', $user->id)
             ->with(['officeLocation:id,name', 'workShift:id,name,code,start_time,end_time'])
             ->orderByDesc('date')
@@ -33,11 +48,27 @@ class AttendanceController extends Controller
             })
             ->paginate(20);
 
+        // Debug logging
+        Log::info('Attendance data with shift', [
+            'user_id' => $user->id,
+            'attendances_count' => $attendances->count(),
+            'sample_attendance' => $attendances->first(),
+        ]);
+
         // Get today's attendance
         $todayAttendance = Attendance::where('user_id', $user->id)
             ->where('date', Carbon::today())
             ->with(['officeLocation', 'workShift:id,name,code,start_time,end_time'])
             ->first();
+
+        // Debug logging for today's attendance
+        Log::info('Today attendance with shift', [
+            'user_id' => $user->id,
+            'today_attendance' => $todayAttendance,
+            'has_work_shift' => $todayAttendance ? isset($todayAttendance->workShift) : null,
+            'work_shift' => $todayAttendance ? $todayAttendance->workShift : null,
+            'work_shift_id' => $todayAttendance ? $todayAttendance->work_shift_id : null,
+        ]);
 
         return Inertia::render('user/Attendance/Index', [
             'attendances' => $attendances,
@@ -306,6 +337,13 @@ class AttendanceController extends Controller
                 'face_detected' => $faceDetected,
             ]
         );
+
+        // Debug logging for saved attendance
+        Log::info('Saved attendance with shift', [
+            'attendance_id' => $attendance->id,
+            'work_shift_id' => $attendance->work_shift_id,
+            'shift_name' => $shift?->workShift->name,
+        ]);
 
         $message = 'Check in berhasil!';
         if ($faceVerificationSkipped && $faceMatchConfidence) {
