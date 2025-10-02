@@ -103,9 +103,8 @@ class Attendance extends Model
             return false;
         }
 
-        // Add 5 minutes tolerance for late calculation
-        $toleranceTime = Carbon::parse($shiftStartTime)->addMinutes(5);
-        return Carbon::parse($this->check_in_time)->format('H:i:s') > $toleranceTime->format('H:i:s');
+        // No tolerance - any check-in after shift start is considered late
+        return Carbon::parse($this->check_in_time)->format('H:i:s') > Carbon::parse($shiftStartTime)->format('H:i:s');
     }
 
     public function getLateDuration($shiftStartTime)
@@ -117,13 +116,11 @@ class Attendance extends Model
         $checkIn = Carbon::parse($this->check_in_time);
         $shiftStart = Carbon::parse($shiftStartTime);
 
-        // Add 5 minutes tolerance for late calculation
-        $toleranceTime = $shiftStart->copy()->addMinutes(5);
-
-        if ($checkIn <= $toleranceTime) {
-            return null; // Not late (within tolerance)
+        // No tolerance - calculate late duration from exact shift start time
+        if ($checkIn <= $shiftStart) {
+            return null; // Not late
         }
 
-        return $checkIn->diffInMinutes($toleranceTime);
+        return $checkIn->diffInMinutes($shiftStart);
     }
 }

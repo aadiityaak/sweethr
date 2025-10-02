@@ -16,6 +16,7 @@ class BuildProductionStructure extends Command
     public function handle(): int
     {
         $this->info('Building production structure...');
+        $this->newLine();
 
         $distPath = base_path('dist');
         $laravelPath = $distPath.'/laravel';
@@ -25,31 +26,36 @@ class BuildProductionStructure extends Command
         File::makeDirectory($laravelPath, 0755, true, true);
         File::makeDirectory($publicHtmlPath, 0755, true, true);
 
-        $this->info('Created dist directories');
+        $this->info('✓ Created dist directories');
 
         // Copy Laravel files (excluding public directory)
         $this->copyLaravelFiles($laravelPath);
-        $this->info('Copied Laravel files');
+        $this->info('✓ Copied Laravel files (excluded: .env files, node_modules, tests)');
 
         // Copy public files to public_html
         $this->copyPublicFiles($publicHtmlPath);
-        $this->info('Copied public files to public_html');
+        $this->info('✓ Copied public files to public_html (excluded: store folder)');
 
         // Create public directory in Laravel folder and copy build assets
         $this->createLaravelPublicBuild($laravelPath, $publicHtmlPath);
-        $this->info('Created Laravel public/build directory');
+        $this->info('✓ Created Laravel public/build directory');
 
         // Modify index.php for production structure
         $this->modifyIndexPhpForProduction($publicHtmlPath);
-        $this->info('Modified index.php for production structure');
+        $this->info('✓ Modified index.php for production structure');
 
         // Create production.zip
         $this->createZip($distPath);
-        $this->info('Created production.zip');
+        $this->info('✓ Created production.zip');
 
+        $this->newLine();
         $this->info('✅ Production build completed successfully!');
         $this->info('📁 Files created in: '.$distPath);
         $this->info('📦 Production archive: '.$distPath.'/production.zip');
+        $this->newLine();
+        $this->warn('⚠️  Security Note:');
+        $this->warn('   - No .env files included (configure manually on server)');
+        $this->warn('   - store/ folder excluded from public_html');
 
         return self::SUCCESS;
     }
@@ -62,6 +68,9 @@ class BuildProductionStructure extends Command
             '.git',
             '.env',
             '.env.example',
+            '.env.production',
+            '.env.local',
+            '.env.testing',
             'dist',
             'storage/logs',
             'storage/framework/cache',
@@ -107,11 +116,9 @@ class BuildProductionStructure extends Command
             File::copy($file->getPathname(), $destinationFile);
         }
 
-        // Copy .env.production as .env if it exists
-        $envProduction = base_path('.env.production');
-        if (File::exists($envProduction)) {
-            File::copy($envProduction, $destination.'/.env');
-        }
+        // DO NOT copy .env files to production build
+        // Users should configure .env manually on the server for security
+        // NOTE: .env and .env.example are already excluded in $excludePaths above
 
         // Create necessary storage directories
         $storageDirs = [
@@ -135,34 +142,41 @@ class BuildProductionStructure extends Command
             return;
         }
 
-        // Use system commands for efficiency
-        if (PHP_OS_FAMILY === 'Windows') {
-            // Windows - use xcopy for better hidden file support
-            exec("xcopy \"{$publicPath}\" \"{$destination}\" /E /H /Y /Q > nul 2>&1");
-        } else {
-            // Unix/Linux - use cp with recursive and hidden file flags
-            exec("cp -r {$publicPath}/. {$destination}/ 2>/dev/null");
+        // Exclude paths that should not be copied
+        $excludePaths = ['store'];
+
+        // Use manual copy with exclude logic instead of system commands
+        foreach (File::allFiles($publicPath) as $file) {
+            $relativePath = str_replace($publicPath.DIRECTORY_SEPARATOR, '', $file->getPathname());
+            $relativePath = str_replace('\\', '/', $relativePath);
+
+            // Skip excluded paths
+            $shouldSkip = false;
+            foreach ($excludePaths as $excludePath) {
+                if (str_starts_with($relativePath, $excludePath.'/') || $relativePath === $excludePath) {
+                    $shouldSkip = true;
+                    break;
+                }
+            }
+
+            if ($shouldSkip) {
+                continue;
+            }
+
+            $destinationFile = $destination.DIRECTORY_SEPARATOR.$relativePath;
+            $destinationDir = dirname($destinationFile);
+
+            if (! File::exists($destinationDir)) {
+                File::makeDirectory($destinationDir, 0755, true);
+            }
+
+            File::copy($file->getPathname(), $destinationFile);
         }
 
-        // Fallback to PHP if system commands fail
-        if (! File::exists($destination.'/index.php')) {
-            foreach (File::allFiles($publicPath) as $file) {
-                $relativePath = str_replace($publicPath.DIRECTORY_SEPARATOR, '', $file->getPathname());
-                $destinationFile = $destination.DIRECTORY_SEPARATOR.$relativePath;
-                $destinationDir = dirname($destinationFile);
-
-                if (! File::exists($destinationDir)) {
-                    File::makeDirectory($destinationDir, 0755, true);
-                }
-
-                File::copy($file->getPathname(), $destinationFile);
-            }
-
-            // Copy .htaccess explicitly
-            $htaccess = $publicPath.'/.htaccess';
-            if (File::exists($htaccess)) {
-                File::copy($htaccess, $destination.'/.htaccess');
-            }
+        // Copy .htaccess explicitly
+        $htaccess = $publicPath.'/.htaccess';
+        if (File::exists($htaccess)) {
+            File::copy($htaccess, $destination.'/.htaccess');
         }
 
         // Remove development files from production build
@@ -172,6 +186,12 @@ class BuildProductionStructure extends Command
             if (File::exists($devFilePath)) {
                 File::delete($devFilePath);
             }
+        }
+
+        // Remove store directory if it was copied (double check)
+        $storeDir = $destination.'/store';
+        if (File::exists($storeDir)) {
+            File::deleteDirectory($storeDir);
         }
     }
 
@@ -287,6 +307,20 @@ class BuildProductionStructure extends Command
             $relativePath = str_replace($realDir, '', $filePath);
             $relativePath = ltrim($relativePath, DIRECTORY_SEPARATOR);
             $relativePath = str_replace('\\', '/', $relativePath);
+
+            // Skip sensitive files and folders (double security check)
+            $excludePatterns = ['.env', 'store/'];
+            $shouldSkip = false;
+            foreach ($excludePatterns as $pattern) {
+                if (str_contains($relativePath, $pattern)) {
+                    $shouldSkip = true;
+                    break;
+                }
+            }
+
+            if ($shouldSkip) {
+                continue;
+            }
 
             // Create zip path
             $zipPath = $relativePath ? $zipDir.'/'.$relativePath : $zipDir;

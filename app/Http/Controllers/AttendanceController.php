@@ -330,9 +330,8 @@ class AttendanceController extends Controller
 
         if ($shift && $shift->workShift) {
             $shiftStartTime = Carbon::parse($shift->workShift->start_time);
-            // Add 5 minutes tolerance for late calculation
-            $toleranceTime = $shiftStartTime->copy()->addMinutes(5);
-            if ($checkInTime->format('H:i:s') > $toleranceTime->format('H:i:s')) {
+            // No tolerance - any check-in after shift start is considered late
+            if ($checkInTime->format('H:i:s') > $shiftStartTime->format('H:i:s')) {
                 $status = 'late';
             }
         }
