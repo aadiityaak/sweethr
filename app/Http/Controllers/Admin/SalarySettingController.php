@@ -127,7 +127,7 @@ class SalarySettingController extends Controller
             'allowances' => 'nullable|array',
             'allowances.*.name' => 'required|string',
             'allowances.*.amount' => 'required|numeric|min:0',
-            'overtime_rate' => 'required|numeric|min:1|max:5',
+            'overtime_rate' => 'required|numeric|min:0|max:5',
             'effective_date' => 'required|date',
         ]);
 

@@ -149,16 +149,8 @@ class EmployeeController extends Controller
             ->with('success', 'Karyawan berhasil ditambahkan ke sistem.');
     }
 
-    public function show(User $employee): Response
-    {
-        $employee->load(['department', 'position', 'attendances' => function ($query) {
-            $query->with('officeLocation')->latest()->take(10);
-        }]);
-
-        return Inertia::render('admin/Employees/Show', [
-            'employee' => $employee,
-        ]);
-    }
+    // Show method removed to restrict detailed employee data access
+    // Employees can only be viewed from the main list (index page)
 
     public function edit(User $employee): Response
     {

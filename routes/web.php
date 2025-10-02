@@ -96,8 +96,21 @@ Route::middleware(['auth', 'verified', 'admin'])->group(function () {
     Route::get('admin/dashboard', [App\Http\Controllers\DashboardController::class, 'index'])
         ->name('admin.dashboard');
 
-    // Employee management (Admin only)
-    Route::resource('employees', App\Http\Controllers\EmployeeController::class);
+    // Employee management (Admin only) - Limited access
+    Route::get('employees', [App\Http\Controllers\EmployeeController::class, 'index'])
+        ->name('employees.index');
+    Route::get('employees/create', [App\Http\Controllers\EmployeeController::class, 'create'])
+        ->name('employees.create');
+    Route::post('employees', [App\Http\Controllers\EmployeeController::class, 'store'])
+        ->name('employees.store');
+    Route::get('employees/{employee}/edit', [App\Http\Controllers\EmployeeController::class, 'edit'])
+        ->name('employees.edit');
+    Route::put('employees/{employee}', [App\Http\Controllers\EmployeeController::class, 'update'])
+        ->name('employees.update');
+    Route::delete('employees/{employee}', [App\Http\Controllers\EmployeeController::class, 'destroy'])
+        ->name('employees.destroy');
+
+    // Removed show route to restrict detailed employee data access
 
     // Leave Requests approval/rejection (Admin only)
     Route::patch('leave-requests/{leaveRequest}/approve', [App\Http\Controllers\LeaveRequestController::class, 'approve'])

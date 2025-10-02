@@ -52,6 +52,9 @@ interface Props {
     filters: {
         month?: string;
         year?: string;
+        date_from?: string;
+        date_to?: string;
+        show_all?: boolean;
     };
 }
 
@@ -131,7 +134,7 @@ const handleMonthChange = (newMonth: Date) => {
     selectedMonth.value = newMonth;
     const month = (newMonth.getMonth() + 1).toString();
     const year = newMonth.getFullYear().toString();
-    filterAttendance(month, year);
+    filterAttendance({ month, year });
 };
 
 const formatTime = (time: string | null) => {
@@ -195,8 +198,28 @@ const getStatusIcon = (status: string) => {
     }
 };
 
-const filterAttendance = (month?: string, year?: string) => {
-    router.get('/attendance', { month, year }, { preserveState: true });
+const filterAttendance = (filters?: any) => {
+    router.get('/attendance', filters, { preserveState: true });
+};
+
+// Helper function to get date string relative to today
+const getDateString = (daysFromNow: number) => {
+    const date = new Date();
+    date.setDate(date.getDate() + daysFromNow);
+    return date.toISOString().split('T')[0];
+};
+
+// Handle date range filter updates
+const updateDateFilter = () => {
+    const dateFrom = (document.querySelector('input[type="date"][placeholder="Pilih tanggal"]') as HTMLInputElement)?.value;
+    const dateTo = (document.querySelectorAll('input[type="date"][placeholder="Pilih tanggal"]')[1] as HTMLInputElement)?.value;
+
+    filterAttendance({
+        ...filters,
+        date_from: dateFrom,
+        date_to: dateTo,
+        show_all: false,
+    });
 };
 
 // Location and checkout functions
@@ -425,35 +448,99 @@ const confirmCheckOut = () => {
                         </div>
                     </div>
 
-                    <div v-if="!showCalendarView" class="grid grid-cols-2 gap-3">
-                        <select
-                            :value="filters.month"
-                            @change="filterAttendance($event.target.value, filters.year)"
-                            class="rounded-md border bg-background px-3 py-2 text-sm"
-                        >
-                            <option value="">Semua Bulan</option>
-                            <option value="1">Januari</option>
-                            <option value="2">Februari</option>
-                            <option value="3">Maret</option>
-                            <option value="4">April</option>
-                            <option value="5">Mei</option>
-                            <option value="6">Juni</option>
-                            <option value="7">Juli</option>
-                            <option value="8">Agustus</option>
-                            <option value="9">September</option>
-                            <option value="10">Oktober</option>
-                            <option value="11">November</option>
-                            <option value="12">Desember</option>
-                        </select>
-                        <select
-                            :value="filters.year"
-                            @change="filterAttendance(filters.month, $event.target.value)"
-                            class="rounded-md border bg-background px-3 py-2 text-sm"
-                        >
-                            <option value="">Semua Tahun</option>
-                            <option value="2024">2024</option>
-                            <option value="2025">2025</option>
-                        </select>
+                    <div v-if="!showCalendarView" class="space-y-4">
+                        <!-- Quick Filters -->
+                        <div class="flex flex-wrap gap-2">
+                            <button
+                                @click="filterAttendance({ show_all: true })"
+                                :class="[
+                                    'rounded-md px-3 py-1.5 text-xs font-medium transition-colors',
+                                    filters.show_all ? 'bg-primary text-primary-foreground' : 'bg-muted hover:bg-muted/80',
+                                ]"
+                            >
+                                📊 Semua Data
+                            </button>
+                            <button
+                                @click="
+                                    filterAttendance({
+                                        month: (new Date().getMonth() + 1).toString(),
+                                        year: new Date().getFullYear().toString(),
+                                        show_all: false,
+                                    })
+                                "
+                                class="rounded-md bg-muted px-3 py-1.5 text-xs font-medium transition-colors hover:bg-muted/80"
+                            >
+                                📅 Bulan Ini
+                            </button>
+                            <button
+                                @click="filterAttendance({ date_from: getDateString(-7), date_to: getDateString(0), show_all: false })"
+                                class="rounded-md bg-muted px-3 py-1.5 text-xs font-medium transition-colors hover:bg-muted/80"
+                            >
+                                📈 7 Hari Terakhir
+                            </button>
+                            <button
+                                @click="filterAttendance({ date_from: getDateString(-30), date_to: getDateString(0), show_all: false })"
+                                class="rounded-md bg-muted px-3 py-1.5 text-xs font-medium transition-colors hover:bg-muted/80"
+                            >
+                                📉 30 Hari Terakhir
+                            </button>
+                        </div>
+
+                        <!-- Date Range Filter -->
+                        <div class="grid grid-cols-2 gap-3">
+                            <div>
+                                <label class="mb-1 block text-xs font-medium text-muted-foreground">Dari Tanggal</label>
+                                <input
+                                    type="date"
+                                    :value="filters.date_from"
+                                    @change="updateDateFilter"
+                                    class="w-full rounded-md border bg-background px-3 py-2 text-sm"
+                                    placeholder="Pilih tanggal"
+                                />
+                            </div>
+                            <div>
+                                <label class="mb-1 block text-xs font-medium text-muted-foreground">Sampai Tanggal</label>
+                                <input
+                                    type="date"
+                                    :value="filters.date_to"
+                                    @change="updateDateFilter"
+                                    class="w-full rounded-md border bg-background px-3 py-2 text-sm"
+                                    placeholder="Pilih tanggal"
+                                />
+                            </div>
+                        </div>
+
+                        <!-- Legacy Month/Year Filter -->
+                        <div class="grid grid-cols-2 gap-3">
+                            <select
+                                :value="filters.month"
+                                @change="filterAttendance({ ...filters, month: $event.target.value, show_all: false })"
+                                class="rounded-md border bg-background px-3 py-2 text-sm"
+                            >
+                                <option value="">Semua Bulan</option>
+                                <option value="1">Januari</option>
+                                <option value="2">Februari</option>
+                                <option value="3">Maret</option>
+                                <option value="4">April</option>
+                                <option value="5">Mei</option>
+                                <option value="6">Juni</option>
+                                <option value="7">Juli</option>
+                                <option value="8">Agustus</option>
+                                <option value="9">September</option>
+                                <option value="10">Oktober</option>
+                                <option value="11">November</option>
+                                <option value="12">Desember</option>
+                            </select>
+                            <select
+                                :value="filters.year"
+                                @change="filterAttendance({ ...filters, year: $event.target.value, show_all: false })"
+                                class="rounded-md border bg-background px-3 py-2 text-sm"
+                            >
+                                <option value="">Semua Tahun</option>
+                                <option value="2024">2024</option>
+                                <option value="2025">2025</option>
+                            </select>
+                        </div>
                     </div>
                 </div>
 

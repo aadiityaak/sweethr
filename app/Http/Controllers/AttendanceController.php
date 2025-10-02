@@ -40,11 +40,27 @@ class AttendanceController extends Controller
         $attendances = Attendance::where('user_id', $user->id)
             ->with(['officeLocation:id,name', 'workShift:id,name,code,start_time,end_time'])
             ->orderByDesc('date')
-            ->when($request->month, function ($query, $month) {
-                $query->whereMonth('date', $month);
+            ->when($request->show_all, function ($query) {
+                // Show all data without date filtering
+                return $query;
             })
-            ->when($request->year, function ($query, $year) {
-                $query->whereYear('date', $year);
+            ->when(!$request->show_all, function ($query) use ($request) {
+                // Apply date filters when not showing all data
+                return $query->when($request->date_from, function ($query, $dateFrom) {
+                    $query->whereDate('date', '>=', $dateFrom);
+                })
+                ->when($request->date_to, function ($query, $dateTo) {
+                    $query->whereDate('date', '<=', $dateTo);
+                })
+                ->when(!$request->date_from && !$request->date_to, function ($query) use ($request) {
+                    // Fall back to month/year filtering if no date range specified
+                    $query->when($request->month, function ($query, $month) {
+                        $query->whereMonth('date', $month);
+                    })
+                    ->when($request->year, function ($query, $year) {
+                        $query->whereYear('date', $year);
+                    });
+                });
             })
             ->paginate(20);
 
@@ -83,7 +99,7 @@ class AttendanceController extends Controller
             'attendances' => $attendances,
             'todayAttendance' => $todayAttendance,
             'currentShift' => $currentShift,
-            'filters' => $request->only(['month', 'year']),
+            'filters' => $request->only(['month', 'year', 'date_from', 'date_to', 'show_all']),
         ]);
     }
 
@@ -314,7 +330,9 @@ class AttendanceController extends Controller
 
         if ($shift && $shift->workShift) {
             $shiftStartTime = Carbon::parse($shift->workShift->start_time);
-            if ($checkInTime->format('H:i:s') > $shiftStartTime->format('H:i:s')) {
+            // Add 5 minutes tolerance for late calculation
+            $toleranceTime = $shiftStartTime->copy()->addMinutes(5);
+            if ($checkInTime->format('H:i:s') > $toleranceTime->format('H:i:s')) {
                 $status = 'late';
             }
         }
