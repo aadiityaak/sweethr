@@ -19,51 +19,44 @@ ChartJS.register(CategoryScale, LinearScale, PointElement, LineElement, BarEleme
 
 interface Props {
     type?: 'bar' | 'doughnut' | 'line';
-    attendanceData?: {
-        present: number;
-        absent: number;
-        late: number;
-    };
-    weeklyData?: {
-        labels: string[];
-        data: number[];
-    };
-    monthlyData?: {
-        labels: string[];
-        data: number[];
-        presentData?: number[];
-        absentData?: number[];
-        lateData?: number[];
+    statusData?: {
+        pending: number;
+        approved: number;
+        rejected: number;
     };
     trendData?: {
         labels: string[];
         data: number[];
-        presentData?: number[];
-        absentData?: number[];
-        lateData?: number[];
+        approvedData?: number[];
+        pendingData?: number[];
+        rejectedData?: number[];
     };
     departmentData?: {
         labels: string[];
         data: number[];
     };
+    leaveTypeData?: {
+        labels: string[];
+        data: number[];
+    };
 }
 
-const { type = 'doughnut', attendanceData, weeklyData, monthlyData, trendData, departmentData } = defineProps<Props>();
+const { type = 'doughnut', statusData, trendData, departmentData, leaveTypeData } = defineProps<Props>();
 
-// For doughnut chart (attendance breakdown)
+// For doughnut chart (status distribution)
 const doughnutData = ref({
-    labels: ['Hadir', 'Tidak Hadir', 'Terlambat'],
+    labels: ['Menunggu', 'Disetujui', 'Ditolak'],
     datasets: [
         {
-            data: [attendanceData?.present || 0, attendanceData?.absent || 0, attendanceData?.late || 0],
+            data: [statusData?.pending || 0, statusData?.approved || 0, statusData?.rejected || 0],
             backgroundColor: (context: any) => {
                 const chart = context.chart;
                 const { ctx } = chart;
 
                 const colors = [
+                    { start: '#f59e0b', end: '#fbbf24' }, // amber gradient
                     { start: '#10b981', end: '#34d399' }, // emerald gradient
                     { start: '#ef4444', end: '#f87171' }, // red gradient
-                    { start: '#f59e0b', end: '#fbbf24' }, // amber gradient
                 ];
 
                 const color = colors[context.dataIndex];
@@ -82,13 +75,13 @@ const doughnutData = ref({
     ],
 });
 
-// For bar chart (weekly attendance or department data)
+// For bar chart (department or leave type distribution)
 const barData = ref({
-    labels: weeklyData?.labels || departmentData?.labels || ['Sen', 'Sel', 'Rab', 'Kam', 'Jum', 'Sab', 'Min'],
+    labels: departmentData?.labels || leaveTypeData?.labels || [],
     datasets: [
         {
-            label: weeklyData ? 'Kehadiran Mingguan' : (departmentData ? 'Kehadiran per Departemen' : 'Kehadiran'),
-            data: weeklyData?.data || departmentData?.data || [85, 92, 88, 95, 90, 0, 0],
+            label: departmentData ? 'Pengajuan Cuti per Departemen' : 'Pengajuan per Tipe Cuti',
+            data: departmentData?.data || leaveTypeData?.data || [],
             backgroundColor: (context: any) => {
                 const chart = context.chart;
                 const { ctx, chartArea } = chart;
@@ -122,13 +115,13 @@ const createGradient = (ctx: CanvasRenderingContext2D, chartArea: any) => {
     return gradient;
 };
 
-// For line chart (30-day attendance trend)
+// For line chart (trend data)
 const lineData = ref({
-    labels: trendData?.labels || monthlyData?.labels || [],
+    labels: trendData?.labels || [],
     datasets: [
         {
-            label: 'Total Kehadiran',
-            data: trendData?.data || monthlyData?.data || [],
+            label: 'Total Pengajuan',
+            data: trendData?.data || [],
             borderColor: (context: any) => {
                 const ctx = context.chart.ctx;
                 const gradient = ctx.createLinearGradient(0, 0, context.chart.width, 0);
@@ -157,9 +150,9 @@ const lineData = ref({
             pointHoverBorderColor: 'rgb(124, 58, 237)',
             pointHoverBorderWidth: 4,
         },
-        ...(trendData?.presentData ? [{
-            label: 'Hadir',
-            data: trendData.presentData,
+        ...(trendData?.approvedData ? [{
+            label: 'Disetujui',
+            data: trendData.approvedData,
             borderColor: 'rgb(16, 185, 129)',
             backgroundColor: 'rgba(16, 185, 129, 0.1)',
             borderWidth: 2,
@@ -171,9 +164,9 @@ const lineData = ref({
             pointRadius: 4,
             pointHoverRadius: 6,
         }] : []),
-        ...(trendData?.lateData ? [{
-            label: 'Terlambat',
-            data: trendData.lateData,
+        ...(trendData?.pendingData ? [{
+            label: 'Menunggu',
+            data: trendData.pendingData,
             borderColor: 'rgb(245, 158, 11)',
             backgroundColor: 'rgba(245, 158, 11, 0.1)',
             borderWidth: 2,
@@ -249,7 +242,7 @@ const barOptions = {
         tooltip: {
             callbacks: {
                 label: (context: any) => {
-                    return weeklyData ? `Kehadiran: ${context.parsed.y}%` : `Kehadiran: ${context.parsed.y}`;
+                    return `Pengajuan: ${context.parsed.y}`;
                 },
             },
         },
@@ -264,7 +257,6 @@ const barOptions = {
                     weight: 500 as const,
                 },
                 padding: 8,
-                callback: weeklyData ? (value: any) => value + '%' : undefined,
             },
             grid: {
                 color: 'rgba(156, 163, 175, 0.08)',
@@ -323,7 +315,7 @@ const lineOptions = {
             displayColors: true,
             callbacks: {
                 label: (context: any) => {
-                    return `${context.dataset.label}: ${context.parsed.y}${weeklyData ? '%' : ''}`;
+                    return `${context.dataset.label}: ${context.parsed.y}`;
                 },
                 title: (context: any) => {
                     return context[0].label;
@@ -341,7 +333,6 @@ const lineOptions = {
                     weight: 500 as const,
                 },
                 padding: 8,
-                callback: weeklyData ? (value: any) => value + '%' : undefined,
             },
             grid: {
                 color: 'rgba(156, 163, 175, 0.08)',
@@ -391,41 +382,36 @@ const lineOptions = {
 
 // Update chart data when props change
 watch(
-    () => [attendanceData, weeklyData, monthlyData, trendData, departmentData],
+    () => [statusData, trendData, departmentData, leaveTypeData],
     (newValues) => {
-        const [newAttendanceData, newWeeklyData, newMonthlyData, newTrendData, newDepartmentData] = newValues;
+        const [newStatusData, newTrendData, newDepartmentData, newLeaveTypeData] = newValues;
 
-        if (newAttendanceData && 'present' in newAttendanceData) {
-            doughnutData.value.datasets[0].data = [newAttendanceData.present, newAttendanceData.absent, newAttendanceData.late];
-        }
-
-        if (newWeeklyData && 'labels' in newWeeklyData) {
-            barData.value.labels = newWeeklyData.labels;
-            barData.value.datasets[0].data = newWeeklyData.data;
-            barData.value.datasets[0].label = 'Kehadiran Mingguan';
-        }
-
-        if (newDepartmentData && 'labels' in newDepartmentData) {
-            barData.value.labels = newDepartmentData.labels;
-            barData.value.datasets[0].data = newDepartmentData.data;
-            barData.value.datasets[0].label = 'Kehadiran per Departemen';
-        }
-
-        if (newMonthlyData && 'labels' in newMonthlyData) {
-            lineData.value.labels = newMonthlyData.labels;
-            lineData.value.datasets[0].data = newMonthlyData.data;
+        if (newStatusData && 'pending' in newStatusData) {
+            doughnutData.value.datasets[0].data = [newStatusData.pending, newStatusData.approved, newStatusData.rejected];
         }
 
         if (newTrendData && 'labels' in newTrendData) {
             lineData.value.labels = newTrendData.labels;
             lineData.value.datasets[0].data = newTrendData.data;
             
-            if ('presentData' in newTrendData && newTrendData.presentData && lineData.value.datasets[1]) {
-                lineData.value.datasets[1].data = newTrendData.presentData as number[];
+            if ('approvedData' in newTrendData && newTrendData.approvedData && lineData.value.datasets[1]) {
+                lineData.value.datasets[1].data = newTrendData.approvedData as number[];
             }
-            if ('lateData' in newTrendData && newTrendData.lateData && lineData.value.datasets[2]) {
-                lineData.value.datasets[2].data = newTrendData.lateData as number[];
+            if ('pendingData' in newTrendData && newTrendData.pendingData && lineData.value.datasets[2]) {
+                lineData.value.datasets[2].data = newTrendData.pendingData as number[];
             }
+        }
+
+        if (newDepartmentData && 'labels' in newDepartmentData) {
+            barData.value.labels = newDepartmentData.labels;
+            barData.value.datasets[0].data = newDepartmentData.data;
+            barData.value.datasets[0].label = 'Pengajuan Cuti per Departemen';
+        }
+
+        if (newLeaveTypeData && 'labels' in newLeaveTypeData) {
+            barData.value.labels = newLeaveTypeData.labels;
+            barData.value.datasets[0].data = newLeaveTypeData.data;
+            barData.value.datasets[0].label = 'Pengajuan per Tipe Cuti';
         }
     },
     { deep: true },

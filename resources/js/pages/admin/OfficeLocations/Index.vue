@@ -175,70 +175,179 @@ const cancelDelete = () => {
             </div>
 
             <!-- Overview Cards -->
-            <div class="mb-8 grid grid-cols-1 gap-6 sm:grid-cols-2 lg:grid-cols-4">
+            <div class="mb-10 grid gap-6 md:grid-cols-2 lg:grid-cols-4">
                 <!-- Total Locations -->
-                <div class="overflow-hidden rounded-xl bg-white shadow-sm ring-1 ring-gray-900/5 dark:bg-gray-900 dark:ring-white/10">
-                    <div class="p-6">
-                        <div class="flex items-center">
-                            <div class="flex h-12 w-12 shrink-0 items-center justify-center rounded-full bg-blue-500/10">
-                                <MapPin class="h-6 w-6 text-blue-600 dark:text-blue-400" />
+                <div
+                    class="group relative overflow-hidden rounded-xl border border-gray-200/50 bg-gradient-to-br from-white to-blue-50/30 p-6 shadow-sm transition-all hover:shadow-md dark:border-gray-800/50 dark:from-gray-950 dark:to-blue-950/30"
+                >
+                    <div class="flex items-start justify-between">
+                        <div class="flex items-center gap-3">
+                            <div class="flex h-10 w-10 items-center justify-center rounded-full bg-blue-500/10 ring-1 ring-blue-500/20">
+                                <MapPin class="h-5 w-5 text-blue-600 dark:text-blue-400" />
                             </div>
-                            <div class="ml-4 flex-1">
-                                <p class="text-sm font-medium text-gray-600 dark:text-gray-400">Total Lokasi</p>
-                                <p class="text-2xl font-bold text-gray-900 dark:text-white">{{ stats.total_locations }}</p>
+                            <div>
+                                <h3 class="font-medium text-gray-900 dark:text-white">Total Lokasi</h3>
+                                <p class="text-sm text-gray-600 dark:text-gray-400">
+                                    Semua lokasi kantor
+                                </p>
                             </div>
                         </div>
+                        <div class="flex h-2 w-2 rounded-full bg-blue-400"></div>
                     </div>
+
+                    <div class="mt-6 space-y-3">
+                        <div class="flex items-center justify-between rounded-lg bg-blue-50/50 px-3 py-2 dark:bg-blue-950/30">
+                            <span class="text-sm font-medium text-blue-700 dark:text-blue-400">Total</span>
+                            <span class="text-sm font-semibold text-blue-800 dark:text-blue-300">{{ stats.total_locations }}</span>
+                        </div>
+                        <div class="flex items-center justify-between rounded-lg bg-gray-50/50 px-3 py-2 dark:bg-gray-800/50">
+                            <span class="text-sm font-medium text-gray-600 dark:text-gray-400">Aktif</span>
+                            <span class="text-sm font-semibold text-gray-900 dark:text-white">{{ stats.active_locations }}</span>
+                        </div>
+                    </div>
+
+                    <!-- Hover effect overlay -->
+                    <div
+                        class="absolute inset-0 rounded-xl bg-gradient-to-br from-blue-500/5 to-indigo-500/5 opacity-0 transition-opacity group-hover:opacity-100"
+                    ></div>
                 </div>
 
                 <!-- Active Locations -->
-                <div class="overflow-hidden rounded-xl bg-white shadow-sm ring-1 ring-gray-900/5 dark:bg-gray-900 dark:ring-white/10">
-                    <div class="p-6">
-                        <div class="flex items-center">
-                            <div class="flex h-12 w-12 shrink-0 items-center justify-center rounded-full bg-green-500/10">
-                                <Target class="h-6 w-6 text-green-600 dark:text-green-400" />
+                <div
+                    class="group relative overflow-hidden rounded-xl border border-gray-200/50 bg-gradient-to-br from-white to-emerald-50/30 p-6 shadow-sm transition-all hover:shadow-md dark:border-gray-800/50 dark:from-gray-950 dark:to-emerald-950/30"
+                >
+                    <div class="flex items-start justify-between">
+                        <div class="flex items-center gap-3">
+                            <div class="flex h-10 w-10 items-center justify-center rounded-full bg-emerald-500/10 ring-1 ring-emerald-500/20">
+                                <Target class="h-5 w-5 text-emerald-600 dark:text-emerald-400" />
                             </div>
-                            <div class="ml-4 flex-1">
-                                <p class="text-sm font-medium text-gray-600 dark:text-gray-400">Lokasi Aktif</p>
-                                <p class="text-2xl font-bold text-gray-900 dark:text-white">{{ stats.active_locations }}</p>
+                            <div>
+                                <h3 class="font-medium text-gray-900 dark:text-white">Lokasi Aktif</h3>
+                                <p class="text-sm text-gray-600 dark:text-gray-400">
+                                    Lokasi yang digunakan
+                                </p>
                             </div>
                         </div>
+                        <div class="flex h-2 w-2 rounded-full bg-emerald-400"></div>
                     </div>
+
+                    <div class="mt-6 space-y-3">
+                        <div class="flex items-center justify-between rounded-lg bg-emerald-50/50 px-3 py-2 dark:bg-emerald-950/30">
+                            <span class="text-sm font-medium text-emerald-700 dark:text-emerald-400">Aktif</span>
+                            <span class="text-sm font-semibold text-emerald-800 dark:text-emerald-300">
+                                {{ stats.active_locations }}
+                            </span>
+                        </div>
+                        <div class="flex items-center justify-between rounded-lg bg-gray-50/50 px-3 py-2 dark:bg-gray-800/50">
+                            <span class="text-sm font-medium text-gray-600 dark:text-gray-400">Persentase</span>
+                            <span class="text-sm font-semibold text-gray-900 dark:text-white">
+                                {{ stats.total_locations ? Math.round((stats.active_locations / stats.total_locations) * 100) : 0 }}%
+                            </span>
+                        </div>
+                    </div>
+
+                    <!-- Hover effect overlay -->
+                    <div
+                        class="absolute inset-0 rounded-xl bg-gradient-to-br from-emerald-500/5 to-teal-500/5 opacity-0 transition-opacity group-hover:opacity-100"
+                    ></div>
                 </div>
 
                 <!-- Coverage Area -->
-                <div class="overflow-hidden rounded-xl bg-white shadow-sm ring-1 ring-gray-900/5 dark:bg-gray-900 dark:ring-white/10">
-                    <div class="p-6">
-                        <div class="flex items-center">
-                            <div class="flex h-12 w-12 shrink-0 items-center justify-center rounded-full bg-purple-500/10">
-                                <Navigation class="h-6 w-6 text-purple-600 dark:text-purple-400" />
+                <div
+                    class="group relative overflow-hidden rounded-xl border border-gray-200/50 bg-gradient-to-br from-white to-purple-50/30 p-6 shadow-sm transition-all hover:shadow-md dark:border-gray-800/50 dark:from-gray-950 dark:to-purple-950/30"
+                >
+                    <div class="flex items-start justify-between">
+                        <div class="flex items-center gap-3">
+                            <div class="flex h-10 w-10 items-center justify-center rounded-full bg-purple-500/10 ring-1 ring-purple-500/20">
+                                <Navigation class="h-5 w-5 text-purple-600 dark:text-purple-400" />
                             </div>
-                            <div class="ml-4 flex-1">
-                                <p class="text-sm font-medium text-gray-600 dark:text-gray-400">Area Cakupan</p>
-                                <p class="text-2xl font-bold text-gray-900 dark:text-white">{{ stats.total_radius_coverage }}m²</p>
+                            <div>
+                                <h3 class="font-medium text-gray-900 dark:text-white">Area Cakupan</h3>
+                                <p class="text-sm text-gray-600 dark:text-gray-400">
+                                    Total radius area
+                                </p>
                             </div>
                         </div>
+                        <div class="flex h-2 w-2 rounded-full bg-purple-400"></div>
                     </div>
+
+                    <div class="mt-6 space-y-3">
+                        <div class="flex items-center justify-between rounded-lg bg-purple-50/50 px-3 py-2 dark:bg-purple-950/30">
+                            <span class="text-sm font-medium text-purple-700 dark:text-purple-400">Total</span>
+                            <span class="text-sm font-semibold text-purple-800 dark:text-purple-300">
+                                {{ stats.total_radius_coverage }}m²
+                            </span>
+                        </div>
+                        <div class="flex items-center justify-between rounded-lg bg-gray-50/50 px-3 py-2 dark:bg-gray-800/50">
+                            <span class="text-sm font-medium text-gray-600 dark:text-gray-400">Rata-rata</span>
+                            <span class="text-sm font-semibold text-gray-900 dark:text-white">
+                                {{ stats.total_locations ? Math.round(stats.total_radius_coverage / stats.total_locations) : 0 }}m²
+                            </span>
+                        </div>
+                    </div>
+
+                    <!-- Hover effect overlay -->
+                    <div
+                        class="absolute inset-0 rounded-xl bg-gradient-to-br from-purple-500/5 to-violet-500/5 opacity-0 transition-opacity group-hover:opacity-100"
+                    ></div>
                 </div>
 
                 <!-- Today's Check-ins -->
-                <div class="overflow-hidden rounded-xl bg-white shadow-sm ring-1 ring-gray-900/5 dark:bg-gray-900 dark:ring-white/10">
-                    <div class="p-6">
-                        <div class="flex items-center">
-                            <div class="flex h-12 w-12 shrink-0 items-center justify-center rounded-full bg-orange-500/10">
-                                <Clock class="h-6 w-6 text-orange-600 dark:text-orange-400" />
+                <div
+                    class="group relative overflow-hidden rounded-xl border border-gray-200/50 bg-gradient-to-br from-white to-amber-50/30 p-6 shadow-sm transition-all hover:shadow-md dark:border-gray-800/50 dark:from-gray-950 dark:to-amber-950/30"
+                >
+                    <div class="flex items-start justify-between">
+                        <div class="flex items-center gap-3">
+                            <div class="flex h-10 w-10 items-center justify-center rounded-full bg-amber-500/10 ring-1 ring-amber-500/20">
+                                <Clock class="h-5 w-5 text-amber-600 dark:text-amber-400" />
                             </div>
-                            <div class="ml-4 flex-1">
-                                <p class="text-sm font-medium text-gray-600 dark:text-gray-400">Absensi Hari Ini</p>
-                                <p class="text-2xl font-bold text-gray-900 dark:text-white">{{ stats.today_checkins }}</p>
+                            <div>
+                                <h3 class="font-medium text-gray-900 dark:text-white">Absensi Hari Ini</h3>
+                                <p class="text-sm text-gray-600 dark:text-gray-400">
+                                    Check-in hari ini
+                                </p>
                             </div>
                         </div>
+                        <div class="flex h-2 w-2 rounded-full bg-amber-400"></div>
                     </div>
+
+                    <div class="mt-6 space-y-3">
+                        <div class="flex items-center justify-between rounded-lg bg-amber-50/50 px-3 py-2 dark:bg-amber-950/30">
+                            <span class="text-sm font-medium text-amber-700 dark:text-amber-400">Total</span>
+                            <span class="text-sm font-semibold text-amber-800 dark:text-amber-300">
+                                {{ stats.today_checkins }}
+                            </span>
+                        </div>
+                        <div class="flex items-center justify-between rounded-lg bg-gray-50/50 px-3 py-2 dark:bg-gray-800/50">
+                            <span class="text-sm font-medium text-gray-600 dark:text-gray-400">Per Lokasi</span>
+                            <span class="text-sm font-semibold text-gray-900 dark:text-white">
+                                {{ stats.active_locations ? Math.round(stats.today_checkins / stats.active_locations) : 0 }}
+                            </span>
+                        </div>
+                    </div>
+
+                    <!-- Hover effect overlay -->
+                    <div
+                        class="absolute inset-0 rounded-xl bg-gradient-to-br from-amber-500/5 to-orange-500/5 opacity-0 transition-opacity group-hover:opacity-100"
+                    ></div>
                 </div>
             </div>
 
             <!-- Filters -->
-            <div class="mb-8 overflow-hidden rounded-xl bg-white shadow-sm ring-1 ring-gray-900/5 dark:bg-gray-900 dark:ring-white/10">
+            <div
+                class="group relative mb-10 overflow-hidden rounded-xl border border-gray-200/50 bg-gradient-to-br from-white to-gray-50/30 shadow-sm transition-all hover:shadow-md dark:border-gray-800/50 dark:from-gray-950 dark:to-gray-900/30"
+            >
+                <div class="border-b border-gray-200/50 p-6 dark:border-gray-800/50">
+                    <div class="flex items-center gap-3">
+                        <div class="flex h-8 w-8 items-center justify-center rounded-lg bg-gray-500/10 ring-1 ring-gray-500/20">
+                            <Search class="h-4 w-4 text-gray-600 dark:text-gray-400" />
+                        </div>
+                        <div>
+                            <h2 class="text-lg font-semibold text-gray-900 dark:text-white">Filter & Pencarian</h2>
+                            <p class="text-sm text-gray-600 dark:text-gray-400">Filter lokasi kantor berdasarkan kriteria</p>
+                        </div>
+                    </div>
+                </div>
                 <div class="p-6">
                     <div class="grid gap-4 md:grid-cols-3">
                         <div class="relative">
@@ -248,13 +357,13 @@ const cancelDelete = () => {
                                 @input="filterLocations"
                                 type="text"
                                 placeholder="Cari lokasi..."
-                                class="w-full rounded-lg border border-gray-300 py-2 pr-3 pl-10 text-sm dark:border-gray-600 dark:bg-gray-800 dark:text-white"
+                                class="w-full rounded-lg border border-gray-300 bg-white py-2 pr-3 pl-10 text-sm focus:border-blue-500 focus:ring-1 focus:ring-blue-500 focus:outline-none dark:border-gray-600 dark:bg-gray-800 dark:text-gray-300"
                             />
                         </div>
                         <select
                             v-model="selectedStatus"
                             @change="filterLocations"
-                            class="rounded-lg border border-gray-300 px-3 py-2 text-sm dark:border-gray-600 dark:bg-gray-800"
+                            class="w-full rounded-lg border border-gray-300 bg-white px-3 py-2 text-sm focus:border-blue-500 focus:ring-1 focus:ring-blue-500 focus:outline-none dark:border-gray-600 dark:bg-gray-800 dark:text-gray-300"
                         >
                             <option value="">Semua Status</option>
                             <option value="active">Aktif</option>
@@ -270,16 +379,25 @@ const cancelDelete = () => {
                         </div>
                     </div>
                 </div>
+                <div
+                    class="absolute inset-0 rounded-xl bg-gradient-to-br from-gray-500/5 to-slate-500/5 opacity-0 transition-opacity group-hover:opacity-100"
+                ></div>
             </div>
 
             <!-- Map Overview -->
-            <div class="mb-8 overflow-hidden rounded-xl bg-white shadow-sm ring-1 ring-gray-900/5 dark:bg-gray-900 dark:ring-white/10">
-                <div class="border-b border-gray-200 px-6 py-4 dark:border-gray-700">
-                    <h3 class="flex items-center text-lg font-semibold text-gray-900 dark:text-white">
-                        <Map class="mr-2 h-5 w-5 text-blue-600 dark:text-blue-400" />
-                        Peta Lokasi Kantor
-                    </h3>
-                    <p class="text-sm text-gray-600 dark:text-gray-400">Ringkasan semua lokasi kantor</p>
+            <div
+                class="group relative mb-10 overflow-hidden rounded-xl border border-gray-200/50 bg-gradient-to-br from-white to-blue-50/30 shadow-sm transition-all hover:shadow-md dark:border-gray-800/50 dark:from-gray-950 dark:to-blue-950/30"
+            >
+                <div class="border-b border-gray-200/50 px-6 py-4 dark:border-gray-800/50">
+                    <div class="flex items-center gap-3">
+                        <div class="flex h-8 w-8 items-center justify-center rounded-lg bg-blue-500/10 ring-1 ring-blue-500/20">
+                            <Map class="h-4 w-4 text-blue-600 dark:text-blue-400" />
+                        </div>
+                        <div>
+                            <h2 class="text-lg font-semibold text-gray-900 dark:text-white">Peta Lokasi Kantor</h2>
+                            <p class="text-sm text-gray-600 dark:text-gray-400">Ringkasan semua lokasi kantor</p>
+                        </div>
+                    </div>
                 </div>
                 <div class="p-6">
                     <!-- Map showing all locations -->
@@ -310,12 +428,19 @@ const cancelDelete = () => {
             </div>
 
             <!-- Office Locations List -->
-            <div class="overflow-hidden rounded-xl bg-white shadow-sm ring-1 ring-gray-900/5 dark:bg-gray-900 dark:ring-white/10">
-                <div class="border-b border-gray-200 px-6 py-4 dark:border-gray-700">
-                    <h3 class="flex items-center text-lg font-semibold text-gray-900 dark:text-white">
-                        <MapPin class="mr-2 h-5 w-5 text-blue-600 dark:text-blue-400" />
-                        Daftar Lokasi Kantor
-                    </h3>
+            <div
+                class="group relative overflow-hidden rounded-xl border border-gray-200/50 bg-gradient-to-br from-white to-blue-50/30 shadow-sm transition-all hover:shadow-md dark:border-gray-800/50 dark:from-gray-950 dark:to-blue-950/30"
+            >
+                <div class="border-b border-gray-200/50 px-6 py-4 dark:border-gray-800/50">
+                    <div class="flex items-center gap-3">
+                        <div class="flex h-8 w-8 items-center justify-center rounded-lg bg-blue-500/10 ring-1 ring-blue-500/20">
+                            <MapPin class="h-4 w-4 text-blue-600 dark:text-blue-400" />
+                        </div>
+                        <div>
+                            <h2 class="text-lg font-semibold text-gray-900 dark:text-white">Daftar Lokasi Kantor</h2>
+                            <p class="text-sm text-gray-600 dark:text-gray-400">{{ officeLocations?.meta?.total || 0 }} lokasi ditemukan</p>
+                        </div>
+                    </div>
                 </div>
 
                 <div class="overflow-x-auto">
@@ -453,7 +578,6 @@ const cancelDelete = () => {
                                 v-for="link in officeLocations?.links || []"
                                 :key="link.label"
                                 :href="link.url"
-                                v-html="link.label"
                                 :class="[
                                     'rounded border px-3 py-1 text-sm',
                                     link.active
@@ -461,9 +585,14 @@ const cancelDelete = () => {
                                         : 'border-gray-300 text-gray-600 hover:bg-gray-50 dark:border-gray-600 dark:text-gray-300 dark:hover:bg-gray-800',
                                 ]"
                                 :disabled="!link.url"
-                            />
+                            >
+                                <span v-html="link.label"></span>
+                            </Link>
                         </div>
                     </div>
+                    <div
+                        class="absolute inset-0 rounded-xl bg-gradient-to-br from-blue-500/5 to-indigo-500/5 opacity-0 transition-opacity group-hover:opacity-100"
+                    ></div>
                 </div>
             </div>
         </div>

@@ -39,71 +39,170 @@
             </div>
 
             <!-- Overview Cards -->
-            <div class="mb-8 grid grid-cols-1 gap-6 sm:grid-cols-2 lg:grid-cols-4">
-                <div class="overflow-hidden rounded-xl bg-white shadow-sm ring-1 ring-gray-900/5 dark:bg-gray-900 dark:ring-white/10">
-                    <div class="p-6">
-                        <div class="flex items-center">
-                            <div class="flex h-12 w-12 shrink-0 items-center justify-center rounded-full bg-green-500/10">
-                                <DollarSign class="h-6 w-6 text-green-600 dark:text-green-400" />
+            <div class="mb-10 grid gap-6 md:grid-cols-2 lg:grid-cols-4">
+                <!-- Total Payroll -->
+                <div
+                    class="group relative overflow-hidden rounded-xl border border-gray-200/50 bg-gradient-to-br from-white to-emerald-50/30 p-6 shadow-sm transition-all hover:shadow-md dark:border-gray-800/50 dark:from-gray-950 dark:to-emerald-950/30"
+                >
+                    <div class="flex items-start justify-between">
+                        <div class="flex items-center gap-3">
+                            <div class="flex h-10 w-10 items-center justify-center rounded-full bg-emerald-500/10 ring-1 ring-emerald-500/20">
+                                <DollarSign class="h-5 w-5 text-emerald-600 dark:text-emerald-400" />
                             </div>
-                            <div class="ml-4 flex-1">
-                                <p class="text-sm font-medium text-gray-600 dark:text-gray-400">Total Payroll</p>
-                                <p class="text-2xl font-bold text-gray-900 dark:text-white">{{ formatCurrency(totalPayroll) }}</p>
+                            <div>
+                                <h3 class="font-medium text-gray-900 dark:text-white">Total Payroll</h3>
+                                <p class="text-sm text-gray-600 dark:text-gray-400">
+                                    Total gaji bersih periode ini
+                                </p>
                             </div>
                         </div>
+                        <div class="flex h-2 w-2 rounded-full bg-emerald-400"></div>
                     </div>
+
+                    <div class="mt-6 space-y-3">
+                        <div class="flex items-center justify-between rounded-lg bg-emerald-50/50 px-3 py-2 dark:bg-emerald-950/30">
+                            <span class="text-sm font-medium text-emerald-700 dark:text-emerald-400">Total</span>
+                            <span class="text-sm font-semibold text-emerald-800 dark:text-emerald-300">{{ formatCurrency(totalPayroll) }}</span>
+                        </div>
+                        <div class="flex items-center justify-between rounded-lg bg-gray-50/50 px-3 py-2 dark:bg-gray-800/50">
+                            <span class="text-sm font-medium text-gray-600 dark:text-gray-400">Karyawan</span>
+                            <span class="text-sm font-semibold text-gray-900 dark:text-white">{{ payrolls.length }}</span>
+                        </div>
+                    </div>
+
+                    <!-- Hover effect overlay -->
+                    <div
+                        class="absolute inset-0 rounded-xl bg-gradient-to-br from-emerald-500/5 to-teal-500/5 opacity-0 transition-opacity group-hover:opacity-100"
+                    ></div>
                 </div>
 
-                <div class="overflow-hidden rounded-xl bg-white shadow-sm ring-1 ring-gray-900/5 dark:bg-gray-900 dark:ring-white/10">
-                    <div class="p-6">
-                        <div class="flex items-center">
-                            <div class="flex h-12 w-12 shrink-0 items-center justify-center rounded-full bg-blue-500/10">
-                                <Users class="h-6 w-6 text-blue-600 dark:text-blue-400" />
+                <!-- Total Deductions -->
+                <div
+                    class="group relative overflow-hidden rounded-xl border border-gray-200/50 bg-gradient-to-br from-white to-orange-50/30 p-6 shadow-sm transition-all hover:shadow-md dark:border-gray-800/50 dark:from-gray-950 dark:to-orange-950/30"
+                >
+                    <div class="flex items-start justify-between">
+                        <div class="flex items-center gap-3">
+                            <div class="flex h-10 w-10 items-center justify-center rounded-full bg-orange-500/10 ring-1 ring-orange-500/20">
+                                <TrendingDown class="h-5 w-5 text-orange-600 dark:text-orange-400" />
                             </div>
-                            <div class="ml-4 flex-1">
-                                <p class="text-sm font-medium text-gray-600 dark:text-gray-400">Karyawan</p>
-                                <p class="text-2xl font-bold text-gray-900 dark:text-white">{{ payrolls.length }}</p>
+                            <div>
+                                <h3 class="font-medium text-gray-900 dark:text-white">Total Potongan</h3>
+                                <p class="text-sm text-gray-600 dark:text-gray-400">
+                                    Total potongan periode ini
+                                </p>
                             </div>
                         </div>
+                        <div class="flex h-2 w-2 rounded-full bg-orange-400"></div>
                     </div>
+
+                    <div class="mt-6 space-y-3">
+                        <div class="flex items-center justify-between rounded-lg bg-orange-50/50 px-3 py-2 dark:bg-orange-950/30">
+                            <span class="text-sm font-medium text-orange-700 dark:text-orange-400">Potongan</span>
+                            <span class="text-sm font-semibold text-orange-800 dark:text-orange-300">{{ formatCurrency(totalDeductions) }}</span>
+                        </div>
+                        <div class="flex items-center justify-between rounded-lg bg-gray-50/50 px-3 py-2 dark:bg-gray-800/50">
+                            <span class="text-sm font-medium text-gray-600 dark:text-gray-400">Persentase</span>
+                            <span class="text-sm font-semibold text-gray-900 dark:text-white">
+                                {{ totalPayroll > 0 ? Math.round((totalDeductions / (totalPayroll + totalDeductions)) * 100) : 0 }}%
+                            </span>
+                        </div>
+                    </div>
+
+                    <!-- Hover effect overlay -->
+                    <div
+                        class="absolute inset-0 rounded-xl bg-gradient-to-br from-orange-500/5 to-red-500/5 opacity-0 transition-opacity group-hover:opacity-100"
+                    ></div>
                 </div>
 
-                <div class="overflow-hidden rounded-xl bg-white shadow-sm ring-1 ring-gray-900/5 dark:bg-gray-900 dark:ring-white/10">
-                    <div class="p-6">
-                        <div class="flex items-center">
-                            <div class="flex h-12 w-12 shrink-0 items-center justify-center rounded-full bg-orange-500/10">
-                                <TrendingDown class="h-6 w-6 text-orange-600 dark:text-orange-400" />
+                <!-- Average Salary -->
+                <div
+                    class="group relative overflow-hidden rounded-xl border border-gray-200/50 bg-gradient-to-br from-white to-blue-50/30 p-6 shadow-sm transition-all hover:shadow-md dark:border-gray-800/50 dark:from-gray-950 dark:to-blue-950/30"
+                >
+                    <div class="flex items-start justify-between">
+                        <div class="flex items-center gap-3">
+                            <div class="flex h-10 w-10 items-center justify-center rounded-full bg-blue-500/10 ring-1 ring-blue-500/20">
+                                <Clock class="h-5 w-5 text-blue-600 dark:text-blue-400" />
                             </div>
-                            <div class="ml-4 flex-1">
-                                <p class="text-sm font-medium text-gray-600 dark:text-gray-400">Total Potongan</p>
-                                <p class="text-2xl font-bold text-gray-900 dark:text-white">{{ formatCurrency(totalDeductions) }}</p>
+                            <div>
+                                <h3 class="font-medium text-gray-900 dark:text-white">Rata-rata Gaji</h3>
+                                <p class="text-sm text-gray-600 dark:text-gray-400">
+                                    Rata-rata gaji bersih
+                                </p>
                             </div>
                         </div>
+                        <div class="flex h-2 w-2 rounded-full bg-blue-400"></div>
                     </div>
+
+                    <div class="mt-6 space-y-3">
+                        <div class="flex items-center justify-between rounded-lg bg-blue-50/50 px-3 py-2 dark:bg-blue-950/30">
+                            <span class="text-sm font-medium text-blue-700 dark:text-blue-400">Rata-rata</span>
+                            <span class="text-sm font-semibold text-blue-800 dark:text-blue-300">{{ formatCurrency(averagePayroll) }}</span>
+                        </div>
+                        <div class="flex items-center justify-between rounded-lg bg-gray-50/50 px-3 py-2 dark:bg-gray-800/50">
+                            <span class="text-sm font-medium text-gray-600 dark:text-gray-400">Karyawan</span>
+                            <span class="text-sm font-semibold text-gray-900 dark:text-white">{{ payrolls.length }}</span>
+                        </div>
+                    </div>
+
+                    <!-- Hover effect overlay -->
+                    <div
+                        class="absolute inset-0 rounded-xl bg-gradient-to-br from-blue-500/5 to-indigo-500/5 opacity-0 transition-opacity group-hover:opacity-100"
+                    ></div>
                 </div>
 
-                <div class="overflow-hidden rounded-xl bg-white shadow-sm ring-1 ring-gray-900/5 dark:bg-gray-900 dark:ring-white/10">
-                    <div class="p-6">
-                        <div class="flex items-center">
-                            <div class="flex h-12 w-12 shrink-0 items-center justify-center rounded-full bg-purple-500/10">
-                                <Clock class="h-6 w-6 text-purple-600 dark:text-purple-400" />
+                <!-- Payroll Status -->
+                <div
+                    class="group relative overflow-hidden rounded-xl border border-gray-200/50 bg-gradient-to-br from-white to-purple-50/30 p-6 shadow-sm transition-all hover:shadow-md dark:border-gray-800/50 dark:from-gray-950 dark:to-purple-950/30"
+                >
+                    <div class="flex items-start justify-between">
+                        <div class="flex items-center gap-3">
+                            <div class="flex h-10 w-10 items-center justify-center rounded-full bg-purple-500/10 ring-1 ring-purple-500/20">
+                                <FileText class="h-5 w-5 text-purple-600 dark:text-purple-400" />
                             </div>
-                            <div class="ml-4 flex-1">
-                                <p class="text-sm font-medium text-gray-600 dark:text-gray-400">Rata-rata Gaji</p>
-                                <p class="text-2xl font-bold text-gray-900 dark:text-white">{{ formatCurrency(averagePayroll) }}</p>
+                            <div>
+                                <h3 class="font-medium text-gray-900 dark:text-white">Status Payroll</h3>
+                                <p class="text-sm text-gray-600 dark:text-gray-400">
+                                    Status payroll periode ini
+                                </p>
                             </div>
                         </div>
+                        <div class="flex h-2 w-2 rounded-full bg-purple-400"></div>
                     </div>
+
+                    <div class="mt-6 space-y-3">
+                        <div class="flex items-center justify-between rounded-lg bg-purple-50/50 px-3 py-2 dark:bg-purple-950/30">
+                            <span class="text-sm font-medium text-purple-700 dark:text-purple-400">Status</span>
+                            <span class="text-sm font-semibold text-purple-800 dark:text-purple-300">
+                                {{ payrolls.length > 0 ? 'Generated' : 'Pending' }}
+                            </span>
+                        </div>
+                        <div class="flex items-center justify-between rounded-lg bg-gray-50/50 px-3 py-2 dark:bg-gray-800/50">
+                            <span class="text-sm font-medium text-gray-600 dark:text-gray-400">Periode</span>
+                            <span class="text-sm font-semibold text-gray-900 dark:text-white">{{ getCurrentPeriodName() }}</span>
+                        </div>
+                    </div>
+
+                    <!-- Hover effect overlay -->
+                    <div
+                        class="absolute inset-0 rounded-xl bg-gradient-to-br from-purple-500/5 to-violet-500/5 opacity-0 transition-opacity group-hover:opacity-100"
+                    ></div>
                 </div>
             </div>
 
             <!-- Payroll List -->
-            <div class="overflow-hidden rounded-xl bg-white shadow-sm ring-1 ring-gray-900/5 dark:bg-gray-900 dark:ring-white/10">
-                <div class="border-b border-gray-200 px-6 py-4 dark:border-gray-700">
-                    <h3 class="flex items-center text-lg font-semibold text-gray-900 dark:text-white">
-                        <FileText class="mr-2 h-5 w-5 text-blue-600 dark:text-blue-400" />
-                        Payroll {{ getCurrentPeriodName() }}
-                    </h3>
+            <div
+                class="group relative overflow-hidden rounded-xl border border-gray-200/50 bg-gradient-to-br from-white to-blue-50/30 shadow-sm transition-all hover:shadow-md dark:border-gray-800/50 dark:from-gray-950 dark:to-blue-950/30"
+            >
+                <div class="border-b border-gray-200/50 px-6 py-4 dark:border-gray-800/50">
+                    <div class="flex items-center gap-3">
+                        <div class="flex h-8 w-8 items-center justify-center rounded-lg bg-blue-500/10 ring-1 ring-blue-500/20">
+                            <FileText class="h-4 w-4 text-blue-600 dark:text-blue-400" />
+                        </div>
+                        <div>
+                            <h2 class="text-lg font-semibold text-gray-900 dark:text-white">Daftar Payroll</h2>
+                            <p class="text-sm text-gray-600 dark:text-gray-400">Payroll {{ getCurrentPeriodName() }} • {{ payrolls.length }} karyawan</p>
+                        </div>
+                    </div>
                 </div>
 
                 <div v-if="payrolls.length === 0" class="p-12 text-center">
@@ -120,55 +219,55 @@
                 </div>
 
                 <div v-else class="overflow-x-auto">
-                    <table class="w-full divide-y divide-gray-200 dark:divide-gray-700">
-                        <thead class="bg-gray-50 dark:bg-gray-800">
-                            <tr>
-                                <th class="px-6 py-3 text-left text-xs font-medium tracking-wider text-gray-500 uppercase dark:text-gray-400">
+                    <table class="w-full">
+                        <thead class="border-t border-gray-200 dark:border-gray-700">
+                            <tr class="border-b border-gray-200 dark:border-gray-700">
+                                <th class="px-6 py-3 text-left text-sm font-medium text-gray-500 dark:text-gray-400">
                                     Karyawan
                                 </th>
-                                <th class="px-6 py-3 text-left text-xs font-medium tracking-wider text-gray-500 uppercase dark:text-gray-400">
+                                <th class="px-6 py-3 text-left text-sm font-medium text-gray-500 dark:text-gray-400">
                                     Gaji Kotor
                                 </th>
-                                <th class="px-6 py-3 text-left text-xs font-medium tracking-wider text-gray-500 uppercase dark:text-gray-400">
+                                <th class="px-6 py-3 text-left text-sm font-medium text-gray-500 dark:text-gray-400">
                                     Potongan
                                 </th>
-                                <th class="px-6 py-3 text-left text-xs font-medium tracking-wider text-gray-500 uppercase dark:text-gray-400">
+                                <th class="px-6 py-3 text-left text-sm font-medium text-gray-500 dark:text-gray-400">
                                     Gaji Bersih
                                 </th>
-                                <th class="px-6 py-3 text-left text-xs font-medium tracking-wider text-gray-500 uppercase dark:text-gray-400">
+                                <th class="px-6 py-3 text-left text-sm font-medium text-gray-500 dark:text-gray-400">
                                     Kehadiran
                                 </th>
-                                <th class="px-6 py-3 text-left text-xs font-medium tracking-wider text-gray-500 uppercase dark:text-gray-400">
+                                <th class="px-6 py-3 text-left text-sm font-medium text-gray-500 dark:text-gray-400">
                                     Aksi
                                 </th>
                             </tr>
                         </thead>
-                        <tbody class="divide-y divide-gray-200 bg-white dark:divide-gray-700 dark:bg-gray-900">
-                            <tr v-for="payroll in payrolls" :key="payroll.id" class="hover:bg-gray-50 dark:hover:bg-gray-800">
-                                <td class="px-6 py-4 whitespace-nowrap">
+                        <tbody>
+                            <tr v-for="payroll in payrolls" :key="payroll.id" class="border-b border-gray-100 hover:bg-gray-50 dark:border-gray-800 dark:hover:bg-gray-900/50">
+                                <td class="px-6 py-4">
                                     <div>
                                         <div class="text-sm font-medium text-gray-900 dark:text-white">
-                                            {{ payroll.user.name }}
+                                            {{ payroll.user?.name || 'Unknown User' }}
                                         </div>
-                                        <div class="text-sm text-gray-500 dark:text-gray-400">ID: {{ payroll.user.employee_id }}</div>
+                                        <div class="text-sm text-gray-500 dark:text-gray-400">ID: {{ payroll.user?.employee_id || 'N/A' }}</div>
                                     </div>
                                 </td>
-                                <td class="px-6 py-4 whitespace-nowrap">
+                                <td class="px-6 py-4">
                                     <div class="text-sm font-medium text-gray-900 dark:text-white">
                                         {{ formatCurrency(payroll.gross_salary) }}
                                     </div>
                                 </td>
-                                <td class="px-6 py-4 whitespace-nowrap">
+                                <td class="px-6 py-4">
                                     <div class="text-sm font-medium text-red-600 dark:text-red-400">
                                         -{{ formatCurrency(payroll.total_deductions) }}
                                     </div>
                                 </td>
-                                <td class="px-6 py-4 whitespace-nowrap">
+                                <td class="px-6 py-4">
                                     <div class="text-sm font-bold text-green-600 dark:text-green-400">
                                         {{ formatCurrency(payroll.net_salary) }}
                                     </div>
                                 </td>
-                                <td class="px-6 py-4 whitespace-nowrap">
+                                <td class="px-6 py-4">
                                     <div class="text-sm text-gray-500 dark:text-gray-400">
                                         {{ payroll.actual_working_days }}/{{ payroll.working_days }} hari
                                         <div v-if="payroll.overtime_hours > 0" class="text-xs text-blue-600 dark:text-blue-400">
@@ -176,17 +275,17 @@
                                         </div>
                                     </div>
                                 </td>
-                                <td class="px-6 py-4 text-sm font-medium whitespace-nowrap">
+                                <td class="px-6 py-4">
                                     <div class="flex space-x-2">
                                         <Link
                                             :href="`/admin/payrolls/${payroll.id}`"
-                                            class="text-blue-600 hover:text-blue-900 dark:text-blue-400 dark:hover:text-blue-300"
+                                            class="relative z-10 rounded-lg bg-blue-100 p-2 text-blue-600 hover:bg-blue-200 dark:bg-blue-900/30 dark:text-blue-400 dark:hover:bg-blue-900/50"
                                         >
                                             <Eye class="h-4 w-4" />
                                         </Link>
                                         <button
                                             @click="regeneratePayroll(payroll)"
-                                            class="text-orange-600 hover:text-orange-900 dark:text-orange-400 dark:hover:text-orange-300"
+                                            class="relative z-10 rounded-lg bg-orange-100 p-2 text-orange-600 hover:bg-orange-200 dark:bg-orange-900/30 dark:text-orange-400 dark:hover:bg-orange-900/50"
                                             title="Regenerate"
                                         >
                                             <RotateCcw class="h-4 w-4" />
@@ -197,6 +296,11 @@
                         </tbody>
                     </table>
                 </div>
+
+                <!-- Hover effect overlay -->
+                <div
+                    class="absolute inset-0 rounded-xl bg-gradient-to-br from-blue-500/5 to-indigo-500/5 opacity-0 transition-opacity group-hover:opacity-100"
+                ></div>
             </div>
         </div>
 
@@ -260,9 +364,10 @@
 </template>
 
 <script setup lang="ts">
-import AppLayout from '@/Layouts/AppLayout.vue';
+import AppLayout from '@/layouts/AppLayout.vue';
+import { type BreadcrumbItem } from '@/types';
 import { Link, router } from '@inertiajs/vue3';
-import { AlertCircle, CheckCircle, Clock, DollarSign, Eye, FileText, Plus, RotateCcw, TrendingDown, Users, X } from 'lucide-vue-next';
+import { AlertCircle, CheckCircle, Clock, DollarSign, Eye, FileText, Plus, RotateCcw, TrendingDown, X } from 'lucide-vue-next';
 import { computed, ref } from 'vue';
 
 interface Payroll {
@@ -287,9 +392,9 @@ interface Props {
 
 const props = defineProps<Props>();
 
-const breadcrumbs = [
-    { name: 'Dashboard', href: '/admin/dashboard' },
-    { name: 'Payroll', href: '/admin/payrolls' },
+const breadcrumbs: BreadcrumbItem[] = [
+    { title: 'Dashboard', href: '/admin/dashboard' },
+    { title: 'Payroll', href: '/admin/payrolls' },
 ];
 
 const selectedYear = ref(props.currentYear);
@@ -389,10 +494,10 @@ const confirmGenerate = () => {
                 generating.value = false;
                 showGenerateModal.value = false;
                 // Use success message from server if available
-                const successMessage = page.props?.flash?.success || 'Payroll berhasil digenerate!';
+                const successMessage = (page.props.flash as any)?.success || 'Payroll berhasil digenerate!';
                 showToastMessage(successMessage, 'success');
             },
-            onError: (errors, page) => {
+            onError: (errors: any) => {
                 generating.value = false;
                 showGenerateModal.value = false;
 
@@ -402,17 +507,6 @@ const confirmGenerate = () => {
 
                 if (errors.validation) {
                     errorMessage = errors.validation;
-
-                    // Extract details from flash data
-                    const validationDetails = page?.props?.flash?.validation_details;
-                    if (validationDetails) {
-                        if (validationDetails.missing_salary) {
-                            errorDetails.push(`Belum ada pengaturan gaji: ${validationDetails.missing_salary.join(', ')}`);
-                        }
-                        if (validationDetails.invalid_salary) {
-                            errorDetails.push(`Gaji tidak valid: ${validationDetails.invalid_salary.join(', ')}`);
-                        }
-                    }
                 } else if (errors.error) {
                     errorMessage = errors.error;
                 } else {
@@ -434,13 +528,13 @@ const confirmGenerate = () => {
 };
 
 const regeneratePayroll = (payroll: Payroll) => {
-    if (confirm(`Yakin ingin regenerate payroll untuk ${payroll.user.name}?`)) {
+    if (confirm(`Yakin ingin regenerate payroll untuk ${payroll.user?.name || 'Unknown User'}?`)) {
         router.post(
             `/admin/payrolls/${payroll.id}/regenerate`,
             {},
             {
                 onSuccess: () => {
-                    showToastMessage(`Payroll ${payroll.user.name} berhasil diregenerate!`, 'success');
+                    showToastMessage(`Payroll ${payroll.user?.name || 'Unknown User'} berhasil diregenerate!`, 'success');
                 },
                 onError: (errors) => {
                     const errorMessage = Object.values(errors).flat().join(', ') || 'Terjadi kesalahan saat regenerate payroll';

@@ -26,9 +26,9 @@ class EmployeeController extends Controller
         // Apply filters
         if ($request->search) {
             $query->where(function ($q) use ($request) {
-                $q->where('name', 'like', '%'.$request->search.'%')
-                    ->orWhere('email', 'like', '%'.$request->search.'%')
-                    ->orWhere('employee_id', 'like', '%'.$request->search.'%');
+                $q->where('name', 'like', '%' . $request->search . '%')
+                    ->orWhere('email', 'like', '%' . $request->search . '%')
+                    ->orWhere('employee_id', 'like', '%' . $request->search . '%');
             });
         }
 
@@ -85,10 +85,22 @@ class EmployeeController extends Controller
         $departments = Department::orderBy('name')->get(['id', 'name']);
         $positions = Position::orderBy('title')->get(['id', 'title']);
 
+        // Get employee statistics
+        $totalEmployees = User::count();
+        $activeEmployees = User::where('employment_status', 'active')->count();
+        $inactiveEmployees = User::where('employment_status', 'inactive')->count();
+        $terminatedEmployees = User::where('employment_status', 'terminated')->count();
+
         return Inertia::render('admin/Employees/Index', [
             'employees' => $employees,
             'departments' => $departments,
             'positions' => $positions,
+            'stats' => [
+                'total' => $totalEmployees,
+                'active' => $activeEmployees,
+                'inactive' => $inactiveEmployees,
+                'terminated' => $terminatedEmployees,
+            ],
             'filters' => $request->only(['search', 'department', 'position', 'status', 'sort', 'direction']),
             'flash' => [
                 'success' => session('success'),
@@ -168,8 +180,8 @@ class EmployeeController extends Controller
     {
         $validated = $request->validate([
             'name' => 'required|string|max:255',
-            'email' => 'required|email|unique:users,email,'.$employee->id,
-            'employee_id' => 'required|string|unique:users,employee_id,'.$employee->id,
+            'email' => 'required|email|unique:users,email,' . $employee->id,
+            'employee_id' => 'required|string|unique:users,employee_id,' . $employee->id,
             'phone' => 'required|numeric|digits_between:10,15',
             'department_id' => 'required|exists:departments,id',
             'position_id' => 'nullable|exists:positions,id',
@@ -245,7 +257,7 @@ class EmployeeController extends Controller
                 }
 
                 if ($hasConstraints) {
-                    throw new \Exception('Cannot delete employee: still referenced by '.implode(', ', $constraintMessages));
+                    throw new \Exception('Cannot delete employee: still referenced by ' . implode(', ', $constraintMessages));
                 }
 
                 // Delete related records that can be safely deleted
@@ -287,7 +299,6 @@ class EmployeeController extends Controller
             }
 
             \Log::info('Employee deletion verified - record no longer exists', ['employee_id' => $employee->id]);
-
         } catch (\Exception $e) {
             \Log::error('Employee deletion failed', [
                 'employee_id' => $employee->id,
@@ -295,7 +306,7 @@ class EmployeeController extends Controller
                 'trace' => $e->getTraceAsString(),
             ]);
 
-            return back()->with('error', 'Gagal menghapus karyawan: '.$e->getMessage());
+            return back()->with('error', 'Gagal menghapus karyawan: ' . $e->getMessage());
         }
 
         return to_route('employees.index')

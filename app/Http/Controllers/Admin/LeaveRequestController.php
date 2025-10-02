@@ -95,6 +95,85 @@ class LeaveRequestController extends Controller
             ];
         }
 
+        // Get 30-day trend data for chart
+        $dailyTrend = [];
+        for ($i = 29; $i >= 0; $i--) {
+            $date = now()->subDays($i);
+            $dailyTrend[] = [
+                'date' => $date->format('d/m'),
+                'count' => LeaveRequest::whereDate('created_at', $date->format('Y-m-d'))->count(),
+                'approved' => LeaveRequest::whereDate('created_at', $date->format('Y-m-d'))
+                    ->where('status', 'approved')
+                    ->count(),
+                'pending' => LeaveRequest::whereDate('created_at', $date->format('Y-m-d'))
+                    ->where('status', 'pending')
+                    ->count(),
+                'rejected' => LeaveRequest::whereDate('created_at', $date->format('Y-m-d'))
+                    ->where('status', 'rejected')
+                    ->count(),
+            ];
+        }
+
+        // Get department-wise leave request data
+        $departmentStats = Department::active()
+            ->with(['employees' => function ($query) {
+                $query->where('employment_status', 'active');
+            }])
+            ->get()
+            ->map(function ($dept) {
+                $userIds = $dept->employees->pluck('id');
+
+                $total = LeaveRequest::whereIn('user_id', $userIds)
+                    ->whereMonth('created_at', now()->month)
+                    ->whereYear('created_at', now()->year)
+                    ->count();
+
+                $approved = LeaveRequest::whereIn('user_id', $userIds)
+                    ->whereMonth('created_at', now()->month)
+                    ->whereYear('created_at', now()->year)
+                    ->where('status', 'approved')
+                    ->count();
+
+                $pending = LeaveRequest::whereIn('user_id', $userIds)
+                    ->whereMonth('created_at', now()->month)
+                    ->whereYear('created_at', now()->year)
+                    ->where('status', 'pending')
+                    ->count();
+
+                $rejected = LeaveRequest::whereIn('user_id', $userIds)
+                    ->whereMonth('created_at', now()->month)
+                    ->whereYear('created_at', now()->year)
+                    ->where('status', 'rejected')
+                    ->count();
+
+                return [
+                    'department' => $dept->name,
+                    'total' => $total,
+                    'approved' => $approved,
+                    'pending' => $pending,
+                    'rejected' => $rejected,
+                ];
+            });
+
+        // Get leave type distribution
+        $leaveTypeStats = LeaveType::withCount(['leaveRequests' => function ($query) {
+            $query->whereMonth('created_at', now()->month)
+                ->whereYear('created_at', now()->year);
+        }])
+            ->withCount(['leaveRequests as approved_count' => function ($query) {
+                $query->whereMonth('created_at', now()->month)
+                    ->whereYear('created_at', now()->year)
+                    ->where('status', 'approved');
+            }])
+            ->get()
+            ->map(function ($type) {
+                return [
+                    'type' => $type->name,
+                    'total' => $type->leave_requests_count,
+                    'approved' => $type->approved_count,
+                ];
+            });
+
         // Get filter options
         $leaveTypes = LeaveType::select('id', 'name')->orderBy('name')->get();
         $departments = Department::select('id', 'name')
@@ -106,6 +185,9 @@ class LeaveRequestController extends Controller
             'leaveRequests' => $leaveRequests,
             'stats' => $stats,
             'monthlyTrend' => $monthlyTrend,
+            'dailyTrend' => $dailyTrend,
+            'departmentStats' => $departmentStats,
+            'leaveTypeStats' => $leaveTypeStats,
             'leaveTypes' => $leaveTypes,
             'departments' => $departments,
             'filters' => [

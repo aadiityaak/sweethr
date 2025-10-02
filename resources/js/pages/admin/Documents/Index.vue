@@ -29,68 +29,99 @@
             </div>
 
             <!-- Stats Cards -->
-            <div class="mb-8 grid grid-cols-1 gap-6 sm:grid-cols-2 lg:grid-cols-4">
-                <div class="overflow-hidden rounded-xl bg-white shadow-sm ring-1 ring-gray-900/5 dark:bg-gray-900 dark:ring-white/10">
-                    <div class="p-6">
-                        <div class="flex items-center">
-                            <div class="flex h-12 w-12 shrink-0 items-center justify-center rounded-full bg-blue-500/10">
-                                <FileText class="h-6 w-6 text-blue-600 dark:text-blue-400" />
+            <div class="mb-10 grid gap-6 md:grid-cols-2">
+                <!-- Total Documents -->
+                <div
+                    class="group relative overflow-hidden rounded-xl border border-gray-200/50 bg-gradient-to-br from-white to-blue-50/30 p-6 shadow-sm transition-all hover:shadow-md dark:border-gray-800/50 dark:from-gray-950 dark:to-blue-950/30"
+                >
+                    <div class="flex items-start justify-between">
+                        <div class="flex items-center gap-3">
+                            <div class="flex h-10 w-10 items-center justify-center rounded-full bg-blue-500/10 ring-1 ring-blue-500/20">
+                                <FileText class="h-5 w-5 text-blue-600 dark:text-blue-400" />
                             </div>
-                            <div class="ml-4 flex-1">
-                                <p class="text-sm font-medium text-gray-600 dark:text-gray-400">Total Dokumen</p>
-                                <p class="text-2xl font-bold text-gray-900 dark:text-white">{{ stats.total }}</p>
+                            <div>
+                                <h3 class="font-medium text-gray-900 dark:text-white">Total Dokumen</h3>
+                                <p class="text-sm text-gray-600 dark:text-gray-400">
+                                    Semua dokumen terdaftar
+                                </p>
                             </div>
                         </div>
+                        <div class="flex h-2 w-2 rounded-full bg-blue-400"></div>
                     </div>
+
+                    <div class="mt-6 space-y-3">
+                        <div class="flex items-center justify-between rounded-lg bg-blue-50/50 px-3 py-2 dark:bg-blue-950/30">
+                            <span class="text-sm font-medium text-blue-700 dark:text-blue-400">Total</span>
+                            <span class="text-sm font-semibold text-blue-800 dark:text-blue-300">{{ stats.total }}</span>
+                        </div>
+                        <div class="flex items-center justify-between rounded-lg bg-gray-50/50 px-3 py-2 dark:bg-gray-800/50">
+                            <span class="text-sm font-medium text-gray-600 dark:text-gray-400">Aktif</span>
+                            <span class="text-sm font-semibold text-gray-900 dark:text-white">{{ stats.active }}</span>
+                        </div>
+                    </div>
+
+                    <!-- Hover effect overlay -->
+                    <div
+                        class="absolute inset-0 rounded-xl bg-gradient-to-br from-blue-500/5 to-indigo-500/5 opacity-0 transition-opacity group-hover:opacity-100"
+                    ></div>
                 </div>
 
-                <div class="overflow-hidden rounded-xl bg-white shadow-sm ring-1 ring-gray-900/5 dark:bg-gray-900 dark:ring-white/10">
-                    <div class="p-6">
-                        <div class="flex items-center">
-                            <div class="flex h-12 w-12 shrink-0 items-center justify-center rounded-full bg-green-500/10">
-                                <CheckCircle class="h-6 w-6 text-green-600 dark:text-green-400" />
+                <!-- Active Documents -->
+                <div
+                    class="group relative overflow-hidden rounded-xl border border-gray-200/50 bg-gradient-to-br from-white to-emerald-50/30 p-6 shadow-sm transition-all hover:shadow-md dark:border-gray-800/50 dark:from-gray-950 dark:to-emerald-950/30"
+                >
+                    <div class="flex items-start justify-between">
+                        <div class="flex items-center gap-3">
+                            <div class="flex h-10 w-10 items-center justify-center rounded-full bg-emerald-500/10 ring-1 ring-emerald-500/20">
+                                <CheckCircle class="h-5 w-5 text-emerald-600 dark:text-emerald-400" />
                             </div>
-                            <div class="ml-4 flex-1">
-                                <p class="text-sm font-medium text-gray-600 dark:text-gray-400">Dokumen Aktif</p>
-                                <p class="text-2xl font-bold text-gray-900 dark:text-white">{{ stats.active }}</p>
+                            <div>
+                                <h3 class="font-medium text-gray-900 dark:text-white">Dokumen Aktif</h3>
+                                <p class="text-sm text-gray-600 dark:text-gray-400">
+                                    Dokumen yang masih berlaku
+                                </p>
                             </div>
                         </div>
+                        <div class="flex h-2 w-2 rounded-full bg-emerald-400"></div>
                     </div>
-                </div>
 
-                <div class="overflow-hidden rounded-xl bg-white shadow-sm ring-1 ring-gray-900/5 dark:bg-gray-900 dark:ring-white/10">
-                    <div class="p-6">
-                        <div class="flex items-center">
-                            <div class="flex h-12 w-12 shrink-0 items-center justify-center rounded-full bg-orange-500/10">
-                                <AlertTriangle class="h-6 w-6 text-orange-600 dark:text-orange-400" />
-                            </div>
-                            <div class="ml-4 flex-1">
-                                <p class="text-sm font-medium text-gray-600 dark:text-gray-400">Akan Kadaluarsa</p>
-                                <p class="text-2xl font-bold text-gray-900 dark:text-white">{{ stats.expiring_soon }}</p>
-                            </div>
+                    <div class="mt-6 space-y-3">
+                        <div class="flex items-center justify-between rounded-lg bg-emerald-50/50 px-3 py-2 dark:bg-emerald-950/30">
+                            <span class="text-sm font-medium text-emerald-700 dark:text-emerald-400">Aktif</span>
+                            <span class="text-sm font-semibold text-emerald-800 dark:text-emerald-300">{{ stats.active }}</span>
+                        </div>
+                        <div class="flex items-center justify-between rounded-lg bg-gray-50/50 px-3 py-2 dark:bg-gray-800/50">
+                            <span class="text-sm font-medium text-gray-600 dark:text-gray-400">Persentase</span>
+                            <span class="text-sm font-semibold text-gray-900 dark:text-white">
+                                {{ stats.total ? Math.round((stats.active / stats.total) * 100) : 0 }}%
+                            </span>
                         </div>
                     </div>
-                </div>
 
-                <div class="overflow-hidden rounded-xl bg-white shadow-sm ring-1 ring-gray-900/5 dark:bg-gray-900 dark:ring-white/10">
-                    <div class="p-6">
-                        <div class="flex items-center">
-                            <div class="flex h-12 w-12 shrink-0 items-center justify-center rounded-full bg-red-500/10">
-                                <XCircle class="h-6 w-6 text-red-600 dark:text-red-400" />
-                            </div>
-                            <div class="ml-4 flex-1">
-                                <p class="text-sm font-medium text-gray-600 dark:text-gray-400">Kadaluarsa</p>
-                                <p class="text-2xl font-bold text-gray-900 dark:text-white">{{ stats.expired }}</p>
-                            </div>
-                        </div>
-                    </div>
+                    <!-- Hover effect overlay -->
+                    <div
+                        class="absolute inset-0 rounded-xl bg-gradient-to-br from-emerald-500/5 to-teal-500/5 opacity-0 transition-opacity group-hover:opacity-100"
+                    ></div>
                 </div>
             </div>
 
             <!-- Filters -->
-            <div class="mb-6 overflow-hidden rounded-xl bg-white shadow-sm ring-1 ring-gray-900/5 dark:bg-gray-900 dark:ring-white/10">
+            <div
+                class="group relative mb-10 overflow-hidden rounded-xl border border-gray-200/50 bg-gradient-to-br from-white to-gray-50/30 shadow-sm transition-all hover:shadow-md dark:border-gray-800/50 dark:from-gray-950 dark:to-gray-900/30"
+            >
+                <div class="border-b border-gray-200/50 p-6 dark:border-gray-800/50">
+                    <div class="flex items-center gap-3">
+                        <div class="flex h-8 w-8 items-center justify-center rounded-lg bg-gray-500/10 ring-1 ring-gray-500/20">
+                            <AlertTriangle class="h-4 w-4 text-gray-600 dark:text-gray-400" />
+                        </div>
+                        <div>
+                            <h2 class="text-lg font-semibold text-gray-900 dark:text-white">Filter & Pencarian</h2>
+                            <p class="text-sm text-gray-600 dark:text-gray-400">Filter dokumen berdasarkan kriteria</p>
+                        </div>
+                    </div>
+                </div>
                 <div class="p-6">
-                    <div class="grid grid-cols-1 gap-4 sm:grid-cols-2">
+                    <div class="grid gap-4 md:grid-cols-2">
                         <!-- Employee Filter -->
                         <div>
                             <label for="user_id" class="block text-sm font-medium text-gray-700 dark:text-gray-300"> Karyawan </label>
@@ -133,6 +164,9 @@
                         </button>
                     </div>
                 </div>
+                <div
+                    class="absolute inset-0 rounded-xl bg-gradient-to-br from-gray-500/5 to-slate-500/5 opacity-0 transition-opacity group-hover:opacity-100"
+                ></div>
             </div>
 
             <!-- Documents List -->
@@ -184,7 +218,7 @@ import AppLayout from '@/layouts/AppLayout.vue';
 import { dashboard } from '@/routes/admin';
 import { create, destroy, index as documentsIndex, download, edit, show } from '@/routes/admin/documents';
 import { Link, router } from '@inertiajs/vue3';
-import { AlertTriangle, CheckCircle, FileText, Plus, RefreshCw, XCircle } from 'lucide-vue-next';
+import { AlertTriangle, CheckCircle, FileText, Plus, RefreshCw } from 'lucide-vue-next';
 import { reactive, ref } from 'vue';
 
 interface Props {
@@ -194,8 +228,6 @@ interface Props {
     stats: {
         total: number;
         active: number;
-        expiring_soon: number;
-        expired: number;
     };
     filters: {
         user_id?: string;
