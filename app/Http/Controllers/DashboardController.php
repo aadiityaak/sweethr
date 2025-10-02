@@ -106,8 +106,28 @@ class DashboardController extends Controller
         // Get all office locations for check-in functionality
         $officeLocations = OfficeLocation::active()->get();
 
-        // Get user's assigned work shifts
-        $userShifts = EmployeeShift::with('workShift')
+        // Get all active work shifts for employees to choose from
+        $allWorkShifts = \App\Models\WorkShift::active()
+            ->get()
+            ->map(function ($workShift) {
+                return [
+                    'id' => $workShift->id,
+                    'name' => $workShift->name,
+                    'code' => $workShift->code,
+                    'start_time' => $workShift->start_time->format('H:i'),
+                    'end_time' => $workShift->end_time->format('H:i'),
+                    'work_hours' => $workShift->work_hours,
+                    'break_duration' => $workShift->break_duration,
+                    'workdays' => $workShift->workdays,
+                    'is_night_shift' => $workShift->is_night_shift,
+                    'assignment_type' => 'general', // Default assignment type for all shifts
+                    'effective_date' => Carbon::today()->toDateString(),
+                    'end_date' => null,
+                ];
+            });
+
+        // Get user's assigned work shifts (for reference)
+        $assignedShifts = EmployeeShift::with('workShift')
             ->where('user_id', $user->id)
             ->where('is_active', true)
             ->where(function ($query) {
@@ -136,6 +156,9 @@ class DashboardController extends Controller
                     'end_date' => $employeeShift->end_date,
                 ];
             });
+
+        // Use all work shifts instead of just assigned shifts
+        $userShifts = $allWorkShifts;
 
         // Get face recognition data - ensure fresh data from database
         $faceRecognitionEnabled = $user->face_recognition_enabled ?? false;

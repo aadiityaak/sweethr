@@ -231,7 +231,7 @@ onMounted(() => {
                     :key="shift.id"
                     :value="shift.id.toString()"
                 >
-                    {{ shift.name }} ({{ shift.code }}) - {{ formatTime(shift.start_time) }} - {{ formatTime(shift.end_time) }}
+                    {{ shift.name }} ({{ formatTime(shift.start_time) }} - {{ formatTime(shift.end_time) }})
                 </option>
             </select>
 
