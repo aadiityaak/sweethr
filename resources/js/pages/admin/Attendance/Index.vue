@@ -240,16 +240,16 @@ const formatTime = (time: string | null | any) => {
 
 const formatDuration = (minutes: number | null) => {
     if (!minutes) return '--';
-    
+
     // Round to 1 decimal place to avoid long decimals
     const roundedMinutes = Math.round(minutes * 10) / 10;
-    
+
     const hours = Math.floor(roundedMinutes / 60);
     const mins = roundedMinutes % 60;
-    
+
     // Format minutes with 1 decimal place if it has decimals
     const minsFormatted = mins % 1 !== 0 ? mins.toFixed(1) : mins.toString();
-    
+
     return hours > 0 ? `${hours}j ${minsFormatted}m` : `${minsFormatted}m`;
 };
 
@@ -321,25 +321,25 @@ const generateTrendData = () => {
     const data = [];
     const presentData = [];
     const lateData = [];
-    
+
     for (let i = 29; i >= 0; i--) {
         const date = new Date(today);
         date.setDate(date.getDate() - i);
         const dayOfWeek = date.getDay();
-        
+
         // Skip weekends
         if (dayOfWeek !== 0 && dayOfWeek !== 6) {
             labels.push(date.toLocaleDateString('id-ID', { day: 'numeric', month: 'short' }));
             const total = Math.floor(Math.random() * 20) + 80; // 80-100%
             const present = Math.floor(total * 0.9);
             const late = Math.floor(total * 0.1);
-            
+
             data.push(total);
             presentData.push(present);
             lateData.push(late);
         }
     }
-    
+
     return { labels, data, presentData, lateData };
 };
 
@@ -568,9 +568,7 @@ onUnmounted(() => {
                             </div>
                             <div>
                                 <h3 class="font-medium text-gray-900 dark:text-white">Total Karyawan</h3>
-                                <p class="text-sm text-gray-600 dark:text-gray-400">
-                                    Semua karyawan terdaftar
-                                </p>
+                                <p class="text-sm text-gray-600 dark:text-gray-400">Semua karyawan terdaftar</p>
                             </div>
                         </div>
                         <div class="flex h-2 w-2 rounded-full bg-blue-400"></div>
@@ -583,9 +581,7 @@ onUnmounted(() => {
                         </div>
                         <div class="flex items-center justify-between rounded-lg bg-gray-50/50 px-3 py-2 dark:bg-gray-800/50">
                             <span class="text-sm font-medium text-gray-600 dark:text-gray-400">Tingkat Kehadiran</span>
-                            <span class="text-sm font-semibold text-gray-900 dark:text-white">
-                                {{ stats.attendance_rate }}%
-                            </span>
+                            <span class="text-sm font-semibold text-gray-900 dark:text-white"> {{ stats.attendance_rate }}% </span>
                         </div>
                     </div>
 
@@ -612,10 +608,7 @@ onUnmounted(() => {
                         </div>
                     </div>
                     <div class="h-64">
-                        <AttendanceChart
-                            type="line"
-                            :trend-data="generateTrendData()"
-                        />
+                        <AttendanceChart type="line" :trend-data="generateTrendData()" />
                     </div>
                     <div
                         class="absolute inset-0 rounded-xl bg-gradient-to-br from-purple-500/5 to-violet-500/5 opacity-0 transition-opacity group-hover:opacity-100"
@@ -636,10 +629,7 @@ onUnmounted(() => {
                         </div>
                     </div>
                     <div class="h-64">
-                        <AttendanceChart
-                            type="doughnut"
-                            :attendance-data="generateAttendanceBreakdown()"
-                        />
+                        <AttendanceChart type="doughnut" :attendance-data="generateAttendanceBreakdown()" />
                     </div>
                     <div
                         class="absolute inset-0 rounded-xl bg-gradient-to-br from-blue-500/5 to-indigo-500/5 opacity-0 transition-opacity group-hover:opacity-100"
@@ -663,10 +653,7 @@ onUnmounted(() => {
                         </div>
                     </div>
                     <div class="h-64">
-                        <AttendanceChart
-                            type="bar"
-                            :weekly-data="generateWeeklyData()"
-                        />
+                        <AttendanceChart type="bar" :weekly-data="generateWeeklyData()" />
                     </div>
                     <div
                         class="absolute inset-0 rounded-xl bg-gradient-to-br from-emerald-500/5 to-teal-500/5 opacity-0 transition-opacity group-hover:opacity-100"
@@ -687,10 +674,7 @@ onUnmounted(() => {
                         </div>
                     </div>
                     <div class="h-64">
-                        <AttendanceChart
-                            type="bar"
-                            :department-data="generateDepartmentData()"
-                        />
+                        <AttendanceChart type="bar" :department-data="generateDepartmentData()" />
                     </div>
                     <div
                         class="absolute inset-0 rounded-xl bg-gradient-to-br from-amber-500/5 to-orange-500/5 opacity-0 transition-opacity group-hover:opacity-100"
@@ -998,9 +982,7 @@ onUnmounted(() => {
                             {{ attendanceToDelete.user.name }}
                         </span>
                         pada tanggal
-                        <span v-if="attendanceToDelete" class="font-semibold">
-                            {{ formatDate(attendanceToDelete.date) }} </span
-                        >? <br /><br />
+                        <span v-if="attendanceToDelete" class="font-semibold"> {{ formatDate(attendanceToDelete.date) }} </span>? <br /><br />
                         <span class="text-red-600 dark:text-red-400"> Tindakan ini tidak dapat dibatalkan. </span>
                     </DialogDescription>
                 </DialogHeader>

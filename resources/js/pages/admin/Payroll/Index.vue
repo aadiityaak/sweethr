@@ -51,9 +51,7 @@
                             </div>
                             <div>
                                 <h3 class="font-medium text-gray-900 dark:text-white">Total Payroll</h3>
-                                <p class="text-sm text-gray-600 dark:text-gray-400">
-                                    Total gaji bersih periode ini
-                                </p>
+                                <p class="text-sm text-gray-600 dark:text-gray-400">Total gaji bersih periode ini</p>
                             </div>
                         </div>
                         <div class="flex h-2 w-2 rounded-full bg-emerald-400"></div>
@@ -87,9 +85,7 @@
                             </div>
                             <div>
                                 <h3 class="font-medium text-gray-900 dark:text-white">Total Potongan</h3>
-                                <p class="text-sm text-gray-600 dark:text-gray-400">
-                                    Total potongan periode ini
-                                </p>
+                                <p class="text-sm text-gray-600 dark:text-gray-400">Total potongan periode ini</p>
                             </div>
                         </div>
                         <div class="flex h-2 w-2 rounded-full bg-orange-400"></div>
@@ -125,9 +121,7 @@
                             </div>
                             <div>
                                 <h3 class="font-medium text-gray-900 dark:text-white">Rata-rata Gaji</h3>
-                                <p class="text-sm text-gray-600 dark:text-gray-400">
-                                    Rata-rata gaji bersih
-                                </p>
+                                <p class="text-sm text-gray-600 dark:text-gray-400">Rata-rata gaji bersih</p>
                             </div>
                         </div>
                         <div class="flex h-2 w-2 rounded-full bg-blue-400"></div>
@@ -161,9 +155,7 @@
                             </div>
                             <div>
                                 <h3 class="font-medium text-gray-900 dark:text-white">Status Payroll</h3>
-                                <p class="text-sm text-gray-600 dark:text-gray-400">
-                                    Status payroll periode ini
-                                </p>
+                                <p class="text-sm text-gray-600 dark:text-gray-400">Status payroll periode ini</p>
                             </div>
                         </div>
                         <div class="flex h-2 w-2 rounded-full bg-purple-400"></div>
@@ -200,7 +192,9 @@
                         </div>
                         <div>
                             <h2 class="text-lg font-semibold text-gray-900 dark:text-white">Daftar Payroll</h2>
-                            <p class="text-sm text-gray-600 dark:text-gray-400">Payroll {{ getCurrentPeriodName() }} • {{ payrolls.length }} karyawan</p>
+                            <p class="text-sm text-gray-600 dark:text-gray-400">
+                                Payroll {{ getCurrentPeriodName() }} • {{ payrolls.length }} karyawan
+                            </p>
                         </div>
                     </div>
                 </div>
@@ -222,28 +216,20 @@
                     <table class="w-full">
                         <thead class="border-t border-gray-200 dark:border-gray-700">
                             <tr class="border-b border-gray-200 dark:border-gray-700">
-                                <th class="px-6 py-3 text-left text-sm font-medium text-gray-500 dark:text-gray-400">
-                                    Karyawan
-                                </th>
-                                <th class="px-6 py-3 text-left text-sm font-medium text-gray-500 dark:text-gray-400">
-                                    Gaji Kotor
-                                </th>
-                                <th class="px-6 py-3 text-left text-sm font-medium text-gray-500 dark:text-gray-400">
-                                    Potongan
-                                </th>
-                                <th class="px-6 py-3 text-left text-sm font-medium text-gray-500 dark:text-gray-400">
-                                    Gaji Bersih
-                                </th>
-                                <th class="px-6 py-3 text-left text-sm font-medium text-gray-500 dark:text-gray-400">
-                                    Kehadiran
-                                </th>
-                                <th class="px-6 py-3 text-left text-sm font-medium text-gray-500 dark:text-gray-400">
-                                    Aksi
-                                </th>
+                                <th class="px-6 py-3 text-left text-sm font-medium text-gray-500 dark:text-gray-400">Karyawan</th>
+                                <th class="px-6 py-3 text-left text-sm font-medium text-gray-500 dark:text-gray-400">Gaji Kotor</th>
+                                <th class="px-6 py-3 text-left text-sm font-medium text-gray-500 dark:text-gray-400">Potongan</th>
+                                <th class="px-6 py-3 text-left text-sm font-medium text-gray-500 dark:text-gray-400">Gaji Bersih</th>
+                                <th class="px-6 py-3 text-left text-sm font-medium text-gray-500 dark:text-gray-400">Kehadiran</th>
+                                <th class="px-6 py-3 text-left text-sm font-medium text-gray-500 dark:text-gray-400">Aksi</th>
                             </tr>
                         </thead>
                         <tbody>
-                            <tr v-for="payroll in payrolls" :key="payroll.id" class="border-b border-gray-100 hover:bg-gray-50 dark:border-gray-800 dark:hover:bg-gray-900/50">
+                            <tr
+                                v-for="payroll in payrolls"
+                                :key="payroll.id"
+                                class="border-b border-gray-100 hover:bg-gray-50 dark:border-gray-800 dark:hover:bg-gray-900/50"
+                            >
                                 <td class="px-6 py-4">
                                     <div>
                                         <div class="text-sm font-medium text-gray-900 dark:text-white">

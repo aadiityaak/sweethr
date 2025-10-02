@@ -48,17 +48,19 @@ interface Props {
         meta: any;
     };
     todayAttendance: TodayAttendance | null;
+    currentShift?: WorkShift | null;
     filters: {
         month?: string;
         year?: string;
     };
 }
 
-const { attendances, todayAttendance, filters } = defineProps<Props>();
+const { attendances, todayAttendance, currentShift, filters } = defineProps<Props>();
 
 // Debug logging
-console.log('Attendance Index - Props:', { attendances, todayAttendance, filters });
+console.log('Attendance Index - Props:', { attendances, todayAttendance, currentShift, filters });
 console.log('Today Attendance with Shift:', todayAttendance);
+console.log('Current Assigned Shift:', currentShift);
 console.log('Attendances Data:', attendances?.data);
 
 const { toast } = useToast();
@@ -77,6 +79,24 @@ const userLocation = ref({ latitude: 0, longitude: 0 });
 const checkoutForm = useForm({
     latitude: 0,
     longitude: 0,
+});
+
+// Computed property for display shift (priority: today's attendance shift > current assigned shift)
+const displayShift = computed(() => {
+    // If today's attendance has a shift, use that (highest priority)
+    if (todayAttendance?.workShift) {
+        console.log('DisplayShift: Using today attendance shift:', todayAttendance.workShift);
+        return todayAttendance.workShift;
+    }
+
+    // Otherwise, use the current assigned shift (fallback)
+    if (currentShift) {
+        console.log('DisplayShift: Using current assigned shift:', currentShift);
+        return currentShift;
+    }
+
+    console.log('DisplayShift: No shift available');
+    return null;
 });
 
 // Transform attendance data for calendar
@@ -121,18 +141,18 @@ const formatTime = (time: string | null) => {
 
 const formatDuration = (minutes: number | null) => {
     if (!minutes) return '--';
-    
+
     // Log the original value for debugging
     console.log('formatDuration - original value:', minutes);
-    
+
     // Always use absolute value for duration
     const absMinutes = Math.abs(minutes);
     const hours = Math.floor(absMinutes / 60);
     const mins = absMinutes % 60;
-    
+
     const result = `${hours}h ${mins}m`;
     console.log('formatDuration - result:', result);
-    
+
     return result;
 };
 
@@ -354,14 +374,14 @@ const confirmCheckOut = () => {
                                 {{ todayAttendance.office_location?.name || 'Remote' }}
                             </span>
                         </div>
-                        <div v-if="todayAttendance?.workShift" class="flex items-center gap-2 rounded-md bg-blue-50 p-3 dark:bg-blue-900/20">
+                        <div v-if="displayShift" class="flex items-center gap-2 rounded-md bg-blue-50 p-3 dark:bg-blue-900/20">
                             <Clock class="h-4 w-4 text-blue-600 dark:text-blue-400" />
                             <div class="flex-1">
                                 <span class="text-sm font-medium text-blue-900 dark:text-blue-100">
-                                    {{ todayAttendance.workShift.name }}
+                                    {{ displayShift.name }}
                                 </span>
                                 <span class="ml-2 text-xs text-blue-600 dark:text-blue-400">
-                                    ({{ formatTime(todayAttendance.workShift.start_time) }} - {{ formatTime(todayAttendance.workShift.end_time) }})
+                                    ({{ formatTime(displayShift.start_time) }} - {{ formatTime(displayShift.end_time) }})
                                 </span>
                             </div>
                         </div>

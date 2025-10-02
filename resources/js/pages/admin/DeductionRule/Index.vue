@@ -31,9 +31,7 @@
                             </div>
                             <div>
                                 <h3 class="font-medium text-gray-900 dark:text-white">Potongan Telat</h3>
-                                <p class="text-sm text-gray-600 dark:text-gray-400">
-                                    Aturan untuk keterlambatan
-                                </p>
+                                <p class="text-sm text-gray-600 dark:text-gray-400">Aturan untuk keterlambatan</p>
                             </div>
                         </div>
                         <div class="flex h-2 w-2 rounded-full bg-red-400"></div>
@@ -69,9 +67,7 @@
                             </div>
                             <div>
                                 <h3 class="font-medium text-gray-900 dark:text-white">Potongan Alfa</h3>
-                                <p class="text-sm text-gray-600 dark:text-gray-400">
-                                    Aturan untuk tidak masuk
-                                </p>
+                                <p class="text-sm text-gray-600 dark:text-gray-400">Aturan untuk tidak masuk</p>
                             </div>
                         </div>
                         <div class="flex h-2 w-2 rounded-full bg-orange-400"></div>
@@ -107,9 +103,7 @@
                             </div>
                             <div>
                                 <h3 class="font-medium text-gray-900 dark:text-white">Potongan Cuti</h3>
-                                <p class="text-sm text-gray-600 dark:text-gray-400">
-                                    Aturan untuk cuti berlebih
-                                </p>
+                                <p class="text-sm text-gray-600 dark:text-gray-400">Aturan untuk cuti berlebih</p>
                             </div>
                         </div>
                         <div class="flex h-2 w-2 rounded-full bg-purple-400"></div>
@@ -145,9 +139,7 @@
                             </div>
                             <div>
                                 <h3 class="font-medium text-gray-900 dark:text-white">Lainnya</h3>
-                                <p class="text-sm text-gray-600 dark:text-gray-400">
-                                    Aturan lainnya
-                                </p>
+                                <p class="text-sm text-gray-600 dark:text-gray-400">Aturan lainnya</p>
                             </div>
                         </div>
                         <div class="flex h-2 w-2 rounded-full bg-gray-400"></div>
@@ -193,21 +185,11 @@
                     <table class="w-full">
                         <thead class="border-t border-gray-200 dark:border-gray-700">
                             <tr class="border-b border-gray-200 dark:border-gray-700">
-                                <th class="px-6 py-3 text-left text-sm font-medium text-gray-500 dark:text-gray-400">
-                                    Nama Aturan
-                                </th>
-                                <th class="px-6 py-3 text-left text-sm font-medium text-gray-500 dark:text-gray-400">
-                                    Tipe
-                                </th>
-                                <th class="px-6 py-3 text-left text-sm font-medium text-gray-500 dark:text-gray-400">
-                                    Metode Perhitungan
-                                </th>
-                                <th class="px-6 py-3 text-left text-sm font-medium text-gray-500 dark:text-gray-400">
-                                    Jumlah
-                                </th>
-                                <th class="px-6 py-3 text-left text-sm font-medium text-gray-500 dark:text-gray-400">
-                                    Status
-                                </th>
+                                <th class="px-6 py-3 text-left text-sm font-medium text-gray-500 dark:text-gray-400">Nama Aturan</th>
+                                <th class="px-6 py-3 text-left text-sm font-medium text-gray-500 dark:text-gray-400">Tipe</th>
+                                <th class="px-6 py-3 text-left text-sm font-medium text-gray-500 dark:text-gray-400">Metode Perhitungan</th>
+                                <th class="px-6 py-3 text-left text-sm font-medium text-gray-500 dark:text-gray-400">Jumlah</th>
+                                <th class="px-6 py-3 text-left text-sm font-medium text-gray-500 dark:text-gray-400">Status</th>
                                 <th class="px-6 py-3 text-left text-sm font-medium text-gray-500 dark:text-gray-400">Aksi</th>
                             </tr>
                         </thead>

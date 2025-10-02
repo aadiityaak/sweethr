@@ -150,34 +150,42 @@ const lineData = ref({
             pointHoverBorderColor: 'rgb(124, 58, 237)',
             pointHoverBorderWidth: 4,
         },
-        ...(trendData?.approvedData ? [{
-            label: 'Disetujui',
-            data: trendData.approvedData,
-            borderColor: 'rgb(16, 185, 129)',
-            backgroundColor: 'rgba(16, 185, 129, 0.1)',
-            borderWidth: 2,
-            tension: 0.4,
-            fill: false,
-            pointBackgroundColor: 'rgb(255, 255, 255)',
-            pointBorderColor: 'rgb(16, 185, 129)',
-            pointBorderWidth: 2,
-            pointRadius: 4,
-            pointHoverRadius: 6,
-        }] : []),
-        ...(trendData?.pendingData ? [{
-            label: 'Menunggu',
-            data: trendData.pendingData,
-            borderColor: 'rgb(245, 158, 11)',
-            backgroundColor: 'rgba(245, 158, 11, 0.1)',
-            borderWidth: 2,
-            tension: 0.4,
-            fill: false,
-            pointBackgroundColor: 'rgb(255, 255, 255)',
-            pointBorderColor: 'rgb(245, 158, 11)',
-            pointBorderWidth: 2,
-            pointRadius: 4,
-            pointHoverRadius: 6,
-        }] : []),
+        ...(trendData?.approvedData
+            ? [
+                  {
+                      label: 'Disetujui',
+                      data: trendData.approvedData,
+                      borderColor: 'rgb(16, 185, 129)',
+                      backgroundColor: 'rgba(16, 185, 129, 0.1)',
+                      borderWidth: 2,
+                      tension: 0.4,
+                      fill: false,
+                      pointBackgroundColor: 'rgb(255, 255, 255)',
+                      pointBorderColor: 'rgb(16, 185, 129)',
+                      pointBorderWidth: 2,
+                      pointRadius: 4,
+                      pointHoverRadius: 6,
+                  },
+              ]
+            : []),
+        ...(trendData?.pendingData
+            ? [
+                  {
+                      label: 'Menunggu',
+                      data: trendData.pendingData,
+                      borderColor: 'rgb(245, 158, 11)',
+                      backgroundColor: 'rgba(245, 158, 11, 0.1)',
+                      borderWidth: 2,
+                      tension: 0.4,
+                      fill: false,
+                      pointBackgroundColor: 'rgb(255, 255, 255)',
+                      pointBorderColor: 'rgb(245, 158, 11)',
+                      pointBorderWidth: 2,
+                      pointRadius: 4,
+                      pointHoverRadius: 6,
+                  },
+              ]
+            : []),
     ],
 });
 
@@ -393,7 +401,7 @@ watch(
         if (newTrendData && 'labels' in newTrendData) {
             lineData.value.labels = newTrendData.labels;
             lineData.value.datasets[0].data = newTrendData.data;
-            
+
             if ('approvedData' in newTrendData && newTrendData.approvedData && lineData.value.datasets[1]) {
                 lineData.value.datasets[1].data = newTrendData.approvedData as number[];
             }

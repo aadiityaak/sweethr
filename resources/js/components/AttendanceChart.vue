@@ -87,7 +87,7 @@ const barData = ref({
     labels: weeklyData?.labels || departmentData?.labels || ['Sen', 'Sel', 'Rab', 'Kam', 'Jum', 'Sab', 'Min'],
     datasets: [
         {
-            label: weeklyData ? 'Kehadiran Mingguan' : (departmentData ? 'Kehadiran per Departemen' : 'Kehadiran'),
+            label: weeklyData ? 'Kehadiran Mingguan' : departmentData ? 'Kehadiran per Departemen' : 'Kehadiran',
             data: weeklyData?.data || departmentData?.data || [85, 92, 88, 95, 90, 0, 0],
             backgroundColor: (context: any) => {
                 const chart = context.chart;
@@ -157,34 +157,42 @@ const lineData = ref({
             pointHoverBorderColor: 'rgb(124, 58, 237)',
             pointHoverBorderWidth: 4,
         },
-        ...(trendData?.presentData ? [{
-            label: 'Hadir',
-            data: trendData.presentData,
-            borderColor: 'rgb(16, 185, 129)',
-            backgroundColor: 'rgba(16, 185, 129, 0.1)',
-            borderWidth: 2,
-            tension: 0.4,
-            fill: false,
-            pointBackgroundColor: 'rgb(255, 255, 255)',
-            pointBorderColor: 'rgb(16, 185, 129)',
-            pointBorderWidth: 2,
-            pointRadius: 4,
-            pointHoverRadius: 6,
-        }] : []),
-        ...(trendData?.lateData ? [{
-            label: 'Terlambat',
-            data: trendData.lateData,
-            borderColor: 'rgb(245, 158, 11)',
-            backgroundColor: 'rgba(245, 158, 11, 0.1)',
-            borderWidth: 2,
-            tension: 0.4,
-            fill: false,
-            pointBackgroundColor: 'rgb(255, 255, 255)',
-            pointBorderColor: 'rgb(245, 158, 11)',
-            pointBorderWidth: 2,
-            pointRadius: 4,
-            pointHoverRadius: 6,
-        }] : []),
+        ...(trendData?.presentData
+            ? [
+                  {
+                      label: 'Hadir',
+                      data: trendData.presentData,
+                      borderColor: 'rgb(16, 185, 129)',
+                      backgroundColor: 'rgba(16, 185, 129, 0.1)',
+                      borderWidth: 2,
+                      tension: 0.4,
+                      fill: false,
+                      pointBackgroundColor: 'rgb(255, 255, 255)',
+                      pointBorderColor: 'rgb(16, 185, 129)',
+                      pointBorderWidth: 2,
+                      pointRadius: 4,
+                      pointHoverRadius: 6,
+                  },
+              ]
+            : []),
+        ...(trendData?.lateData
+            ? [
+                  {
+                      label: 'Terlambat',
+                      data: trendData.lateData,
+                      borderColor: 'rgb(245, 158, 11)',
+                      backgroundColor: 'rgba(245, 158, 11, 0.1)',
+                      borderWidth: 2,
+                      tension: 0.4,
+                      fill: false,
+                      pointBackgroundColor: 'rgb(255, 255, 255)',
+                      pointBorderColor: 'rgb(245, 158, 11)',
+                      pointBorderWidth: 2,
+                      pointRadius: 4,
+                      pointHoverRadius: 6,
+                  },
+              ]
+            : []),
     ],
 });
 
@@ -419,7 +427,7 @@ watch(
         if (newTrendData && 'labels' in newTrendData) {
             lineData.value.labels = newTrendData.labels;
             lineData.value.datasets[0].data = newTrendData.data;
-            
+
             if ('presentData' in newTrendData && newTrendData.presentData && lineData.value.datasets[1]) {
                 lineData.value.datasets[1].data = newTrendData.presentData as number[];
             }

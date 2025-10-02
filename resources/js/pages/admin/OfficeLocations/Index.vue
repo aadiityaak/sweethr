@@ -187,9 +187,7 @@ const cancelDelete = () => {
                             </div>
                             <div>
                                 <h3 class="font-medium text-gray-900 dark:text-white">Total Lokasi</h3>
-                                <p class="text-sm text-gray-600 dark:text-gray-400">
-                                    Semua lokasi kantor
-                                </p>
+                                <p class="text-sm text-gray-600 dark:text-gray-400">Semua lokasi kantor</p>
                             </div>
                         </div>
                         <div class="flex h-2 w-2 rounded-full bg-blue-400"></div>
@@ -223,9 +221,7 @@ const cancelDelete = () => {
                             </div>
                             <div>
                                 <h3 class="font-medium text-gray-900 dark:text-white">Lokasi Aktif</h3>
-                                <p class="text-sm text-gray-600 dark:text-gray-400">
-                                    Lokasi yang digunakan
-                                </p>
+                                <p class="text-sm text-gray-600 dark:text-gray-400">Lokasi yang digunakan</p>
                             </div>
                         </div>
                         <div class="flex h-2 w-2 rounded-full bg-emerald-400"></div>
@@ -263,9 +259,7 @@ const cancelDelete = () => {
                             </div>
                             <div>
                                 <h3 class="font-medium text-gray-900 dark:text-white">Area Cakupan</h3>
-                                <p class="text-sm text-gray-600 dark:text-gray-400">
-                                    Total radius area
-                                </p>
+                                <p class="text-sm text-gray-600 dark:text-gray-400">Total radius area</p>
                             </div>
                         </div>
                         <div class="flex h-2 w-2 rounded-full bg-purple-400"></div>
@@ -274,9 +268,7 @@ const cancelDelete = () => {
                     <div class="mt-6 space-y-3">
                         <div class="flex items-center justify-between rounded-lg bg-purple-50/50 px-3 py-2 dark:bg-purple-950/30">
                             <span class="text-sm font-medium text-purple-700 dark:text-purple-400">Total</span>
-                            <span class="text-sm font-semibold text-purple-800 dark:text-purple-300">
-                                {{ stats.total_radius_coverage }}m²
-                            </span>
+                            <span class="text-sm font-semibold text-purple-800 dark:text-purple-300"> {{ stats.total_radius_coverage }}m² </span>
                         </div>
                         <div class="flex items-center justify-between rounded-lg bg-gray-50/50 px-3 py-2 dark:bg-gray-800/50">
                             <span class="text-sm font-medium text-gray-600 dark:text-gray-400">Rata-rata</span>
@@ -303,9 +295,7 @@ const cancelDelete = () => {
                             </div>
                             <div>
                                 <h3 class="font-medium text-gray-900 dark:text-white">Absensi Hari Ini</h3>
-                                <p class="text-sm text-gray-600 dark:text-gray-400">
-                                    Check-in hari ini
-                                </p>
+                                <p class="text-sm text-gray-600 dark:text-gray-400">Check-in hari ini</p>
                             </div>
                         </div>
                         <div class="flex h-2 w-2 rounded-full bg-amber-400"></div>

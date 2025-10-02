@@ -35,9 +35,7 @@
                             </div>
                             <div>
                                 <h3 class="font-medium text-gray-900 dark:text-white">Total Departemen</h3>
-                                <p class="text-sm text-gray-600 dark:text-gray-400">
-                                    Semua departemen terdaftar
-                                </p>
+                                <p class="text-sm text-gray-600 dark:text-gray-400">Semua departemen terdaftar</p>
                             </div>
                         </div>
                         <div class="flex h-2 w-2 rounded-full bg-blue-400"></div>
@@ -71,9 +69,7 @@
                             </div>
                             <div>
                                 <h3 class="font-medium text-gray-900 dark:text-white">Departemen Aktif</h3>
-                                <p class="text-sm text-gray-600 dark:text-gray-400">
-                                    Departemen yang sedang aktif
-                                </p>
+                                <p class="text-sm text-gray-600 dark:text-gray-400">Departemen yang sedang aktif</p>
                             </div>
                         </div>
                         <div class="flex h-2 w-2 rounded-full bg-emerald-400"></div>
@@ -109,9 +105,7 @@
                             </div>
                             <div>
                                 <h3 class="font-medium text-gray-900 dark:text-white">Departemen Nonaktif</h3>
-                                <p class="text-sm text-gray-600 dark:text-gray-400">
-                                    Departemen yang tidak aktif
-                                </p>
+                                <p class="text-sm text-gray-600 dark:text-gray-400">Departemen yang tidak aktif</p>
                             </div>
                         </div>
                         <div class="flex h-2 w-2 rounded-full bg-amber-400"></div>
@@ -147,9 +141,7 @@
                             </div>
                             <div>
                                 <h3 class="font-medium text-gray-900 dark:text-white">Dengan Manajer</h3>
-                                <p class="text-sm text-gray-600 dark:text-gray-400">
-                                    Departemen yang memiliki manajer
-                                </p>
+                                <p class="text-sm text-gray-600 dark:text-gray-400">Departemen yang memiliki manajer</p>
                             </div>
                         </div>
                         <div class="flex h-2 w-2 rounded-full bg-purple-400"></div>
@@ -162,7 +154,9 @@
                         </div>
                         <div class="flex items-center justify-between rounded-lg bg-gray-50/50 px-3 py-2 dark:bg-gray-800/50">
                             <span class="text-sm font-medium text-gray-600 dark:text-gray-400">Tanpa Manajer</span>
-                            <span class="text-sm font-semibold text-gray-900 dark:text-white">{{ stats.total_departments - stats.departments_with_managers }}</span>
+                            <span class="text-sm font-semibold text-gray-900 dark:text-white">{{
+                                stats.total_departments - stats.departments_with_managers
+                            }}</span>
                         </div>
                     </div>
 

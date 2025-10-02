@@ -24,9 +24,7 @@
                             </div>
                             <div>
                                 <h3 class="font-medium text-gray-900 dark:text-white">Total Karyawan</h3>
-                                <p class="text-sm text-gray-600 dark:text-gray-400">
-                                    Semua karyawan terdaftar
-                                </p>
+                                <p class="text-sm text-gray-600 dark:text-gray-400">Semua karyawan terdaftar</p>
                             </div>
                         </div>
                         <div class="flex h-2 w-2 rounded-full bg-blue-400"></div>
@@ -39,9 +37,7 @@
                         </div>
                         <div class="flex items-center justify-between rounded-lg bg-gray-50/50 px-3 py-2 dark:bg-gray-800/50">
                             <span class="text-sm font-medium text-gray-600 dark:text-gray-400">Persentase</span>
-                            <span class="text-sm font-semibold text-gray-900 dark:text-white">
-                                {{ users.meta?.total ? 100 : 0 }}%
-                            </span>
+                            <span class="text-sm font-semibold text-gray-900 dark:text-white"> {{ users.meta?.total ? 100 : 0 }}% </span>
                         </div>
                     </div>
 
@@ -62,9 +58,7 @@
                             </div>
                             <div>
                                 <h3 class="font-medium text-gray-900 dark:text-white">Sudah Diatur</h3>
-                                <p class="text-sm text-gray-600 dark:text-gray-400">
-                                    Karyawan dengan gaji
-                                </p>
+                                <p class="text-sm text-gray-600 dark:text-gray-400">Karyawan dengan gaji</p>
                             </div>
                         </div>
                         <div class="flex h-2 w-2 rounded-full bg-emerald-400"></div>
@@ -102,9 +96,7 @@
                             </div>
                             <div>
                                 <h3 class="font-medium text-gray-900 dark:text-white">Belum Diatur</h3>
-                                <p class="text-sm text-gray-600 dark:text-gray-400">
-                                    Karyawan tanpa gaji
-                                </p>
+                                <p class="text-sm text-gray-600 dark:text-gray-400">Karyawan tanpa gaji</p>
                             </div>
                         </div>
                         <div class="flex h-2 w-2 rounded-full bg-amber-400"></div>
@@ -142,9 +134,7 @@
                             </div>
                             <div>
                                 <h3 class="font-medium text-gray-900 dark:text-white">Rata-rata Gaji</h3>
-                                <p class="text-sm text-gray-600 dark:text-gray-400">
-                                    Gaji pokok rata-rata
-                                </p>
+                                <p class="text-sm text-gray-600 dark:text-gray-400">Gaji pokok rata-rata</p>
                             </div>
                         </div>
                         <div class="flex h-2 w-2 rounded-full bg-purple-400"></div>
@@ -279,7 +269,11 @@
                             </tr>
                         </thead>
                         <tbody>
-                            <tr v-for="user in users?.data || []" :key="user.id" class="border-b border-gray-100 hover:bg-gray-50 dark:border-gray-800 dark:hover:bg-gray-900/50">
+                            <tr
+                                v-for="user in users?.data || []"
+                                :key="user.id"
+                                class="border-b border-gray-100 hover:bg-gray-50 dark:border-gray-800 dark:hover:bg-gray-900/50"
+                            >
                                 <td class="px-6 py-4 whitespace-nowrap">
                                     <div class="text-sm font-medium text-gray-900 dark:text-white">
                                         {{ user.name }}
@@ -351,8 +345,7 @@
                 <div v-if="users?.links && users.links.length > 3" class="border-t border-gray-200 p-4 dark:border-gray-700">
                     <div class="flex items-center justify-between">
                         <p class="text-sm text-gray-500 dark:text-gray-400">
-                            Menampilkan {{ users.meta?.from || 0 }} sampai {{ users.meta?.to || 0 }} dari
-                            {{ users.meta?.total || 0 }} hasil
+                            Menampilkan {{ users.meta?.from || 0 }} sampai {{ users.meta?.to || 0 }} dari {{ users.meta?.total || 0 }} hasil
                         </p>
                         <div class="flex gap-2">
                             <Link

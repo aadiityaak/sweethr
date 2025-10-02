@@ -35,9 +35,7 @@
                             </div>
                             <div>
                                 <h3 class="font-medium text-gray-900 dark:text-white">Total Shift</h3>
-                                <p class="text-sm text-gray-600 dark:text-gray-400">
-                                    Semua shift terdaftar
-                                </p>
+                                <p class="text-sm text-gray-600 dark:text-gray-400">Semua shift terdaftar</p>
                             </div>
                         </div>
                         <div class="flex h-2 w-2 rounded-full bg-blue-400"></div>
@@ -71,9 +69,7 @@
                             </div>
                             <div>
                                 <h3 class="font-medium text-gray-900 dark:text-white">Shift Aktif</h3>
-                                <p class="text-sm text-gray-600 dark:text-gray-400">
-                                    Shift yang sedang aktif
-                                </p>
+                                <p class="text-sm text-gray-600 dark:text-gray-400">Shift yang sedang aktif</p>
                             </div>
                         </div>
                         <div class="flex h-2 w-2 rounded-full bg-emerald-400"></div>
@@ -109,9 +105,7 @@
                             </div>
                             <div>
                                 <h3 class="font-medium text-gray-900 dark:text-white">Shift Nonaktif</h3>
-                                <p class="text-sm text-gray-600 dark:text-gray-400">
-                                    Shift yang tidak aktif
-                                </p>
+                                <p class="text-sm text-gray-600 dark:text-gray-400">Shift yang tidak aktif</p>
                             </div>
                         </div>
                         <div class="flex h-2 w-2 rounded-full bg-amber-400"></div>
@@ -147,9 +141,7 @@
                             </div>
                             <div>
                                 <h3 class="font-medium text-gray-900 dark:text-white">Karyawan Ter-assign</h3>
-                                <p class="text-sm text-gray-600 dark:text-gray-400">
-                                    Karyawan yang di-assign ke shift
-                                </p>
+                                <p class="text-sm text-gray-600 dark:text-gray-400">Karyawan yang di-assign ke shift</p>
                             </div>
                         </div>
                         <div class="flex h-2 w-2 rounded-full bg-purple-400"></div>

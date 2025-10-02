@@ -70,9 +70,19 @@ class AttendanceController extends Controller
             'work_shift_id' => $todayAttendance ? $todayAttendance->work_shift_id : null,
         ]);
 
+        // Get user's current assigned shift (fallback for display)
+        $currentShift = $user->getCurrentShiftData();
+
+        // Debug logging for current shift
+        Log::info('Current assigned shift', [
+            'user_id' => $user->id,
+            'current_shift' => $currentShift,
+        ]);
+
         return Inertia::render('user/Attendance/Index', [
             'attendances' => $attendances,
             'todayAttendance' => $todayAttendance,
+            'currentShift' => $currentShift,
             'filters' => $request->only(['month', 'year']),
         ]);
     }

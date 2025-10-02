@@ -41,9 +41,7 @@
                             </div>
                             <div>
                                 <h3 class="font-medium text-gray-900 dark:text-white">Total Dokumen</h3>
-                                <p class="text-sm text-gray-600 dark:text-gray-400">
-                                    Semua dokumen terdaftar
-                                </p>
+                                <p class="text-sm text-gray-600 dark:text-gray-400">Semua dokumen terdaftar</p>
                             </div>
                         </div>
                         <div class="flex h-2 w-2 rounded-full bg-blue-400"></div>
@@ -77,9 +75,7 @@
                             </div>
                             <div>
                                 <h3 class="font-medium text-gray-900 dark:text-white">Dokumen Aktif</h3>
-                                <p class="text-sm text-gray-600 dark:text-gray-400">
-                                    Dokumen yang masih berlaku
-                                </p>
+                                <p class="text-sm text-gray-600 dark:text-gray-400">Dokumen yang masih berlaku</p>
                             </div>
                         </div>
                         <div class="flex h-2 w-2 rounded-full bg-emerald-400"></div>

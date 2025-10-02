@@ -234,9 +234,7 @@ const cancelReject = () => {
                             </div>
                             <div>
                                 <h3 class="font-medium text-gray-900 dark:text-white">Total Request</h3>
-                                <p class="text-sm text-gray-600 dark:text-gray-400">
-                                    Semua permintaan tukar libur
-                                </p>
+                                <p class="text-sm text-gray-600 dark:text-gray-400">Semua permintaan tukar libur</p>
                             </div>
                         </div>
                         <div class="flex h-2 w-2 rounded-full bg-blue-400"></div>
@@ -270,9 +268,7 @@ const cancelReject = () => {
                             </div>
                             <div>
                                 <h3 class="font-medium text-gray-900 dark:text-white">Menunggu</h3>
-                                <p class="text-sm text-gray-600 dark:text-gray-400">
-                                    Permintaan menunggu persetujuan
-                                </p>
+                                <p class="text-sm text-gray-600 dark:text-gray-400">Permintaan menunggu persetujuan</p>
                             </div>
                         </div>
                         <div class="flex h-2 w-2 rounded-full bg-amber-400"></div>
@@ -308,9 +304,7 @@ const cancelReject = () => {
                             </div>
                             <div>
                                 <h3 class="font-medium text-gray-900 dark:text-white">Disetujui</h3>
-                                <p class="text-sm text-gray-600 dark:text-gray-400">
-                                    Permintaan yang disetujui
-                                </p>
+                                <p class="text-sm text-gray-600 dark:text-gray-400">Permintaan yang disetujui</p>
                             </div>
                         </div>
                         <div class="flex h-2 w-2 rounded-full bg-emerald-400"></div>
@@ -346,9 +340,7 @@ const cancelReject = () => {
                             </div>
                             <div>
                                 <h3 class="font-medium text-gray-900 dark:text-white">Ditolak</h3>
-                                <p class="text-sm text-gray-600 dark:text-gray-400">
-                                    Permintaan yang ditolak
-                                </p>
+                                <p class="text-sm text-gray-600 dark:text-gray-400">Permintaan yang ditolak</p>
                             </div>
                         </div>
                         <div class="flex h-2 w-2 rounded-full bg-red-400"></div>

@@ -128,6 +128,39 @@ class User extends Authenticatable
         return $this->hasMany(EmployeeShift::class);
     }
 
+    public function getCurrentShift()
+    {
+        return $this->employeeShifts()
+            ->active()
+            ->current()
+            ->with('workShift')
+            ->first()?->workShift;
+    }
+
+    public function getCurrentShiftData()
+    {
+        $currentShift = $this->getCurrentShift();
+
+        if (!$currentShift) {
+            return null;
+        }
+
+        return [
+            'id' => $currentShift->id,
+            'name' => $currentShift->name,
+            'code' => $currentShift->code,
+            'start_time' => $currentShift->start_time->format('H:i'),
+            'end_time' => $currentShift->end_time->format('H:i'),
+            'work_hours' => $currentShift->work_hours,
+            'break_duration' => $currentShift->break_duration,
+            'workdays' => $currentShift->workdays,
+            'is_night_shift' => $currentShift->is_night_shift,
+            'assignment_type' => 'assigned',
+            'effective_date' => now()->toDateString(),
+            'end_date' => null,
+        ];
+    }
+
     public function shiftSwapsAsRequester()
     {
         return $this->hasMany(ShiftSwap::class, 'requester_id');

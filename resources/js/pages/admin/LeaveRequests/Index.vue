@@ -26,9 +26,7 @@
                             </div>
                             <div>
                                 <h3 class="font-medium text-gray-900 dark:text-white">Total Pengajuan</h3>
-                                <p class="text-sm text-gray-600 dark:text-gray-400">
-                                    Semua pengajuan cuti
-                                </p>
+                                <p class="text-sm text-gray-600 dark:text-gray-400">Semua pengajuan cuti</p>
                             </div>
                         </div>
                         <div class="flex h-2 w-2 rounded-full bg-blue-400"></div>
@@ -64,9 +62,7 @@
                             </div>
                             <div>
                                 <h3 class="font-medium text-gray-900 dark:text-white">Menunggu</h3>
-                                <p class="text-sm text-gray-600 dark:text-gray-400">
-                                    Menunggu persetujuan
-                                </p>
+                                <p class="text-sm text-gray-600 dark:text-gray-400">Menunggu persetujuan</p>
                             </div>
                         </div>
                         <div class="flex h-2 w-2 rounded-full bg-amber-400"></div>
@@ -79,9 +75,7 @@
                         </div>
                         <div class="flex items-center justify-between rounded-lg bg-gray-50/50 px-3 py-2 dark:bg-gray-800/50">
                             <span class="text-sm font-medium text-gray-600 dark:text-gray-400">Persentase</span>
-                            <span class="text-sm font-semibold text-gray-900 dark:text-white">
-                                {{ stats.pending_percentage }}%
-                            </span>
+                            <span class="text-sm font-semibold text-gray-900 dark:text-white"> {{ stats.pending_percentage }}% </span>
                         </div>
                     </div>
 
@@ -102,9 +96,7 @@
                             </div>
                             <div>
                                 <h3 class="font-medium text-gray-900 dark:text-white">Disetujui</h3>
-                                <p class="text-sm text-gray-600 dark:text-gray-400">
-                                    Pengajuan disetujui
-                                </p>
+                                <p class="text-sm text-gray-600 dark:text-gray-400">Pengajuan disetujui</p>
                             </div>
                         </div>
                         <div class="flex h-2 w-2 rounded-full bg-emerald-400"></div>
@@ -140,9 +132,7 @@
                             </div>
                             <div>
                                 <h3 class="font-medium text-gray-900 dark:text-white">Ditolak</h3>
-                                <p class="text-sm text-gray-600 dark:text-gray-400">
-                                    Pengajuan ditolak
-                                </p>
+                                <p class="text-sm text-gray-600 dark:text-gray-400">Pengajuan ditolak</p>
                             </div>
                         </div>
                         <div class="flex h-2 w-2 rounded-full bg-red-400"></div>
@@ -187,11 +177,11 @@
                         <LeaveRequestChart
                             type="line"
                             :trend-data="{
-                                labels: dailyTrend.map(item => item.date),
-                                data: dailyTrend.map(item => item.count),
-                                approvedData: dailyTrend.map(item => item.approved),
-                                pendingData: dailyTrend.map(item => item.pending),
-                                rejectedData: dailyTrend.map(item => item.rejected)
+                                labels: dailyTrend.map((item) => item.date),
+                                data: dailyTrend.map((item) => item.count),
+                                approvedData: dailyTrend.map((item) => item.approved),
+                                pendingData: dailyTrend.map((item) => item.pending),
+                                rejectedData: dailyTrend.map((item) => item.rejected),
                             }"
                         />
                     </div>
@@ -219,7 +209,7 @@
                             :status-data="{
                                 pending: stats.pending_count,
                                 approved: stats.approved_count,
-                                rejected: stats.rejected_count
+                                rejected: stats.rejected_count,
                             }"
                         />
                     </div>
@@ -248,8 +238,8 @@
                         <LeaveRequestChart
                             type="bar"
                             :department-data="{
-                                labels: departmentStats.map(item => item.department),
-                                data: departmentStats.map(item => item.total)
+                                labels: departmentStats.map((item) => item.department),
+                                data: departmentStats.map((item) => item.total),
                             }"
                         />
                     </div>
@@ -275,8 +265,8 @@
                         <LeaveRequestChart
                             type="bar"
                             :leave-type-data="{
-                                labels: leaveTypeStats.map(item => item.type),
-                                data: leaveTypeStats.map(item => item.total)
+                                labels: leaveTypeStats.map((item) => item.type),
+                                data: leaveTypeStats.map((item) => item.total),
                             }"
                         />
                     </div>
@@ -651,10 +641,10 @@
 
 <script setup lang="ts">
 import ConfirmationModal from '@/components/ConfirmationModal.vue';
+import LeaveRequestChart from '@/components/LeaveRequestChart.vue';
 import { Button } from '@/components/ui/button';
 import { Dialog, DialogContent, DialogDescription, DialogFooter, DialogHeader, DialogTitle } from '@/components/ui/dialog';
 import { Input } from '@/components/ui/input';
-import LeaveRequestChart from '@/components/LeaveRequestChart.vue';
 import { Textarea } from '@/components/ui/textarea';
 import { useToast } from '@/components/ui/toast/use-toast';
 import AppLayout from '@/layouts/AppLayout.vue';
@@ -751,7 +741,6 @@ const { toast } = useToast();
 const rejectForm = useForm({
     admin_notes: '',
 });
-
 
 // Methods
 const formatDate = (dateString: string) => {

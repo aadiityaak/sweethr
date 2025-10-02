@@ -121,7 +121,12 @@ const { toast } = useToast();
 const { faceRecognitionStatus, faceDescriptors: reactiveFaceDescriptors, initializeFaceRecognitionStatus } = useFaceRecognition();
 
 // Alert modal function
-const showAlert = (title: string, message: string, variant: 'success' | 'destructive' | 'warning' | 'default' = 'destructive', onConfirm?: () => void) => {
+const showAlert = (
+    title: string,
+    message: string,
+    variant: 'success' | 'destructive' | 'warning' | 'default' = 'destructive',
+    onConfirm?: () => void,
+) => {
     alertModal.value = {
         isOpen: true,
         title,
@@ -200,7 +205,7 @@ const selectedShift = ref<WorkShift | null>(null);
 const handleShiftChange = (shift: WorkShift | null) => {
     selectedShift.value = shift;
     console.log('Welcome.vue - Shift changed to:', shift);
-    
+
     // Update form with selected shift ID
     if (shift) {
         form.selected_shift_id = shift.id.toString();
@@ -218,12 +223,12 @@ const formatTime = (time: string | null | undefined) => {
 
 const formatDuration = (minutes: number | null | undefined) => {
     if (!minutes) return '--';
-    
+
     // Always use absolute value for duration
     const absMinutes = Math.abs(minutes);
     const hours = Math.floor(absMinutes / 60);
     const mins = absMinutes % 60;
-    
+
     return `${hours}h ${mins}m`;
 };
 
@@ -401,30 +406,28 @@ const performCheckIn = () => {
         const [shiftHours, shiftMinutes] = selectedShift.value.start_time.split(':').map(Number);
         const shiftStartTime = new Date(now);
         shiftStartTime.setHours(shiftHours, shiftMinutes, 0, 0);
-        
+
         // If shift time is earlier than current time, it means the shift is for the next day
         if (shiftStartTime < now) {
             shiftStartTime.setDate(shiftStartTime.getDate() + 1);
         }
-        
+
         const timeDifference = shiftStartTime.getTime() - now.getTime();
         const hoursDifference = timeDifference / (1000 * 60 * 60);
-        
+
         console.log('Time difference to shift start:', hoursDifference, 'hours');
-        
+
         if (hoursDifference > 1) {
             // Show warning dialog
             const hoursRounded = Math.floor(hoursDifference);
             const minutesRounded = Math.floor((hoursDifference - hoursRounded) * 60);
-            const timeString = hoursRounded > 0
-                ? `${hoursRounded} jam ${minutesRounded} menit`
-                : `${minutesRounded} menit`;
-            
+            const timeString = hoursRounded > 0 ? `${hoursRounded} jam ${minutesRounded} menit` : `${minutesRounded} menit`;
+
             showAlert(
                 '⚠️ Peringatan Check In',
                 `Anda mencoba check in ${timeString} lebih awal dari jam mulai shift (${formatTime(selectedShift.value.start_time)}). Apakah Anda yakin sudah memilih shift yang tepat?`,
                 'warning',
-                () => executeCheckIn()
+                () => executeCheckIn(),
             );
             return;
         }
@@ -844,10 +847,10 @@ const performCheckOut = () => {
                 variant: 'success',
                 duration: 5000,
             });
-            
+
             // Show thank you card after successful checkout
             showThankYouCard.value = true;
-            
+
             // Refresh the page to update attendance data after a delay
             setTimeout(() => {
                 window.location.reload();
@@ -900,29 +903,33 @@ watch(
 );
 
 // Watch for userShifts changes and load selected shift from local storage
-watch(() => userShifts, (newShifts) => {
-    console.log('Welcome.vue - userShifts changed:', newShifts);
-    if (newShifts && newShifts.length > 0 && user) {
-        try {
-            const storageKey = `selected_shift_id_${user.id}`;
-            const savedShiftId = localStorage.getItem(storageKey);
-            console.log('Welcome.vue watch - Loading shift from local storage. Key:', storageKey, 'Saved ID:', savedShiftId);
-            
-            if (savedShiftId) {
-                const shift = newShifts.find((s: WorkShift) => s.id.toString() === savedShiftId);
-                console.log('Welcome.vue watch - Found shift in props:', shift);
-                
-                if (shift) {
-                    selectedShift.value = shift;
-                    form.selected_shift_id = shift.id.toString();
-                    console.log('Welcome.vue watch - Successfully loaded selected shift from local storage after userShifts change:', shift);
+watch(
+    () => userShifts,
+    (newShifts) => {
+        console.log('Welcome.vue - userShifts changed:', newShifts);
+        if (newShifts && newShifts.length > 0 && user) {
+            try {
+                const storageKey = `selected_shift_id_${user.id}`;
+                const savedShiftId = localStorage.getItem(storageKey);
+                console.log('Welcome.vue watch - Loading shift from local storage. Key:', storageKey, 'Saved ID:', savedShiftId);
+
+                if (savedShiftId) {
+                    const shift = newShifts.find((s: WorkShift) => s.id.toString() === savedShiftId);
+                    console.log('Welcome.vue watch - Found shift in props:', shift);
+
+                    if (shift) {
+                        selectedShift.value = shift;
+                        form.selected_shift_id = shift.id.toString();
+                        console.log('Welcome.vue watch - Successfully loaded selected shift from local storage after userShifts change:', shift);
+                    }
                 }
+            } catch (error) {
+                console.error('Welcome.vue watch - Failed to load selected shift from local storage:', error);
             }
-        } catch (error) {
-            console.error('Welcome.vue watch - Failed to load selected shift from local storage:', error);
         }
-    }
-}, { immediate: true });
+    },
+    { immediate: true },
+);
 
 onMounted(async () => {
     console.log('Welcome.vue - Component mounted');
@@ -943,11 +950,11 @@ onMounted(async () => {
             const storageKey = `selected_shift_id_${user.id}`;
             const savedShiftId = localStorage.getItem(storageKey);
             console.log('Welcome.vue - Loading shift from local storage. Key:', storageKey, 'Saved ID:', savedShiftId);
-            
+
             if (savedShiftId) {
-                const shift = userShifts.find(s => s.id.toString() === savedShiftId);
+                const shift = userShifts.find((s) => s.id.toString() === savedShiftId);
                 console.log('Welcome.vue - Found shift in props:', shift);
-                
+
                 if (shift) {
                     selectedShift.value = shift;
                     form.selected_shift_id = shift.id.toString();
@@ -1017,26 +1024,23 @@ onUnmounted(() => {
         <!-- Main Content -->
         <div class="px-4 py-6 pb-20">
             <!-- Thank You Card - Show at the top of the page after checkout -->
-            <div v-if="todayAttendance?.check_out_time" class="thank-you-card mb-6 rounded-xl bg-gradient-to-r from-purple-500 to-pink-500 p-4 text-white shadow-lg">
+            <div
+                v-if="todayAttendance?.check_out_time"
+                class="thank-you-card mb-6 rounded-xl bg-gradient-to-r from-purple-500 to-pink-500 p-4 text-white shadow-lg"
+            >
                 <div class="flex items-center">
                     <div class="mr-4">
                         <CheckCircle class="h-8 w-8" />
                     </div>
                     <div>
-                        <p class="text-white/90">
-                            Terima kasih atas kerja keras Anda hari ini.
-                        </p>
+                        <p class="text-white/90">Terima kasih atas kerja keras Anda hari ini.</p>
                     </div>
                 </div>
             </div>
-            
+
             <!-- Shift Selector -->
             <div class="mb-6" v-if="user && userShifts && !todayAttendance?.check_in_time">
-                <ShiftSelector
-                    :user-shifts="userShifts"
-                    :user-id="user.id"
-                    @shift-changed="handleShiftChange"
-                />
+                <ShiftSelector :user-shifts="userShifts" :user-id="user.id" @shift-changed="handleShiftChange" />
             </div>
 
             <!-- Today's Attendance - Moved to top -->
@@ -1246,16 +1250,20 @@ onUnmounted(() => {
                         </span>
                     </div>
                 </div>
-                
+
                 <!-- Today's Shift Information -->
-                <div v-if="todayAttendance?.workShift" class="mt-4 rounded-md border border-blue-200 bg-blue-50 p-3 dark:border-blue-800 dark:bg-blue-900/20">
+                <div
+                    v-if="todayAttendance?.workShift"
+                    class="mt-4 rounded-md border border-blue-200 bg-blue-50 p-3 dark:border-blue-800 dark:bg-blue-900/20"
+                >
                     <div class="flex items-center gap-2">
                         <Clock class="h-4 w-4 text-blue-600 dark:text-blue-400" />
                         <span class="text-sm font-medium text-blue-800 dark:text-blue-200">
                             {{ todayAttendance?.check_in_time ? 'Shift Digunakan:' : 'Shift Hari Ini:' }}
                         </span>
                         <span class="text-sm text-blue-700 dark:text-blue-300">
-                            {{ todayAttendance.workShift.name }} ({{ formatTime(todayAttendance.workShift.start_time) }} - {{ formatTime(todayAttendance.workShift.end_time) }})
+                            {{ todayAttendance.workShift.name }} ({{ formatTime(todayAttendance.workShift.start_time) }} -
+                            {{ formatTime(todayAttendance.workShift.end_time) }})
                         </span>
                     </div>
                 </div>
@@ -1521,7 +1529,6 @@ onUnmounted(() => {
                     </div>
                 </div>
             </div>
-
         </div>
 
         <BottomNavigation current-route="/home" />
@@ -1538,15 +1545,17 @@ onUnmounted(() => {
                 <div class="flex justify-end gap-2">
                     <Button
                         v-if="alertModal.variant === 'warning' && alertModal.onConfirm"
-                        @click="() => { alertModal.onConfirm!(); alertModal.isOpen = false; }"
+                        @click="
+                            () => {
+                                alertModal.onConfirm!();
+                                alertModal.isOpen = false;
+                            }
+                        "
                         variant="default"
                     >
                         Ya, Lanjutkan
                     </Button>
-                    <Button
-                        @click="alertModal.isOpen = false"
-                        :variant="alertModal.variant === 'destructive' ? 'destructive' : 'outline'"
-                    >
+                    <Button @click="alertModal.isOpen = false" :variant="alertModal.variant === 'destructive' ? 'destructive' : 'outline'">
                         {{ alertModal.variant === 'warning' && alertModal.onConfirm ? 'Batal' : 'OK' }}
                     </Button>
                 </div>

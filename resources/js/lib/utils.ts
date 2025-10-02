@@ -8,11 +8,11 @@ export function cn(...inputs: ClassValue[]) {
 
 export function urlIsActive(urlToCheck: NonNullable<InertiaLinkProps['href']>, currentUrl: string) {
     const targetUrl = toUrl(urlToCheck);
-    
+
     // Remove query parameters and hash from both URLs for comparison
     const cleanTargetUrl = targetUrl.split('?')[0].split('#')[0];
     const cleanCurrentUrl = currentUrl.split('?')[0].split('#')[0];
-    
+
     return cleanTargetUrl === cleanCurrentUrl;
 }
 

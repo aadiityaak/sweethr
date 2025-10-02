@@ -279,9 +279,7 @@ const formatDate = (dateString: string) => {
                             </div>
                             <div>
                                 <h3 class="font-medium text-gray-900 dark:text-white">Total Karyawan</h3>
-                                <p class="text-sm text-gray-600 dark:text-gray-400">
-                                    Semua karyawan terdaftar
-                                </p>
+                                <p class="text-sm text-gray-600 dark:text-gray-400">Semua karyawan terdaftar</p>
                             </div>
                         </div>
                         <div class="flex h-2 w-2 rounded-full bg-blue-400"></div>
@@ -315,9 +313,7 @@ const formatDate = (dateString: string) => {
                             </div>
                             <div>
                                 <h3 class="font-medium text-gray-900 dark:text-white">Karyawan Aktif</h3>
-                                <p class="text-sm text-gray-600 dark:text-gray-400">
-                                    Karyawan yang aktif bekerja
-                                </p>
+                                <p class="text-sm text-gray-600 dark:text-gray-400">Karyawan yang aktif bekerja</p>
                             </div>
                         </div>
                         <div class="flex h-2 w-2 rounded-full bg-emerald-400"></div>
@@ -332,9 +328,7 @@ const formatDate = (dateString: string) => {
                         </div>
                         <div class="flex items-center justify-between rounded-lg bg-gray-50/50 px-3 py-2 dark:bg-gray-800/50">
                             <span class="text-sm font-medium text-gray-600 dark:text-gray-400">Persentase</span>
-                            <span class="text-sm font-semibold text-gray-900 dark:text-white">
-                                {{ activePercentage }}%
-                            </span>
+                            <span class="text-sm font-semibold text-gray-900 dark:text-white"> {{ activePercentage }}% </span>
                         </div>
                     </div>
 
@@ -355,9 +349,7 @@ const formatDate = (dateString: string) => {
                             </div>
                             <div>
                                 <h3 class="font-medium text-gray-900 dark:text-white">Departemen</h3>
-                                <p class="text-sm text-gray-600 dark:text-gray-400">
-                                    Total departemen aktif
-                                </p>
+                                <p class="text-sm text-gray-600 dark:text-gray-400">Total departemen aktif</p>
                             </div>
                         </div>
                         <div class="flex h-2 w-2 rounded-full bg-purple-400"></div>
@@ -391,9 +383,7 @@ const formatDate = (dateString: string) => {
                             </div>
                             <div>
                                 <h3 class="font-medium text-gray-900 dark:text-white">Karyawan Tidak Aktif</h3>
-                                <p class="text-sm text-gray-600 dark:text-gray-400">
-                                    Karyawan tidak aktif
-                                </p>
+                                <p class="text-sm text-gray-600 dark:text-gray-400">Karyawan tidak aktif</p>
                             </div>
                         </div>
                         <div class="flex h-2 w-2 rounded-full bg-amber-400"></div>
@@ -408,9 +398,7 @@ const formatDate = (dateString: string) => {
                         </div>
                         <div class="flex items-center justify-between rounded-lg bg-gray-50/50 px-3 py-2 dark:bg-gray-800/50">
                             <span class="text-sm font-medium text-gray-600 dark:text-gray-400">Persentase</span>
-                            <span class="text-sm font-semibold text-gray-900 dark:text-white">
-                                {{ inactivePercentage }}%
-                            </span>
+                            <span class="text-sm font-semibold text-gray-900 dark:text-white"> {{ inactivePercentage }}% </span>
                         </div>
                     </div>
 
@@ -662,8 +650,7 @@ const formatDate = (dateString: string) => {
                 <div v-if="employees?.meta?.total > employees?.meta?.per_page" class="border-t border-gray-200 p-4 dark:border-gray-700">
                     <div class="flex items-center justify-between">
                         <p class="text-sm text-gray-500 dark:text-gray-400">
-                            Menampilkan {{ employees?.meta?.from || 0 }} sampai {{ employees?.meta?.to || 0 }} dari
-                            {{ totalEmployees }} hasil
+                            Menampilkan {{ employees?.meta?.from || 0 }} sampai {{ employees?.meta?.to || 0 }} dari {{ totalEmployees }} hasil
                         </p>
                         <div class="flex gap-2">
                             <Link

@@ -43,7 +43,6 @@ const formatTime = (time: string) => {
     return time.substring(0, 5); // HH:MM format
 };
 
-
 // Save selected shift to local storage
 const saveSelectedShift = (shiftId: string) => {
     try {
@@ -52,10 +51,10 @@ const saveSelectedShift = (shiftId: string) => {
             console.warn('localStorage is not available, shift selection will not persist');
             return;
         }
-        
+
         localStorage.setItem(storageKey.value, shiftId);
         console.log('ShiftSelector - Saved shift to local storage. Key:', storageKey.value, 'ID:', shiftId);
-        
+
         // Verify that the shift was saved correctly
         const savedShiftId = localStorage.getItem(storageKey.value);
         console.log('ShiftSelector - Verification - Saved shift ID in local storage:', savedShiftId);
@@ -86,12 +85,12 @@ const loadSelectedShift = () => {
 
         const savedShiftId = localStorage.getItem(storageKey.value);
         console.log('ShiftSelector - Loading shift from local storage. Key:', storageKey.value, 'Saved ID:', savedShiftId);
-        
+
         if (savedShiftId) {
             // Validate that the saved shift still exists and is active
-            const shift = props.userShifts.find(s => s.id.toString() === savedShiftId);
+            const shift = props.userShifts.find((s) => s.id.toString() === savedShiftId);
             console.log('ShiftSelector - Found shift in props:', shift);
-            
+
             if (shift) {
                 selectedShiftId.value = savedShiftId;
                 selectedShift.value = shift;
@@ -109,7 +108,7 @@ const loadSelectedShift = () => {
                 });
             }
         }
-        
+
         // If no valid saved shift, select the first available shift
         if (props.userShifts.length > 0) {
             const firstShift = props.userShifts[0];
@@ -126,7 +125,7 @@ const loadSelectedShift = () => {
             selectedShiftId.value = firstShift.id.toString();
             selectedShift.value = firstShift;
         }
-        
+
         toast({
             title: '❌ Gagal Memuat Shift',
             description: 'Terjadi kesalahan saat memuat data shift. Silakan refresh halaman atau coba lagi nanti.',
@@ -147,25 +146,25 @@ const handleShiftChange = (shiftId: string) => {
         });
         return;
     }
-    
-    const shift = props.userShifts.find(s => s.id.toString() === shiftId);
+
+    const shift = props.userShifts.find((s) => s.id.toString() === shiftId);
     console.log('ShiftSelector - handleShiftChange called with ID:', shiftId, 'Found shift:', shift);
-    
+
     if (shift) {
         selectedShiftId.value = shiftId;
         selectedShift.value = shift;
         saveSelectedShift(shiftId);
-        
+
         console.log('ShiftSelector - Updated selectedShiftId to:', selectedShiftId.value);
         console.log('ShiftSelector - Updated selectedShift to:', selectedShift.value);
-        
+
         toast({
             title: '✅ Shift Berhasil Dipilih',
             description: `Anda telah memilih shift ${shift.name} (${formatTime(shift.start_time)} - ${formatTime(shift.end_time)})`,
             variant: 'success',
             duration: 3000,
         });
-        
+
         emit('shiftChanged', shift);
     } else {
         toast({
@@ -192,53 +191,61 @@ onMounted(() => {
 });
 
 // Watch for selectedShift changes and emit to parent
-watch(selectedShift, (newShift) => {
-    console.log('ShiftSelector - selectedShift changed:', newShift);
-    if (newShift) {
-        emit('shiftChanged', newShift);
-    }
-}, { immediate: false });
+watch(
+    selectedShift,
+    (newShift) => {
+        console.log('ShiftSelector - selectedShift changed:', newShift);
+        if (newShift) {
+            emit('shiftChanged', newShift);
+        }
+    },
+    { immediate: false },
+);
 
 // Watch for userShifts changes and reload selected shift if needed
-watch(() => props.userShifts, (newShifts) => {
-    console.log('ShiftSelector - userShifts changed:', newShifts);
-    
-    if (newShifts.length === 0) {
-        selectedShiftId.value = '';
-        selectedShift.value = null;
-        try {
-            localStorage.removeItem(storageKey.value);
-        } catch (error) {
-            console.error('Failed to clear selected shift from local storage:', error);
+watch(
+    () => props.userShifts,
+    (newShifts) => {
+        console.log('ShiftSelector - userShifts changed:', newShifts);
+
+        if (newShifts.length === 0) {
+            selectedShiftId.value = '';
+            selectedShift.value = null;
+            try {
+                localStorage.removeItem(storageKey.value);
+            } catch (error) {
+                console.error('Failed to clear selected shift from local storage:', error);
+            }
+            return;
         }
-        return;
-    }
-    
-    // Always load selected shift when userShifts changes
-    setTimeout(() => {
-        console.log('ShiftSelector - Loading selected shift after userShifts change');
-        loadSelectedShift();
-        if (selectedShift.value) {
-            console.log('ShiftSelector - Emitting shiftChanged after userShifts change:', selectedShift.value);
-            emit('shiftChanged', selectedShift.value);
-        }
-    }, 50);
-}, { immediate: true });
+
+        // Always load selected shift when userShifts changes
+        setTimeout(() => {
+            console.log('ShiftSelector - Loading selected shift after userShifts change');
+            loadSelectedShift();
+            if (selectedShift.value) {
+                console.log('ShiftSelector - Emitting shiftChanged after userShifts change:', selectedShift.value);
+                emit('shiftChanged', selectedShift.value);
+            }
+        }, 50);
+    },
+    { immediate: true },
+);
 </script>
 
 <template>
-<div class="rounded-lg border bg-card p-4">
-    <div class="mb-3 flex items-center gap-2">
-        <div class="flex h-8 w-8 items-center justify-center rounded-lg bg-blue-500/10 ring-1 ring-blue-500/20">
-            <Clock class="h-4 w-4 text-blue-600 dark:text-blue-400" />
+    <div class="rounded-lg border bg-card p-4">
+        <div class="mb-3 flex items-center gap-2">
+            <div class="flex h-8 w-8 items-center justify-center rounded-lg bg-blue-500/10 ring-1 ring-blue-500/20">
+                <Clock class="h-4 w-4 text-blue-600 dark:text-blue-400" />
+            </div>
+            <div>
+                <h3 class="text-sm font-semibold text-foreground">Pilih Shift Kerja</h3>
+                <p class="text-xs text-muted-foreground">
+                    {{ props.disabled ? 'Shift sedang aktif' : 'Pilih shift untuk hari ini' }}
+                </p>
+            </div>
         </div>
-        <div>
-            <h3 class="text-sm font-semibold text-foreground">Pilih Shift Kerja</h3>
-            <p class="text-xs text-muted-foreground">
-                {{ props.disabled ? 'Shift sedang aktif' : 'Pilih shift untuk hari ini' }}
-            </p>
-        </div>
-    </div>
 
         <!-- Shift Selector -->
         <div v-if="userShifts.length > 0" class="space-y-3">
@@ -246,28 +253,22 @@ watch(() => props.userShifts, (newShifts) => {
                 :value="selectedShiftId"
                 @change="handleShiftChange(($event.target as HTMLSelectElement).value)"
                 :disabled="props.disabled"
-                class="w-full rounded-md border border-input bg-background px-3 py-2 text-sm ring-offset-background focus:outline-none focus:ring-2 focus:ring-ring focus:ring-offset-2 disabled:cursor-not-allowed disabled:opacity-50"
+                class="w-full rounded-md border border-input bg-background px-3 py-2 text-sm ring-offset-background focus:ring-2 focus:ring-ring focus:ring-offset-2 focus:outline-none disabled:cursor-not-allowed disabled:opacity-50"
             >
                 <option value="" disabled>Pilih shift...</option>
-                <option
-                    v-for="shift in userShifts"
-                    :key="shift.id"
-                    :value="shift.id.toString()"
-                >
+                <option v-for="shift in userShifts" :key="shift.id" :value="shift.id.toString()">
                     {{ shift.name }} ({{ formatTime(shift.start_time) }} - {{ formatTime(shift.end_time) }})
                 </option>
             </select>
         </div>
 
         <!-- No Shifts Available -->
-        <div v-else class="text-center py-4">
+        <div v-else class="py-4 text-center">
             <div class="mx-auto flex h-12 w-12 items-center justify-center rounded-full bg-amber-100 dark:bg-amber-900/20">
                 <Clock class="h-6 w-6 text-amber-600 dark:text-amber-400" />
             </div>
             <h4 class="mt-2 text-sm font-medium text-foreground">Belum Ada Shift</h4>
-            <p class="mt-1 text-xs text-muted-foreground">
-                Anda belum ditugaskan ke shift kerja mana pun. Hubungi admin untuk penugasan shift.
-            </p>
+            <p class="mt-1 text-xs text-muted-foreground">Anda belum ditugaskan ke shift kerja mana pun. Hubungi admin untuk penugasan shift.</p>
         </div>
     </div>
 </template>
