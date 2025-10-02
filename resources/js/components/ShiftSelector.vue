@@ -21,6 +21,7 @@ interface WorkShift {
 interface Props {
     userShifts: WorkShift[];
     userId: number;
+    disabled?: boolean;
 }
 
 const props = defineProps<Props>();
@@ -226,23 +227,26 @@ watch(() => props.userShifts, (newShifts) => {
 </script>
 
 <template>
-    <div class="rounded-lg border bg-card p-4">
-        <div class="mb-3 flex items-center gap-2">
-            <div class="flex h-8 w-8 items-center justify-center rounded-lg bg-blue-500/10 ring-1 ring-blue-500/20">
-                <Clock class="h-4 w-4 text-blue-600 dark:text-blue-400" />
-            </div>
-            <div>
-                <h3 class="text-sm font-semibold text-foreground">Pilih Shift Kerja</h3>
-                <p class="text-xs text-muted-foreground">Pilih shift untuk hari ini</p>
-            </div>
+<div class="rounded-lg border bg-card p-4">
+    <div class="mb-3 flex items-center gap-2">
+        <div class="flex h-8 w-8 items-center justify-center rounded-lg bg-blue-500/10 ring-1 ring-blue-500/20">
+            <Clock class="h-4 w-4 text-blue-600 dark:text-blue-400" />
         </div>
+        <div>
+            <h3 class="text-sm font-semibold text-foreground">Pilih Shift Kerja</h3>
+            <p class="text-xs text-muted-foreground">
+                {{ props.disabled ? 'Shift sedang aktif' : 'Pilih shift untuk hari ini' }}
+            </p>
+        </div>
+    </div>
 
         <!-- Shift Selector -->
         <div v-if="userShifts.length > 0" class="space-y-3">
             <select
                 :value="selectedShiftId"
                 @change="handleShiftChange(($event.target as HTMLSelectElement).value)"
-                class="w-full rounded-md border border-input bg-background px-3 py-2 text-sm ring-offset-background focus:outline-none focus:ring-2 focus:ring-ring focus:ring-offset-2"
+                :disabled="props.disabled"
+                class="w-full rounded-md border border-input bg-background px-3 py-2 text-sm ring-offset-background focus:outline-none focus:ring-2 focus:ring-ring focus:ring-offset-2 disabled:cursor-not-allowed disabled:opacity-50"
             >
                 <option value="" disabled>Pilih shift...</option>
                 <option

@@ -1010,6 +1010,7 @@ onUnmounted(() => {
                     v-if="user && userShifts"
                     :user-shifts="userShifts"
                     :user-id="user.id"
+                    :disabled="!!todayAttendance?.check_in_time && !todayAttendance?.check_out_time"
                     @shift-changed="handleShiftChange"
                 />
             </div>
