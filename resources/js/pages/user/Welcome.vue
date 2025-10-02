@@ -216,8 +216,12 @@ const formatTime = (time: string | null | undefined) => {
 
 const formatDuration = (minutes: number | null | undefined) => {
     if (!minutes) return '--';
-    const hours = Math.floor(minutes / 60);
-    const mins = minutes % 60;
+    
+    // Always use absolute value for duration
+    const absMinutes = Math.abs(minutes);
+    const hours = Math.floor(absMinutes / 60);
+    const mins = absMinutes % 60;
+    
     return `${hours}h ${mins}m`;
 };
 
@@ -1005,12 +1009,10 @@ onUnmounted(() => {
         <!-- Main Content -->
         <div class="px-4 py-6 pb-20">
             <!-- Shift Selector -->
-            <div class="mb-6">
+            <div class="mb-6" v-if="user && userShifts && !todayAttendance?.check_in_time">
                 <ShiftSelector
-                    v-if="user && userShifts"
                     :user-shifts="userShifts"
                     :user-id="user.id"
-                    :disabled="!!todayAttendance?.check_in_time && !todayAttendance?.check_out_time"
                     @shift-changed="handleShiftChange"
                 />
             </div>
@@ -1214,7 +1216,9 @@ onUnmounted(() => {
                 <div v-if="selectedShift" class="mt-4 rounded-md border border-blue-200 bg-blue-50 p-3 dark:border-blue-800 dark:bg-blue-900/20">
                     <div class="flex items-center gap-2">
                         <Clock class="h-4 w-4 text-blue-600 dark:text-blue-400" />
-                        <span class="text-sm font-medium text-blue-800 dark:text-blue-200">Shift Saat Ini:</span>
+                        <span class="text-sm font-medium text-blue-800 dark:text-blue-200">
+                            {{ todayAttendance?.check_in_time ? 'Shift Aktif:' : 'Shift Saat Ini:' }}
+                        </span>
                         <span class="text-sm text-blue-700 dark:text-blue-300">
                             {{ selectedShift.name }} ({{ formatTime(selectedShift.start_time) }} - {{ formatTime(selectedShift.end_time) }})
                         </span>

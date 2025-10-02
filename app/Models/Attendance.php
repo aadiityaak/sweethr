@@ -82,8 +82,11 @@ class Attendance extends Model
         if (! $this->work_duration) {
             return null;
         }
-        $hours = floor($this->work_duration / 60);
-        $minutes = $this->work_duration % 60;
+
+        // Always use absolute value for duration
+        $absDuration = abs($this->work_duration);
+        $hours = floor($absDuration / 60);
+        $minutes = $absDuration % 60;
 
         return sprintf('%02d:%02d', $hours, $minutes);
     }

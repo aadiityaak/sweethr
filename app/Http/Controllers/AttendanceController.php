@@ -373,9 +373,27 @@ class AttendanceController extends Controller
         // Location is still recorded for audit purposes
 
         // Calculate work duration
-        $checkInTime = Carbon::parse($attendance->check_in_time);
         $checkOutTime = now();
-        $workDuration = $checkOutTime->diffInMinutes($checkInTime);
+
+        // Create a full datetime for check-in time (today at the check-in time)
+        $checkInDateTime = Carbon::today()->setTimeFromTimeString($attendance->check_in_time);
+
+        // If check-out time is earlier than check-in time, it means it's an overnight shift
+        // So we need to set the check-in datetime to yesterday
+        if ($checkOutTime->lessThan($checkInDateTime)) {
+            $checkInDateTime->subDay();
+        }
+
+        // Calculate the absolute difference in minutes
+        $workDuration = $checkOutTime->diffInMinutes($checkInDateTime);
+
+        Log::info('Work duration calculation', [
+            'user_id' => $user->id,
+            'check_in_time' => $attendance->check_in_time,
+            'check_out_time' => $checkOutTime->format('H:i:s'),
+            'check_in_datetime' => $checkInDateTime->format('Y-m-d H:i:s'),
+            'work_duration_minutes' => $workDuration,
+        ]);
 
         // Calculate overtime (simplified logic)
         $overtimeDuration = 0;
