@@ -26,7 +26,7 @@ class AttendanceController extends Controller
         header('Expires: 0');
 
         // Get filters
-        $filters = $request->only(['date', 'date_from', 'date_to', 'status', 'department', 'office_location', 'search']);
+        $filters = $request->only(['date', 'date_from', 'date_to', 'status', 'department', 'office_location', 'search', 'sort', 'direction']);
 
         // Handle date range logic
         if (($filters['date_from'] ?? null) && ($filters['date_to'] ?? null)) {
@@ -59,7 +59,26 @@ class AttendanceController extends Controller
                     });
                 });
 
-            $absentEmployees = $employeesQuery->orderBy('name')->get();
+            // Add sorting for absent employees
+            $sort = $filters['sort'] ?? 'name';
+            $direction = $filters['direction'] ?? 'asc';
+
+            // Map frontend sort fields to database columns
+            $sortMapping = [
+                'user.name' => 'name',
+                'date' => 'date', // Not applicable for absent records
+                'check_in_time' => 'check_in_time', // Not applicable for absent records
+                'status' => 'status',
+                'work_duration' => 'work_duration', // Not applicable for absent records
+            ];
+
+            $dbSort = $sortMapping[$sort] ?? 'name';
+            if ($dbSort !== 'date' && $dbSort !== 'check_in_time' && $dbSort !== 'work_duration') {
+                $absentEmployees = $employeesQuery->orderBy($dbSort, $direction)->get();
+            } else {
+                // For fields not applicable to absent records, default to name sorting
+                $absentEmployees = $employeesQuery->orderBy('name', $direction)->get();
+            }
 
             // Convert to attendance record format for consistency
             $attendanceRecords = $absentEmployees->map(function ($user) use ($date) {
@@ -141,7 +160,45 @@ class AttendanceController extends Controller
                     });
                 });
 
-            $attendanceRecords = $attendanceQuery->orderBy('created_at', 'desc')->get();
+            // Add sorting for attendance records
+            $sort = $filters['sort'] ?? 'date';
+            $direction = $filters['direction'] ?? 'desc';
+
+            // Map frontend sort fields to database columns with relationships
+            $sortMapping = [
+                'user.name' => 'user.name',
+                'shift_info.name' => 'date', // fallback to date for shift sorting
+                'date' => 'date',
+                'check_in_time' => 'check_in_time',
+                'check_out_time' => 'check_out_time',
+                'work_duration' => 'work_duration',
+                'status' => 'status',
+                'office_location.name' => 'office_location.name',
+            ];
+
+            $dbSort = $sortMapping[$sort] ?? 'date';
+
+            // Apply sorting with relationship handling
+            if (str_contains($dbSort, '.')) {
+                // Handle relationship-based sorting
+                [$relation, $column] = explode('.', $dbSort);
+                if ($relation === 'user') {
+                    $attendanceQuery->join('users', 'attendances.user_id', '=', 'users.id')
+                        ->orderBy('users.' . $column, $direction)
+                        ->select('attendances.*'); // Select only attendance columns to avoid conflicts
+                } elseif ($relation === 'office_location') {
+                    $attendanceQuery->join('office_locations', 'attendances.office_location_id', '=', 'office_locations.id')
+                        ->orderBy('office_locations.' . $column, $direction)
+                        ->select('attendances.*');
+                } else {
+                    $attendanceQuery->orderBy($dbSort, $direction);
+                }
+            } else {
+                // Direct column sorting
+                $attendanceQuery->orderBy($dbSort, $direction);
+            }
+
+            $attendanceRecords = $attendanceQuery->get();
 
             // Calculate late duration for each attendance record and add shift info
             $attendanceRecords = $attendanceRecords->map(function ($record) {

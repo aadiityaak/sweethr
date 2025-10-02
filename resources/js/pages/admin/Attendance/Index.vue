@@ -13,6 +13,10 @@ import { type BreadcrumbItem } from '@/types';
 import { Head, Link, router } from '@inertiajs/vue3';
 import {
     AlertCircle,
+    ArrowDown,
+    ArrowUpDown,
+    ArrowUp,
+    BarChart3,
     Calendar,
     CheckCircle,
     Clock,
@@ -88,6 +92,8 @@ interface Props {
         search?: string;
         date_from?: string;
         date_to?: string;
+        sort?: string;
+        direction?: string;
     };
     departments: Array<{
         id: number;
@@ -135,6 +141,8 @@ const updateFilters = () => {
         date: selectedDate.value || undefined,
         date_from: selectedDateFrom.value || undefined,
         date_to: selectedDateTo.value || undefined,
+        sort: sortField.value || undefined,
+        direction: sortDirection.value || undefined,
     };
 
     // Remove empty values
@@ -444,6 +452,13 @@ const toggleDropdown = (recordId: number) => {
     activeDropdown.value = activeDropdown.value === recordId ? null : recordId;
 };
 
+// Charts visibility state
+const showCharts = ref(false);
+
+// Sorting functionality
+const sortField = ref(filters.sort || '');
+const sortDirection = ref(filters.direction || 'asc');
+
 // Close dropdown when clicking outside
 const closeDropdown = () => {
     activeDropdown.value = null;
@@ -463,6 +478,28 @@ const exportData = () => {
     });
 
     window.open(`/admin/attendance/export?${queryParams.toString()}`, '_blank');
+};
+
+// Sorting function
+const sortBy = (field: string) => {
+    if (sortField.value === field) {
+        // Toggle direction if same field
+        sortDirection.value = sortDirection.value === 'asc' ? 'desc' : 'asc';
+    } else {
+        // Set new field and default to ascending
+        sortField.value = field;
+        sortDirection.value = 'asc';
+    }
+
+    updateFilters();
+};
+
+// Get sort icon for column header
+const getSortIcon = (field: string) => {
+    if (sortField.value !== field) {
+        return ArrowUpDown;
+    }
+    return sortDirection.value === 'asc' ? ArrowUp : ArrowDown;
 };
 
 // Handle click outside to close dropdown
@@ -647,93 +684,96 @@ onUnmounted(() => {
                 </div>
             </div>
 
-            <!-- Charts Row -->
-            <div class="mb-8 grid gap-6 lg:grid-cols-2">
-                <!-- 30-Day Trend Chart -->
-                <div
-                    class="group relative overflow-hidden rounded-xl border border-gray-200/50 bg-gradient-to-br from-white to-purple-50/30 p-6 shadow-sm transition-all hover:shadow-md dark:border-gray-800/50 dark:from-gray-950 dark:to-purple-950/30"
-                >
-                    <div class="mb-6 flex items-center gap-3">
-                        <div class="flex h-8 w-8 items-center justify-center rounded-lg bg-purple-500/10 ring-1 ring-purple-500/20">
-                            <Calendar class="h-4 w-4 text-purple-600 dark:text-purple-400" />
-                        </div>
-                        <div>
-                            <h2 class="text-lg font-semibold text-gray-900 dark:text-white">Tren Kehadiran 30 Hari Terakhir</h2>
-                            <p class="text-sm text-gray-600 dark:text-gray-400">Statistik kehadiran harian</p>
-                        </div>
-                    </div>
-                    <div class="h-64">
-                        <AttendanceChart type="line" :trend-data="generateTrendData()" />
-                    </div>
+            <!-- Charts Section (Toggleable) -->
+            <div v-if="showCharts" class="mb-8">
+                <!-- Charts Row -->
+                <div class="mb-8 grid gap-6 lg:grid-cols-2">
+                    <!-- 30-Day Trend Chart -->
                     <div
-                        class="pointer-events-none absolute inset-0 rounded-xl bg-gradient-to-br from-purple-500/5 to-violet-500/5 opacity-0 transition-opacity group-hover:opacity-100"
-                    ></div>
+                        class="group relative overflow-hidden rounded-xl border border-gray-200/50 bg-gradient-to-br from-white to-purple-50/30 p-6 shadow-sm transition-all hover:shadow-md dark:border-gray-800/50 dark:from-gray-950 dark:to-purple-950/30"
+                    >
+                        <div class="mb-6 flex items-center gap-3">
+                            <div class="flex h-8 w-8 items-center justify-center rounded-lg bg-purple-500/10 ring-1 ring-purple-500/20">
+                                <Calendar class="h-4 w-4 text-purple-600 dark:text-purple-400" />
+                            </div>
+                            <div>
+                                <h2 class="text-lg font-semibold text-gray-900 dark:text-white">Tren Kehadiran 30 Hari Terakhir</h2>
+                                <p class="text-sm text-gray-600 dark:text-gray-400">Statistik kehadiran harian</p>
+                            </div>
+                        </div>
+                        <div class="h-64">
+                            <AttendanceChart type="line" :trend-data="generateTrendData()" />
+                        </div>
+                        <div
+                            class="pointer-events-none absolute inset-0 rounded-xl bg-gradient-to-br from-purple-500/5 to-violet-500/5 opacity-0 transition-opacity group-hover:opacity-100"
+                        ></div>
+                    </div>
+
+                    <!-- Status Distribution -->
+                    <div
+                        class="group relative overflow-hidden rounded-xl border border-gray-200/50 bg-gradient-to-br from-white to-blue-50/30 p-6 shadow-sm transition-all hover:shadow-md dark:border-gray-800/50 dark:from-gray-950 dark:to-blue-950/30"
+                    >
+                        <div class="mb-6 flex items-center gap-3">
+                            <div class="flex h-8 w-8 items-center justify-center rounded-lg bg-blue-500/10 ring-1 ring-blue-500/20">
+                                <CheckCircle class="h-4 w-4 text-blue-600 dark:text-blue-400" />
+                            </div>
+                            <div>
+                                <h2 class="text-lg font-semibold text-gray-900 dark:text-white">Distribusi Status</h2>
+                                <p class="text-sm text-gray-600 dark:text-gray-400">Perbandingan status kehadiran</p>
+                            </div>
+                        </div>
+                        <div class="h-64">
+                            <AttendanceChart type="doughnut" :attendance-data="generateAttendanceBreakdown()" />
+                        </div>
+                        <div
+                            class="pointer-events-none absolute inset-0 rounded-xl bg-gradient-to-br from-blue-500/5 to-indigo-500/5 opacity-0 transition-opacity group-hover:opacity-100"
+                        ></div>
+                    </div>
                 </div>
 
-                <!-- Status Distribution -->
-                <div
-                    class="group relative overflow-hidden rounded-xl border border-gray-200/50 bg-gradient-to-br from-white to-blue-50/30 p-6 shadow-sm transition-all hover:shadow-md dark:border-gray-800/50 dark:from-gray-950 dark:to-blue-950/30"
-                >
-                    <div class="mb-6 flex items-center gap-3">
-                        <div class="flex h-8 w-8 items-center justify-center rounded-lg bg-blue-500/10 ring-1 ring-blue-500/20">
-                            <CheckCircle class="h-4 w-4 text-blue-600 dark:text-blue-400" />
-                        </div>
-                        <div>
-                            <h2 class="text-lg font-semibold text-gray-900 dark:text-white">Distribusi Status</h2>
-                            <p class="text-sm text-gray-600 dark:text-gray-400">Perbandingan status kehadiran</p>
-                        </div>
-                    </div>
-                    <div class="h-64">
-                        <AttendanceChart type="doughnut" :attendance-data="generateAttendanceBreakdown()" />
-                    </div>
+                <!-- Additional Charts Row -->
+                <div class="mb-8 grid gap-6 lg:grid-cols-2">
+                    <!-- Weekly Attendance Chart -->
                     <div
-                        class="pointer-events-none absolute inset-0 rounded-xl bg-gradient-to-br from-blue-500/5 to-indigo-500/5 opacity-0 transition-opacity group-hover:opacity-100"
-                    ></div>
-                </div>
-            </div>
+                        class="group relative overflow-hidden rounded-xl border border-gray-200/50 bg-gradient-to-br from-white to-emerald-50/30 p-6 shadow-sm transition-all hover:shadow-md dark:border-gray-800/50 dark:from-gray-950 dark:to-emerald-950/30"
+                    >
+                        <div class="mb-6 flex items-center gap-3">
+                            <div class="flex h-8 w-8 items-center justify-center rounded-lg bg-emerald-500/10 ring-1 ring-emerald-500/20">
+                                <Calendar class="h-4 w-4 text-emerald-600 dark:text-emerald-400" />
+                            </div>
+                            <div>
+                                <h2 class="text-lg font-semibold text-gray-900 dark:text-white">Kehadiran Mingguan</h2>
+                                <p class="text-sm text-gray-600 dark:text-gray-400">Persentase kehadiran per hari</p>
+                            </div>
+                        </div>
+                        <div class="h-64">
+                            <AttendanceChart type="bar" :weekly-data="generateWeeklyData()" />
+                        </div>
+                        <div
+                            class="pointer-events-none absolute inset-0 rounded-xl bg-gradient-to-br from-emerald-500/5 to-teal-500/5 opacity-0 transition-opacity group-hover:opacity-100"
+                        ></div>
+                    </div>
 
-            <!-- Additional Charts Row -->
-            <div class="mb-8 grid gap-6 lg:grid-cols-2">
-                <!-- Weekly Attendance Chart -->
-                <div
-                    class="group relative overflow-hidden rounded-xl border border-gray-200/50 bg-gradient-to-br from-white to-emerald-50/30 p-6 shadow-sm transition-all hover:shadow-md dark:border-gray-800/50 dark:from-gray-950 dark:to-emerald-950/30"
-                >
-                    <div class="mb-6 flex items-center gap-3">
-                        <div class="flex h-8 w-8 items-center justify-center rounded-lg bg-emerald-500/10 ring-1 ring-emerald-500/20">
-                            <Calendar class="h-4 w-4 text-emerald-600 dark:text-emerald-400" />
-                        </div>
-                        <div>
-                            <h2 class="text-lg font-semibold text-gray-900 dark:text-white">Kehadiran Mingguan</h2>
-                            <p class="text-sm text-gray-600 dark:text-gray-400">Persentase kehadiran per hari</p>
-                        </div>
-                    </div>
-                    <div class="h-64">
-                        <AttendanceChart type="bar" :weekly-data="generateWeeklyData()" />
-                    </div>
+                    <!-- Department-wise Attendance -->
                     <div
-                        class="pointer-events-none absolute inset-0 rounded-xl bg-gradient-to-br from-emerald-500/5 to-teal-500/5 opacity-0 transition-opacity group-hover:opacity-100"
-                    ></div>
-                </div>
-
-                <!-- Department-wise Attendance -->
-                <div
-                    class="group relative overflow-hidden rounded-xl border border-gray-200/50 bg-gradient-to-br from-white to-amber-50/30 p-6 shadow-sm transition-all hover:shadow-md dark:border-gray-800/50 dark:from-gray-950 dark:to-amber-950/30"
-                >
-                    <div class="mb-6 flex items-center gap-3">
-                        <div class="flex h-8 w-8 items-center justify-center rounded-lg bg-amber-500/10 ring-1 ring-amber-500/20">
-                            <Users class="h-4 w-4 text-amber-600 dark:text-amber-400" />
+                        class="group relative overflow-hidden rounded-xl border border-gray-200/50 bg-gradient-to-br from-white to-amber-50/30 p-6 shadow-sm transition-all hover:shadow-md dark:border-gray-800/50 dark:from-gray-950 dark:to-amber-950/30"
+                    >
+                        <div class="mb-6 flex items-center gap-3">
+                            <div class="flex h-8 w-8 items-center justify-center rounded-lg bg-amber-500/10 ring-1 ring-amber-500/20">
+                                <Users class="h-4 w-4 text-amber-600 dark:text-amber-400" />
+                            </div>
+                            <div>
+                                <h2 class="text-lg font-semibold text-gray-900 dark:text-white">Kehadiran per Departemen</h2>
+                                <p class="text-sm text-gray-600 dark:text-gray-400">Distribusi kehadiran per departemen</p>
+                            </div>
                         </div>
-                        <div>
-                            <h2 class="text-lg font-semibold text-gray-900 dark:text-white">Kehadiran per Departemen</h2>
-                            <p class="text-sm text-gray-600 dark:text-gray-400">Distribusi kehadiran per departemen</p>
+                        <div class="h-64">
+                            <AttendanceChart type="bar" :department-data="generateDepartmentData()" />
                         </div>
+                        <div
+                            class="pointer-events-none absolute inset-0 rounded-xl bg-gradient-to-br from-amber-500/5 to-orange-500/5 opacity-0 transition-opacity group-hover:opacity-100"
+                        ></div>
                     </div>
-                    <div class="h-64">
-                        <AttendanceChart type="bar" :department-data="generateDepartmentData()" />
-                    </div>
-                    <div
-                        class="pointer-events-none absolute inset-0 rounded-xl bg-gradient-to-br from-amber-500/5 to-orange-500/5 opacity-0 transition-opacity group-hover:opacity-100"
-                    ></div>
                 </div>
             </div>
 
@@ -750,120 +790,127 @@ onUnmounted(() => {
                         <p class="text-sm text-gray-600 dark:text-gray-400">Temukan data kehadiran yang Anda butuhkan</p>
                     </div>
                 </div>
-                <div class="flex flex-col gap-6 sm:flex-row sm:items-center sm:justify-between">
-                    <div class="relative max-w-md flex-1">
-                        <Search class="absolute top-1/2 left-3 h-4 w-4 -translate-y-1/2 text-gray-400" />
-                        <input
-                            type="text"
-                            placeholder="Cari karyawan..."
-                            class="w-full rounded-lg border border-gray-300 bg-white py-2 pr-4 pl-10 text-sm focus:border-blue-500 focus:ring-1 focus:ring-blue-500 focus:outline-none dark:border-gray-600 dark:bg-gray-800 dark:text-gray-300 dark:focus:border-blue-400"
-                            :value="searchQuery"
-                            @input="handleSearchInput"
-                        />
-                    </div>
-                    <div class="flex flex-wrap gap-4">
-                        <select
-                            class="rounded-lg border border-gray-300 bg-white px-3 py-2 text-sm focus:border-blue-500 focus:ring-1 focus:ring-blue-500 focus:outline-none dark:border-gray-600 dark:bg-gray-800 dark:text-gray-300"
-                            :value="selectedStatus"
-                            @change="handleStatusChange"
-                        >
-                            <option value="">Semua Status</option>
-                            <option value="present">Hadir</option>
-                            <option value="late">Terlambat</option>
-                            <option value="absent">Tidak Hadir</option>
-                            <option value="half_day">Setengah Hari</option>
-                        </select>
-                        <select
-                            class="rounded-lg border border-gray-300 bg-white px-3 py-2 text-sm focus:border-blue-500 focus:ring-1 focus:ring-blue-500 focus:outline-none dark:border-gray-600 dark:bg-gray-800 dark:text-gray-300"
-                            :value="selectedDepartment"
-                            @change="handleDepartmentChange"
-                        >
-                            <option value="">Semua Departemen</option>
-                            <option v-for="dept in departments" :key="dept.id" :value="dept.id">{{ dept.name }}</option>
-                        </select>
-                        <select
-                            class="rounded-lg border border-gray-300 bg-white px-3 py-2 text-sm focus:border-blue-500 focus:ring-1 focus:ring-blue-500 focus:outline-none dark:border-gray-600 dark:bg-gray-800 dark:text-gray-300"
-                            :value="selectedOfficeLocation"
-                            @change="handleOfficeLocationChange"
-                        >
-                            <option value="">Semua Lokasi</option>
-                            <option v-for="location in officeLocations" :key="location.id" :value="location.id">{{ location.name }}</option>
-                        </select>
+
+                <!-- Search Bar -->
+                <div class="mb-8">
+                    <div class="flex flex-col gap-4 sm:flex-row sm:items-center sm:justify-between">
+                        <div class="relative max-w-md flex-1">
+                            <Search class="absolute top-1/2 left-3 h-4 w-4 -translate-y-1/2 text-gray-400" />
+                            <input
+                                type="text"
+                                placeholder="Cari karyawan..."
+                                class="w-full rounded-lg border border-gray-300 bg-white py-2 pr-4 pl-10 text-sm focus:border-blue-500 focus:ring-1 focus:ring-blue-500 focus:outline-none dark:border-gray-600 dark:bg-gray-800 dark:text-gray-300 dark:focus:border-blue-400"
+                                :value="searchQuery"
+                                @input="handleSearchInput"
+                            />
+                        </div>
+                        <div class="flex flex-wrap gap-3">
+                            <select
+                                class="rounded-lg border border-gray-300 bg-white px-4 py-2 text-sm focus:border-blue-500 focus:ring-1 focus:ring-blue-500 focus:outline-none dark:border-gray-600 dark:bg-gray-800 dark:text-gray-300"
+                                :value="selectedStatus"
+                                @change="handleStatusChange"
+                            >
+                                <option value="">Semua Status</option>
+                                <option value="present">Hadir</option>
+                                <option value="late">Terlambat</option>
+                                <option value="absent">Tidak Hadir</option>
+                                <option value="half_day">Setengah Hari</option>
+                            </select>
+                            <select
+                                class="rounded-lg border border-gray-300 bg-white px-4 py-2 text-sm focus:border-blue-500 focus:ring-1 focus:ring-blue-500 focus:outline-none dark:border-gray-600 dark:bg-gray-800 dark:text-gray-300"
+                                :value="selectedDepartment"
+                                @change="handleDepartmentChange"
+                            >
+                                <option value="">Semua Departemen</option>
+                                <option v-for="dept in departments" :key="dept.id" :value="dept.id">{{ dept.name }}</option>
+                            </select>
+                            <select
+                                class="rounded-lg border border-gray-300 bg-white px-4 py-2 text-sm focus:border-blue-500 focus:ring-1 focus:ring-blue-500 focus:outline-none dark:border-gray-600 dark:bg-gray-800 dark:text-gray-300"
+                                :value="selectedOfficeLocation"
+                                @change="handleOfficeLocationChange"
+                            >
+                                <option value="">Semua Lokasi</option>
+                                <option v-for="location in officeLocations" :key="location.id" :value="location.id">{{ location.name }}</option>
+                            </select>
+                        </div>
                     </div>
                 </div>
 
-                <!-- Quick Date Selection -->
-                <div class="mb-6">
-                    <div class="flex flex-wrap items-center gap-3">
-                        <div class="flex h-8 w-8 items-center justify-center rounded-lg bg-blue-500/10 ring-1 ring-blue-500/20">
-                            <Calendar class="h-4 w-4 text-blue-600 dark:text-blue-400" />
+                <!-- Date Selection Section (Side by Side) -->
+                <div class="mb-8 grid gap-6 lg:grid-cols-2">
+                    <!-- Quick Date Selection -->
+                    <div>
+                        <div class="flex items-center gap-3 mb-4">
+                            <div class="flex h-8 w-8 items-center justify-center rounded-lg bg-blue-500/10 ring-1 ring-blue-500/20">
+                                <Calendar class="h-4 w-4 text-blue-600 dark:text-blue-400" />
+                            </div>
+                            <div>
+                                <h3 class="text-base font-semibold text-gray-900 dark:text-white">Pilih Periode Cepat</h3>
+                                <p class="text-sm text-gray-600 dark:text-gray-400">Filter kehadiran berdasarkan periode waktu</p>
+                            </div>
                         </div>
-                        <div>
-                            <h3 class="text-base font-semibold text-gray-900 dark:text-white">Pilih Periode Cepat</h3>
-                            <p class="text-sm text-gray-600 dark:text-gray-400">Filter kehadiran berdasarkan periode waktu</p>
+                        <div class="flex flex-wrap gap-2">
+                            <button
+                                @click="selectQuickDate('today')"
+                                class="rounded-md bg-blue-100 px-3 py-1.5 text-xs font-medium text-blue-700 transition-colors hover:bg-blue-200 dark:bg-blue-900/30 dark:text-blue-300 dark:hover:bg-blue-800/50"
+                            >
+                                📅 Hari Ini
+                            </button>
+                            <button
+                                @click="selectQuickDate('yesterday')"
+                                class="rounded-md bg-blue-100 px-3 py-1.5 text-xs font-medium text-blue-700 transition-colors hover:bg-blue-200 dark:bg-blue-900/30 dark:text-blue-300 dark:hover:bg-blue-800/50"
+                            >
+                                📅 Kemarin
+                            </button>
+                            <button
+                                @click="selectQuickDate('thisWeek')"
+                                class="rounded-md bg-blue-100 px-3 py-1.5 text-xs font-medium text-blue-700 transition-colors hover:bg-blue-200 dark:bg-blue-900/30 dark:text-blue-300 dark:hover:bg-blue-800/50"
+                            >
+                                📈 Minggu Ini
+                            </button>
+                            <button
+                                @click="selectQuickDate('thisMonth')"
+                                class="rounded-md bg-blue-100 px-3 py-1.5 text-xs font-medium text-blue-700 transition-colors hover:bg-blue-200 dark:bg-blue-900/30 dark:text-blue-300 dark:hover:bg-blue-800/50"
+                            >
+                                📅 Bulan Ini
+                            </button>
+                            <button
+                                @click="selectQuickDate('last3Months')"
+                                class="rounded-md bg-blue-100 px-3 py-1.5 text-xs font-medium text-blue-700 transition-colors hover:bg-blue-200 dark:bg-blue-900/30 dark:text-blue-300 dark:hover:bg-blue-800/50"
+                            >
+                                📊 3 Bulan
+                            </button>
                         </div>
                     </div>
-                    <div class="mt-4 flex flex-wrap gap-2">
-                        <button
-                            @click="selectQuickDate('today')"
-                            class="rounded-md bg-blue-100 px-3 py-1.5 text-xs font-medium text-blue-700 transition-colors hover:bg-blue-200 dark:bg-blue-900/30 dark:text-blue-300 dark:hover:bg-blue-800/50"
-                        >
-                            📅 Hari Ini
-                        </button>
-                        <button
-                            @click="selectQuickDate('yesterday')"
-                            class="rounded-md bg-blue-100 px-3 py-1.5 text-xs font-medium text-blue-700 transition-colors hover:bg-blue-200 dark:bg-blue-900/30 dark:text-blue-300 dark:hover:bg-blue-800/50"
-                        >
-                            📅 Kemarin
-                        </button>
-                        <button
-                            @click="selectQuickDate('thisWeek')"
-                            class="rounded-md bg-blue-100 px-3 py-1.5 text-xs font-medium text-blue-700 transition-colors hover:bg-blue-200 dark:bg-blue-900/30 dark:text-blue-300 dark:hover:bg-blue-800/50"
-                        >
-                            📈 Minggu Ini
-                        </button>
-                        <button
-                            @click="selectQuickDate('thisMonth')"
-                            class="rounded-md bg-blue-100 px-3 py-1.5 text-xs font-medium text-blue-700 transition-colors hover:bg-blue-200 dark:bg-blue-900/30 dark:text-blue-300 dark:hover:bg-blue-800/50"
-                        >
-                            📅 Bulan Ini
-                        </button>
-                        <button
-                            @click="selectQuickDate('last3Months')"
-                            class="rounded-md bg-blue-100 px-3 py-1.5 text-xs font-medium text-blue-700 transition-colors hover:bg-blue-200 dark:bg-blue-900/30 dark:text-blue-300 dark:hover:bg-blue-800/50"
-                        >
-                            📊 3 Bulan
-                        </button>
-                    </div>
-                </div>
 
-                <!-- Date Range Filter -->
-                <div class="mb-6">
-                    <div class="flex items-center gap-3">
-                        <div class="flex h-8 w-8 items-center justify-center rounded-lg bg-purple-500/10 ring-1 ring-purple-500/20">
-                            <Calendar class="h-4 w-4 text-purple-600 dark:text-purple-400" />
+                    <!-- Date Range Filter -->
+                    <div>
+                        <div class="flex items-center gap-3 mb-4">
+                            <div class="flex h-8 w-8 items-center justify-center rounded-lg bg-purple-500/10 ring-1 ring-purple-500/20">
+                                <Calendar class="h-4 w-4 text-purple-600 dark:text-purple-400" />
+                            </div>
+                            <div>
+                                <h3 class="text-base font-semibold text-gray-900 dark:text-white">Pilih Rentang Tanggal</h3>
+                                <p class="text-sm text-gray-600 dark:text-gray-400">Filter kehadiran berdasarkan rentang tanggal spesifik</p>
+                            </div>
                         </div>
-                        <div>
-                            <h3 class="text-base font-semibold text-gray-900 dark:text-white">Pilih Rentang Tanggal</h3>
-                            <p class="text-sm text-gray-600 dark:text-gray-400">Filter kehadiran berdasarkan rentang tanggal spesifik</p>
-                        </div>
-                    </div>
-                    <div class="mt-4 flex gap-2">
-                        <div class="relative">
-                            <DatePicker
-                                :model-value="selectedDateFrom"
-                                @update:model-value="handleDateFromChange"
-                                placeholder="Dari tanggal"
-                                class="w-auto"
-                            />
-                        </div>
-                        <div class="relative">
-                            <DatePicker
-                                :model-value="selectedDateTo"
-                                @update:model-value="handleDateToChange"
-                                placeholder="Sampai tanggal"
-                                class="w-auto"
-                            />
+                        <div class="grid gap-3 sm:grid-cols-2">
+                            <div class="relative">
+                                <DatePicker
+                                    :model-value="selectedDateFrom"
+                                    @update:model-value="handleDateFromChange"
+                                    placeholder="Pilih tanggal mulai"
+                                    class="w-full"
+                                />
+                            </div>
+                            <div class="relative">
+                                <DatePicker
+                                    :model-value="selectedDateTo"
+                                    @update:model-value="handleDateToChange"
+                                    placeholder="Pilih tanggal akhir"
+                                    class="w-full"
+                                />
+                            </div>
                         </div>
                     </div>
                 </div>
@@ -872,8 +919,19 @@ onUnmounted(() => {
                 ></div>
             </div>
 
-            <!-- Export Section -->
-            <div class="mt-6 mb-8 flex justify-end">
+            <!-- Export and Charts Toggle Section -->
+            <div class="mt-6 mb-8 flex justify-end gap-3">
+                <!-- Toggle Charts Button -->
+                <button
+                    @click="showCharts = !showCharts"
+                    class="inline-flex items-center rounded-lg bg-purple-600 px-6 py-3 text-sm font-medium text-white shadow-sm transition-colors hover:bg-purple-700 focus:ring-2 focus:ring-purple-500 focus:ring-offset-2 focus:outline-none"
+                    :class="{ 'bg-purple-700': showCharts }"
+                >
+                    <BarChart3 class="mr-2 h-4 w-4" />
+                    {{ showCharts ? 'Sembunyikan Grafik' : 'Tampilkan Grafik' }}
+                </button>
+
+                <!-- Export Button -->
                 <button
                     @click="exportData"
                     class="inline-flex items-center rounded-lg bg-green-600 px-6 py-3 text-sm font-medium text-white shadow-sm transition-colors hover:bg-green-700 focus:ring-2 focus:ring-green-500 focus:ring-offset-2 focus:outline-none"
@@ -902,29 +960,77 @@ onUnmounted(() => {
                     <table class="w-full">
                         <thead class="border-b border-gray-200/50 bg-gray-50/50 dark:border-gray-800/50 dark:bg-gray-900/50">
                             <tr>
-                                <th class="px-8 py-4 text-left text-xs font-medium tracking-wide text-gray-500 uppercase dark:text-gray-400">
-                                    Karyawan
+                                <th
+                                    @click="sortBy('user.name')"
+                                    class="px-8 py-4 text-left text-xs font-medium tracking-wide text-gray-500 uppercase dark:text-gray-400 cursor-pointer hover:bg-gray-100/50 dark:hover:bg-gray-800/50 transition-colors"
+                                >
+                                    <div class="flex items-center gap-1">
+                                        Karyawan
+                                        <component :is="getSortIcon('user.name')" class="h-3 w-3" />
+                                    </div>
                                 </th>
-                                <th class="px-8 py-4 text-left text-xs font-medium tracking-wide text-gray-500 uppercase dark:text-gray-400">
-                                    Shift
+                                <th
+                                    @click="sortBy('shift_info.name')"
+                                    class="px-8 py-4 text-left text-xs font-medium tracking-wide text-gray-500 uppercase dark:text-gray-400 cursor-pointer hover:bg-gray-100/50 dark:hover:bg-gray-800/50 transition-colors"
+                                >
+                                    <div class="flex items-center gap-1">
+                                        Shift
+                                        <component :is="getSortIcon('shift_info.name')" class="h-3 w-3" />
+                                    </div>
                                 </th>
-                                <th class="px-8 py-4 text-left text-xs font-medium tracking-wide text-gray-500 uppercase dark:text-gray-400">
-                                    Tanggal
+                                <th
+                                    @click="sortBy('date')"
+                                    class="px-8 py-4 text-left text-xs font-medium tracking-wide text-gray-500 uppercase dark:text-gray-400 cursor-pointer hover:bg-gray-100/50 dark:hover:bg-gray-800/50 transition-colors"
+                                >
+                                    <div class="flex items-center gap-1">
+                                        Tanggal
+                                        <component :is="getSortIcon('date')" class="h-3 w-3" />
+                                    </div>
                                 </th>
-                                <th class="px-8 py-4 text-left text-xs font-medium tracking-wide text-gray-500 uppercase dark:text-gray-400">
-                                    Check In
+                                <th
+                                    @click="sortBy('check_in_time')"
+                                    class="px-8 py-4 text-left text-xs font-medium tracking-wide text-gray-500 uppercase dark:text-gray-400 cursor-pointer hover:bg-gray-100/50 dark:hover:bg-gray-800/50 transition-colors"
+                                >
+                                    <div class="flex items-center gap-1">
+                                        Check In
+                                        <component :is="getSortIcon('check_in_time')" class="h-3 w-3" />
+                                    </div>
                                 </th>
-                                <th class="px-8 py-4 text-left text-xs font-medium tracking-wide text-gray-500 uppercase dark:text-gray-400">
-                                    Check Out
+                                <th
+                                    @click="sortBy('check_out_time')"
+                                    class="px-8 py-4 text-left text-xs font-medium tracking-wide text-gray-500 uppercase dark:text-gray-400 cursor-pointer hover:bg-gray-100/50 dark:hover:bg-gray-800/50 transition-colors"
+                                >
+                                    <div class="flex items-center gap-1">
+                                        Check Out
+                                        <component :is="getSortIcon('check_out_time')" class="h-3 w-3" />
+                                    </div>
                                 </th>
-                                <th class="px-8 py-4 text-left text-xs font-medium tracking-wide text-gray-500 uppercase dark:text-gray-400">
-                                    Durasi
+                                <th
+                                    @click="sortBy('work_duration')"
+                                    class="px-8 py-4 text-left text-xs font-medium tracking-wide text-gray-500 uppercase dark:text-gray-400 cursor-pointer hover:bg-gray-100/50 dark:hover:bg-gray-800/50 transition-colors"
+                                >
+                                    <div class="flex items-center gap-1">
+                                        Durasi
+                                        <component :is="getSortIcon('work_duration')" class="h-3 w-3" />
+                                    </div>
                                 </th>
-                                <th class="px-8 py-4 text-left text-xs font-medium tracking-wide text-gray-500 uppercase dark:text-gray-400">
-                                    Status
+                                <th
+                                    @click="sortBy('status')"
+                                    class="px-8 py-4 text-left text-xs font-medium tracking-wide text-gray-500 uppercase dark:text-gray-400 cursor-pointer hover:bg-gray-100/50 dark:hover:bg-gray-800/50 transition-colors"
+                                >
+                                    <div class="flex items-center gap-1">
+                                        Status
+                                        <component :is="getSortIcon('status')" class="h-3 w-3" />
+                                    </div>
                                 </th>
-                                <th class="px-8 py-4 text-left text-xs font-medium tracking-wide text-gray-500 uppercase dark:text-gray-400">
-                                    Lokasi
+                                <th
+                                    @click="sortBy('office_location.name')"
+                                    class="px-8 py-4 text-left text-xs font-medium tracking-wide text-gray-500 uppercase dark:text-gray-400 cursor-pointer hover:bg-gray-100/50 dark:hover:bg-gray-800/50 transition-colors"
+                                >
+                                    <div class="flex items-center gap-1">
+                                        Lokasi
+                                        <component :is="getSortIcon('office_location.name')" class="h-3 w-3" />
+                                    </div>
                                 </th>
                                 <th class="px-8 py-4 text-left text-xs font-medium tracking-wide text-gray-500 uppercase dark:text-gray-400">Aksi</th>
                             </tr>
