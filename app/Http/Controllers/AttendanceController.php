@@ -8,6 +8,7 @@ use App\Services\FaceRecognitionService;
 use Carbon\Carbon;
 use Illuminate\Http\RedirectResponse;
 use Illuminate\Http\Request;
+use Illuminate\Support\Facades\Log;
 use Inertia\Inertia;
 use Inertia\Response;
 
@@ -108,12 +109,13 @@ class AttendanceController extends Controller
 
     public function storeCheckIn(Request $request)
     {
-        \Log::info('Check-in request received', [
+        Log::info('Check-in request received', [
             'user_id' => auth()->id(),
             'has_face_photo' => $request->has('face_photo'),
             'has_face_confidence' => $request->has('face_confidence'),
             'face_photo_length' => $request->has('face_photo') ? strlen($request->face_photo) : 0,
             'all_keys' => array_keys($request->all()),
+            'selected_shift_id' => $request->input('selected_shift_id'),
         ]);
 
         try {
@@ -138,6 +140,11 @@ class AttendanceController extends Controller
             if ($this->faceRecognitionService->isFaceRecognitionRequired($user)) {
                 $validationRules['face_confidence'] = 'required|numeric|min:0|max:100';
                 $validationRules['face_photo'] = 'required|string'; // Base64 image data
+            }
+
+            // Add selected shift validation if provided
+            if ($request->has('selected_shift_id')) {
+                $validationRules['selected_shift_id'] = 'exists:work_shifts,id';
             }
 
             $request->validate($validationRules);
@@ -167,7 +174,7 @@ class AttendanceController extends Controller
                     return back()->withErrors(['message' => 'Anda berada di luar radius kantor. Mohon mendekat ke lokasi kantor.']);
                 }
                 // Log when user checks in outside radius but is allowed
-                \Log::info('User checked in outside radius with permission', [
+                Log::info('User checked in outside radius with permission', [
                     'user_id' => $user->id,
                     'office_id' => $office->id,
                     'distance_from_office' => $office->calculateDistance($request->latitude, $request->longitude),
@@ -176,7 +183,7 @@ class AttendanceController extends Controller
             }
         } else {
             // User with remote attendance permission checking in without office location
-            \Log::info('User checked in remotely without office location', [
+            Log::info('User checked in remotely without office location', [
                 'user_id' => $user->id,
                 'latitude' => $request->latitude,
                 'longitude' => $request->longitude,
@@ -226,18 +233,18 @@ class AttendanceController extends Controller
 
                 // Save face photo if provided
                 if ($request->has('face_photo')) {
-                    \Log::info('Face photo received for user', [
+                    Log::info('Face photo received for user', [
                         'user_id' => $user->id,
                         'photo_length' => strlen($request->face_photo),
                         'confidence_score' => $faceConfidenceScore,
                     ]);
                     $facePhotoPath = $this->saveFacePhoto($request->face_photo, $user->id, $today);
-                    \Log::info('Face photo saved result', [
+                    Log::info('Face photo saved result', [
                         'user_id' => $user->id,
                         'photo_path' => $facePhotoPath,
                     ]);
                 } else {
-                    \Log::warning('Face photo not provided in request', [
+                    Log::warning('Face photo not provided in request', [
                         'user_id' => $user->id,
                         'has_face_confidence' => $request->has('face_confidence'),
                     ]);
@@ -256,7 +263,41 @@ class AttendanceController extends Controller
 
         // Determine if late
         $checkInTime = now();
-        $shift = $user->employeeShifts()->current()->with('workShift')->first();
+        $shift = null;
+
+        // First try to use the selected shift from the request
+        if ($request->has('selected_shift_id')) {
+            $selectedShiftId = $request->input('selected_shift_id');
+            // Verify this shift is assigned to the user
+            $assignedShift = $user->employeeShifts()
+                ->where('work_shift_id', $selectedShiftId)
+                ->where('effective_date', '<=', $today)
+                ->where(function ($query) use ($today) {
+                    $query->whereNull('end_date')
+                        ->orWhere('end_date', '>=', $today);
+                })
+                ->with('workShift')
+                ->first();
+
+            if ($assignedShift) {
+                $shift = $assignedShift;
+                Log::info('Using selected shift for attendance', [
+                    'user_id' => $user->id,
+                    'selected_shift_id' => $selectedShiftId,
+                    'shift_name' => $shift->workShift->name,
+                ]);
+            }
+        }
+
+        // If no valid selected shift, fall back to current assigned shift
+        if (!$shift) {
+            $shift = $user->employeeShifts()->current()->with('workShift')->first();
+            Log::info('Using current assigned shift for attendance', [
+                'user_id' => $user->id,
+                'shift_name' => $shift?->workShift->name,
+            ]);
+        }
+
         $status = 'present';
 
         if ($shift && $shift->workShift) {
@@ -266,7 +307,7 @@ class AttendanceController extends Controller
             }
         }
 
-        \Log::info('About to save attendance record', [
+        Log::info('About to save attendance record', [
             'user_id' => $user->id,
             'face_photo_path_value' => $facePhotoPath,
             'face_match_confidence' => $faceMatchConfidence,
@@ -280,6 +321,7 @@ class AttendanceController extends Controller
             ],
             [
                 'office_location_id' => $request->office_location_id,
+                'work_shift_id' => $shift?->work_shift_id,
                 'check_in_time' => $checkInTime->format('H:i:s'),
                 'check_in_latitude' => $request->latitude,
                 'check_in_longitude' => $request->longitude,
@@ -381,14 +423,14 @@ class AttendanceController extends Controller
                     $extension
                 );
 
-                $fullPath = $directory.'/'.$filename;
+                $fullPath = $directory . '/' . $filename;
 
                 if (file_put_contents($fullPath, $imageData)) {
-                    return 'face-photos/'.$filename;
+                    return 'face-photos/' . $filename;
                 }
             }
         } catch (\Exception $e) {
-            \Log::error('Failed to save face photo', [
+            Log::error('Failed to save face photo', [
                 'user_id' => $userId,
                 'error' => $e->getMessage(),
             ]);

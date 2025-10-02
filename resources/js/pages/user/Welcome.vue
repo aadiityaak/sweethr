@@ -2,6 +2,7 @@
 import AnnouncementCarousel from '@/components/AnnouncementCarousel.vue';
 import AnnouncementModal from '@/components/AnnouncementModal.vue';
 import BottomNavigation from '@/components/BottomNavigation.vue';
+import ShiftSelector from '@/components/ShiftSelector.vue';
 import { Button } from '@/components/ui/button';
 import { Dialog, DialogContent, DialogDescription, DialogHeader, DialogTitle } from '@/components/ui/dialog';
 import { useToast } from '@/components/ui/toast/use-toast';
@@ -25,6 +26,10 @@ interface User {
         id: number;
         title: string;
     };
+    avatar?: string;
+    is_admin?: boolean;
+    face_recognition_mandatory?: boolean;
+    face_setup_at?: string;
 }
 
 interface TodayAttendance {
@@ -48,6 +53,21 @@ interface OfficeLocation {
     radius_meters: number;
 }
 
+interface WorkShift {
+    id: number;
+    name: string;
+    code: string;
+    start_time: string;
+    end_time: string;
+    work_hours: number;
+    break_duration: number;
+    workdays: number[];
+    is_night_shift: boolean;
+    assignment_type: string;
+    effective_date: string;
+    end_date?: string;
+}
+
 interface Props {
     user?: User;
     todayAttendance?: TodayAttendance | null;
@@ -62,6 +82,7 @@ interface Props {
     faceDescriptors?: number[][];
     announcements?: Announcement[];
     allowOutsideRadius?: boolean;
+    userShifts?: WorkShift[];
 }
 
 interface AnnouncementCategory {
@@ -89,7 +110,7 @@ interface Announcement {
     image_url: string | null;
 }
 
-const { user, todayAttendance, officeLocations, stats, faceRecognitionEnabled, faceDescriptors, announcements, allowOutsideRadius } =
+const { user, todayAttendance, officeLocations, stats, faceRecognitionEnabled, faceDescriptors, announcements, allowOutsideRadius, userShifts } =
     defineProps<Props>();
 
 const { companyName, companyLogo } = useCompanySettings();
@@ -113,6 +134,7 @@ const form = useForm({
     office_location_id: '',
     latitude: 0,
     longitude: 0,
+    selected_shift_id: '',
     face_confidence: 0,
     face_photo: '',
 });
@@ -167,12 +189,21 @@ const isFaceCaptured = ref(false);
 const captureTimeout = ref<number | null>(null);
 const isCapturing = ref(false);
 
-const formatTime = (time: string | null) => {
+// Shift selection state
+const selectedShift = ref<WorkShift | null>(null);
+
+// Handle shift change
+const handleShiftChange = (shift: WorkShift | null) => {
+    selectedShift.value = shift;
+    console.log('Shift changed to:', shift);
+};
+
+const formatTime = (time: string | null | undefined) => {
     if (!time) return '--:--';
     return time.substring(0, 5);
 };
 
-const formatDuration = (minutes: number | null) => {
+const formatDuration = (minutes: number | null | undefined) => {
     if (!minutes) return '--';
     const hours = Math.floor(minutes / 60);
     const mins = minutes % 60;
@@ -215,7 +246,7 @@ const calculateDistance = (lat1: number, lng1: number, lat2: number, lng2: numbe
     return earthRadius * c;
 };
 
-const getCurrentLocation = (autoAction = false) => {
+const getCurrentLocation = (autoAction: 'checkin' | 'checkout' | false = false) => {
     if (!navigator.geolocation) {
         locationStatus.value = 'error';
         locationError.value = 'Geolocation is not supported by this browser.';
@@ -354,6 +385,12 @@ const performCheckIn = () => {
 const executeCheckIn = () => {
     console.log('executeCheckIn called - starting check-in process');
     isCheckingIn.value = true;
+
+    // Set selected shift ID if available
+    if (selectedShift.value) {
+        form.selected_shift_id = selectedShift.value.id.toString();
+        console.log('Setting selected shift ID:', selectedShift.value.id);
+    }
 
     // Set face confidence and photo if face recognition is enabled and captured
     if (faceRecognitionStatus.value.enabled && faceRecognitionStatus.value.has_descriptors && capturedFaceData.value) {
@@ -873,6 +910,16 @@ onUnmounted(() => {
 
         <!-- Main Content -->
         <div class="px-4 py-6 pb-20">
+            <!-- Shift Selector -->
+            <div class="mb-6">
+                <ShiftSelector
+                    v-if="user && userShifts"
+                    :user-shifts="userShifts"
+                    :user-id="user.id"
+                    @shift-changed="handleShiftChange"
+                />
+            </div>
+
             <!-- Today's Attendance - Moved to top -->
             <div class="mb-8 rounded-lg border bg-card p-6">
                 <!-- Clean horizontal layout for attendance info -->
@@ -1066,6 +1113,17 @@ onUnmounted(() => {
                     <span class="text-sm text-muted-foreground">
                         {{ todayAttendance.office_location?.name || 'Remote' }}
                     </span>
+                </div>
+
+                <!-- Selected Shift Information -->
+                <div v-if="selectedShift" class="mt-4 rounded-md border border-blue-200 bg-blue-50 p-3 dark:border-blue-800 dark:bg-blue-900/20">
+                    <div class="flex items-center gap-2">
+                        <Clock class="h-4 w-4 text-blue-600 dark:text-blue-400" />
+                        <span class="text-sm font-medium text-blue-800 dark:text-blue-200">Shift Saat Ini:</span>
+                        <span class="text-sm text-blue-700 dark:text-blue-300">
+                            {{ selectedShift.name }} ({{ formatTime(selectedShift.start_time) }} - {{ formatTime(selectedShift.end_time) }})
+                        </span>
+                    </div>
                 </div>
 
                 <!-- Face Match Confidence Display - Centered and Prominent -->

@@ -6,11 +6,13 @@ use App\Helpers\UrlHelper;
 use App\Models\Announcement;
 use App\Models\Attendance;
 use App\Models\Department;
+use App\Models\EmployeeShift;
 use App\Models\LeaveRequest;
 use App\Models\OfficeLocation;
 use App\Models\User;
 use App\Services\FaceRecognitionService;
 use Carbon\Carbon;
+use Illuminate\Support\Facades\Log;
 use Illuminate\Support\Facades\Storage;
 use Inertia\Inertia;
 use Inertia\Response;
@@ -28,17 +30,17 @@ class DashboardController extends Controller
 
         // Get today's attendance
         $todayAttendance = Attendance::where('user_id', $user->id)
-                                    ->where('date', Carbon::today())
-                                    ->with('officeLocation')
-                                    ->first();
+            ->where('date', Carbon::today())
+            ->with('officeLocation')
+            ->first();
 
         // Get pending leave requests (if manager/admin)
         $pendingLeaves = [];
         if ($user->is_admin || $user->subordinates()->count() > 0) {
             $pendingLeaves = LeaveRequest::pending()
-                                        ->with(['user:id,name,employee_id', 'leaveType:id,name'])
-                                        ->limit(5)
-                                        ->get();
+                ->with(['user:id,name,employee_id', 'leaveType:id,name'])
+                ->limit(5)
+                ->get();
         }
 
         // Calculate stats
@@ -81,18 +83,18 @@ class DashboardController extends Controller
 
         // Get today's attendance
         $todayAttendance = Attendance::where('user_id', $user->id)
-                                    ->where('date', Carbon::today())
-                                    ->with('officeLocation')
-                                    ->first();
+            ->where('date', Carbon::today())
+            ->with('officeLocation')
+            ->first();
 
         // Get user's attendance this month
         $currentMonth = Carbon::now()->month;
         $currentYear = Carbon::now()->year;
 
         $userAttendances = Attendance::where('user_id', $user->id)
-                                   ->whereMonth('date', $currentMonth)
-                                   ->whereYear('date', $currentYear)
-                                   ->get();
+            ->whereMonth('date', $currentMonth)
+            ->whereYear('date', $currentYear)
+            ->get();
 
         $stats = [
             'monthly_attendance_days' => $userAttendances->where('status', 'present')->count(),
@@ -104,12 +106,43 @@ class DashboardController extends Controller
         // Get all office locations for check-in functionality
         $officeLocations = OfficeLocation::active()->get();
 
+        // Get user's assigned work shifts
+        $userShifts = EmployeeShift::with('workShift')
+            ->where('user_id', $user->id)
+            ->where('is_active', true)
+            ->where(function ($query) {
+                $query->whereNull('end_date')
+                    ->orWhere('end_date', '>=', Carbon::today());
+            })
+            ->where('effective_date', '<=', Carbon::today())
+            ->get()
+            ->filter(function ($employeeShift) {
+                // Only include shifts that have a valid work_shift relationship
+                return $employeeShift->workShift !== null;
+            })
+            ->map(function ($employeeShift) {
+                return [
+                    'id' => $employeeShift->workShift->id,
+                    'name' => $employeeShift->workShift->name,
+                    'code' => $employeeShift->workShift->code,
+                    'start_time' => $employeeShift->workShift->start_time,
+                    'end_time' => $employeeShift->workShift->end_time,
+                    'work_hours' => $employeeShift->workShift->work_hours,
+                    'break_duration' => $employeeShift->workShift->break_duration,
+                    'workdays' => $employeeShift->workShift->workdays,
+                    'is_night_shift' => $employeeShift->workShift->is_night_shift,
+                    'assignment_type' => $employeeShift->assignment_type,
+                    'effective_date' => $employeeShift->effective_date,
+                    'end_date' => $employeeShift->end_date,
+                ];
+            });
+
         // Get face recognition data - ensure fresh data from database
         $faceRecognitionEnabled = $user->face_recognition_enabled ?? false;
         $faceDescriptors = null;
 
         // Debug: Log fresh face recognition data
-        \Log::info('DashboardController welcome() - Face recognition data', [
+        Log::info('DashboardController welcome() - Face recognition data', [
             'user_id' => $user->id,
             'face_recognition_enabled' => $faceRecognitionEnabled,
             'face_setup_at' => $user->face_setup_at,
@@ -136,7 +169,7 @@ class DashboardController extends Controller
         $userData['avatar'] = UrlHelper::avatar($user->avatar);
         $userData['_cache_buster'] = now()->timestamp;
 
-        \Log::info('DashboardController welcome() - Final data being sent to frontend', [
+        Log::info('DashboardController welcome() - Final data being sent to frontend', [
             'user_id' => $user->id,
             'face_recognition_enabled' => $userData['face_recognition_enabled'],
             'face_recognition_mandatory' => $userData['face_recognition_mandatory'],
@@ -155,6 +188,7 @@ class DashboardController extends Controller
             'faceDescriptors' => $faceDescriptors,
             'announcements' => $announcements,
             'allowOutsideRadius' => $user->allow_outside_radius ?? false,
+            'userShifts' => $userShifts,
         ]);
     }
 
@@ -169,8 +203,8 @@ class DashboardController extends Controller
                 'total_employees' => User::where('employment_status', 'active')->count(),
                 'departments_count' => Department::active()->count(),
                 'today_present' => Attendance::whereDate('date', Carbon::today())
-                                           ->where('status', 'present')
-                                           ->count(),
+                    ->where('status', 'present')
+                    ->count(),
                 'monthly_attendance_rate' => $this->calculateMonthlyAttendanceRate(),
                 'pending_leave_requests' => LeaveRequest::pending()->count(),
                 'monthly_overtime_hours' => $this->calculateMonthlyOvertimeHours(),
@@ -178,35 +212,35 @@ class DashboardController extends Controller
 
             // Department-wise attendance
             $departmentStats = Department::active()
-                                        ->withCount(['employees' => function ($query) {
-                                            $query->where('employment_status', 'active');
-                                        }])
-                                        ->get()
-                                        ->map(function ($dept) {
-                                            $presentToday = Attendance::whereDate('date', Carbon::today())
-                                                                     ->whereHas('user', function ($q) use ($dept) {
-                                                                         $q->where('department_id', $dept->id);
-                                                                     })
-                                                                     ->where('status', 'present')
-                                                                     ->count();
+                ->withCount(['employees' => function ($query) {
+                    $query->where('employment_status', 'active');
+                }])
+                ->get()
+                ->map(function ($dept) {
+                    $presentToday = Attendance::whereDate('date', Carbon::today())
+                        ->whereHas('user', function ($q) use ($dept) {
+                            $q->where('department_id', $dept->id);
+                        })
+                        ->where('status', 'present')
+                        ->count();
 
-                                            return [
-                                                'department' => $dept->name,
-                                                'total_employees' => $dept->employees_count,
-                                                'present_today' => $presentToday,
-                                                'attendance_rate' => $dept->employees_count > 0
-                                                    ? round(($presentToday / $dept->employees_count) * 100, 2)
-                                                    : 0,
-                                            ];
-                                        });
+                    return [
+                        'department' => $dept->name,
+                        'total_employees' => $dept->employees_count,
+                        'present_today' => $presentToday,
+                        'attendance_rate' => $dept->employees_count > 0
+                            ? round(($presentToday / $dept->employees_count) * 100, 2)
+                            : 0,
+                    ];
+                });
 
             $stats['department_stats'] = $departmentStats;
         } else {
             // Employee stats - personal
             $userAttendances = Attendance::where('user_id', $user->id)
-                                        ->whereMonth('date', $currentMonth)
-                                        ->whereYear('date', $currentYear)
-                                        ->get();
+                ->whereMonth('date', $currentMonth)
+                ->whereYear('date', $currentYear)
+                ->get();
 
             $stats = [
                 'monthly_attendance_days' => $userAttendances->where('status', 'present')->count(),
@@ -215,8 +249,8 @@ class DashboardController extends Controller
                 'monthly_overtime_hours' => round($userAttendances->sum('overtime_duration') / 60, 2),
                 'leave_balance' => $this->calculateLeaveBalance($user->id),
                 'pending_leave_requests' => LeaveRequest::where('user_id', $user->id)
-                                                       ->pending()
-                                                       ->count(),
+                    ->pending()
+                    ->count(),
             ];
         }
 
@@ -233,9 +267,9 @@ class DashboardController extends Controller
         $totalPossibleAttendances = $totalEmployees * $workingDays;
 
         $actualAttendances = Attendance::whereMonth('date', $currentMonth)
-                                      ->whereYear('date', $currentYear)
-                                      ->where('status', 'present')
-                                      ->count();
+            ->whereYear('date', $currentYear)
+            ->where('status', 'present')
+            ->count();
 
         return $totalPossibleAttendances > 0
             ? round(($actualAttendances / $totalPossibleAttendances) * 100, 2)
@@ -248,8 +282,8 @@ class DashboardController extends Controller
         $currentYear = Carbon::now()->year;
 
         $totalOvertimeMinutes = Attendance::whereMonth('date', $currentMonth)
-                                         ->whereYear('date', $currentYear)
-                                         ->sum('overtime_duration');
+            ->whereYear('date', $currentYear)
+            ->sum('overtime_duration');
 
         return round($totalOvertimeMinutes / 60, 2);
     }
@@ -259,13 +293,12 @@ class DashboardController extends Controller
         $currentYear = Carbon::now()->year;
 
         $usedLeaves = LeaveRequest::where('user_id', $userId)
-                                 ->where('status', 'approved')
-                                 ->whereYear('start_date', $currentYear)
-                                 ->sum('total_days');
+            ->where('status', 'approved')
+            ->whereYear('start_date', $currentYear)
+            ->sum('total_days');
 
         $annualLeaveEntitlement = 12; // Default annual leave days
 
         return max(0, $annualLeaveEntitlement - $usedLeaves);
     }
-
 }
