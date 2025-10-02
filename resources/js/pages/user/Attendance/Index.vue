@@ -28,7 +28,7 @@ interface Attendance {
     overtime_duration: number;
     status: string;
     office_location: OfficeLocation;
-    shift?: WorkShift | null;
+    workShift?: WorkShift | null;
 }
 
 interface TodayAttendance {
@@ -38,7 +38,7 @@ interface TodayAttendance {
     status: string;
     work_duration: number | null;
     office_location: OfficeLocation;
-    shift?: WorkShift | null;
+    workShift?: WorkShift | null;
 }
 
 interface Props {
@@ -116,8 +116,12 @@ const formatTime = (time: string | null) => {
 
 const formatDuration = (minutes: number | null) => {
     if (!minutes) return '--';
-    const hours = Math.floor(minutes / 60);
-    const mins = minutes % 60;
+    
+    // Always use absolute value for duration
+    const absMinutes = Math.abs(minutes);
+    const hours = Math.floor(absMinutes / 60);
+    const mins = absMinutes % 60;
+    
     return `${hours}h ${mins}m`;
 };
 
@@ -339,14 +343,14 @@ const confirmCheckOut = () => {
                                 {{ todayAttendance.office_location?.name || 'Remote' }}
                             </span>
                         </div>
-                        <div v-if="todayAttendance?.shift" class="flex items-center gap-2 rounded-md bg-blue-50 p-3 dark:bg-blue-900/20">
+                        <div v-if="todayAttendance?.workShift" class="flex items-center gap-2 rounded-md bg-blue-50 p-3 dark:bg-blue-900/20">
                             <Clock class="h-4 w-4 text-blue-600 dark:text-blue-400" />
                             <div class="flex-1">
                                 <span class="text-sm font-medium text-blue-900 dark:text-blue-100">
-                                    {{ todayAttendance.shift.name }}
+                                    {{ todayAttendance.workShift.name }}
                                 </span>
                                 <span class="ml-2 text-xs text-blue-600 dark:text-blue-400">
-                                    ({{ formatTime(todayAttendance.shift.start_time) }} - {{ formatTime(todayAttendance.shift.end_time) }})
+                                    ({{ formatTime(todayAttendance.workShift.start_time) }} - {{ formatTime(todayAttendance.workShift.end_time) }})
                                 </span>
                             </div>
                         </div>
@@ -487,11 +491,11 @@ const confirmCheckOut = () => {
                                         <MapPin class="h-3 w-3 text-muted-foreground" />
                                         <span class="text-xs text-muted-foreground">{{ attendance.office_location?.name || 'Remote' }}</span>
                                     </div>
-                                    <div v-if="attendance.shift" class="flex items-center gap-1">
+                                    <div v-if="attendance.workShift" class="flex items-center gap-1">
                                         <Clock class="h-3 w-3 text-blue-600 dark:text-blue-400" />
                                         <span class="text-xs text-blue-600 dark:text-blue-400">
-                                            {{ attendance.shift.name }} ({{ formatTime(attendance.shift.start_time) }} -
-                                            {{ formatTime(attendance.shift.end_time) }})
+                                            {{ attendance.workShift.name }} ({{ formatTime(attendance.workShift.start_time) }} -
+                                            {{ formatTime(attendance.workShift.end_time) }})
                                         </span>
                                     </div>
                                 </div>

@@ -13,6 +13,7 @@ class Attendance extends Model
     protected $fillable = [
         'user_id',
         'office_location_id',
+        'work_shift_id',
         'date',
         'check_in_time',
         'check_out_time',
@@ -60,6 +61,11 @@ class Attendance extends Model
     public function officeLocation()
     {
         return $this->belongsTo(OfficeLocation::class);
+    }
+
+    public function workShift()
+    {
+        return $this->belongsTo(WorkShift::class);
     }
 
     public function scopeForUser($query, $userId)

@@ -42,6 +42,7 @@ interface TodayAttendance {
         id: number;
         name: string;
     };
+    workShift?: WorkShift | null;
 }
 
 interface OfficeLocation {
@@ -170,6 +171,7 @@ const closeAnnouncementModal = () => {
     selectedAnnouncement.value = null;
 };
 const isCheckingOut = ref(false);
+const showThankYouCard = ref(false);
 
 // Real-time face recognition state
 const videoElement = ref<HTMLVideoElement | null>(null);
@@ -842,8 +844,14 @@ const performCheckOut = () => {
                 variant: 'success',
                 duration: 5000,
             });
-            // Refresh the page to update attendance data
-            window.location.reload();
+            
+            // Show thank you card after successful checkout
+            showThankYouCard.value = true;
+            
+            // Refresh the page to update attendance data after a delay
+            setTimeout(() => {
+                window.location.reload();
+            }, 5000); // 5 seconds delay to show the thank you card
         },
         onError: (errors) => {
             isCheckingOut.value = false;
@@ -1008,6 +1016,20 @@ onUnmounted(() => {
 
         <!-- Main Content -->
         <div class="px-4 py-6 pb-20">
+            <!-- Thank You Card - Show at the top of the page after checkout -->
+            <div v-if="todayAttendance?.check_out_time" class="thank-you-card mb-6 rounded-xl bg-gradient-to-r from-purple-500 to-pink-500 p-4 text-white shadow-lg">
+                <div class="flex items-center">
+                    <div class="mr-4">
+                        <CheckCircle class="h-8 w-8" />
+                    </div>
+                    <div>
+                        <p class="text-white/90">
+                            Terima kasih atas kerja keras Anda hari ini.
+                        </p>
+                    </div>
+                </div>
+            </div>
+            
             <!-- Shift Selector -->
             <div class="mb-6" v-if="user && userShifts && !todayAttendance?.check_in_time">
                 <ShiftSelector
@@ -1221,6 +1243,19 @@ onUnmounted(() => {
                         </span>
                         <span class="text-sm text-blue-700 dark:text-blue-300">
                             {{ selectedShift.name }} ({{ formatTime(selectedShift.start_time) }} - {{ formatTime(selectedShift.end_time) }})
+                        </span>
+                    </div>
+                </div>
+                
+                <!-- Today's Shift Information -->
+                <div v-if="todayAttendance?.workShift" class="mt-4 rounded-md border border-blue-200 bg-blue-50 p-3 dark:border-blue-800 dark:bg-blue-900/20">
+                    <div class="flex items-center gap-2">
+                        <Clock class="h-4 w-4 text-blue-600 dark:text-blue-400" />
+                        <span class="text-sm font-medium text-blue-800 dark:text-blue-200">
+                            {{ todayAttendance?.check_in_time ? 'Shift Digunakan:' : 'Shift Hari Ini:' }}
+                        </span>
+                        <span class="text-sm text-blue-700 dark:text-blue-300">
+                            {{ todayAttendance.workShift.name }} ({{ formatTime(todayAttendance.workShift.start_time) }} - {{ formatTime(todayAttendance.workShift.end_time) }})
                         </span>
                     </div>
                 </div>
@@ -1486,6 +1521,7 @@ onUnmounted(() => {
                     </div>
                 </div>
             </div>
+
         </div>
 
         <BottomNavigation current-route="/home" />
@@ -1537,5 +1573,21 @@ onUnmounted(() => {
 
 .scan-line {
     animation: scanLine 2s ease-in-out infinite;
+}
+
+/* Thank You Card Animation */
+@keyframes slideDown {
+    0% {
+        opacity: 0;
+        transform: translateY(-20px);
+    }
+    100% {
+        opacity: 1;
+        transform: translateY(0);
+    }
+}
+
+.thank-you-card {
+    animation: slideDown 0.5s ease-out;
 }
 </style>
