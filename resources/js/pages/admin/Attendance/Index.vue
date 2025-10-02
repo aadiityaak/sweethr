@@ -86,6 +86,8 @@ interface Props {
         department?: string;
         office_location?: string;
         search?: string;
+        date_from?: string;
+        date_to?: string;
     };
     departments: Array<{
         id: number;
@@ -110,6 +112,8 @@ const selectedStatus = ref(filters.status || '');
 const selectedDepartment = ref(filters.department || '');
 const selectedOfficeLocation = ref(filters.office_location || '');
 const selectedDate = ref(filters.date || '');
+const selectedDateFrom = ref(filters.date_from || '');
+const selectedDateTo = ref(filters.date_to || '');
 
 // Action dropdown state
 const activeDropdown = ref<number | null>(null);
@@ -129,6 +133,8 @@ const updateFilters = () => {
         department: selectedDepartment.value || undefined,
         office_location: selectedOfficeLocation.value || undefined,
         date: selectedDate.value || undefined,
+        date_from: selectedDateFrom.value || undefined,
+        date_to: selectedDateTo.value || undefined,
     };
 
     // Remove empty values
@@ -175,6 +181,17 @@ const handleOfficeLocationChange = (event: Event) => {
 
 const handleDateChange = (date: string | undefined) => {
     selectedDate.value = date || '';
+    updateFilters();
+};
+
+// Handle date range changes
+const handleDateFromChange = (date: string | undefined) => {
+    selectedDateFrom.value = date || '';
+    updateFilters();
+};
+
+const handleDateToChange = (date: string | undefined) => {
+    selectedDateTo.value = date || '';
     updateFilters();
 };
 
@@ -389,6 +406,8 @@ const closeDropdown = () => {
 const exportData = () => {
     const queryParams = new URLSearchParams({
         date: selectedDate.value || '',
+        date_from: selectedDateFrom.value || '',
+        date_to: selectedDateTo.value || '',
         status: selectedStatus.value || '',
         department: selectedDepartment.value || '',
         office_location: selectedOfficeLocation.value || '',
@@ -734,13 +753,23 @@ onUnmounted(() => {
                             <option value="">Semua Lokasi</option>
                             <option v-for="location in officeLocations" :key="location.id" :value="location.id">{{ location.name }}</option>
                         </select>
-                        <div class="relative">
-                            <DatePicker
-                                :model-value="selectedDate"
-                                @update:model-value="handleDateChange"
-                                placeholder="Pilih tanggal"
-                                class="w-auto"
-                            />
+                        <div class="flex gap-2">
+                            <div class="relative">
+                                <DatePicker
+                                    :model-value="selectedDateFrom"
+                                    @update:model-value="handleDateFromChange"
+                                    placeholder="Dari tanggal"
+                                    class="w-auto"
+                                />
+                            </div>
+                            <div class="relative">
+                                <DatePicker
+                                    :model-value="selectedDateTo"
+                                    @update:model-value="handleDateToChange"
+                                    placeholder="Sampai tanggal"
+                                    class="w-auto"
+                                />
+                            </div>
                         </div>
                     </div>
                 </div>

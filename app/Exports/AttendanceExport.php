@@ -20,11 +20,15 @@ class AttendanceExport implements FromCollection, WithHeadings, WithMapping, Wit
 {
     protected $filters;
     protected $date;
+    protected $dateFrom;
+    protected $dateTo;
 
     public function __construct($filters = [])
     {
         $this->filters = $filters;
         $this->date = $filters['date'] ?? Carbon::today()->format('Y-m-d');
+        $this->dateFrom = $filters['date_from'] ?? null;
+        $this->dateTo = $filters['date_to'] ?? null;
     }
 
     public function collection()
@@ -36,7 +40,12 @@ class AttendanceExport implements FromCollection, WithHeadings, WithMapping, Wit
             },
             'officeLocation:id,name,address',
         ])
-            ->where('date', $this->date)
+            ->when($this->dateFrom && $this->dateTo, function ($query) {
+                $query->whereBetween('date', [$this->dateFrom, $this->dateTo]);
+            })
+            ->when(!$this->dateFrom || !$this->dateTo, function ($query) {
+                $query->where('date', $this->date);
+            })
             ->when($this->filters['status'] ?? false, function ($query, $status) {
                 $query->where('status', $status);
             })

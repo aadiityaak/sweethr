@@ -26,8 +26,20 @@ class AttendanceController extends Controller
         header('Expires: 0');
 
         // Get filters
-        $filters = $request->only(['date', 'status', 'department', 'office_location', 'search']);
-        $date = $filters['date'] ?? Carbon::today()->format('Y-m-d');
+        $filters = $request->only(['date', 'date_from', 'date_to', 'status', 'department', 'office_location', 'search']);
+
+        // Handle date range logic
+        if ($filters['date_from'] && $filters['date_to']) {
+            // Use date range
+            $dateFrom = $filters['date_from'];
+            $dateTo = $filters['date_to'];
+            $date = $dateFrom; // Use from date as primary date for single date logic
+        } else {
+            // Use single date (fallback for existing logic)
+            $date = $filters['date'] ?? Carbon::today()->format('Y-m-d');
+            $dateFrom = $date;
+            $dateTo = $date;
+        }
 
         // Special handling for absent status - show employees without attendance records
         if (($filters['status'] ?? '') === 'absent') {
@@ -105,7 +117,12 @@ class AttendanceController extends Controller
                 },
                 'officeLocation:id,name,address',
             ])
-                ->where('date', $date)
+                ->when($filters['date_from'] && $filters['date_to'], function ($query) use ($dateFrom, $dateTo) {
+                    $query->whereBetween('date', [$dateFrom, $dateTo]);
+                })
+                ->when(!$filters['date_from'] || !$filters['date_to'], function ($query) use ($date) {
+                    $query->where('date', $date);
+                })
                 ->when($filters['status'] ?? false, function ($query, $status) {
                     $query->where('status', $status);
                 })
@@ -308,12 +325,18 @@ class AttendanceController extends Controller
     public function export(Request $request)
     {
         // Get filters from request
-        $filters = $request->only(['date', 'status', 'department', 'office_location', 'search']);
-        $date = $filters['date'] ?? Carbon::today()->format('Y-m-d');
+        $filters = $request->only(['date', 'date_from', 'date_to', 'status', 'department', 'office_location', 'search']);
 
-        // Create filename with date
-        $dateFormatted = Carbon::parse($date)->format('d-m-Y');
-        $filename = "laporan-kehadiran-{$dateFormatted}.xlsx";
+        // Handle date range for filename
+        if ($filters['date_from'] && $filters['date_to']) {
+            $dateFromFormatted = Carbon::parse($filters['date_from'])->format('d-m-Y');
+            $dateToFormatted = Carbon::parse($filters['date_to'])->format('d-m-Y');
+            $filename = "laporan-kehadiran-{$dateFromFormatted}-sampai-{$dateToFormatted}.xlsx";
+        } else {
+            $date = $filters['date'] ?? Carbon::today()->format('Y-m-d');
+            $dateFormatted = Carbon::parse($date)->format('d-m-Y');
+            $filename = "laporan-kehadiran-{$dateFormatted}.xlsx";
+        }
 
         // Export to Excel
         return Excel::download(new AttendanceExport($filters), $filename);
