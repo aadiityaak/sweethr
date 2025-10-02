@@ -195,7 +195,14 @@ const selectedShift = ref<WorkShift | null>(null);
 // Handle shift change
 const handleShiftChange = (shift: WorkShift | null) => {
     selectedShift.value = shift;
-    console.log('Shift changed to:', shift);
+    console.log('Welcome.vue - Shift changed to:', shift);
+    
+    // Update form with selected shift ID
+    if (shift) {
+        form.selected_shift_id = shift.id.toString();
+    } else {
+        form.selected_shift_id = '';
+    }
 };
 
 const formatTime = (time: string | null | undefined) => {
@@ -841,7 +848,32 @@ watch(
     },
 );
 
+// Watch for userShifts changes and load selected shift from local storage
+watch(() => userShifts, (newShifts) => {
+    if (newShifts && newShifts.length > 0 && user) {
+        try {
+            const storageKey = `selected_shift_id_${user.id}`;
+            const savedShiftId = localStorage.getItem(storageKey);
+            console.log('Welcome.vue watch - Loading shift from local storage. Key:', storageKey, 'Saved ID:', savedShiftId);
+            
+            if (savedShiftId) {
+                const shift = newShifts.find((s: WorkShift) => s.id.toString() === savedShiftId);
+                console.log('Welcome.vue watch - Found shift in props:', shift);
+                
+                if (shift) {
+                    selectedShift.value = shift;
+                    form.selected_shift_id = shift.id.toString();
+                    console.log('Welcome.vue watch - Successfully loaded selected shift from local storage after userShifts change:', shift);
+                }
+            }
+        } catch (error) {
+            console.error('Welcome.vue watch - Failed to load selected shift from local storage:', error);
+        }
+    }
+}, { immediate: true });
+
 onMounted(async () => {
+    console.log('Welcome.vue - Component mounted');
     updateTime();
     timeInterval = window.setInterval(updateTime, 1000);
 
@@ -852,6 +884,28 @@ onMounted(async () => {
         face_setup_at: user?.face_setup_at,
         face_descriptors: faceDescriptors,
     });
+
+    // Load selected shift from local storage if available
+    if (user && userShifts && userShifts.length > 0) {
+        try {
+            const storageKey = `selected_shift_id_${user.id}`;
+            const savedShiftId = localStorage.getItem(storageKey);
+            console.log('Welcome.vue - Loading shift from local storage. Key:', storageKey, 'Saved ID:', savedShiftId);
+            
+            if (savedShiftId) {
+                const shift = userShifts.find(s => s.id.toString() === savedShiftId);
+                console.log('Welcome.vue - Found shift in props:', shift);
+                
+                if (shift) {
+                    selectedShift.value = shift;
+                    form.selected_shift_id = shift.id.toString();
+                    console.log('Welcome.vue - Successfully loaded selected shift from local storage:', shift);
+                }
+            }
+        } catch (error) {
+            console.error('Welcome.vue - Failed to load selected shift from local storage:', error);
+        }
+    }
 
     // Start face detection if enabled and user hasn't checked in yet
     if (faceRecognitionStatus.value.enabled && faceRecognitionStatus.value.has_descriptors && !todayAttendance?.check_in_time) {

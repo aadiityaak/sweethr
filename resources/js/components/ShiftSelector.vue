@@ -1,6 +1,6 @@
 <script setup lang="ts">
 import { useToast } from '@/components/ui/toast/use-toast';
-import { Clock, Moon } from 'lucide-vue-next';
+import { Clock } from 'lucide-vue-next';
 import { computed, onMounted, ref, watch } from 'vue';
 
 interface WorkShift {
@@ -42,18 +42,6 @@ const formatTime = (time: string) => {
     return time.substring(0, 5); // HH:MM format
 };
 
-// Format work hours for display
-const formatWorkHours = (minutes: number) => {
-    const hours = Math.floor(minutes / 60);
-    const mins = minutes % 60;
-    return `${hours}j ${mins}m`;
-};
-
-// Get day names for workdays
-const getWorkdaysDisplay = (workdays: number[]) => {
-    const dayNames = ['Min', 'Sen', 'Sel', 'Rab', 'Kam', 'Jum', 'Sab'];
-    return workdays.map(day => dayNames[day]).join(', ');
-};
 
 // Save selected shift to local storage
 const saveSelectedShift = (shiftId: string) => {
@@ -65,6 +53,7 @@ const saveSelectedShift = (shiftId: string) => {
         }
         
         localStorage.setItem(storageKey.value, shiftId);
+        console.log('ShiftSelector - Saved shift to local storage. Key:', storageKey.value, 'ID:', shiftId);
     } catch (error) {
         console.error('Failed to save selected shift to local storage:', error);
         toast({
@@ -91,16 +80,22 @@ const loadSelectedShift = () => {
         }
 
         const savedShiftId = localStorage.getItem(storageKey.value);
+        console.log('Loading shift from local storage. Key:', storageKey.value, 'Saved ID:', savedShiftId);
+        
         if (savedShiftId) {
             // Validate that the saved shift still exists and is active
             const shift = props.userShifts.find(s => s.id.toString() === savedShiftId);
+            console.log('Found shift in props:', shift);
+            
             if (shift) {
                 selectedShiftId.value = savedShiftId;
                 selectedShift.value = shift;
+                console.log('Successfully loaded selected shift from local storage:', shift);
                 return;
             } else {
                 // Saved shift is no longer valid, clear it
                 localStorage.removeItem(storageKey.value);
+                console.log('Saved shift no longer exists, clearing from local storage');
                 toast({
                     title: '⚠️ Perubahan Shift',
                     description: 'Shift yang Anda pilih sebelumnya tidak lagi tersedia. Silakan pilih shift baru.',
@@ -116,6 +111,7 @@ const loadSelectedShift = () => {
             selectedShiftId.value = firstShift.id.toString();
             selectedShift.value = firstShift;
             saveSelectedShift(firstShift.id.toString());
+            console.log('No saved shift found, selected first shift:', firstShift);
         }
     } catch (error) {
         console.error('Failed to load selected shift from local storage:', error);
@@ -148,6 +144,7 @@ const handleShiftChange = (shiftId: string) => {
     }
     
     const shift = props.userShifts.find(s => s.id.toString() === shiftId);
+    console.log('ShiftSelector - handleShiftChange called with ID:', shiftId, 'Found shift:', shift);
     
     if (shift) {
         selectedShiftId.value = shiftId;
@@ -199,11 +196,37 @@ watch(() => props.userShifts, (newShifts) => {
 
 // Initialize on component mount
 onMounted(() => {
-    loadSelectedShift();
-    if (selectedShift.value) {
-        emit('shiftChanged', selectedShift.value);
-    }
+    console.log('ShiftSelector - Component mounted');
+    // Add a small delay to ensure props are fully loaded
+    setTimeout(() => {
+        console.log('ShiftSelector - Loading selected shift after mount');
+        loadSelectedShift();
+        if (selectedShift.value) {
+            console.log('ShiftSelector - Emitting shiftChanged after mount:', selectedShift.value);
+            emit('shiftChanged', selectedShift.value);
+        }
+    }, 100);
 });
+
+// Watch for selectedShift changes and emit to parent
+watch(selectedShift, (newShift) => {
+    console.log('ShiftSelector - selectedShift changed:', newShift);
+    if (newShift) {
+        emit('shiftChanged', newShift);
+    }
+}, { immediate: false });
+
+// Watch for userShifts changes and reload selected shift if needed
+watch(() => props.userShifts, (newShifts) => {
+    console.log('ShiftSelector - userShifts changed:', newShifts);
+    if (newShifts && newShifts.length > 0) {
+        // Always load selected shift when userShifts changes
+        setTimeout(() => {
+            console.log('ShiftSelector - Loading selected shift after userShifts change');
+            loadSelectedShift();
+        }, 50);
+    }
+}, { immediate: true });
 </script>
 
 <template>
@@ -234,46 +257,6 @@ onMounted(() => {
                     {{ shift.name }} ({{ formatTime(shift.start_time) }} - {{ formatTime(shift.end_time) }})
                 </option>
             </select>
-
-            <!-- Selected Shift Details -->
-            <div v-if="selectedShift" class="rounded-md border bg-muted/50 p-3">
-                <div class="flex items-start gap-3">
-                    <div class="flex h-8 w-8 items-center justify-center rounded-full bg-primary/10">
-                        <Moon v-if="selectedShift.is_night_shift" class="h-4 w-4 text-amber-600 dark:text-amber-400" />
-                        <Clock v-else class="h-4 w-4 text-blue-600 dark:text-blue-400" />
-                    </div>
-                    <div class="flex-1 space-y-1">
-                        <div class="flex items-center gap-2">
-                            <h4 class="font-medium text-foreground">{{ selectedShift.name }}</h4>
-                            <span 
-                                class="rounded-full px-2 py-0.5 text-xs font-medium"
-                                :class="selectedShift.is_night_shift ? 'bg-amber-100 text-amber-800 dark:bg-amber-900/20 dark:text-amber-400' : 'bg-blue-100 text-blue-800 dark:bg-blue-900/20 dark:text-blue-400'"
-                            >
-                                {{ selectedShift.is_night_shift ? 'Shift Malam' : 'Shift Normal' }}
-                            </span>
-                        </div>
-                        <div class="grid gap-1 text-xs text-muted-foreground">
-                            <div class="flex items-center gap-2">
-                                <span class="font-medium">Jam Kerja:</span>
-                                <span>{{ formatTime(selectedShift.start_time) }} - {{ formatTime(selectedShift.end_time) }}</span>
-                            </div>
-                            <div class="flex items-center gap-2">
-                                <span class="font-medium">Durasi:</span>
-                                <span>{{ formatWorkHours(selectedShift.work_hours) }}</span>
-                                <span class="text-muted-foreground/70">(Termasuk {{ selectedShift.break_duration }} menit istirahat)</span>
-                            </div>
-                            <div class="flex items-center gap-2">
-                                <span class="font-medium">Hari Kerja:</span>
-                                <span>{{ getWorkdaysDisplay(selectedShift.workdays) }}</span>
-                            </div>
-                            <div class="flex items-center gap-2">
-                                <span class="font-medium">Tipe:</span>
-                                <span class="capitalize">{{ selectedShift.assignment_type }}</span>
-                            </div>
-                        </div>
-                    </div>
-                </div>
-            </div>
         </div>
 
         <!-- No Shifts Available -->

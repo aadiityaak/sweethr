@@ -17,11 +17,13 @@ interface Author {
 interface Announcement {
     id: number;
     title: string;
+    content: string;
     excerpt: string;
     category: AnnouncementCategory;
     author: Author;
     priority: 'low' | 'normal' | 'high' | 'urgent';
     published_at: string;
+    expires_at: string | null;
     image_url: string | null;
 }
 
