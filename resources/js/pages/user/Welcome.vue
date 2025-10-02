@@ -120,12 +120,13 @@ const { toast } = useToast();
 const { faceRecognitionStatus, faceDescriptors: reactiveFaceDescriptors, initializeFaceRecognitionStatus } = useFaceRecognition();
 
 // Alert modal function
-const showAlert = (title: string, message: string, variant: 'success' | 'destructive' | 'warning' | 'default' = 'destructive') => {
+const showAlert = (title: string, message: string, variant: 'success' | 'destructive' | 'warning' | 'default' = 'destructive', onConfirm?: () => void) => {
     alertModal.value = {
         isOpen: true,
         title,
         message,
         variant,
+        onConfirm: onConfirm || null,
     };
 };
 
@@ -147,6 +148,7 @@ const alertModal = ref({
     title: '',
     message: '',
     variant: 'destructive' as 'success' | 'destructive' | 'warning' | 'default',
+    onConfirm: null as (() => void) | null,
 });
 const locationError = ref('');
 const selectedOffice = ref<OfficeLocation | null>(null);
@@ -387,7 +389,42 @@ const performCheckIn = () => {
         }
     }
 
-    // Proceed with check-in (location and face verified)
+    // Check if current time is more than 1 hour before shift start time
+    if (selectedShift.value) {
+        const now = new Date();
+        const [shiftHours, shiftMinutes] = selectedShift.value.start_time.split(':').map(Number);
+        const shiftStartTime = new Date(now);
+        shiftStartTime.setHours(shiftHours, shiftMinutes, 0, 0);
+        
+        // If shift time is earlier than current time, it means the shift is for the next day
+        if (shiftStartTime < now) {
+            shiftStartTime.setDate(shiftStartTime.getDate() + 1);
+        }
+        
+        const timeDifference = shiftStartTime.getTime() - now.getTime();
+        const hoursDifference = timeDifference / (1000 * 60 * 60);
+        
+        console.log('Time difference to shift start:', hoursDifference, 'hours');
+        
+        if (hoursDifference > 1) {
+            // Show warning dialog
+            const hoursRounded = Math.floor(hoursDifference);
+            const minutesRounded = Math.floor((hoursDifference - hoursRounded) * 60);
+            const timeString = hoursRounded > 0
+                ? `${hoursRounded} jam ${minutesRounded} menit`
+                : `${minutesRounded} menit`;
+            
+            showAlert(
+                '⚠️ Peringatan Check In',
+                `Anda mencoba check in ${timeString} lebih awal dari jam mulai shift (${formatTime(selectedShift.value.start_time)}). Apakah Anda yakin sudah memilih shift yang tepat?`,
+                'warning',
+                () => executeCheckIn()
+            );
+            return;
+        }
+    }
+
+    // Proceed with check-in (location, face, and shift time verified)
     executeCheckIn();
 };
 
@@ -1457,9 +1494,19 @@ onUnmounted(() => {
                         {{ alertModal.message }}
                     </DialogDescription>
                 </DialogHeader>
-                <div class="flex justify-end">
-                    <Button @click="alertModal.isOpen = false" :variant="alertModal.variant === 'destructive' ? 'destructive' : 'default'">
-                        OK
+                <div class="flex justify-end gap-2">
+                    <Button
+                        v-if="alertModal.variant === 'warning' && alertModal.onConfirm"
+                        @click="() => { alertModal.onConfirm!(); alertModal.isOpen = false; }"
+                        variant="default"
+                    >
+                        Ya, Lanjutkan
+                    </Button>
+                    <Button
+                        @click="alertModal.isOpen = false"
+                        :variant="alertModal.variant === 'destructive' ? 'destructive' : 'outline'"
+                    >
+                        {{ alertModal.variant === 'warning' && alertModal.onConfirm ? 'Batal' : 'OK' }}
                     </Button>
                 </div>
             </DialogContent>
