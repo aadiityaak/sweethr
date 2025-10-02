@@ -47,7 +47,7 @@
 
                     <!-- Hover effect overlay -->
                     <div
-                        class="absolute inset-0 rounded-xl bg-gradient-to-br from-blue-500/5 to-indigo-500/5 opacity-0 transition-opacity group-hover:opacity-100 pointer-events-none
+                        class="pointer-events-none absolute inset-0 rounded-xl bg-gradient-to-br from-blue-500/5 to-indigo-500/5 opacity-0 transition-opacity group-hover:opacity-100"
                     ></div>
                 </div>
 
