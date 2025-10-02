@@ -29,7 +29,7 @@ class AttendanceController extends Controller
         $filters = $request->only(['date', 'date_from', 'date_to', 'status', 'department', 'office_location', 'search']);
 
         // Handle date range logic
-        if ($filters['date_from'] && $filters['date_to']) {
+        if (($filters['date_from'] ?? null) && ($filters['date_to'] ?? null)) {
             // Use date range
             $dateFrom = $filters['date_from'];
             $dateTo = $filters['date_to'];
@@ -117,10 +117,10 @@ class AttendanceController extends Controller
                 },
                 'officeLocation:id,name,address',
             ])
-                ->when($filters['date_from'] && $filters['date_to'], function ($query) use ($dateFrom, $dateTo) {
+                ->when(($filters['date_from'] ?? null) && ($filters['date_to'] ?? null), function ($query) use ($dateFrom, $dateTo) {
                     $query->whereBetween('date', [$dateFrom, $dateTo]);
                 })
-                ->when(!$filters['date_from'] || !$filters['date_to'], function ($query) use ($date) {
+                ->when(!($filters['date_from'] ?? null) || !($filters['date_to'] ?? null), function ($query) use ($date) {
                     $query->where('date', $date);
                 })
                 ->when($filters['status'] ?? false, function ($query, $status) {
@@ -328,7 +328,7 @@ class AttendanceController extends Controller
         $filters = $request->only(['date', 'date_from', 'date_to', 'status', 'department', 'office_location', 'search']);
 
         // Handle date range for filename
-        if ($filters['date_from'] && $filters['date_to']) {
+        if (($filters['date_from'] ?? null) && ($filters['date_to'] ?? null)) {
             $dateFromFormatted = Carbon::parse($filters['date_from'])->format('d-m-Y');
             $dateToFormatted = Carbon::parse($filters['date_to'])->format('d-m-Y');
             $filename = "laporan-kehadiran-{$dateFromFormatted}-sampai-{$dateToFormatted}.xlsx";

@@ -195,6 +195,53 @@ const handleDateToChange = (date: string | undefined) => {
     updateFilters();
 };
 
+// Quick date selection
+const selectQuickDate = (period: string) => {
+    const today = new Date();
+    let fromDate: Date;
+    let toDate: Date;
+
+    switch (period) {
+        case 'today':
+            fromDate = today;
+            toDate = today;
+            break;
+        case 'yesterday':
+            fromDate = new Date(today);
+            fromDate.setDate(today.getDate() - 1);
+            toDate = fromDate;
+            break;
+        case 'thisWeek':
+            fromDate = new Date(today);
+            fromDate.setDate(today.getDate() - today.getDay()); // Start of week (Sunday)
+            toDate = new Date(today);
+            toDate.setDate(today.getDate() + (6 - today.getDay())); // End of week (Saturday)
+            break;
+        case 'thisMonth':
+            fromDate = new Date(today.getFullYear(), today.getMonth(), 1); // First day of month
+            toDate = new Date(today.getFullYear(), today.getMonth() + 1, 0); // Last day of month
+            break;
+        case 'last3Months':
+            fromDate = new Date(today.getFullYear(), today.getMonth() - 3, 1); // 3 months ago, first day
+            toDate = new Date(today.getFullYear(), today.getMonth() + 1, 0); // Last day of current month
+            break;
+        default:
+            return;
+    }
+
+    // Format dates as YYYY-MM-DD
+    const formatDate = (date: Date) => {
+        const year = date.getFullYear();
+        const month = String(date.getMonth() + 1).padStart(2, '0');
+        const day = String(date.getDate()).padStart(2, '0');
+        return `${year}-${month}-${day}`;
+    };
+
+    selectedDateFrom.value = formatDate(fromDate);
+    selectedDateTo.value = formatDate(toDate);
+    updateFilters();
+};
+
 const formatTime = (time: string | null | any) => {
     if (!time) return '--:--';
 
@@ -443,25 +490,14 @@ onUnmounted(() => {
         <div class="mx-auto w-full px-4 py-6 sm:px-6 lg:px-8">
             <!-- Header -->
             <div class="mb-8">
-                <div class="flex items-center justify-between">
-                    <div>
-                        <h1 class="text-3xl font-bold text-gray-900 dark:text-white">Kelola Kehadiran</h1>
-                        <p class="mt-1 text-gray-600 dark:text-gray-400">Pantau dan kelola kehadiran seluruh karyawan</p>
-                    </div>
-                    <div class="flex gap-3">
-                        <button
-                            @click="exportData"
-                            class="inline-flex items-center rounded-lg bg-green-600 px-4 py-2 text-sm font-medium text-white shadow-sm transition-colors hover:bg-green-700 focus:ring-2 focus:ring-green-500 focus:ring-offset-2 focus:outline-none"
-                        >
-                            <Download class="mr-2 h-4 w-4" />
-                            Export Excel
-                        </button>
-                    </div>
+                <div>
+                    <h1 class="text-3xl font-bold text-gray-900 dark:text-white">Kelola Kehadiran</h1>
+                    <p class="mt-1 text-gray-600 dark:text-gray-400">Pantau dan kelola kehadiran seluruh karyawan</p>
                 </div>
             </div>
 
             <!-- Overview Cards -->
-            <div class="mb-10 grid gap-6 md:grid-cols-2 lg:grid-cols-4">
+            <div class="mb-8 grid gap-4 md:grid-cols-2 lg:grid-cols-4">
                 <!-- Present Today -->
                 <div
                     class="group relative overflow-hidden rounded-xl border border-gray-200/50 bg-gradient-to-br from-white to-emerald-50/30 p-6 shadow-sm transition-all hover:shadow-md dark:border-gray-800/50 dark:from-gray-950 dark:to-emerald-950/30"
@@ -496,7 +532,7 @@ onUnmounted(() => {
 
                     <!-- Hover effect overlay -->
                     <div
-                        class="absolute inset-0 rounded-xl bg-gradient-to-br from-emerald-500/5 to-teal-500/5 opacity-0 transition-opacity group-hover:opacity-100"
+                        class="pointer-events-none absolute inset-0 rounded-xl bg-gradient-to-br from-emerald-500/5 to-teal-500/5 opacity-0 transition-opacity group-hover:opacity-100"
                     ></div>
                 </div>
 
@@ -534,7 +570,7 @@ onUnmounted(() => {
 
                     <!-- Hover effect overlay -->
                     <div
-                        class="absolute inset-0 rounded-xl bg-gradient-to-br from-amber-500/5 to-orange-500/5 opacity-0 transition-opacity group-hover:opacity-100"
+                        class="pointer-events-none absolute inset-0 rounded-xl bg-gradient-to-br from-amber-500/5 to-orange-500/5 opacity-0 transition-opacity group-hover:opacity-100"
                     ></div>
                 </div>
 
@@ -572,7 +608,7 @@ onUnmounted(() => {
 
                     <!-- Hover effect overlay -->
                     <div
-                        class="absolute inset-0 rounded-xl bg-gradient-to-br from-red-500/5 to-rose-500/5 opacity-0 transition-opacity group-hover:opacity-100"
+                        class="pointer-events-none absolute inset-0 rounded-xl bg-gradient-to-br from-red-500/5 to-rose-500/5 opacity-0 transition-opacity group-hover:opacity-100"
                     ></div>
                 </div>
 
@@ -606,13 +642,13 @@ onUnmounted(() => {
 
                     <!-- Hover effect overlay -->
                     <div
-                        class="absolute inset-0 rounded-xl bg-gradient-to-br from-blue-500/5 to-indigo-500/5 opacity-0 transition-opacity group-hover:opacity-100"
+                        class="pointer-events-none absolute inset-0 rounded-xl bg-gradient-to-br from-blue-500/5 to-indigo-500/5 opacity-0 transition-opacity group-hover:opacity-100"
                     ></div>
                 </div>
             </div>
 
             <!-- Charts Row -->
-            <div class="mb-10 grid gap-8 lg:grid-cols-2">
+            <div class="mb-8 grid gap-6 lg:grid-cols-2">
                 <!-- 30-Day Trend Chart -->
                 <div
                     class="group relative overflow-hidden rounded-xl border border-gray-200/50 bg-gradient-to-br from-white to-purple-50/30 p-6 shadow-sm transition-all hover:shadow-md dark:border-gray-800/50 dark:from-gray-950 dark:to-purple-950/30"
@@ -630,7 +666,7 @@ onUnmounted(() => {
                         <AttendanceChart type="line" :trend-data="generateTrendData()" />
                     </div>
                     <div
-                        class="absolute inset-0 rounded-xl bg-gradient-to-br from-purple-500/5 to-violet-500/5 opacity-0 transition-opacity group-hover:opacity-100"
+                        class="pointer-events-none absolute inset-0 rounded-xl bg-gradient-to-br from-purple-500/5 to-violet-500/5 opacity-0 transition-opacity group-hover:opacity-100"
                     ></div>
                 </div>
 
@@ -651,13 +687,13 @@ onUnmounted(() => {
                         <AttendanceChart type="doughnut" :attendance-data="generateAttendanceBreakdown()" />
                     </div>
                     <div
-                        class="absolute inset-0 rounded-xl bg-gradient-to-br from-blue-500/5 to-indigo-500/5 opacity-0 transition-opacity group-hover:opacity-100"
+                        class="pointer-events-none absolute inset-0 rounded-xl bg-gradient-to-br from-blue-500/5 to-indigo-500/5 opacity-0 transition-opacity group-hover:opacity-100"
                     ></div>
                 </div>
             </div>
 
             <!-- Additional Charts Row -->
-            <div class="mb-10 grid gap-8 lg:grid-cols-2">
+            <div class="mb-8 grid gap-6 lg:grid-cols-2">
                 <!-- Weekly Attendance Chart -->
                 <div
                     class="group relative overflow-hidden rounded-xl border border-gray-200/50 bg-gradient-to-br from-white to-emerald-50/30 p-6 shadow-sm transition-all hover:shadow-md dark:border-gray-800/50 dark:from-gray-950 dark:to-emerald-950/30"
@@ -675,7 +711,7 @@ onUnmounted(() => {
                         <AttendanceChart type="bar" :weekly-data="generateWeeklyData()" />
                     </div>
                     <div
-                        class="absolute inset-0 rounded-xl bg-gradient-to-br from-emerald-500/5 to-teal-500/5 opacity-0 transition-opacity group-hover:opacity-100"
+                        class="pointer-events-none absolute inset-0 rounded-xl bg-gradient-to-br from-emerald-500/5 to-teal-500/5 opacity-0 transition-opacity group-hover:opacity-100"
                     ></div>
                 </div>
 
@@ -696,7 +732,7 @@ onUnmounted(() => {
                         <AttendanceChart type="bar" :department-data="generateDepartmentData()" />
                     </div>
                     <div
-                        class="absolute inset-0 rounded-xl bg-gradient-to-br from-amber-500/5 to-orange-500/5 opacity-0 transition-opacity group-hover:opacity-100"
+                        class="pointer-events-none absolute inset-0 rounded-xl bg-gradient-to-br from-amber-500/5 to-orange-500/5 opacity-0 transition-opacity group-hover:opacity-100"
                     ></div>
                 </div>
             </div>
@@ -753,29 +789,98 @@ onUnmounted(() => {
                             <option value="">Semua Lokasi</option>
                             <option v-for="location in officeLocations" :key="location.id" :value="location.id">{{ location.name }}</option>
                         </select>
-                        <div class="flex gap-2">
-                            <div class="relative">
-                                <DatePicker
-                                    :model-value="selectedDateFrom"
-                                    @update:model-value="handleDateFromChange"
-                                    placeholder="Dari tanggal"
-                                    class="w-auto"
-                                />
-                            </div>
-                            <div class="relative">
-                                <DatePicker
-                                    :model-value="selectedDateTo"
-                                    @update:model-value="handleDateToChange"
-                                    placeholder="Sampai tanggal"
-                                    class="w-auto"
-                                />
-                            </div>
+                    </div>
+                </div>
+
+                <!-- Quick Date Selection -->
+                <div class="mb-6">
+                    <div class="flex flex-wrap items-center gap-3">
+                        <div class="flex h-8 w-8 items-center justify-center rounded-lg bg-blue-500/10 ring-1 ring-blue-500/20">
+                            <Calendar class="h-4 w-4 text-blue-600 dark:text-blue-400" />
+                        </div>
+                        <div>
+                            <h3 class="text-base font-semibold text-gray-900 dark:text-white">Pilih Periode Cepat</h3>
+                            <p class="text-sm text-gray-600 dark:text-gray-400">Filter kehadiran berdasarkan periode waktu</p>
+                        </div>
+                    </div>
+                    <div class="mt-4 flex flex-wrap gap-2">
+                        <button
+                            @click="selectQuickDate('today')"
+                            class="rounded-md bg-blue-100 px-3 py-1.5 text-xs font-medium text-blue-700 transition-colors hover:bg-blue-200 dark:bg-blue-900/30 dark:text-blue-300 dark:hover:bg-blue-800/50"
+                        >
+                            📅 Hari Ini
+                        </button>
+                        <button
+                            @click="selectQuickDate('yesterday')"
+                            class="rounded-md bg-blue-100 px-3 py-1.5 text-xs font-medium text-blue-700 transition-colors hover:bg-blue-200 dark:bg-blue-900/30 dark:text-blue-300 dark:hover:bg-blue-800/50"
+                        >
+                            📅 Kemarin
+                        </button>
+                        <button
+                            @click="selectQuickDate('thisWeek')"
+                            class="rounded-md bg-blue-100 px-3 py-1.5 text-xs font-medium text-blue-700 transition-colors hover:bg-blue-200 dark:bg-blue-900/30 dark:text-blue-300 dark:hover:bg-blue-800/50"
+                        >
+                            📈 Minggu Ini
+                        </button>
+                        <button
+                            @click="selectQuickDate('thisMonth')"
+                            class="rounded-md bg-blue-100 px-3 py-1.5 text-xs font-medium text-blue-700 transition-colors hover:bg-blue-200 dark:bg-blue-900/30 dark:text-blue-300 dark:hover:bg-blue-800/50"
+                        >
+                            📅 Bulan Ini
+                        </button>
+                        <button
+                            @click="selectQuickDate('last3Months')"
+                            class="rounded-md bg-blue-100 px-3 py-1.5 text-xs font-medium text-blue-700 transition-colors hover:bg-blue-200 dark:bg-blue-900/30 dark:text-blue-300 dark:hover:bg-blue-800/50"
+                        >
+                            📊 3 Bulan
+                        </button>
+                    </div>
+                </div>
+
+                <!-- Date Range Filter -->
+                <div class="mb-6">
+                    <div class="flex items-center gap-3">
+                        <div class="flex h-8 w-8 items-center justify-center rounded-lg bg-purple-500/10 ring-1 ring-purple-500/20">
+                            <Calendar class="h-4 w-4 text-purple-600 dark:text-purple-400" />
+                        </div>
+                        <div>
+                            <h3 class="text-base font-semibold text-gray-900 dark:text-white">Pilih Rentang Tanggal</h3>
+                            <p class="text-sm text-gray-600 dark:text-gray-400">Filter kehadiran berdasarkan rentang tanggal spesifik</p>
+                        </div>
+                    </div>
+                    <div class="mt-4 flex gap-2">
+                        <div class="relative">
+                            <DatePicker
+                                :model-value="selectedDateFrom"
+                                @update:model-value="handleDateFromChange"
+                                placeholder="Dari tanggal"
+                                class="w-auto"
+                            />
+                        </div>
+                        <div class="relative">
+                            <DatePicker
+                                :model-value="selectedDateTo"
+                                @update:model-value="handleDateToChange"
+                                placeholder="Sampai tanggal"
+                                class="w-auto"
+                            />
                         </div>
                     </div>
                 </div>
                 <div
-                    class="absolute inset-0 rounded-xl bg-gradient-to-br from-blue-500/5 to-indigo-500/5 opacity-0 transition-opacity group-hover:opacity-100"
+                    class="pointer-events-none absolute inset-0 rounded-xl bg-gradient-to-br from-blue-500/5 to-indigo-500/5 opacity-0 transition-opacity group-hover:opacity-100"
                 ></div>
+            </div>
+
+            <!-- Export Section -->
+            <div class="mt-6 mb-8 flex justify-end">
+                <button
+                    @click="exportData"
+                    class="inline-flex items-center rounded-lg bg-green-600 px-6 py-3 text-sm font-medium text-white shadow-sm transition-colors hover:bg-green-700 focus:ring-2 focus:ring-green-500 focus:ring-offset-2 focus:outline-none"
+                >
+                    <Download class="mr-2 h-4 w-4" />
+                    Export Excel
+                </button>
             </div>
 
             <!-- Attendance Records Table -->
@@ -988,7 +1093,7 @@ onUnmounted(() => {
                                                 </button>
                                             </div>
                                             <div
-                                                class="absolute inset-0 rounded-xl bg-gradient-to-br from-blue-500/5 to-indigo-500/5 opacity-0 transition-opacity group-hover:opacity-100"
+                                                class="pointer-events-none absolute inset-0 rounded-xl bg-gradient-to-br from-blue-500/5 to-indigo-500/5 opacity-0 transition-opacity group-hover:opacity-100"
                                             ></div>
                                         </div>
                                     </div>

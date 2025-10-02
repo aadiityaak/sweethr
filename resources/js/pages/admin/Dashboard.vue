@@ -306,7 +306,7 @@ const generateMockAttendanceData = () => {
 
                     <!-- Hover effect overlay -->
                     <div
-                        class="absolute inset-0 rounded-xl bg-gradient-to-br from-emerald-500/5 to-teal-500/5 opacity-0 transition-opacity group-hover:opacity-100"
+                        class="absolute inset-0 rounded-xl bg-gradient-to-br from-emerald-500/5 to-teal-500/5 opacity-0 transition-opacity group-hover:opacity-100 pointer-events-none
                     ></div>
                 </div>
 
@@ -375,7 +375,7 @@ const generateMockAttendanceData = () => {
 
                     <!-- Hover effect overlay -->
                     <div
-                        class="absolute inset-0 rounded-xl bg-gradient-to-br from-emerald-500/5 to-teal-500/5 opacity-0 transition-opacity group-hover:opacity-100"
+                        class="absolute inset-0 rounded-xl bg-gradient-to-br from-emerald-500/5 to-teal-500/5 opacity-0 transition-opacity group-hover:opacity-100 pointer-events-none
                     ></div>
                 </div>
 
@@ -408,7 +408,7 @@ const generateMockAttendanceData = () => {
                     </div>
 
                     <div
-                        class="absolute inset-0 rounded-xl bg-gradient-to-br from-blue-500/5 to-indigo-500/5 opacity-0 transition-opacity group-hover:opacity-100"
+                        class="absolute inset-0 rounded-xl bg-gradient-to-br from-blue-500/5 to-indigo-500/5 opacity-0 transition-opacity group-hover:opacity-100 pointer-events-none
                     ></div>
                 </div>
 
@@ -429,7 +429,7 @@ const generateMockAttendanceData = () => {
                         <div class="text-xs font-medium text-blue-700 dark:text-blue-300">Hari tersisa tahun ini</div>
                     </div>
                     <div
-                        class="absolute inset-0 rounded-xl bg-gradient-to-br from-blue-500/5 to-indigo-500/5 opacity-0 transition-opacity group-hover:opacity-100"
+                        class="absolute inset-0 rounded-xl bg-gradient-to-br from-blue-500/5 to-indigo-500/5 opacity-0 transition-opacity group-hover:opacity-100 pointer-events-none
                     ></div>
                 </div>
 
@@ -454,7 +454,7 @@ const generateMockAttendanceData = () => {
                         </div>
                     </div>
                     <div
-                        class="absolute inset-0 rounded-xl bg-gradient-to-br from-purple-500/5 to-violet-500/5 opacity-0 transition-opacity group-hover:opacity-100"
+                        class="absolute inset-0 rounded-xl bg-gradient-to-br from-purple-500/5 to-violet-500/5 opacity-0 transition-opacity group-hover:opacity-100 pointer-events-none
                     ></div>
                 </div>
 
@@ -477,7 +477,7 @@ const generateMockAttendanceData = () => {
                         </div>
                     </div>
                     <div
-                        class="absolute inset-0 rounded-xl bg-gradient-to-br from-amber-500/5 to-orange-500/5 opacity-0 transition-opacity group-hover:opacity-100"
+                        class="absolute inset-0 rounded-xl bg-gradient-to-br from-amber-500/5 to-orange-500/5 opacity-0 transition-opacity group-hover:opacity-100 pointer-events-none
                     ></div>
                 </div>
             </div>

@@ -52,7 +52,7 @@
 
                     <!-- Hover effect overlay -->
                     <div
-                        class="absolute inset-0 rounded-xl bg-gradient-to-br from-red-500/5 to-rose-500/5 opacity-0 transition-opacity group-hover:opacity-100"
+                        class="absolute inset-0 rounded-xl bg-gradient-to-br from-red-500/5 to-rose-500/5 opacity-0 transition-opacity group-hover:opacity-100 pointer-events-none
                     ></div>
                 </div>
 
@@ -88,7 +88,7 @@
 
                     <!-- Hover effect overlay -->
                     <div
-                        class="absolute inset-0 rounded-xl bg-gradient-to-br from-orange-500/5 to-amber-500/5 opacity-0 transition-opacity group-hover:opacity-100"
+                        class="absolute inset-0 rounded-xl bg-gradient-to-br from-orange-500/5 to-amber-500/5 opacity-0 transition-opacity group-hover:opacity-100 pointer-events-none
                     ></div>
                 </div>
 
@@ -124,7 +124,7 @@
 
                     <!-- Hover effect overlay -->
                     <div
-                        class="absolute inset-0 rounded-xl bg-gradient-to-br from-purple-500/5 to-violet-500/5 opacity-0 transition-opacity group-hover:opacity-100"
+                        class="absolute inset-0 rounded-xl bg-gradient-to-br from-purple-500/5 to-violet-500/5 opacity-0 transition-opacity group-hover:opacity-100 pointer-events-none
                     ></div>
                 </div>
 
@@ -160,7 +160,7 @@
 
                     <!-- Hover effect overlay -->
                     <div
-                        class="absolute inset-0 rounded-xl bg-gradient-to-br from-gray-500/5 to-slate-500/5 opacity-0 transition-opacity group-hover:opacity-100"
+                        class="absolute inset-0 rounded-xl bg-gradient-to-br from-gray-500/5 to-slate-500/5 opacity-0 transition-opacity group-hover:opacity-100 pointer-events-none
                     ></div>
                 </div>
             </div>
@@ -263,7 +263,7 @@
 
                 <!-- Hover effect overlay -->
                 <div
-                    class="absolute inset-0 rounded-xl bg-gradient-to-br from-blue-500/5 to-indigo-500/5 opacity-0 transition-opacity group-hover:opacity-100"
+                    class="absolute inset-0 rounded-xl bg-gradient-to-br from-blue-500/5 to-indigo-500/5 opacity-0 transition-opacity group-hover:opacity-100 pointer-events-none
                 ></div>
             </div>
         </div>
