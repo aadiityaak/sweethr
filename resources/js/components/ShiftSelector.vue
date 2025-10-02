@@ -54,6 +54,10 @@ const saveSelectedShift = (shiftId: string) => {
         
         localStorage.setItem(storageKey.value, shiftId);
         console.log('ShiftSelector - Saved shift to local storage. Key:', storageKey.value, 'ID:', shiftId);
+        
+        // Verify that the shift was saved correctly
+        const savedShiftId = localStorage.getItem(storageKey.value);
+        console.log('ShiftSelector - Verification - Saved shift ID in local storage:', savedShiftId);
     } catch (error) {
         console.error('Failed to save selected shift to local storage:', error);
         toast({
@@ -80,22 +84,22 @@ const loadSelectedShift = () => {
         }
 
         const savedShiftId = localStorage.getItem(storageKey.value);
-        console.log('Loading shift from local storage. Key:', storageKey.value, 'Saved ID:', savedShiftId);
+        console.log('ShiftSelector - Loading shift from local storage. Key:', storageKey.value, 'Saved ID:', savedShiftId);
         
         if (savedShiftId) {
             // Validate that the saved shift still exists and is active
             const shift = props.userShifts.find(s => s.id.toString() === savedShiftId);
-            console.log('Found shift in props:', shift);
+            console.log('ShiftSelector - Found shift in props:', shift);
             
             if (shift) {
                 selectedShiftId.value = savedShiftId;
                 selectedShift.value = shift;
-                console.log('Successfully loaded selected shift from local storage:', shift);
+                console.log('ShiftSelector - Successfully loaded selected shift from local storage:', shift);
                 return;
             } else {
                 // Saved shift is no longer valid, clear it
                 localStorage.removeItem(storageKey.value);
-                console.log('Saved shift no longer exists, clearing from local storage');
+                console.log('ShiftSelector - Saved shift no longer exists, clearing from local storage');
                 toast({
                     title: '⚠️ Perubahan Shift',
                     description: 'Shift yang Anda pilih sebelumnya tidak lagi tersedia. Silakan pilih shift baru.',
@@ -111,10 +115,10 @@ const loadSelectedShift = () => {
             selectedShiftId.value = firstShift.id.toString();
             selectedShift.value = firstShift;
             saveSelectedShift(firstShift.id.toString());
-            console.log('No saved shift found, selected first shift:', firstShift);
+            console.log('ShiftSelector - No saved shift found, selected first shift:', firstShift);
         }
     } catch (error) {
-        console.error('Failed to load selected shift from local storage:', error);
+        console.error('ShiftSelector - Failed to load selected shift from local storage:', error);
         // Fallback to first shift
         if (props.userShifts.length > 0) {
             const firstShift = props.userShifts[0];
@@ -151,6 +155,9 @@ const handleShiftChange = (shiftId: string) => {
         selectedShift.value = shift;
         saveSelectedShift(shiftId);
         
+        console.log('ShiftSelector - Updated selectedShiftId to:', selectedShiftId.value);
+        console.log('ShiftSelector - Updated selectedShift to:', selectedShift.value);
+        
         toast({
             title: '✅ Shift Berhasil Dipilih',
             description: `Anda telah memilih shift ${shift.name} (${formatTime(shift.start_time)} - ${formatTime(shift.end_time)})`,
@@ -168,31 +175,6 @@ const handleShiftChange = (shiftId: string) => {
         });
     }
 };
-
-// Watch for changes in user shifts (e.g., when admin assigns new shifts)
-watch(() => props.userShifts, (newShifts) => {
-    if (newShifts.length === 0) {
-        selectedShiftId.value = '';
-        selectedShift.value = null;
-        try {
-            localStorage.removeItem(storageKey.value);
-        } catch (error) {
-            console.error('Failed to clear selected shift from local storage:', error);
-        }
-        return;
-    }
-    
-    // Check if current selected shift is still valid
-    const currentShiftStillValid = newShifts.find(s => s.id.toString() === selectedShiftId.value);
-    if (!currentShiftStillValid) {
-        // Current shift is no longer valid, select first available
-        const firstShift = newShifts[0];
-        selectedShiftId.value = firstShift.id.toString();
-        selectedShift.value = firstShift;
-        saveSelectedShift(firstShift.id.toString());
-        emit('shiftChanged', firstShift);
-    }
-}, { immediate: true });
 
 // Initialize on component mount
 onMounted(() => {
@@ -219,13 +201,27 @@ watch(selectedShift, (newShift) => {
 // Watch for userShifts changes and reload selected shift if needed
 watch(() => props.userShifts, (newShifts) => {
     console.log('ShiftSelector - userShifts changed:', newShifts);
-    if (newShifts && newShifts.length > 0) {
-        // Always load selected shift when userShifts changes
-        setTimeout(() => {
-            console.log('ShiftSelector - Loading selected shift after userShifts change');
-            loadSelectedShift();
-        }, 50);
+    
+    if (newShifts.length === 0) {
+        selectedShiftId.value = '';
+        selectedShift.value = null;
+        try {
+            localStorage.removeItem(storageKey.value);
+        } catch (error) {
+            console.error('Failed to clear selected shift from local storage:', error);
+        }
+        return;
     }
+    
+    // Always load selected shift when userShifts changes
+    setTimeout(() => {
+        console.log('ShiftSelector - Loading selected shift after userShifts change');
+        loadSelectedShift();
+        if (selectedShift.value) {
+            console.log('ShiftSelector - Emitting shiftChanged after userShifts change:', selectedShift.value);
+            emit('shiftChanged', selectedShift.value);
+        }
+    }, 50);
 }, { immediate: true });
 </script>
 

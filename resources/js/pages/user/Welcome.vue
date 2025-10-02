@@ -200,8 +200,10 @@ const handleShiftChange = (shift: WorkShift | null) => {
     // Update form with selected shift ID
     if (shift) {
         form.selected_shift_id = shift.id.toString();
+        console.log('Welcome.vue - Updated form with selected shift ID:', shift.id.toString());
     } else {
         form.selected_shift_id = '';
+        console.log('Welcome.vue - Cleared form selected_shift_id');
     }
 };
 
@@ -850,6 +852,7 @@ watch(
 
 // Watch for userShifts changes and load selected shift from local storage
 watch(() => userShifts, (newShifts) => {
+    console.log('Welcome.vue - userShifts changed:', newShifts);
     if (newShifts && newShifts.length > 0 && user) {
         try {
             const storageKey = `selected_shift_id_${user.id}`;
