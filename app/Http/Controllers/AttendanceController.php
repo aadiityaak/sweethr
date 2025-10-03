@@ -335,9 +335,9 @@ class AttendanceController extends Controller
             if ($checkInTime->format('H:i:s') > $shiftStartTime->format('H:i:s')) {
                 $status = 'late';
 
-                // Calculate late duration in minutes
+                // Calculate late duration in minutes (absolute value to ensure positive)
                 $checkInCarbon = Carbon::parse($checkInTime->format('H:i:s'));
-                $lateDuration = $checkInCarbon->diffInMinutes($shiftStartTime);
+                $lateDuration = abs($checkInCarbon->diffInMinutes($shiftStartTime));
 
                 Log::info('Late check-in detected', [
                     'user_id' => $user->id,
