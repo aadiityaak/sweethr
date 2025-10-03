@@ -17,6 +17,20 @@ interface Position {
     level: number;
 }
 
+interface WorkShift {
+    id: number;
+    name: string;
+    code: string;
+    start_time: string;
+    end_time: string;
+}
+
+interface EmployeeShift {
+    id: number;
+    work_shift_id: number;
+    work_shift?: WorkShift;
+}
+
 interface Employee {
     id: number;
     name: string;
@@ -29,6 +43,7 @@ interface Employee {
     department?: Department;
     position?: Position;
     profile_photo_url?: string;
+    employee_shifts?: EmployeeShift[];
 }
 
 interface Props {
@@ -565,6 +580,7 @@ const formatDate = (dateString: string) => {
                                         <component :is="getSortIcon('status')" class="h-4 w-4" />
                                     </button>
                                 </th>
+                                <th class="px-6 py-3 text-left text-sm font-medium text-gray-500 dark:text-gray-400">Shift Default</th>
                                 <th class="px-6 py-3 text-left text-sm font-medium text-gray-500 dark:text-gray-400">Aksi</th>
                             </tr>
                         </thead>
@@ -621,6 +637,20 @@ const formatDate = (dateString: string) => {
                                             ></div>
                                             <div v-if="employee.is_admin" class="text-xs text-blue-600 dark:text-blue-400">Admin</div>
                                         </div>
+                                    </div>
+                                </td>
+                                <td class="px-6 py-4">
+                                    <div v-if="employee.employee_shifts && employee.employee_shifts.length > 0" class="space-y-1">
+                                        <div class="inline-flex items-center gap-2 rounded-md bg-blue-100 px-2.5 py-1 text-xs font-medium text-blue-800 dark:bg-blue-900/30 dark:text-blue-400">
+                                            <span class="font-semibold">{{ employee.employee_shifts[0].work_shift?.name }}</span>
+                                        </div>
+                                        <div class="text-xs text-gray-500 dark:text-gray-400">
+                                            {{ employee.employee_shifts[0].work_shift?.start_time?.substring(0, 5) }} -
+                                            {{ employee.employee_shifts[0].work_shift?.end_time?.substring(0, 5) }}
+                                        </div>
+                                    </div>
+                                    <div v-else class="text-sm text-gray-400 dark:text-gray-500">
+                                        Belum ditugaskan
                                     </div>
                                 </td>
                                 <td class="px-6 py-4">

@@ -21,7 +21,15 @@ class EmployeeController extends Controller
         header('Pragma: no-cache');
         header('Expires: 0');
 
-        $query = User::with(['department', 'position']);
+        $query = User::with([
+            'department',
+            'position',
+            'employeeShifts' => function ($q) {
+                $q->with('workShift:id,name,code,start_time,end_time')
+                    ->active()
+                    ->latest();
+            },
+        ]);
 
         // Apply filters
         if ($request->search) {
