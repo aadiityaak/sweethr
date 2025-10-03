@@ -24,6 +24,7 @@ class Attendance extends Model
         'work_duration',
         'break_duration',
         'overtime_duration',
+        'late_duration',
         'status',
         'notes',
         'face_match_confidence',

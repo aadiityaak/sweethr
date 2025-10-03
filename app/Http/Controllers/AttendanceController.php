@@ -327,12 +327,24 @@ class AttendanceController extends Controller
         }
 
         $status = 'present';
+        $lateDuration = 0;
 
         if ($shift && $shift->workShift) {
             $shiftStartTime = Carbon::parse($shift->workShift->start_time);
             // No tolerance - any check-in after shift start is considered late
             if ($checkInTime->format('H:i:s') > $shiftStartTime->format('H:i:s')) {
                 $status = 'late';
+
+                // Calculate late duration in minutes
+                $checkInCarbon = Carbon::parse($checkInTime->format('H:i:s'));
+                $lateDuration = $checkInCarbon->diffInMinutes($shiftStartTime);
+
+                Log::info('Late check-in detected', [
+                    'user_id' => $user->id,
+                    'shift_start' => $shiftStartTime->format('H:i:s'),
+                    'check_in_time' => $checkInTime->format('H:i:s'),
+                    'late_minutes' => $lateDuration,
+                ]);
             }
         }
 
@@ -355,6 +367,7 @@ class AttendanceController extends Controller
                 'check_in_latitude' => $request->latitude,
                 'check_in_longitude' => $request->longitude,
                 'status' => $status,
+                'late_duration' => $lateDuration,
                 'face_match_confidence' => $faceMatchConfidence,
                 'face_verification_passed' => $faceVerificationPassed,
                 'face_verification_skipped' => $faceVerificationSkipped,

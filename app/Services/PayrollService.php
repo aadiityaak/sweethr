@@ -249,13 +249,7 @@ class PayrollService
         $actualWorkingDays = $attendances->where('check_out_time', '!=', null)->count();
 
         // Calculate late minutes from attendance records
-        // Assuming late_duration is stored in minutes, or calculate from check_in_time vs expected time
-        $lateMinutes = 0;
-        foreach ($attendances as $attendance) {
-            // If attendance has a method to calculate late duration, use it
-            // For now, we'll assume no late time calculation
-            $lateMinutes += 0; // Will be updated when we have proper late calculation
-        }
+        $lateMinutes = $attendances->sum('late_duration');
 
         $overtimeHours = $attendances->sum('overtime_duration') ?? 0;
         $absentDays = $workingDays - $actualWorkingDays;
@@ -305,7 +299,8 @@ class PayrollService
 
             $amount = $rule->calculateDeduction($salarySetting->base_salary, $parameters);
 
-            if ($amount > 0) {
+            // Always show late deduction even if amount is 0, for other types only show if amount > 0
+            if ($amount > 0 || $rule->type === 'late') {
                 $deductions[] = [
                     'name' => $rule->name,
                     'description' => $rule->description,
