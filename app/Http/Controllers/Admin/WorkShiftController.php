@@ -130,9 +130,18 @@ class WorkShiftController extends Controller
             ->active()
             ->get();
 
+        // Get available employees (not admin and not currently assigned to this shift)
+        $assignedUserIds = $assignedEmployees->pluck('user_id')->toArray();
+        $availableEmployees = User::where('is_admin', false)
+            ->whereNotIn('id', $assignedUserIds)
+            ->select('id', 'name', 'employee_id')
+            ->orderBy('name')
+            ->get();
+
         return Inertia::render('admin/WorkShifts/Show', [
             'workShift' => $workShift,
             'assignedEmployees' => $assignedEmployees,
+            'availableEmployees' => $availableEmployees,
         ]);
     }
 

@@ -205,19 +205,93 @@
 
         <!-- Assign Employee Modal -->
         <Dialog v-model:open="showAssignModal">
-            <DialogContent>
+            <DialogContent class="max-w-2xl">
                 <DialogHeader>
                     <DialogTitle>Assign Karyawan ke Shift</DialogTitle>
                     <DialogDescription> Pilih karyawan untuk ditugaskan ke shift "{{ workShift.name }}" </DialogDescription>
                 </DialogHeader>
 
-                <!-- Modal content would go here -->
-                <p class="text-sm text-muted-foreground">Fitur ini akan dikembangkan lebih lanjut untuk memilih dan menugaskan karyawan.</p>
+                <form @submit.prevent="submitAssignment" class="space-y-6">
+                    <!-- Employee Selection -->
+                    <div class="space-y-2">
+                        <Label>Pilih Karyawan *</Label>
+                        <div class="max-h-60 space-y-2 overflow-y-auto rounded-md border p-3">
+                            <div v-if="availableEmployees.length === 0" class="py-4 text-center text-sm text-muted-foreground">
+                                Tidak ada karyawan yang tersedia untuk ditugaskan
+                            </div>
+                            <div v-else class="space-y-2">
+                                <div v-for="employee in availableEmployees" :key="employee.id" class="flex items-center gap-3">
+                                    <input
+                                        :id="`emp-${employee.id}`"
+                                        type="checkbox"
+                                        :value="employee.id"
+                                        v-model="assignForm.employee_ids"
+                                        class="h-4 w-4 rounded border-gray-300 text-blue-600"
+                                    />
+                                    <label :for="`emp-${employee.id}`" class="flex flex-1 cursor-pointer items-center gap-3 rounded-md p-2 hover:bg-muted">
+                                        <div
+                                            class="flex h-8 w-8 shrink-0 items-center justify-center rounded-full bg-primary text-xs font-medium text-primary-foreground"
+                                        >
+                                            {{ getInitials(employee.name) }}
+                                        </div>
+                                        <div class="flex-1">
+                                            <p class="font-medium">{{ employee.name }}</p>
+                                            <p class="text-sm text-muted-foreground">{{ employee.employee_id }}</p>
+                                        </div>
+                                    </label>
+                                </div>
+                            </div>
+                        </div>
+                        <p v-if="assignForm.errors.employee_ids" class="text-sm text-red-600">
+                            {{ assignForm.errors.employee_ids }}
+                        </p>
+                        <p v-if="assignForm.employee_ids.length > 0" class="text-sm text-muted-foreground">
+                            {{ assignForm.employee_ids.length }} karyawan terpilih
+                        </p>
+                    </div>
 
-                <DialogFooter>
-                    <Button variant="outline" @click="showAssignModal = false">Batal</Button>
-                    <Button @click="showAssignModal = false">Assign</Button>
-                </DialogFooter>
+                    <!-- Assignment Details -->
+                    <div class="grid gap-4 md:grid-cols-2">
+                        <div class="space-y-2">
+                            <Label for="effective_date">Tanggal Efektif *</Label>
+                            <Input id="effective_date" v-model="assignForm.effective_date" type="date" :error="assignForm.errors.effective_date" />
+                            <p v-if="assignForm.errors.effective_date" class="text-sm text-red-600">
+                                {{ assignForm.errors.effective_date }}
+                            </p>
+                        </div>
+                        <div class="space-y-2">
+                            <Label for="end_date">Tanggal Berakhir (Opsional)</Label>
+                            <Input id="end_date" v-model="assignForm.end_date" type="date" :error="assignForm.errors.end_date" />
+                            <p v-if="assignForm.errors.end_date" class="text-sm text-red-600">
+                                {{ assignForm.errors.end_date }}
+                            </p>
+                        </div>
+                    </div>
+
+                    <div class="space-y-2">
+                        <Label for="assignment_type">Tipe Penugasan *</Label>
+                        <select
+                            id="assignment_type"
+                            v-model="assignForm.assignment_type"
+                            class="flex h-10 w-full rounded-md border border-input bg-background px-3 py-2 text-sm ring-offset-background focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-ring"
+                        >
+                            <option value="permanent">Permanen</option>
+                            <option value="temporary">Sementara</option>
+                            <option value="weekly">Mingguan</option>
+                            <option value="monthly">Bulanan</option>
+                        </select>
+                        <p v-if="assignForm.errors.assignment_type" class="text-sm text-red-600">
+                            {{ assignForm.errors.assignment_type }}
+                        </p>
+                    </div>
+
+                    <DialogFooter>
+                        <Button type="button" variant="outline" @click="showAssignModal = false" :disabled="assignForm.processing">Batal</Button>
+                        <Button type="submit" :disabled="assignForm.processing || assignForm.employee_ids.length === 0">
+                            {{ assignForm.processing ? 'Menyimpan...' : 'Assign Karyawan' }}
+                        </Button>
+                    </DialogFooter>
+                </form>
             </DialogContent>
         </Dialog>
     </AppLayout>
@@ -226,10 +300,12 @@
 <script setup lang="ts">
 import { Button } from '@/components/ui/button';
 import { Dialog, DialogContent, DialogDescription, DialogFooter, DialogHeader, DialogTitle } from '@/components/ui/dialog';
+import { Input } from '@/components/ui/input';
+import { Label } from '@/components/ui/label';
 import AppLayout from '@/layouts/AppLayout.vue';
-import { Head, Link, router } from '@inertiajs/vue3';
+import { Head, Link, router, useForm } from '@inertiajs/vue3';
 import { ArrowLeft, Edit, Moon, Power, Trash, UserMinus, UserPlus, Users } from 'lucide-vue-next';
-import { ref } from 'vue';
+import { ref, watch } from 'vue';
 
 interface WorkShift {
     id: number;
@@ -249,6 +325,8 @@ interface WorkShift {
 interface EmployeeAssignment {
     id: number;
     assignment_type: string;
+    effective_date: string;
+    end_date: string | null;
     user: {
         id: number;
         name: string;
@@ -256,14 +334,39 @@ interface EmployeeAssignment {
     };
 }
 
+interface Employee {
+    id: number;
+    name: string;
+    employee_id: string;
+}
+
 interface Props {
     workShift: WorkShift;
     assignedEmployees: EmployeeAssignment[];
+    availableEmployees: Employee[];
 }
 
 const props = defineProps<Props>();
 
 const showAssignModal = ref(false);
+
+// Get today's date in YYYY-MM-DD format
+const today = new Date().toISOString().split('T')[0];
+
+const assignForm = useForm({
+    employee_ids: [] as number[],
+    effective_date: today,
+    end_date: '',
+    assignment_type: 'permanent',
+});
+
+// Reset form when modal closes
+watch(showAssignModal, (isOpen) => {
+    if (!isOpen) {
+        assignForm.reset();
+        assignForm.clearErrors();
+    }
+});
 
 const daysOfWeek = ['Minggu', 'Senin', 'Selasa', 'Rabu', 'Kamis', 'Jumat', 'Sabtu'];
 
@@ -311,5 +414,15 @@ const deleteShift = () => {
     if (confirm(`Yakin ingin menghapus shift "${props.workShift.name}"? Aksi ini tidak dapat dibatalkan.`)) {
         router.delete(`/admin/work-shifts/${props.workShift.id}`);
     }
+};
+
+const submitAssignment = () => {
+    assignForm.post(`/admin/work-shifts/${props.workShift.id}/assign`, {
+        preserveScroll: true,
+        onSuccess: () => {
+            showAssignModal.value = false;
+            assignForm.reset();
+        },
+    });
 };
 </script>
