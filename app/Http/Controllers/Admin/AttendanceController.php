@@ -82,7 +82,7 @@ class AttendanceController extends Controller
 
             // Convert to attendance record format for consistency
             $attendanceRecords = $absentEmployees->map(function ($user) use ($date) {
-                // Get user's shift for the attendance date
+                // Get user's assigned shift for the date (since there's no attendance record)
                 $shift = $user->employeeShifts()
                     ->where('effective_date', '<=', $date)
                     ->where(function ($query) use ($date) {
@@ -92,16 +92,18 @@ class AttendanceController extends Controller
                     ->with('workShift')
                     ->first();
 
-                if ($shift && $shift->workShift) {
+                $workShift = $shift?->workShift;
+
+                if ($workShift) {
                     // Add shift info for display - format times as strings
                     $shiftInfo = [
-                        'start_time' => $shift->workShift->start_time instanceof \DateTime
-                            ? $shift->workShift->start_time->format('H:i:s')
-                            : $shift->workShift->start_time,
-                        'end_time' => $shift->workShift->end_time instanceof \DateTime
-                            ? $shift->workShift->end_time->format('H:i:s')
-                            : $shift->workShift->end_time,
-                        'name' => $shift->workShift->name ?? $shift->workShift->start_time . ' - ' . $shift->workShift->end_time,
+                        'start_time' => $workShift->start_time instanceof \DateTime
+                            ? $workShift->start_time->format('H:i:s')
+                            : $workShift->start_time,
+                        'end_time' => $workShift->end_time instanceof \DateTime
+                            ? $workShift->end_time->format('H:i:s')
+                            : $workShift->end_time,
+                        'name' => $workShift->name ?? $workShift->start_time.' - '.$workShift->end_time,
                     ];
                 } else {
                     // Add default shift info
@@ -139,7 +141,7 @@ class AttendanceController extends Controller
                 ->when(($filters['date_from'] ?? null) && ($filters['date_to'] ?? null), function ($query) use ($dateFrom, $dateTo) {
                     $query->whereBetween('date', [$dateFrom, $dateTo]);
                 })
-                ->when(!($filters['date_from'] ?? null) || !($filters['date_to'] ?? null), function ($query) use ($date) {
+                ->when(! ($filters['date_from'] ?? null) || ! ($filters['date_to'] ?? null), function ($query) use ($date) {
                     $query->where('date', $date);
                 })
                 ->when($filters['status'] ?? false, function ($query, $status) {
@@ -184,11 +186,11 @@ class AttendanceController extends Controller
                 [$relation, $column] = explode('.', $dbSort);
                 if ($relation === 'user') {
                     $attendanceQuery->join('users', 'attendances.user_id', '=', 'users.id')
-                        ->orderBy('users.' . $column, $direction)
+                        ->orderBy('users.'.$column, $direction)
                         ->select('attendances.*'); // Select only attendance columns to avoid conflicts
                 } elseif ($relation === 'office_location') {
                     $attendanceQuery->join('office_locations', 'attendances.office_location_id', '=', 'office_locations.id')
-                        ->orderBy('office_locations.' . $column, $direction)
+                        ->orderBy('office_locations.'.$column, $direction)
                         ->select('attendances.*');
                 } else {
                     $attendanceQuery->orderBy($dbSort, $direction);
@@ -202,38 +204,49 @@ class AttendanceController extends Controller
 
             // Calculate late duration for each attendance record and add shift info
             $attendanceRecords = $attendanceRecords->map(function ($record) {
-                // Get user's shift for the attendance date
-                $shift = $record->user->employeeShifts()
-                    ->where('effective_date', '<=', $record->date)
-                    ->where(function ($query) use ($record) {
-                        $query->whereNull('end_date')
-                            ->orWhere('end_date', '>=', $record->date);
-                    })
-                    ->with('workShift')
-                    ->first();
+                // PRIORITY 1: Use the work_shift_id saved in attendance record (user's selected shift)
+                $workShift = null;
+                if ($record->work_shift_id) {
+                    $workShift = \App\Models\WorkShift::find($record->work_shift_id);
+                    Log::debug('Using saved work_shift_id for attendance '.$record->id, [
+                        'work_shift_id' => $record->work_shift_id,
+                        'shift_name' => $workShift?->name,
+                    ]);
+                }
 
-                Log::debug('Shift query result for attendance ' . $record->id . ' for user ' . $record->user->name, [
-                    'attendance_date' => $record->date,
-                    'employee_shift_found' => $shift ? 'yes' : 'no',
-                    'shift_name' => $shift ? $shift->workShift->name : null,
-                    'shift_id' => $shift ? $shift->workShift->id : null,
-                    'effective_date' => $shift ? $shift->effective_date : null,
-                    'end_date' => $shift ? $shift->end_date : null,
-                ]);
+                // FALLBACK: Get user's assigned shift for the attendance date
+                if (! $workShift) {
+                    $shift = $record->user->employeeShifts()
+                        ->where('effective_date', '<=', $record->date)
+                        ->where(function ($query) use ($record) {
+                            $query->whereNull('end_date')
+                                ->orWhere('end_date', '>=', $record->date);
+                        })
+                        ->with('workShift')
+                        ->first();
 
-                if ($shift && $shift->workShift) {
-                    $shiftStartTime = $shift->workShift->start_time;
+                    $workShift = $shift?->workShift;
+
+                    Log::debug('Fallback to assigned shift for attendance '.$record->id, [
+                        'attendance_date' => $record->date,
+                        'employee_shift_found' => $shift ? 'yes' : 'no',
+                        'shift_name' => $workShift?->name,
+                    ]);
+                }
+
+                if ($workShift) {
+                    $shiftStartTime = $workShift->start_time;
                     $record->late_duration = $record->getLateDuration($shiftStartTime);
 
                     // Add shift info for display - format times as strings
                     $record->shift_info = [
-                        'start_time' => $shift->workShift->start_time instanceof \DateTime
-                            ? $shift->workShift->start_time->format('H:i:s')
-                            : $shift->workShift->start_time,
-                        'end_time' => $shift->workShift->end_time instanceof \DateTime
-                            ? $shift->workShift->end_time->format('H:i:s')
-                            : $shift->workShift->end_time,
-                        'name' => $shift->workShift->name ?? $shift->workShift->start_time . ' - ' . $shift->workShift->end_time,
+                        'start_time' => $workShift->start_time instanceof \DateTime
+                            ? $workShift->start_time->format('H:i:s')
+                            : $workShift->start_time,
+                        'end_time' => $workShift->end_time instanceof \DateTime
+                            ? $workShift->end_time->format('H:i:s')
+                            : $workShift->end_time,
+                        'name' => $workShift->name ?? $workShift->start_time.' - '.$workShift->end_time,
                     ];
                 } else {
                     // Default to 08:30 if no shift found (for existing data)
@@ -317,7 +330,7 @@ class AttendanceController extends Controller
 
         // Convert face photo path to URL if exists
         if ($attendance->face_photo_path) {
-            $attendance->face_photo_url = asset('storage/' . $attendance->face_photo_path);
+            $attendance->face_photo_url = asset('storage/'.$attendance->face_photo_path);
         }
 
         return Inertia::render('admin/Attendance/Show', [

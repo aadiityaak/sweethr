@@ -163,6 +163,33 @@ vue-tsc --noEmit
 
 ## Known Issues & Solutions
 
+### Shift Display Mismatch in Admin Panel (RESOLVED)
+
+**Issue**: Shift displayed in admin attendance panel didn't match the shift selected by user during check-in.
+
+**Root Cause**: Admin panel was retrieving shift from `employee_shifts` assignment instead of using the `work_shift_id` saved during check-in.
+
+**Solution**:
+1. Updated [Admin/AttendanceController.php](app/Http/Controllers/Admin/AttendanceController.php) to prioritize `work_shift_id` from attendance record
+2. Created `attendance:populate-shift-id` command to backfill existing attendance data
+
+**Files Modified**:
+- `app/Http/Controllers/Admin/AttendanceController.php` - Use `work_shift_id` from attendance record first, fallback to assignment
+- `app/Console/Commands/PopulateAttendanceWorkShiftId.php` - Command to migrate existing data
+
+**Migration Command**:
+```bash
+# Preview changes
+php artisan attendance:populate-shift-id --dry-run
+
+# Apply changes
+php artisan attendance:populate-shift-id
+```
+
+**Key Lesson**: Always use the actual saved data (user's selection) rather than deriving it from relationships, especially when users can choose from multiple options.
+
+---
+
 ### Face Photo Storage Issue (RESOLVED)
 
 **Issue**: Face photos were being captured and saved to file system but not recorded in database (face_photo_path remained null).
