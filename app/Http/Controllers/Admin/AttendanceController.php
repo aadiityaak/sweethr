@@ -27,18 +27,10 @@ class AttendanceController extends Controller
         // Get filters
         $filters = $request->only(['date', 'date_from', 'date_to', 'status', 'department', 'office_location', 'search', 'sort', 'direction']);
 
-        // Handle date range logic
-        if (($filters['date_from'] ?? null) && ($filters['date_to'] ?? null)) {
-            // Use date range
-            $dateFrom = $filters['date_from'];
-            $dateTo = $filters['date_to'];
-            $date = $dateFrom; // Use from date as primary date for single date logic
-        } else {
-            // Use single date (fallback for existing logic)
-            $date = $filters['date'] ?? Carbon::today()->format('Y-m-d');
-            $dateFrom = $date;
-            $dateTo = $date;
-        }
+        // Handle date range logic - default to current month
+        $dateFrom = $filters['date_from'] ?? Carbon::now()->startOfMonth()->format('Y-m-d');
+        $dateTo = $filters['date_to'] ?? Carbon::now()->endOfMonth()->format('Y-m-d');
+        $date = $filters['date'] ?? Carbon::today()->format('Y-m-d');
 
         // Special handling for absent status - show employees without attendance records
         if (($filters['status'] ?? '') === 'absent') {
@@ -137,12 +129,7 @@ class AttendanceController extends Controller
                 },
                 'officeLocation:id,name,address',
             ])
-                ->when(($filters['date_from'] ?? null) && ($filters['date_to'] ?? null), function ($query) use ($dateFrom, $dateTo) {
-                    $query->whereBetween('date', [$dateFrom, $dateTo]);
-                })
-                ->when(! ($filters['date_from'] ?? null) || ! ($filters['date_to'] ?? null), function ($query) use ($date) {
-                    $query->where('date', $date);
-                })
+                ->whereBetween('date', [$dateFrom, $dateTo])
                 ->when($filters['status'] ?? false, function ($query, $status) {
                     $query->where('status', $status);
                 })
@@ -253,26 +240,39 @@ class AttendanceController extends Controller
             });
         }
 
-        // Calculate attendance statistics for the selected date
+        // Calculate attendance statistics for the selected date range
         $totalEmployees = User::where('is_admin', false)->count();
-        $presentToday = Attendance::where('date', $date)
+        $presentToday = Attendance::whereBetween('date', [$dateFrom, $dateTo])
             ->whereIn('status', ['present', 'late'])
             ->count();
-        $lateToday = Attendance::where('date', $date)
+        $lateToday = Attendance::whereBetween('date', [$dateFrom, $dateTo])
             ->where('status', 'late')
             ->count();
-        $absentToday = $totalEmployees - $presentToday;
+
+        // Calculate working days in range for absent calculation
+        $startDate = Carbon::parse($dateFrom);
+        $endDate = Carbon::parse($dateTo);
+        $workingDays = 0;
+        while ($startDate->lte($endDate)) {
+            if (! $startDate->isWeekend()) {
+                $workingDays++;
+            }
+            $startDate->addDay();
+        }
+
+        $expectedAttendance = $totalEmployees * $workingDays;
+        $absentToday = $expectedAttendance - $presentToday;
         $onLeaveToday = 0; // This would need leave request integration
 
-        $attendanceRate = $totalEmployees > 0 ? round(($presentToday / $totalEmployees) * 100) : 0;
+        $attendanceRate = $expectedAttendance > 0 ? round(($presentToday / $expectedAttendance) * 100) : 0;
 
-        // Calculate average work hours and overtime for the date
-        $avgWorkHours = Attendance::where('date', $date)
+        // Calculate average work hours and overtime for the date range
+        $avgWorkHours = Attendance::whereBetween('date', [$dateFrom, $dateTo])
             ->whereNotNull('work_duration')
             ->avg('work_duration') ?? 0;
         $avgWorkHours = round($avgWorkHours / 60, 1); // Convert to hours
 
-        $totalOvertimeHours = Attendance::where('date', $date)
+        $totalOvertimeHours = Attendance::whereBetween('date', [$dateFrom, $dateTo])
             ->sum('overtime_duration') ?? 0;
         $totalOvertimeHours = round($totalOvertimeHours / 60, 1); // Convert to hours
 
@@ -297,6 +297,10 @@ class AttendanceController extends Controller
             ->where('is_active', true)
             ->orderBy('name')
             ->get();
+
+        // Ensure date_from and date_to are in filters for frontend
+        $filters['date_from'] = $dateFrom;
+        $filters['date_to'] = $dateTo;
 
         return Inertia::render('admin/Attendance/Index', [
             'attendanceRecords' => $attendanceRecords,
