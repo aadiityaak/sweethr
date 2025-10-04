@@ -148,6 +148,11 @@ class AttendanceController extends Controller
 
         try {
             $user = auth()->user();
+
+            if (!$user) {
+                Log::error('Check-in failed: User not authenticated');
+                return back()->withErrors(['message' => 'Anda harus login terlebih dahulu']);
+            }
             // Force refresh user data from database to get latest settings
             $user->refresh();
 
@@ -177,7 +182,18 @@ class AttendanceController extends Controller
 
             $request->validate($validationRules);
         } catch (\Illuminate\Validation\ValidationException $e) {
+            Log::error('Check-in validation failed', [
+                'errors' => $e->errors(),
+                'user_id' => auth()->id(),
+            ]);
             return back()->withErrors($e->errors());
+        } catch (\Exception $e) {
+            Log::error('Check-in validation error', [
+                'error' => $e->getMessage(),
+                'trace' => $e->getTraceAsString(),
+                'user_id' => auth()->id(),
+            ]);
+            return back()->withErrors(['message' => 'Terjadi kesalahan: ' . $e->getMessage()]);
         }
 
         $today = Carbon::today();
@@ -355,28 +371,41 @@ class AttendanceController extends Controller
             'face_verification_passed' => $faceVerificationPassed,
         ]);
 
-        $attendance = Attendance::updateOrCreate(
-            [
+        try {
+            $attendance = Attendance::updateOrCreate(
+                [
+                    'user_id' => $user->id,
+                    'date' => $today,
+                ],
+                [
+                    'office_location_id' => $request->office_location_id,
+                    'work_shift_id' => $shift?->work_shift_id,
+                    'check_in_time' => $checkInTime->format('H:i:s'),
+                    'check_in_latitude' => $request->latitude,
+                    'check_in_longitude' => $request->longitude,
+                    'status' => $status,
+                    'late_duration' => $lateDuration,
+                    'face_match_confidence' => $faceMatchConfidence,
+                    'face_verification_passed' => $faceVerificationPassed,
+                    'face_verification_skipped' => $faceVerificationSkipped,
+                    'face_verification_notes' => $faceVerificationNotes,
+                    'face_photo_path' => $facePhotoPath,
+                    'face_confidence_score' => $faceConfidenceScore,
+                    'face_detected' => $faceDetected,
+                ]
+            );
+        } catch (\Exception $e) {
+            Log::error('Failed to save attendance record', [
+                'error' => $e->getMessage(),
+                'trace' => $e->getTraceAsString(),
                 'user_id' => $user->id,
-                'date' => $today,
-            ],
-            [
-                'office_location_id' => $request->office_location_id,
-                'work_shift_id' => $shift?->work_shift_id,
-                'check_in_time' => $checkInTime->format('H:i:s'),
-                'check_in_latitude' => $request->latitude,
-                'check_in_longitude' => $request->longitude,
-                'status' => $status,
-                'late_duration' => $lateDuration,
-                'face_match_confidence' => $faceMatchConfidence,
-                'face_verification_passed' => $faceVerificationPassed,
-                'face_verification_skipped' => $faceVerificationSkipped,
-                'face_verification_notes' => $faceVerificationNotes,
-                'face_photo_path' => $facePhotoPath,
-                'face_confidence_score' => $faceConfidenceScore,
-                'face_detected' => $faceDetected,
-            ]
-        );
+                'data' => [
+                    'office_location_id' => $request->office_location_id,
+                    'work_shift_id' => $shift?->work_shift_id,
+                ],
+            ]);
+            return back()->withErrors(['message' => 'Gagal menyimpan absensi: ' . $e->getMessage()]);
+        }
 
         // Debug logging for saved attendance
         Log::info('Saved attendance with shift', [
