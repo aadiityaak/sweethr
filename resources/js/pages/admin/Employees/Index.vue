@@ -263,16 +263,16 @@ const formatDate = (dateString: string) => {
     <AppLayout :breadcrumbs="breadcrumbs">
         <div class="mx-auto w-full px-4 py-6 sm:px-6 lg:px-8">
             <!-- Header -->
-            <div class="mb-8">
+            <div class="mb-6">
                 <div class="flex items-center justify-between">
                     <div>
                         <h1 class="text-3xl font-bold text-gray-900 dark:text-white">Karyawan</h1>
-                        <p class="mt-1 text-gray-600 dark:text-gray-400">Kelola informasi dan peran karyawan</p>
+                        <p class="mt-1 text-sm text-gray-600 dark:text-gray-400">Kelola informasi dan peran karyawan</p>
                     </div>
                     <div class="flex gap-3">
                         <Link
                             href="/employees/create"
-                            class="inline-flex items-center gap-2 rounded-lg bg-blue-600 px-4 py-2 text-sm font-medium text-white shadow-sm transition-colors hover:bg-blue-700 focus:ring-2 focus:ring-blue-500 focus:ring-offset-2 focus:outline-none"
+                            class="inline-flex items-center gap-2 rounded-xl bg-blue-600 px-4 py-2.5 text-sm font-semibold text-white shadow-sm hover:bg-blue-500"
                         >
                             <Plus class="h-4 w-4" />
                             Tambah Karyawan
@@ -281,163 +281,72 @@ const formatDate = (dateString: string) => {
                 </div>
             </div>
 
-            <!-- Overview Cards -->
-            <div class="mb-10 grid gap-6 md:grid-cols-2 lg:grid-cols-4">
+            <!-- Stats Cards -->
+            <div class="mb-6 grid gap-4 md:grid-cols-2 lg:grid-cols-4">
                 <!-- Total Employees -->
-                <div
-                    class="group relative overflow-hidden rounded-xl border border-gray-200/50 bg-gradient-to-br from-white to-blue-50/30 p-6 shadow-sm transition-all hover:shadow-md dark:border-gray-800/50 dark:from-gray-950 dark:to-blue-950/30"
-                >
+                <div class="group relative overflow-hidden rounded-2xl bg-white p-6 shadow-sm ring-1 ring-gray-900/5 dark:bg-gray-900 dark:ring-white/10">
                     <div class="flex items-start justify-between">
-                        <div class="flex items-center gap-3">
-                            <div class="flex h-10 w-10 items-center justify-center rounded-full bg-blue-500/10 ring-1 ring-blue-500/20">
-                                <Users class="h-5 w-5 text-blue-600 dark:text-blue-400" />
-                            </div>
-                            <div>
-                                <h3 class="font-medium text-gray-900 dark:text-white">Total Karyawan</h3>
-                                <p class="text-sm text-gray-600 dark:text-gray-400">Semua karyawan terdaftar</p>
-                            </div>
-                        </div>
-                        <div class="flex h-2 w-2 rounded-full bg-blue-400"></div>
-                    </div>
-
-                    <div class="mt-6 space-y-3">
-                        <div class="flex items-center justify-between rounded-lg bg-blue-50/50 px-3 py-2 dark:bg-blue-950/30">
-                            <span class="text-sm font-medium text-blue-700 dark:text-blue-400">Total</span>
-                            <span class="text-sm font-semibold text-blue-800 dark:text-blue-300">{{ totalEmployees }}</span>
-                        </div>
-                        <div class="flex items-center justify-between rounded-lg bg-gray-50/50 px-3 py-2 dark:bg-gray-800/50">
-                            <span class="text-sm font-medium text-gray-600 dark:text-gray-400">Departemen</span>
-                            <span class="text-sm font-semibold text-gray-900 dark:text-white">{{ departments.length }}</span>
+                        <div class="flex h-12 w-12 items-center justify-center rounded-xl bg-blue-500/10">
+                            <Users class="h-6 w-6 text-blue-600 dark:text-blue-400" />
                         </div>
                     </div>
-
-                    <!-- Hover effect overlay -->
-                    <div
-                        class="pointer-events-none absolute inset-0 rounded-xl bg-gradient-to-br from-blue-500/5 to-indigo-500/5 opacity-0 transition-opacity group-hover:opacity-100"
-                    ></div>
+                    <div class="mt-4">
+                        <p class="text-sm font-medium text-gray-600 dark:text-gray-400">Total Karyawan</p>
+                        <p class="mt-1 text-3xl font-bold text-gray-900 dark:text-white">{{ totalEmployees || 0 }}</p>
+                        <p class="mt-1 text-xs text-gray-500 dark:text-gray-500">{{ departments.length }} departemen</p>
+                    </div>
                 </div>
 
                 <!-- Active Employees -->
-                <div
-                    class="group relative overflow-hidden rounded-xl border border-gray-200/50 bg-gradient-to-br from-white to-emerald-50/30 p-6 shadow-sm transition-all hover:shadow-md dark:border-gray-800/50 dark:from-gray-950 dark:to-emerald-950/30"
-                >
+                <div class="group relative overflow-hidden rounded-2xl bg-white p-6 shadow-sm ring-1 ring-gray-900/5 dark:bg-gray-900 dark:ring-white/10">
                     <div class="flex items-start justify-between">
-                        <div class="flex items-center gap-3">
-                            <div class="flex h-10 w-10 items-center justify-center rounded-full bg-emerald-500/10 ring-1 ring-emerald-500/20">
-                                <UserCheck class="h-5 w-5 text-emerald-600 dark:text-emerald-400" />
-                            </div>
-                            <div>
-                                <h3 class="font-medium text-gray-900 dark:text-white">Karyawan Aktif</h3>
-                                <p class="text-sm text-gray-600 dark:text-gray-400">Karyawan yang aktif bekerja</p>
-                            </div>
-                        </div>
-                        <div class="flex h-2 w-2 rounded-full bg-emerald-400"></div>
-                    </div>
-
-                    <div class="mt-6 space-y-3">
-                        <div class="flex items-center justify-between rounded-lg bg-emerald-50/50 px-3 py-2 dark:bg-emerald-950/30">
-                            <span class="text-sm font-medium text-emerald-700 dark:text-emerald-400">Aktif</span>
-                            <span class="text-sm font-semibold text-emerald-800 dark:text-emerald-300">
-                                {{ activeEmployees }}
-                            </span>
-                        </div>
-                        <div class="flex items-center justify-between rounded-lg bg-gray-50/50 px-3 py-2 dark:bg-gray-800/50">
-                            <span class="text-sm font-medium text-gray-600 dark:text-gray-400">Persentase</span>
-                            <span class="text-sm font-semibold text-gray-900 dark:text-white"> {{ activePercentage }}% </span>
+                        <div class="flex h-12 w-12 items-center justify-center rounded-xl bg-green-500/10">
+                            <UserCheck class="h-6 w-6 text-green-600 dark:text-green-400" />
                         </div>
                     </div>
-
-                    <!-- Hover effect overlay -->
-                    <div
-                        class="pointer-events-none absolute inset-0 rounded-xl bg-gradient-to-br from-emerald-500/5 to-teal-500/5 opacity-0 transition-opacity group-hover:opacity-100"
-                    ></div>
-                </div>
-
-                <!-- Departments -->
-                <div
-                    class="group relative overflow-hidden rounded-xl border border-gray-200/50 bg-gradient-to-br from-white to-purple-50/30 p-6 shadow-sm transition-all hover:shadow-md dark:border-gray-800/50 dark:from-gray-950 dark:to-purple-950/30"
-                >
-                    <div class="flex items-start justify-between">
-                        <div class="flex items-center gap-3">
-                            <div class="flex h-10 w-10 items-center justify-center rounded-full bg-purple-500/10 ring-1 ring-purple-500/20">
-                                <Users class="h-5 w-5 text-purple-600 dark:text-purple-400" />
-                            </div>
-                            <div>
-                                <h3 class="font-medium text-gray-900 dark:text-white">Departemen</h3>
-                                <p class="text-sm text-gray-600 dark:text-gray-400">Total departemen aktif</p>
-                            </div>
-                        </div>
-                        <div class="flex h-2 w-2 rounded-full bg-purple-400"></div>
+                    <div class="mt-4">
+                        <p class="text-sm font-medium text-gray-600 dark:text-gray-400">Karyawan Aktif</p>
+                        <p class="mt-1 text-3xl font-bold text-gray-900 dark:text-white">{{ activeEmployees || 0 }}</p>
+                        <p class="mt-1 text-xs text-gray-500 dark:text-gray-500">{{ activePercentage }}% dari total</p>
                     </div>
-
-                    <div class="mt-6 space-y-3">
-                        <div class="flex items-center justify-between rounded-lg bg-purple-50/50 px-3 py-2 dark:bg-purple-950/30">
-                            <span class="text-sm font-medium text-purple-700 dark:text-purple-400">Total</span>
-                            <span class="text-sm font-semibold text-purple-800 dark:text-purple-300">{{ departments.length }}</span>
-                        </div>
-                        <div class="flex items-center justify-between rounded-lg bg-gray-50/50 px-3 py-2 dark:bg-gray-800/50">
-                            <span class="text-sm font-medium text-gray-600 dark:text-gray-400">Posisi</span>
-                            <span class="text-sm font-semibold text-gray-900 dark:text-white">{{ positions.length }}</span>
-                        </div>
-                    </div>
-
-                    <!-- Hover effect overlay -->
-                    <div
-                        class="pointer-events-none absolute inset-0 rounded-xl bg-gradient-to-br from-purple-500/5 to-violet-500/5 opacity-0 transition-opacity group-hover:opacity-100"
-                    ></div>
                 </div>
 
                 <!-- Inactive Employees -->
-                <div
-                    class="group relative overflow-hidden rounded-xl border border-gray-200/50 bg-gradient-to-br from-white to-amber-50/30 p-6 shadow-sm transition-all hover:shadow-md dark:border-gray-800/50 dark:from-gray-950 dark:to-amber-950/30"
-                >
+                <div class="group relative overflow-hidden rounded-2xl bg-white p-6 shadow-sm ring-1 ring-gray-900/5 dark:bg-gray-900 dark:ring-white/10">
                     <div class="flex items-start justify-between">
-                        <div class="flex items-center gap-3">
-                            <div class="flex h-10 w-10 items-center justify-center rounded-full bg-amber-500/10 ring-1 ring-amber-500/20">
-                                <Users class="h-5 w-5 text-amber-600 dark:text-amber-400" />
-                            </div>
-                            <div>
-                                <h3 class="font-medium text-gray-900 dark:text-white">Karyawan Tidak Aktif</h3>
-                                <p class="text-sm text-gray-600 dark:text-gray-400">Karyawan tidak aktif</p>
-                            </div>
-                        </div>
-                        <div class="flex h-2 w-2 rounded-full bg-amber-400"></div>
-                    </div>
-
-                    <div class="mt-6 space-y-3">
-                        <div class="flex items-center justify-between rounded-lg bg-amber-50/50 px-3 py-2 dark:bg-amber-950/30">
-                            <span class="text-sm font-medium text-amber-700 dark:text-amber-400">Tidak Aktif</span>
-                            <span class="text-sm font-semibold text-amber-800 dark:text-amber-300">
-                                {{ inactiveEmployees }}
-                            </span>
-                        </div>
-                        <div class="flex items-center justify-between rounded-lg bg-gray-50/50 px-3 py-2 dark:bg-gray-800/50">
-                            <span class="text-sm font-medium text-gray-600 dark:text-gray-400">Persentase</span>
-                            <span class="text-sm font-semibold text-gray-900 dark:text-white"> {{ inactivePercentage }}% </span>
+                        <div class="flex h-12 w-12 items-center justify-center rounded-xl bg-amber-500/10">
+                            <Users class="h-6 w-6 text-amber-600 dark:text-amber-400" />
                         </div>
                     </div>
+                    <div class="mt-4">
+                        <p class="text-sm font-medium text-gray-600 dark:text-gray-400">Tidak Aktif</p>
+                        <p class="mt-1 text-3xl font-bold text-gray-900 dark:text-white">{{ inactiveEmployees || 0 }}</p>
+                        <p class="mt-1 text-xs text-gray-500 dark:text-gray-500">{{ inactivePercentage }}% dari total</p>
+                    </div>
+                </div>
 
-                    <!-- Hover effect overlay -->
-                    <div
-                        class="pointer-events-none absolute inset-0 rounded-xl bg-gradient-to-br from-amber-500/5 to-orange-500/5 opacity-0 transition-opacity group-hover:opacity-100"
-                    ></div>
+                <!-- Departments Count -->
+                <div class="group relative overflow-hidden rounded-2xl bg-gradient-to-br from-blue-500 to-blue-600 p-6 text-white shadow-lg">
+                    <div class="flex items-start justify-between">
+                        <div class="flex h-12 w-12 items-center justify-center rounded-xl bg-white/20">
+                            <Users class="h-6 w-6 text-white" />
+                        </div>
+                    </div>
+                    <div class="mt-4">
+                        <p class="text-sm font-medium text-blue-100">Total Departemen</p>
+                        <p class="mt-1 text-3xl font-bold text-white">{{ departments.length || 0 }}</p>
+                        <p class="mt-1 text-xs text-blue-100">{{ positions.length }} posisi tersedia</p>
+                    </div>
                 </div>
             </div>
 
             <!-- Filters -->
-            <div
-                class="group relative mb-10 overflow-hidden rounded-xl border border-gray-200/50 bg-gradient-to-br from-white to-gray-50/30 shadow-sm transition-all hover:shadow-md dark:border-gray-800/50 dark:from-gray-950 dark:to-gray-900/30"
-            >
-                <div class="border-b border-gray-200/50 p-6 dark:border-gray-800/50">
-                    <div class="flex items-center gap-3">
-                        <div class="flex h-8 w-8 items-center justify-center rounded-lg bg-gray-500/10 ring-1 ring-gray-500/20">
-                            <Search class="h-4 w-4 text-gray-600 dark:text-gray-400" />
-                        </div>
-                        <div>
-                            <h2 class="text-lg font-semibold text-gray-900 dark:text-white">Filter & Pencarian</h2>
-                            <p class="text-sm text-gray-600 dark:text-gray-400">Filter karyawan berdasarkan kriteria</p>
-                        </div>
-                    </div>
+            <div class="mb-6 overflow-hidden rounded-2xl bg-white shadow-sm ring-1 ring-gray-900/5 dark:bg-gray-900 dark:ring-white/10">
+                <div class="border-b border-gray-200 px-6 py-4 dark:border-gray-700">
+                    <h3 class="text-lg font-semibold text-gray-900 dark:text-white flex items-center">
+                        <Search class="mr-2 h-5 w-5 text-gray-600 dark:text-gray-400" />
+                        Filter & Pencarian
+                    </h3>
                 </div>
                 <div class="p-6">
                     <div class="grid gap-4 md:grid-cols-5">
@@ -483,32 +392,22 @@ const formatDate = (dateString: string) => {
                         </select>
                     </div>
                 </div>
-                <div
-                    class="pointer-events-none absolute inset-0 rounded-xl bg-gradient-to-br from-gray-500/5 to-slate-500/5 opacity-0 transition-opacity group-hover:opacity-100"
-                ></div>
             </div>
 
             <!-- Employee List -->
-            <div
-                class="group relative overflow-hidden rounded-xl border border-gray-200/50 bg-gradient-to-br from-white to-blue-50/30 shadow-sm transition-all hover:shadow-md dark:border-gray-800/50 dark:from-gray-950 dark:to-blue-950/30"
-            >
-                <div class="border-b border-gray-200/50 px-6 py-4 dark:border-gray-800/50">
-                    <div class="flex items-center gap-3">
-                        <div class="flex h-8 w-8 items-center justify-center rounded-lg bg-blue-500/10 ring-1 ring-blue-500/20">
-                            <Users class="h-4 w-4 text-blue-600 dark:text-blue-400" />
-                        </div>
-                        <div>
-                            <h2 class="text-lg font-semibold text-gray-900 dark:text-white">Direktori Karyawan</h2>
-                            <p class="text-sm text-gray-600 dark:text-gray-400">{{ totalEmployees }} karyawan ditemukan</p>
-                        </div>
-                    </div>
+            <div class="overflow-hidden rounded-2xl bg-white shadow-sm ring-1 ring-gray-900/5 dark:bg-gray-900 dark:ring-white/10">
+                <div class="border-b border-gray-200 px-6 py-4 dark:border-gray-700">
+                    <h3 class="text-lg font-semibold text-gray-900 dark:text-white flex items-center">
+                        <Users class="mr-2 h-5 w-5 text-blue-600 dark:text-blue-400" />
+                        Direktori Karyawan
+                    </h3>
                 </div>
 
                 <div class="overflow-x-auto">
-                    <table class="w-full">
-                        <thead class="border-t border-gray-200 dark:border-gray-700">
-                            <tr class="border-b border-gray-200 dark:border-gray-700">
-                                <th class="px-6 py-3 text-left text-sm font-medium text-gray-500 dark:text-gray-400">
+                    <table class="min-w-full divide-y divide-gray-200 dark:divide-gray-700">
+                        <thead class="bg-gray-50 dark:bg-gray-800">
+                            <tr>
+                                <th scope="col" class="px-6 py-3 text-left text-xs font-medium uppercase tracking-wider text-gray-500 dark:text-gray-400">
                                     <button
                                         @click="sortBy('name')"
                                         :class="[
@@ -520,7 +419,7 @@ const formatDate = (dateString: string) => {
                                         <component :is="getSortIcon('name')" class="h-4 w-4" />
                                     </button>
                                 </th>
-                                <th class="px-6 py-3 text-left text-sm font-medium text-gray-500 dark:text-gray-400">
+                                <th scope="col" class="px-6 py-3 text-left text-xs font-medium uppercase tracking-wider text-gray-500 dark:text-gray-400">
                                     <button
                                         @click="sortBy('department')"
                                         :class="[
@@ -532,7 +431,7 @@ const formatDate = (dateString: string) => {
                                         <component :is="getSortIcon('department')" class="h-4 w-4" />
                                     </button>
                                 </th>
-                                <th class="px-6 py-3 text-left text-sm font-medium text-gray-500 dark:text-gray-400">
+                                <th scope="col" class="px-6 py-3 text-left text-xs font-medium uppercase tracking-wider text-gray-500 dark:text-gray-400">
                                     <button
                                         @click="sortBy('position')"
                                         :class="[
@@ -544,7 +443,7 @@ const formatDate = (dateString: string) => {
                                         <component :is="getSortIcon('position')" class="h-4 w-4" />
                                     </button>
                                 </th>
-                                <th class="px-6 py-3 text-left text-sm font-medium text-gray-500 dark:text-gray-400">
+                                <th scope="col" class="px-6 py-3 text-left text-xs font-medium uppercase tracking-wider text-gray-500 dark:text-gray-400">
                                     <button
                                         @click="sortBy('email')"
                                         :class="[
@@ -556,7 +455,7 @@ const formatDate = (dateString: string) => {
                                         <component :is="getSortIcon('email')" class="h-4 w-4" />
                                     </button>
                                 </th>
-                                <th class="px-6 py-3 text-left text-sm font-medium text-gray-500 dark:text-gray-400">
+                                <th scope="col" class="px-6 py-3 text-left text-xs font-medium uppercase tracking-wider text-gray-500 dark:text-gray-400">
                                     <button
                                         @click="sortBy('hire_date')"
                                         :class="[
@@ -568,7 +467,7 @@ const formatDate = (dateString: string) => {
                                         <component :is="getSortIcon('hire_date')" class="h-4 w-4" />
                                     </button>
                                 </th>
-                                <th class="px-6 py-3 text-left text-sm font-medium text-gray-500 dark:text-gray-400">
+                                <th scope="col" class="px-6 py-3 text-left text-xs font-medium uppercase tracking-wider text-gray-500 dark:text-gray-400">
                                     <button
                                         @click="sortBy('status')"
                                         :class="[
@@ -580,15 +479,15 @@ const formatDate = (dateString: string) => {
                                         <component :is="getSortIcon('status')" class="h-4 w-4" />
                                     </button>
                                 </th>
-                                <th class="px-6 py-3 text-left text-sm font-medium text-gray-500 dark:text-gray-400">Shift Default</th>
-                                <th class="px-6 py-3 text-left text-sm font-medium text-gray-500 dark:text-gray-400">Aksi</th>
+                                <th scope="col" class="px-6 py-3 text-left text-xs font-medium uppercase tracking-wider text-gray-500 dark:text-gray-400">Shift Default</th>
+                                <th scope="col" class="px-6 py-3 text-right text-xs font-medium uppercase tracking-wider text-gray-500 dark:text-gray-400">Aksi</th>
                             </tr>
                         </thead>
-                        <tbody>
+                        <tbody class="divide-y divide-gray-200 bg-white dark:divide-gray-700 dark:bg-gray-900">
                             <tr
                                 v-for="employee in employees?.data || []"
                                 :key="employee.id"
-                                class="border-b border-gray-100 hover:bg-gray-50 dark:border-gray-800 dark:hover:bg-gray-900/50"
+                                class="hover:bg-gray-50 dark:hover:bg-gray-800"
                             >
                                 <td class="px-6 py-4">
                                     <div class="flex items-center gap-3">
@@ -653,19 +552,19 @@ const formatDate = (dateString: string) => {
                                         Belum ditugaskan
                                     </div>
                                 </td>
-                                <td class="px-6 py-4">
-                                    <div class="flex items-center gap-2">
+                                <td class="whitespace-nowrap px-6 py-4 text-right text-sm font-medium">
+                                    <div class="flex items-center justify-end gap-2">
                                         <Link
                                             :href="`/employees/${employee.id}/edit?v=${Date.now()}`"
                                             :preserve-state="false"
                                             :preserve-scroll="false"
-                                            class="rounded-lg bg-blue-100 p-2 text-blue-600 hover:bg-blue-200 dark:bg-blue-900/30 dark:text-blue-400 dark:hover:bg-blue-900/50"
+                                            class="inline-flex items-center rounded-lg bg-blue-50 p-2 text-blue-700 hover:bg-blue-100 dark:bg-blue-900/20 dark:text-blue-400 dark:hover:bg-blue-900/30"
                                         >
                                             <Edit class="h-4 w-4" />
                                         </Link>
                                         <button
                                             @click="confirmDelete(employee)"
-                                            class="rounded-lg bg-red-100 p-2 text-red-600 hover:bg-red-200 dark:bg-red-900/30 dark:text-red-400 dark:hover:bg-red-900/50"
+                                            class="inline-flex items-center rounded-lg bg-red-50 p-2 text-red-700 hover:bg-red-100 dark:bg-red-900/20 dark:text-red-400 dark:hover:bg-red-900/30"
                                         >
                                             <Trash2 class="h-4 w-4" />
                                         </button>
@@ -677,7 +576,7 @@ const formatDate = (dateString: string) => {
                 </div>
 
                 <!-- Pagination -->
-                <div v-if="employees?.meta?.total > employees?.meta?.per_page" class="border-t border-gray-200 p-4 dark:border-gray-700">
+                <div v-if="employees?.meta?.total > employees?.meta?.per_page" class="border-t border-gray-200 px-6 py-4 dark:border-gray-700">
                     <div class="flex items-center justify-between">
                         <p class="text-sm text-gray-500 dark:text-gray-400">
                             Menampilkan {{ employees?.meta?.from || 0 }} sampai {{ employees?.meta?.to || 0 }} dari {{ totalEmployees }} hasil
@@ -688,7 +587,7 @@ const formatDate = (dateString: string) => {
                                 :key="link.label"
                                 :href="link.url"
                                 :class="[
-                                    'rounded border px-3 py-1 text-sm',
+                                    'rounded-lg border px-3 py-1 text-sm',
                                     link.active
                                         ? 'border-blue-600 bg-blue-600 text-white'
                                         : 'border-gray-300 text-gray-600 hover:bg-gray-50 dark:border-gray-600 dark:text-gray-300 dark:hover:bg-gray-800',
@@ -699,9 +598,6 @@ const formatDate = (dateString: string) => {
                             </Link>
                         </div>
                     </div>
-                    <div
-                        class="pointer-events-none absolute inset-0 rounded-xl bg-gradient-to-br from-blue-500/5 to-indigo-500/5 opacity-0 transition-opacity group-hover:opacity-100"
-                    ></div>
                 </div>
             </div>
         </div>

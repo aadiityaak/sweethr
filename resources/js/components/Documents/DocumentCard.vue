@@ -1,19 +1,21 @@
 <template>
-    <div class="relative rounded-xl bg-white shadow-sm ring-1 ring-gray-900/5 dark:bg-gray-900 dark:ring-white/10">
+    <div class="group relative overflow-hidden rounded-2xl bg-white shadow-sm ring-1 ring-gray-900/5 transition-all hover:shadow-md dark:bg-gray-900 dark:ring-white/10">
         <div class="p-6">
             <div class="flex items-start justify-between">
                 <div class="flex items-start space-x-4">
-                    <div class="flex h-12 w-12 shrink-0 items-center justify-center rounded-lg bg-blue-100 dark:bg-blue-900/50">
+                    <div class="flex h-12 w-12 shrink-0 items-center justify-center rounded-xl bg-blue-500/10">
                         <FileText class="h-6 w-6 text-blue-600 dark:text-blue-400" />
                     </div>
                     <div class="min-w-0 flex-1">
                         <h3 class="text-lg font-semibold text-gray-900 dark:text-white">
                             {{ document.title }}
                         </h3>
-                        <p class="text-sm text-gray-600 dark:text-gray-400">
+                        <p class="mt-1 text-sm font-medium text-gray-600 dark:text-gray-400">
                             {{ document.document_type?.name }}
                         </p>
-                        <p class="text-sm text-gray-500 dark:text-gray-500">{{ document.user?.name }} ({{ document.user?.employee_id }})</p>
+                        <p class="mt-0.5 text-sm text-gray-500 dark:text-gray-500">
+                            {{ document.user?.name }} · {{ document.user?.employee_id }}
+                        </p>
                     </div>
                 </div>
 
@@ -21,84 +23,84 @@
                     <div class="flex items-center space-x-2">
                         <div
                             v-if="isExpired"
-                            class="inline-flex items-center rounded-full bg-red-100 px-2 py-1 text-xs font-medium text-red-800 dark:bg-red-900/20 dark:text-red-400"
+                            class="inline-flex items-center rounded-full bg-red-100 px-3 py-1 text-xs font-semibold text-red-800 dark:bg-red-900/20 dark:text-red-400"
                         >
                             Kadaluarsa
                         </div>
                         <div
                             v-else-if="isExpiringSoon"
-                            class="inline-flex items-center rounded-full bg-orange-100 px-2 py-1 text-xs font-medium text-orange-800 dark:bg-orange-900/20 dark:text-orange-400"
+                            class="inline-flex items-center rounded-full bg-orange-100 px-3 py-1 text-xs font-semibold text-orange-800 dark:bg-orange-900/20 dark:text-orange-400"
                         >
-                            Akan Kadaluarsa
+                            Segera Kadaluarsa
                         </div>
                         <div
                             v-else
-                            class="inline-flex items-center rounded-full bg-green-100 px-2 py-1 text-xs font-medium text-green-800 dark:bg-green-900/20 dark:text-green-400"
+                            class="inline-flex items-center rounded-full bg-green-100 px-3 py-1 text-xs font-semibold text-green-800 dark:bg-green-900/20 dark:text-green-400"
                         >
                             Aktif
                         </div>
                     </div>
 
                     <!-- Direct Action Buttons -->
-                    <div class="flex items-center space-x-2">
+                    <div class="flex items-center gap-2">
                         <button
                             type="button"
-                            class="inline-flex items-center rounded-md bg-blue-50 px-2 py-1 text-xs font-medium text-blue-700 hover:bg-blue-100 dark:bg-blue-900/20 dark:text-blue-400 dark:hover:bg-blue-900/30"
+                            class="inline-flex items-center rounded-lg bg-blue-50 p-2 text-blue-700 hover:bg-blue-100 dark:bg-blue-900/20 dark:text-blue-400 dark:hover:bg-blue-900/30"
                             @click="handleView"
                             title="Lihat Detail"
                         >
-                            <Eye class="h-3 w-3" />
+                            <Eye class="h-4 w-4" />
                         </button>
 
                         <button
                             type="button"
-                            class="inline-flex items-center rounded-md bg-green-50 px-2 py-1 text-xs font-medium text-green-700 hover:bg-green-100 dark:bg-green-900/20 dark:text-green-400 dark:hover:bg-green-900/30"
+                            class="inline-flex items-center rounded-lg bg-green-50 p-2 text-green-700 hover:bg-green-100 dark:bg-green-900/20 dark:text-green-400 dark:hover:bg-green-900/30"
                             @click="handleDownload"
                             title="Download"
                         >
-                            <Download class="h-3 w-3" />
+                            <Download class="h-4 w-4" />
                         </button>
 
                         <button
                             type="button"
-                            class="inline-flex items-center rounded-md bg-gray-50 px-2 py-1 text-xs font-medium text-gray-700 hover:bg-gray-100 dark:bg-gray-900/20 dark:text-gray-400 dark:hover:bg-gray-900/30"
+                            class="inline-flex items-center rounded-lg bg-gray-50 p-2 text-gray-700 hover:bg-gray-100 dark:bg-gray-900/20 dark:text-gray-400 dark:hover:bg-gray-900/30"
                             @click="handleEdit"
                             title="Edit"
                         >
-                            <SquarePen class="h-3 w-3" />
+                            <SquarePen class="h-4 w-4" />
                         </button>
 
                         <button
                             type="button"
-                            class="inline-flex items-center rounded-md bg-red-50 px-2 py-1 text-xs font-medium text-red-700 hover:bg-red-100 dark:bg-red-900/20 dark:text-red-400 dark:hover:bg-red-900/30"
+                            class="inline-flex items-center rounded-lg bg-red-50 p-2 text-red-700 hover:bg-red-100 dark:bg-red-900/20 dark:text-red-400 dark:hover:bg-red-900/30"
                             @click="handleDelete"
                             title="Hapus"
                         >
-                            <Trash2 class="h-3 w-3" />
+                            <Trash2 class="h-4 w-4" />
                         </button>
                     </div>
                 </div>
             </div>
 
             <!-- Document Details -->
-            <div class="mt-4 grid grid-cols-2 gap-4 text-sm">
+            <div class="mt-6 grid grid-cols-2 gap-4 rounded-xl bg-gray-50 p-4 dark:bg-gray-800/50">
                 <div>
-                    <span class="text-gray-500 dark:text-gray-400">File:</span>
-                    <span class="ml-2 text-gray-900 dark:text-white">{{ document.file_name }}</span>
+                    <p class="text-xs font-medium text-gray-500 dark:text-gray-400">Nama File</p>
+                    <p class="mt-1 text-sm font-medium text-gray-900 dark:text-white">{{ document.file_name }}</p>
                 </div>
                 <div>
-                    <span class="text-gray-500 dark:text-gray-400">Ukuran:</span>
-                    <span class="ml-2 text-gray-900 dark:text-white">{{ formatFileSize(document.file_size) }}</span>
+                    <p class="text-xs font-medium text-gray-500 dark:text-gray-400">Ukuran File</p>
+                    <p class="mt-1 text-sm font-medium text-gray-900 dark:text-white">{{ formatFileSize(document.file_size) }}</p>
                 </div>
                 <div v-if="document.issued_date">
-                    <span class="text-gray-500 dark:text-gray-400">Tanggal Terbit:</span>
-                    <span class="ml-2 text-gray-900 dark:text-white">{{ formatDate(document.issued_date) }}</span>
+                    <p class="text-xs font-medium text-gray-500 dark:text-gray-400">Tanggal Terbit</p>
+                    <p class="mt-1 text-sm font-medium text-gray-900 dark:text-white">{{ formatDate(document.issued_date) }}</p>
                 </div>
                 <div v-if="document.expiry_date">
-                    <span class="text-gray-500 dark:text-gray-400">Kadaluarsa:</span>
-                    <span
+                    <p class="text-xs font-medium text-gray-500 dark:text-gray-400">Tanggal Kadaluarsa</p>
+                    <p
                         :class="[
-                            'ml-2',
+                            'mt-1 text-sm font-medium',
                             isExpired
                                 ? 'text-red-600 dark:text-red-400'
                                 : isExpiringSoon
@@ -107,7 +109,7 @@
                         ]"
                     >
                         {{ formatDate(document.expiry_date) }}
-                    </span>
+                    </p>
                 </div>
             </div>
 
@@ -119,8 +121,11 @@
             </div>
 
             <!-- Upload Info -->
-            <div class="mt-4 flex items-center justify-between text-xs text-gray-500 dark:text-gray-400">
-                <span>Diupload oleh {{ document.uploaded_by?.name }}</span>
+            <div class="mt-4 flex items-center justify-between border-t border-gray-200 pt-4 text-xs text-gray-500 dark:border-gray-700 dark:text-gray-400">
+                <span class="flex items-center gap-1">
+                    <span class="font-medium">Diupload oleh:</span>
+                    <span>{{ document.uploaded_by?.name }}</span>
+                </span>
                 <span>{{ formatDateTime(document.created_at) }}</span>
             </div>
         </div>

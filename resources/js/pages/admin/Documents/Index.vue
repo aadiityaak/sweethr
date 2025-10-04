@@ -2,16 +2,16 @@
     <AppLayout :breadcrumbs="breadcrumbs">
         <div class="mx-auto w-full px-4 py-6 sm:px-6 lg:px-8">
             <!-- Header -->
-            <div class="mb-8">
+            <div class="mb-6">
                 <div class="flex items-center justify-between">
                     <div>
-                        <h1 class="text-3xl font-bold text-gray-900 dark:text-white">Manajemen Dokumen Karyawan</h1>
-                        <p class="mt-1 text-gray-600 dark:text-gray-400">Kelola dan pantau dokumen karyawan perusahaan</p>
+                        <h1 class="text-3xl font-bold text-gray-900 dark:text-white">Manajemen Dokumen</h1>
+                        <p class="mt-1 text-sm text-gray-600 dark:text-gray-400">Kelola dan pantau dokumen karyawan perusahaan</p>
                     </div>
                     <div class="flex gap-3">
                         <button
                             type="button"
-                            class="inline-flex items-center rounded-md bg-white px-3 py-2 text-sm font-semibold text-gray-900 shadow-sm ring-1 ring-gray-300 ring-inset hover:bg-gray-50 dark:bg-gray-800 dark:text-white dark:ring-gray-600 dark:hover:bg-gray-700"
+                            class="inline-flex items-center rounded-xl bg-white px-4 py-2.5 text-sm font-medium text-gray-700 shadow-sm ring-1 ring-gray-200 hover:bg-gray-50 dark:bg-gray-800 dark:text-gray-200 dark:ring-gray-700 dark:hover:bg-gray-700"
                             @click="refreshData"
                         >
                             <RefreshCw class="mr-2 h-4 w-4" />
@@ -19,7 +19,7 @@
                         </button>
                         <Link
                             :href="create.url()"
-                            class="inline-flex items-center rounded-md bg-blue-600 px-3 py-2 text-sm font-semibold text-white shadow-sm hover:bg-blue-500 focus-visible:outline focus-visible:outline-2 focus-visible:outline-offset-2 focus-visible:outline-blue-600"
+                            class="inline-flex items-center rounded-xl bg-blue-600 px-4 py-2.5 text-sm font-semibold text-white shadow-sm hover:bg-blue-500"
                         >
                             <Plus class="mr-2 h-4 w-4" />
                             Upload Dokumen
@@ -29,102 +29,81 @@
             </div>
 
             <!-- Stats Cards -->
-            <div class="mb-10 grid gap-6 md:grid-cols-2">
+            <div class="mb-6 grid gap-4 md:grid-cols-2 lg:grid-cols-4">
                 <!-- Total Documents -->
-                <div
-                    class="group relative overflow-hidden rounded-xl border border-gray-200/50 bg-gradient-to-br from-white to-blue-50/30 p-6 shadow-sm transition-all hover:shadow-md dark:border-gray-800/50 dark:from-gray-950 dark:to-blue-950/30"
-                >
+                <div class="group relative overflow-hidden rounded-2xl bg-white p-6 shadow-sm ring-1 ring-gray-900/5 dark:bg-gray-900 dark:ring-white/10">
                     <div class="flex items-start justify-between">
-                        <div class="flex items-center gap-3">
-                            <div class="flex h-10 w-10 items-center justify-center rounded-full bg-blue-500/10 ring-1 ring-blue-500/20">
-                                <FileText class="h-5 w-5 text-blue-600 dark:text-blue-400" />
-                            </div>
-                            <div>
-                                <h3 class="font-medium text-gray-900 dark:text-white">Total Dokumen</h3>
-                                <p class="text-sm text-gray-600 dark:text-gray-400">Semua dokumen terdaftar</p>
-                            </div>
-                        </div>
-                        <div class="flex h-2 w-2 rounded-full bg-blue-400"></div>
-                    </div>
-
-                    <div class="mt-6 space-y-3">
-                        <div class="flex items-center justify-between rounded-lg bg-blue-50/50 px-3 py-2 dark:bg-blue-950/30">
-                            <span class="text-sm font-medium text-blue-700 dark:text-blue-400">Total</span>
-                            <span class="text-sm font-semibold text-blue-800 dark:text-blue-300">{{ stats.total }}</span>
-                        </div>
-                        <div class="flex items-center justify-between rounded-lg bg-gray-50/50 px-3 py-2 dark:bg-gray-800/50">
-                            <span class="text-sm font-medium text-gray-600 dark:text-gray-400">Aktif</span>
-                            <span class="text-sm font-semibold text-gray-900 dark:text-white">{{ stats.active }}</span>
+                        <div class="flex h-12 w-12 items-center justify-center rounded-xl bg-blue-500/10">
+                            <FileText class="h-6 w-6 text-blue-600 dark:text-blue-400" />
                         </div>
                     </div>
-
-                    <!-- Hover effect overlay -->
-                    <div
-                        class="pointer-events-none absolute inset-0 rounded-xl bg-gradient-to-br from-blue-500/5 to-indigo-500/5 opacity-0 transition-opacity group-hover:opacity-100"
-                    ></div>
+                    <div class="mt-4">
+                        <p class="text-sm font-medium text-gray-600 dark:text-gray-400">Total Dokumen</p>
+                        <p class="mt-1 text-3xl font-bold text-gray-900 dark:text-white">{{ stats.total || 0 }}</p>
+                        <p class="mt-1 text-xs text-gray-500 dark:text-gray-500">Semua dokumen</p>
+                    </div>
                 </div>
 
                 <!-- Active Documents -->
-                <div
-                    class="group relative overflow-hidden rounded-xl border border-gray-200/50 bg-gradient-to-br from-white to-emerald-50/30 p-6 shadow-sm transition-all hover:shadow-md dark:border-gray-800/50 dark:from-gray-950 dark:to-emerald-950/30"
-                >
+                <div class="group relative overflow-hidden rounded-2xl bg-white p-6 shadow-sm ring-1 ring-gray-900/5 dark:bg-gray-900 dark:ring-white/10">
                     <div class="flex items-start justify-between">
-                        <div class="flex items-center gap-3">
-                            <div class="flex h-10 w-10 items-center justify-center rounded-full bg-emerald-500/10 ring-1 ring-emerald-500/20">
-                                <CheckCircle class="h-5 w-5 text-emerald-600 dark:text-emerald-400" />
-                            </div>
-                            <div>
-                                <h3 class="font-medium text-gray-900 dark:text-white">Dokumen Aktif</h3>
-                                <p class="text-sm text-gray-600 dark:text-gray-400">Dokumen yang masih berlaku</p>
-                            </div>
-                        </div>
-                        <div class="flex h-2 w-2 rounded-full bg-emerald-400"></div>
-                    </div>
-
-                    <div class="mt-6 space-y-3">
-                        <div class="flex items-center justify-between rounded-lg bg-emerald-50/50 px-3 py-2 dark:bg-emerald-950/30">
-                            <span class="text-sm font-medium text-emerald-700 dark:text-emerald-400">Aktif</span>
-                            <span class="text-sm font-semibold text-emerald-800 dark:text-emerald-300">{{ stats.active }}</span>
-                        </div>
-                        <div class="flex items-center justify-between rounded-lg bg-gray-50/50 px-3 py-2 dark:bg-gray-800/50">
-                            <span class="text-sm font-medium text-gray-600 dark:text-gray-400">Persentase</span>
-                            <span class="text-sm font-semibold text-gray-900 dark:text-white">
-                                {{ stats.total ? Math.round((stats.active / stats.total) * 100) : 0 }}%
-                            </span>
+                        <div class="flex h-12 w-12 items-center justify-center rounded-xl bg-green-500/10">
+                            <CheckCircle class="h-6 w-6 text-green-600 dark:text-green-400" />
                         </div>
                     </div>
+                    <div class="mt-4">
+                        <p class="text-sm font-medium text-gray-600 dark:text-gray-400">Dokumen Aktif</p>
+                        <p class="mt-1 text-3xl font-bold text-gray-900 dark:text-white">{{ stats.active || 0 }}</p>
+                        <p class="mt-1 text-xs text-gray-500 dark:text-gray-500">Masih berlaku</p>
+                    </div>
+                </div>
 
-                    <!-- Hover effect overlay -->
-                    <div
-                        class="pointer-events-none absolute inset-0 rounded-xl bg-gradient-to-br from-emerald-500/5 to-teal-500/5 opacity-0 transition-opacity group-hover:opacity-100"
-                    ></div>
+                <!-- Expired Documents -->
+                <div class="group relative overflow-hidden rounded-2xl bg-white p-6 shadow-sm ring-1 ring-gray-900/5 dark:bg-gray-900 dark:ring-white/10">
+                    <div class="flex items-start justify-between">
+                        <div class="flex h-12 w-12 items-center justify-center rounded-xl bg-red-500/10">
+                            <AlertTriangle class="h-6 w-6 text-red-600 dark:text-red-400" />
+                        </div>
+                    </div>
+                    <div class="mt-4">
+                        <p class="text-sm font-medium text-gray-600 dark:text-gray-400">Kadaluarsa</p>
+                        <p class="mt-1 text-3xl font-bold text-gray-900 dark:text-white">{{ stats.total - stats.active || 0 }}</p>
+                        <p class="mt-1 text-xs text-gray-500 dark:text-gray-500">Perlu diperbaharui</p>
+                    </div>
+                </div>
+
+                <!-- Active Percentage -->
+                <div class="group relative overflow-hidden rounded-2xl bg-gradient-to-br from-blue-500 to-blue-600 p-6 text-white shadow-lg">
+                    <div class="flex items-start justify-between">
+                        <div class="flex h-12 w-12 items-center justify-center rounded-xl bg-white/20">
+                            <FileText class="h-6 w-6 text-white" />
+                        </div>
+                    </div>
+                    <div class="mt-4">
+                        <p class="text-sm font-medium text-blue-100">Tingkat Keaktifan</p>
+                        <p class="mt-1 text-3xl font-bold text-white">{{ stats.total ? Math.round((stats.active / stats.total) * 100) : 0 }}%</p>
+                        <p class="mt-1 text-xs text-blue-100">Dokumen aktif</p>
+                    </div>
                 </div>
             </div>
 
             <!-- Filters -->
-            <div
-                class="group relative mb-10 overflow-hidden rounded-xl border border-gray-200/50 bg-gradient-to-br from-white to-gray-50/30 shadow-sm transition-all hover:shadow-md dark:border-gray-800/50 dark:from-gray-950 dark:to-gray-900/30"
-            >
-                <div class="border-b border-gray-200/50 p-6 dark:border-gray-800/50">
-                    <div class="flex items-center gap-3">
-                        <div class="flex h-8 w-8 items-center justify-center rounded-lg bg-gray-500/10 ring-1 ring-gray-500/20">
-                            <AlertTriangle class="h-4 w-4 text-gray-600 dark:text-gray-400" />
-                        </div>
-                        <div>
-                            <h2 class="text-lg font-semibold text-gray-900 dark:text-white">Filter & Pencarian</h2>
-                            <p class="text-sm text-gray-600 dark:text-gray-400">Filter dokumen berdasarkan kriteria</p>
-                        </div>
-                    </div>
+            <div class="mb-6 overflow-hidden rounded-2xl bg-white shadow-sm ring-1 ring-gray-900/5 dark:bg-gray-900 dark:ring-white/10">
+                <div class="border-b border-gray-200 px-6 py-4 dark:border-gray-700">
+                    <h3 class="text-lg font-semibold text-gray-900 dark:text-white flex items-center">
+                        <AlertTriangle class="mr-2 h-5 w-5 text-gray-600 dark:text-gray-400" />
+                        Filter & Pencarian
+                    </h3>
                 </div>
                 <div class="p-6">
                     <div class="grid gap-4 md:grid-cols-2">
                         <!-- Employee Filter -->
                         <div>
-                            <label for="user_id" class="block text-sm font-medium text-gray-700 dark:text-gray-300"> Karyawan </label>
+                            <label for="user_id" class="block text-sm font-medium text-gray-700 dark:text-gray-300">Karyawan</label>
                             <select
                                 id="user_id"
                                 v-model="filters.user_id"
-                                class="mt-1 block w-full rounded-md border-0 py-1.5 text-gray-900 shadow-sm ring-1 ring-gray-300 ring-inset focus:ring-2 focus:ring-blue-600 focus:ring-inset sm:text-sm sm:leading-6 dark:bg-gray-800 dark:text-white dark:ring-gray-600"
+                                class="mt-2 block w-full rounded-lg border-0 py-2.5 text-gray-900 shadow-sm ring-1 ring-gray-300 ring-inset focus:ring-2 focus:ring-blue-600 focus:ring-inset sm:text-sm dark:bg-gray-800 dark:text-white dark:ring-gray-600"
                                 @change="applyFilters"
                             >
                                 <option value="">Semua Karyawan</option>
@@ -134,11 +113,11 @@
 
                         <!-- Document Type Filter -->
                         <div>
-                            <label for="document_type_id" class="block text-sm font-medium text-gray-700 dark:text-gray-300"> Jenis Dokumen </label>
+                            <label for="document_type_id" class="block text-sm font-medium text-gray-700 dark:text-gray-300">Jenis Dokumen</label>
                             <select
                                 id="document_type_id"
                                 v-model="filters.document_type_id"
-                                class="mt-1 block w-full rounded-md border-0 py-1.5 text-gray-900 shadow-sm ring-1 ring-gray-300 ring-inset focus:ring-2 focus:ring-blue-600 focus:ring-inset sm:text-sm sm:leading-6 dark:bg-gray-800 dark:text-white dark:ring-gray-600"
+                                class="mt-2 block w-full rounded-lg border-0 py-2.5 text-gray-900 shadow-sm ring-1 ring-gray-300 ring-inset focus:ring-2 focus:ring-blue-600 focus:ring-inset sm:text-sm dark:bg-gray-800 dark:text-white dark:ring-gray-600"
                                 @change="applyFilters"
                             >
                                 <option value="">Semua Jenis</option>
@@ -153,36 +132,159 @@
                     <div class="mt-4">
                         <button
                             type="button"
-                            class="text-sm text-gray-500 hover:text-gray-700 dark:text-gray-400 dark:hover:text-gray-300"
+                            class="text-sm font-medium text-blue-600 hover:text-blue-500 dark:text-blue-400 dark:hover:text-blue-300"
                             @click="clearFilters"
                         >
                             Bersihkan Filter
                         </button>
                     </div>
                 </div>
-                <div
-                    class="pointer-events-none absolute inset-0 rounded-xl bg-gradient-to-br from-gray-500/5 to-slate-500/5 opacity-0 transition-opacity group-hover:opacity-100"
-                ></div>
             </div>
 
-            <!-- Documents List -->
-            <div class="space-y-6">
-                <DocumentCard
-                    v-for="document in documents.data"
-                    :key="document.id"
-                    :document="document"
-                    @view="viewDocument"
-                    @download="downloadDocument"
-                    @edit="editDocument"
-                    @delete="showDeleteModal"
-                />
-            </div>
+            <!-- Documents Table -->
+            <div class="overflow-hidden rounded-2xl bg-white shadow-sm ring-1 ring-gray-900/5 dark:bg-gray-900 dark:ring-white/10">
+                <div class="border-b border-gray-200 px-6 py-4 dark:border-gray-700">
+                    <h3 class="text-lg font-semibold text-gray-900 dark:text-white flex items-center">
+                        <FileText class="mr-2 h-5 w-5 text-blue-600 dark:text-blue-400" />
+                        Daftar Dokumen
+                    </h3>
+                </div>
 
-            <!-- Empty State -->
-            <div v-if="documents.data.length === 0" class="py-12 text-center">
-                <FileText class="mx-auto h-12 w-12 text-gray-400" />
-                <h3 class="mt-2 text-sm font-semibold text-gray-900 dark:text-white">Tidak ada dokumen</h3>
-                <p class="mt-1 text-sm text-gray-500 dark:text-gray-400">Belum ada dokumen yang diupload atau sesuai dengan filter.</p>
+                <!-- Empty State -->
+                <div v-if="documents.data.length === 0" class="py-12 text-center">
+                    <FileText class="mx-auto h-12 w-12 text-gray-400" />
+                    <h3 class="mt-2 text-sm font-semibold text-gray-900 dark:text-white">Tidak ada dokumen</h3>
+                    <p class="mt-1 text-sm text-gray-500 dark:text-gray-400">Belum ada dokumen yang diupload atau sesuai dengan filter.</p>
+                </div>
+
+                <!-- Table -->
+                <div v-else class="overflow-x-auto">
+                    <table class="min-w-full divide-y divide-gray-200 dark:divide-gray-700">
+                        <thead class="bg-gray-50 dark:bg-gray-800">
+                            <tr>
+                                <th scope="col" class="px-6 py-3 text-left text-xs font-medium uppercase tracking-wider text-gray-500 dark:text-gray-400">
+                                    Judul & Karyawan
+                                </th>
+                                <th scope="col" class="px-6 py-3 text-left text-xs font-medium uppercase tracking-wider text-gray-500 dark:text-gray-400">
+                                    Jenis Dokumen
+                                </th>
+                                <th scope="col" class="px-6 py-3 text-left text-xs font-medium uppercase tracking-wider text-gray-500 dark:text-gray-400">
+                                    File Info
+                                </th>
+                                <th scope="col" class="px-6 py-3 text-left text-xs font-medium uppercase tracking-wider text-gray-500 dark:text-gray-400">
+                                    Tanggal
+                                </th>
+                                <th scope="col" class="px-6 py-3 text-left text-xs font-medium uppercase tracking-wider text-gray-500 dark:text-gray-400">
+                                    Status
+                                </th>
+                                <th scope="col" class="px-6 py-3 text-right text-xs font-medium uppercase tracking-wider text-gray-500 dark:text-gray-400">
+                                    Aksi
+                                </th>
+                            </tr>
+                        </thead>
+                        <tbody class="divide-y divide-gray-200 bg-white dark:divide-gray-700 dark:bg-gray-900">
+                            <tr v-for="document in documents.data" :key="document.id" class="hover:bg-gray-50 dark:hover:bg-gray-800">
+                                <td class="whitespace-nowrap px-6 py-4">
+                                    <div class="flex items-center">
+                                        <div class="flex h-10 w-10 shrink-0 items-center justify-center rounded-lg bg-blue-500/10">
+                                            <FileText class="h-5 w-5 text-blue-600 dark:text-blue-400" />
+                                        </div>
+                                        <div class="ml-4">
+                                            <div class="text-sm font-medium text-gray-900 dark:text-white">{{ document.title }}</div>
+                                            <div class="text-sm text-gray-500 dark:text-gray-400">
+                                                {{ document.user?.name }} · {{ document.user?.employee_id }}
+                                            </div>
+                                        </div>
+                                    </div>
+                                </td>
+                                <td class="whitespace-nowrap px-6 py-4">
+                                    <div class="text-sm text-gray-900 dark:text-white">{{ document.document_type?.name }}</div>
+                                </td>
+                                <td class="whitespace-nowrap px-6 py-4">
+                                    <div class="text-sm text-gray-900 dark:text-white">{{ document.file_name }}</div>
+                                    <div class="text-sm text-gray-500 dark:text-gray-400">{{ formatFileSize(document.file_size) }}</div>
+                                </td>
+                                <td class="whitespace-nowrap px-6 py-4 text-sm">
+                                    <div v-if="document.issued_date" class="text-gray-900 dark:text-white">
+                                        Terbit: {{ formatDate(document.issued_date) }}
+                                    </div>
+                                    <div
+                                        v-if="document.expiry_date"
+                                        :class="[
+                                            'text-sm',
+                                            isExpired(document)
+                                                ? 'text-red-600 dark:text-red-400'
+                                                : isExpiringSoon(document)
+                                                  ? 'text-orange-600 dark:text-orange-400'
+                                                  : 'text-gray-900 dark:text-white',
+                                        ]"
+                                    >
+                                        Exp: {{ formatDate(document.expiry_date) }}
+                                    </div>
+                                </td>
+                                <td class="whitespace-nowrap px-6 py-4">
+                                    <span
+                                        v-if="isExpired(document)"
+                                        class="inline-flex rounded-full bg-red-100 px-3 py-1 text-xs font-semibold text-red-800 dark:bg-red-900/20 dark:text-red-400"
+                                    >
+                                        Kadaluarsa
+                                    </span>
+                                    <span
+                                        v-else-if="isExpiringSoon(document)"
+                                        class="inline-flex rounded-full bg-orange-100 px-3 py-1 text-xs font-semibold text-orange-800 dark:bg-orange-900/20 dark:text-orange-400"
+                                    >
+                                        Segera Exp
+                                    </span>
+                                    <span
+                                        v-else
+                                        class="inline-flex rounded-full bg-green-100 px-3 py-1 text-xs font-semibold text-green-800 dark:bg-green-900/20 dark:text-green-400"
+                                    >
+                                        Aktif
+                                    </span>
+                                </td>
+                                <td class="whitespace-nowrap px-6 py-4 text-right text-sm font-medium">
+                                    <div class="flex items-center justify-end gap-2">
+                                        <button
+                                            type="button"
+                                            class="inline-flex items-center rounded-lg bg-blue-50 p-2 text-blue-700 hover:bg-blue-100 dark:bg-blue-900/20 dark:text-blue-400 dark:hover:bg-blue-900/30"
+                                            @click="viewDocument(document)"
+                                            title="Lihat Detail"
+                                        >
+                                            <Eye class="h-4 w-4" />
+                                        </button>
+
+                                        <button
+                                            type="button"
+                                            class="inline-flex items-center rounded-lg bg-green-50 p-2 text-green-700 hover:bg-green-100 dark:bg-green-900/20 dark:text-green-400 dark:hover:bg-green-900/30"
+                                            @click="downloadDocument(document)"
+                                            title="Download"
+                                        >
+                                            <Download class="h-4 w-4" />
+                                        </button>
+
+                                        <button
+                                            type="button"
+                                            class="inline-flex items-center rounded-lg bg-gray-50 p-2 text-gray-700 hover:bg-gray-100 dark:bg-gray-900/20 dark:text-gray-400 dark:hover:bg-gray-900/30"
+                                            @click="editDocument(document)"
+                                            title="Edit"
+                                        >
+                                            <SquarePen class="h-4 w-4" />
+                                        </button>
+
+                                        <button
+                                            type="button"
+                                            class="inline-flex items-center rounded-lg bg-red-50 p-2 text-red-700 hover:bg-red-100 dark:bg-red-900/20 dark:text-red-400 dark:hover:bg-red-900/30"
+                                            @click="showDeleteModal(document)"
+                                            title="Hapus"
+                                        >
+                                            <Trash2 class="h-4 w-4" />
+                                        </button>
+                                    </div>
+                                </td>
+                            </tr>
+                        </tbody>
+                    </table>
+                </div>
             </div>
 
             <!-- Pagination -->
@@ -207,14 +309,13 @@
 
 <script setup lang="ts">
 import ConfirmationModal from '@/components/ConfirmationModal.vue';
-import DocumentCard from '@/components/Documents/DocumentCard.vue';
 import Pagination from '@/components/Pagination.vue';
 import { useToast } from '@/components/ui/toast/use-toast';
 import AppLayout from '@/layouts/AppLayout.vue';
 import { dashboard } from '@/routes/admin';
 import { create, destroy, index as documentsIndex, download, edit, show } from '@/routes/admin/documents';
 import { Link, router } from '@inertiajs/vue3';
-import { AlertTriangle, CheckCircle, FileText, Plus, RefreshCw } from 'lucide-vue-next';
+import { AlertTriangle, CheckCircle, Download, Eye, FileText, Plus, RefreshCw, SquarePen, Trash2 } from 'lucide-vue-next';
 import { reactive, ref } from 'vue';
 
 interface Props {
@@ -235,9 +336,9 @@ const props = defineProps<Props>();
 const { toast } = useToast();
 
 const breadcrumbs = [
-    { name: 'Dashboard', href: dashboard.url() },
-    { name: 'Manajemen Karyawan', href: '#' },
-    { name: 'Dokumen Karyawan', href: documentsIndex.url(), current: true },
+    { title: 'Dashboard', href: dashboard.url() },
+    { title: 'Manajemen Karyawan', href: '#' },
+    { title: 'Dokumen Karyawan', href: documentsIndex.url() },
 ];
 
 const filters = reactive({
@@ -319,6 +420,35 @@ const handleDeleteDocument = () => {
                 duration: 4000,
             });
         },
+    });
+};
+
+const isExpired = (document: any) => {
+    if (!document.expiry_date) return false;
+    return new Date(document.expiry_date) < new Date();
+};
+
+const isExpiringSoon = (document: any) => {
+    if (!document.expiry_date || isExpired(document)) return false;
+    const expiryDate = new Date(document.expiry_date);
+    const today = new Date();
+    const thirtyDaysFromNow = new Date(today.getTime() + 30 * 24 * 60 * 60 * 1000);
+    return expiryDate <= thirtyDaysFromNow;
+};
+
+const formatFileSize = (bytes: number): string => {
+    if (bytes === 0) return '0 Bytes';
+    const k = 1024;
+    const sizes = ['Bytes', 'KB', 'MB', 'GB'];
+    const i = Math.floor(Math.log(bytes) / Math.log(k));
+    return parseFloat((bytes / Math.pow(k, i)).toFixed(2)) + ' ' + sizes[i];
+};
+
+const formatDate = (dateString: string): string => {
+    return new Date(dateString).toLocaleDateString('id-ID', {
+        year: 'numeric',
+        month: 'short',
+        day: 'numeric',
     });
 };
 </script>
