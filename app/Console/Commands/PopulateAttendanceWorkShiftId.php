@@ -88,7 +88,7 @@ class PopulateAttendanceWorkShiftId extends Command
         $this->newLine(2);
 
         if ($isDryRun) {
-            $this->info("DRY RUN completed:");
+            $this->info('DRY RUN completed:');
             $this->info("  - {$updated} records would be updated");
             $this->info("  - {$skipped} records would be skipped (no shift assignment found)");
             $this->newLine();

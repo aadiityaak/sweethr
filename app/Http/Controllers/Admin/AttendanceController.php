@@ -11,7 +11,6 @@ use App\Models\OfficeLocation;
 use App\Models\User;
 use Carbon\Carbon;
 use Illuminate\Http\Request;
-use Illuminate\Support\Facades\Log;
 use Inertia\Inertia;
 use Inertia\Response;
 use Maatwebsite\Excel\Facades\Excel;
@@ -208,10 +207,6 @@ class AttendanceController extends Controller
                 $workShift = null;
                 if ($record->work_shift_id) {
                     $workShift = \App\Models\WorkShift::find($record->work_shift_id);
-                    Log::debug('Using saved work_shift_id for attendance '.$record->id, [
-                        'work_shift_id' => $record->work_shift_id,
-                        'shift_name' => $workShift?->name,
-                    ]);
                 }
 
                 // FALLBACK: Get user's assigned shift for the attendance date
@@ -226,12 +221,6 @@ class AttendanceController extends Controller
                         ->first();
 
                     $workShift = $shift?->workShift;
-
-                    Log::debug('Fallback to assigned shift for attendance '.$record->id, [
-                        'attendance_date' => $record->date,
-                        'employee_shift_found' => $shift ? 'yes' : 'no',
-                        'shift_name' => $workShift?->name,
-                    ]);
                 }
 
                 if ($workShift) {
