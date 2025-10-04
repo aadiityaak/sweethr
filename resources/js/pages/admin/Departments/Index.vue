@@ -4,16 +4,16 @@
     <AppLayout :breadcrumbs="breadcrumbs">
         <div class="mx-auto w-full px-4 py-6 sm:px-6 lg:px-8">
             <!-- Header -->
-            <div class="mb-8">
+            <div class="mb-6">
                 <div class="flex items-center justify-between">
                     <div>
                         <h1 class="text-3xl font-bold text-gray-900 dark:text-white">Kelola Departemen</h1>
-                        <p class="mt-1 text-gray-600 dark:text-gray-400">Kelola struktur organisasi dan departemen perusahaan</p>
+                        <p class="mt-1 text-sm text-gray-600 dark:text-gray-400">Kelola struktur organisasi dan departemen perusahaan</p>
                     </div>
                     <div class="flex gap-3">
                         <Link
                             href="/admin/departments/create"
-                            class="inline-flex items-center gap-2 rounded-lg bg-blue-600 px-4 py-2 text-sm font-medium text-white shadow-sm transition-colors hover:bg-blue-700 focus:ring-2 focus:ring-blue-500 focus:ring-offset-2 focus:outline-none"
+                            class="inline-flex items-center gap-2 rounded-xl bg-blue-600 px-4 py-2.5 text-sm font-semibold text-white shadow-sm hover:bg-blue-500"
                         >
                             <Plus class="h-4 w-4" />
                             Tambah Departemen
@@ -22,165 +22,76 @@
                 </div>
             </div>
 
-            <!-- Overview Cards -->
-            <div class="mb-10 grid gap-6 md:grid-cols-2 lg:grid-cols-4">
+            <!-- Stats Cards -->
+            <div class="mb-6 grid gap-4 md:grid-cols-2 lg:grid-cols-4">
                 <!-- Total Departments -->
-                <div
-                    class="group relative overflow-hidden rounded-xl border border-gray-200/50 bg-gradient-to-br from-white to-blue-50/30 p-6 shadow-sm transition-all hover:shadow-md dark:border-gray-800/50 dark:from-gray-950 dark:to-blue-950/30"
-                >
+                <div class="group relative overflow-hidden rounded-2xl bg-white p-6 shadow-sm ring-1 ring-gray-900/5 dark:bg-gray-900 dark:ring-white/10">
                     <div class="flex items-start justify-between">
-                        <div class="flex items-center gap-3">
-                            <div class="flex h-10 w-10 items-center justify-center rounded-full bg-blue-500/10 ring-1 ring-blue-500/20">
-                                <Building class="h-5 w-5 text-blue-600 dark:text-blue-400" />
-                            </div>
-                            <div>
-                                <h3 class="font-medium text-gray-900 dark:text-white">Total Departemen</h3>
-                                <p class="text-sm text-gray-600 dark:text-gray-400">Semua departemen terdaftar</p>
-                            </div>
-                        </div>
-                        <div class="flex h-2 w-2 rounded-full bg-blue-400"></div>
-                    </div>
-
-                    <div class="mt-6 space-y-3">
-                        <div class="flex items-center justify-between rounded-lg bg-blue-50/50 px-3 py-2 dark:bg-blue-950/30">
-                            <span class="text-sm font-medium text-blue-700 dark:text-blue-400">Total</span>
-                            <span class="text-sm font-semibold text-blue-800 dark:text-blue-300">{{ stats.total_departments }}</span>
-                        </div>
-                        <div class="flex items-center justify-between rounded-lg bg-gray-50/50 px-3 py-2 dark:bg-gray-800/50">
-                            <span class="text-sm font-medium text-gray-600 dark:text-gray-400">Aktif</span>
-                            <span class="text-sm font-semibold text-gray-900 dark:text-white">{{ stats.active_departments }}</span>
+                        <div class="flex h-12 w-12 items-center justify-center rounded-xl bg-blue-500/10">
+                            <Building class="h-6 w-6 text-blue-600 dark:text-blue-400" />
                         </div>
                     </div>
-
-                    <!-- Hover effect overlay -->
-                    <div
-                        class="pointer-events-none absolute inset-0 rounded-xl bg-gradient-to-br from-blue-500/5 to-indigo-500/5 opacity-0 transition-opacity group-hover:opacity-100"
-                    ></div>
+                    <div class="mt-4">
+                        <p class="text-sm font-medium text-gray-600 dark:text-gray-400">Total Departemen</p>
+                        <p class="mt-1 text-3xl font-bold text-gray-900 dark:text-white">{{ stats.total_departments || 0 }}</p>
+                        <p class="mt-1 text-xs text-gray-500 dark:text-gray-500">{{ stats.active_departments }} aktif</p>
+                    </div>
                 </div>
 
                 <!-- Active Departments -->
-                <div
-                    class="group relative overflow-hidden rounded-xl border border-gray-200/50 bg-gradient-to-br from-white to-emerald-50/30 p-6 shadow-sm transition-all hover:shadow-md dark:border-gray-800/50 dark:from-gray-950 dark:to-emerald-950/30"
-                >
+                <div class="group relative overflow-hidden rounded-2xl bg-white p-6 shadow-sm ring-1 ring-gray-900/5 dark:bg-gray-900 dark:ring-white/10">
                     <div class="flex items-start justify-between">
-                        <div class="flex items-center gap-3">
-                            <div class="flex h-10 w-10 items-center justify-center rounded-full bg-emerald-500/10 ring-1 ring-emerald-500/20">
-                                <CheckCircle class="h-5 w-5 text-emerald-600 dark:text-emerald-400" />
-                            </div>
-                            <div>
-                                <h3 class="font-medium text-gray-900 dark:text-white">Departemen Aktif</h3>
-                                <p class="text-sm text-gray-600 dark:text-gray-400">Departemen yang sedang aktif</p>
-                            </div>
-                        </div>
-                        <div class="flex h-2 w-2 rounded-full bg-emerald-400"></div>
-                    </div>
-
-                    <div class="mt-6 space-y-3">
-                        <div class="flex items-center justify-between rounded-lg bg-emerald-50/50 px-3 py-2 dark:bg-emerald-950/30">
-                            <span class="text-sm font-medium text-emerald-700 dark:text-emerald-400">Aktif</span>
-                            <span class="text-sm font-semibold text-emerald-800 dark:text-emerald-300">{{ stats.active_departments }}</span>
-                        </div>
-                        <div class="flex items-center justify-between rounded-lg bg-gray-50/50 px-3 py-2 dark:bg-gray-800/50">
-                            <span class="text-sm font-medium text-gray-600 dark:text-gray-400">Persentase</span>
-                            <span class="text-sm font-semibold text-gray-900 dark:text-white">
-                                {{ stats.total_departments ? Math.round((stats.active_departments / stats.total_departments) * 100) : 0 }}%
-                            </span>
+                        <div class="flex h-12 w-12 items-center justify-center rounded-xl bg-green-500/10">
+                            <CheckCircle class="h-6 w-6 text-green-600 dark:text-green-400" />
                         </div>
                     </div>
-
-                    <!-- Hover effect overlay -->
-                    <div
-                        class="pointer-events-none absolute inset-0 rounded-xl bg-gradient-to-br from-emerald-500/5 to-teal-500/5 opacity-0 transition-opacity group-hover:opacity-100"
-                    ></div>
+                    <div class="mt-4">
+                        <p class="text-sm font-medium text-gray-600 dark:text-gray-400">Departemen Aktif</p>
+                        <p class="mt-1 text-3xl font-bold text-gray-900 dark:text-white">{{ stats.active_departments || 0 }}</p>
+                        <p class="mt-1 text-xs text-gray-500 dark:text-gray-500">
+                            {{ stats.total_departments ? Math.round((stats.active_departments / stats.total_departments) * 100) : 0 }}% dari total
+                        </p>
+                    </div>
                 </div>
 
                 <!-- Inactive Departments -->
-                <div
-                    class="group relative overflow-hidden rounded-xl border border-gray-200/50 bg-gradient-to-br from-white to-amber-50/30 p-6 shadow-sm transition-all hover:shadow-md dark:border-gray-800/50 dark:from-gray-950 dark:to-amber-950/30"
-                >
+                <div class="group relative overflow-hidden rounded-2xl bg-white p-6 shadow-sm ring-1 ring-gray-900/5 dark:bg-gray-900 dark:ring-white/10">
                     <div class="flex items-start justify-between">
-                        <div class="flex items-center gap-3">
-                            <div class="flex h-10 w-10 items-center justify-center rounded-full bg-amber-500/10 ring-1 ring-amber-500/20">
-                                <XCircle class="h-5 w-5 text-amber-600 dark:text-amber-400" />
-                            </div>
-                            <div>
-                                <h3 class="font-medium text-gray-900 dark:text-white">Departemen Nonaktif</h3>
-                                <p class="text-sm text-gray-600 dark:text-gray-400">Departemen yang tidak aktif</p>
-                            </div>
-                        </div>
-                        <div class="flex h-2 w-2 rounded-full bg-amber-400"></div>
-                    </div>
-
-                    <div class="mt-6 space-y-3">
-                        <div class="flex items-center justify-between rounded-lg bg-amber-50/50 px-3 py-2 dark:bg-amber-950/30">
-                            <span class="text-sm font-medium text-amber-700 dark:text-amber-400">Nonaktif</span>
-                            <span class="text-sm font-semibold text-amber-800 dark:text-amber-300">{{ stats.inactive_departments }}</span>
-                        </div>
-                        <div class="flex items-center justify-between rounded-lg bg-gray-50/50 px-3 py-2 dark:bg-gray-800/50">
-                            <span class="text-sm font-medium text-gray-600 dark:text-gray-400">Persentase</span>
-                            <span class="text-sm font-semibold text-gray-900 dark:text-white">
-                                {{ stats.total_departments ? Math.round((stats.inactive_departments / stats.total_departments) * 100) : 0 }}%
-                            </span>
+                        <div class="flex h-12 w-12 items-center justify-center rounded-xl bg-amber-500/10">
+                            <XCircle class="h-6 w-6 text-amber-600 dark:text-amber-400" />
                         </div>
                     </div>
-
-                    <!-- Hover effect overlay -->
-                    <div
-                        class="pointer-events-none absolute inset-0 rounded-xl bg-gradient-to-br from-amber-500/5 to-orange-500/5 opacity-0 transition-opacity group-hover:opacity-100"
-                    ></div>
+                    <div class="mt-4">
+                        <p class="text-sm font-medium text-gray-600 dark:text-gray-400">Nonaktif</p>
+                        <p class="mt-1 text-3xl font-bold text-gray-900 dark:text-white">{{ stats.inactive_departments || 0 }}</p>
+                        <p class="mt-1 text-xs text-gray-500 dark:text-gray-500">
+                            {{ stats.total_departments ? Math.round((stats.inactive_departments / stats.total_departments) * 100) : 0 }}% dari total
+                        </p>
+                    </div>
                 </div>
 
                 <!-- With Managers -->
-                <div
-                    class="group relative overflow-hidden rounded-xl border border-gray-200/50 bg-gradient-to-br from-white to-purple-50/30 p-6 shadow-sm transition-all hover:shadow-md dark:border-gray-800/50 dark:from-gray-950 dark:to-purple-950/30"
-                >
+                <div class="group relative overflow-hidden rounded-2xl bg-gradient-to-br from-blue-500 to-blue-600 p-6 text-white shadow-lg">
                     <div class="flex items-start justify-between">
-                        <div class="flex items-center gap-3">
-                            <div class="flex h-10 w-10 items-center justify-center rounded-full bg-purple-500/10 ring-1 ring-purple-500/20">
-                                <Users class="h-5 w-5 text-purple-600 dark:text-purple-400" />
-                            </div>
-                            <div>
-                                <h3 class="font-medium text-gray-900 dark:text-white">Dengan Manajer</h3>
-                                <p class="text-sm text-gray-600 dark:text-gray-400">Departemen yang memiliki manajer</p>
-                            </div>
-                        </div>
-                        <div class="flex h-2 w-2 rounded-full bg-purple-400"></div>
-                    </div>
-
-                    <div class="mt-6 space-y-3">
-                        <div class="flex items-center justify-between rounded-lg bg-purple-50/50 px-3 py-2 dark:bg-purple-950/30">
-                            <span class="text-sm font-medium text-purple-700 dark:text-purple-400">Dengan Manajer</span>
-                            <span class="text-sm font-semibold text-purple-800 dark:text-purple-300">{{ stats.departments_with_managers }}</span>
-                        </div>
-                        <div class="flex items-center justify-between rounded-lg bg-gray-50/50 px-3 py-2 dark:bg-gray-800/50">
-                            <span class="text-sm font-medium text-gray-600 dark:text-gray-400">Tanpa Manajer</span>
-                            <span class="text-sm font-semibold text-gray-900 dark:text-white">{{
-                                stats.total_departments - stats.departments_with_managers
-                            }}</span>
+                        <div class="flex h-12 w-12 items-center justify-center rounded-xl bg-white/20">
+                            <Users class="h-6 w-6 text-white" />
                         </div>
                     </div>
-
-                    <!-- Hover effect overlay -->
-                    <div
-                        class="pointer-events-none absolute inset-0 rounded-xl bg-gradient-to-br from-purple-500/5 to-violet-500/5 opacity-0 transition-opacity group-hover:opacity-100"
-                    ></div>
+                    <div class="mt-4">
+                        <p class="text-sm font-medium text-blue-100">Dengan Manajer</p>
+                        <p class="mt-1 text-3xl font-bold text-white">{{ stats.departments_with_managers || 0 }}</p>
+                        <p class="mt-1 text-xs text-blue-100">{{ stats.total_departments - stats.departments_with_managers }} tanpa manajer</p>
+                    </div>
                 </div>
             </div>
 
             <!-- Filters -->
-            <div
-                class="group relative mb-10 overflow-hidden rounded-xl border border-gray-200/50 bg-gradient-to-br from-white to-gray-50/30 shadow-sm transition-all hover:shadow-md dark:border-gray-800/50 dark:from-gray-950 dark:to-gray-900/30"
-            >
-                <div class="border-b border-gray-200/50 p-6 dark:border-gray-800/50">
-                    <div class="flex items-center gap-3">
-                        <div class="flex h-8 w-8 items-center justify-center rounded-lg bg-gray-500/10 ring-1 ring-gray-500/20">
-                            <FilterX class="h-4 w-4 text-gray-600 dark:text-gray-400" />
-                        </div>
-                        <div>
-                            <h2 class="text-lg font-semibold text-gray-900 dark:text-white">Filter & Pencarian</h2>
-                            <p class="text-sm text-gray-600 dark:text-gray-400">Filter departemen berdasarkan kriteria</p>
-                        </div>
-                    </div>
+            <div class="mb-6 overflow-hidden rounded-2xl bg-white shadow-sm ring-1 ring-gray-900/5 dark:bg-gray-900 dark:ring-white/10">
+                <div class="border-b border-gray-200 px-6 py-4 dark:border-gray-700">
+                    <h3 class="text-lg font-semibold text-gray-900 dark:text-white flex items-center">
+                        <FilterX class="mr-2 h-5 w-5 text-gray-600 dark:text-gray-400" />
+                        Filter & Pencarian
+                    </h3>
                 </div>
                 <div class="p-6">
                     <div class="grid gap-4 md:grid-cols-4">
