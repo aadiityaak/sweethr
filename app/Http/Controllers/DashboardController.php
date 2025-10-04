@@ -13,7 +13,6 @@ use App\Models\User;
 use App\Services\FaceRecognitionService;
 use Carbon\Carbon;
 use Illuminate\Support\Facades\Log;
-use Illuminate\Support\Facades\Storage;
 use Inertia\Inertia;
 use Inertia\Response;
 
@@ -22,6 +21,7 @@ class DashboardController extends Controller
     public function __construct(
         private FaceRecognitionService $faceRecognitionService
     ) {}
+
     public function index(): Response
     {
         $user = auth()->user();
@@ -169,7 +169,7 @@ class DashboardController extends Controller
             'user_id' => $user->id,
             'face_recognition_enabled' => $faceRecognitionEnabled,
             'face_setup_at' => $user->face_setup_at,
-            'has_face_descriptors' => !empty($user->face_descriptors),
+            'has_face_descriptors' => ! empty($user->face_descriptors),
         ]);
 
         if ($faceRecognitionEnabled) {
@@ -197,9 +197,9 @@ class DashboardController extends Controller
             'face_recognition_enabled' => $userData['face_recognition_enabled'],
             'face_recognition_mandatory' => $userData['face_recognition_mandatory'],
             'face_setup_at' => $userData['face_setup_at'],
-            'has_face_descriptors' => !empty($user->face_descriptors),
+            'has_face_descriptors' => ! empty($user->face_descriptors),
             'faceRecognitionEnabled_prop' => $faceRecognitionEnabled,
-            'faceDescriptors_available' => !empty($faceDescriptors),
+            'faceDescriptors_available' => ! empty($faceDescriptors),
         ]);
 
         return Inertia::render('user/Welcome', [
@@ -219,6 +219,8 @@ class DashboardController extends Controller
     {
         $currentMonth = Carbon::now()->month;
         $currentYear = Carbon::now()->year;
+        $lastMonth = Carbon::now()->subMonth()->month;
+        $lastMonthYear = Carbon::now()->subMonth()->year;
 
         if ($user->is_admin) {
             // Admin stats - company-wide
@@ -226,12 +228,119 @@ class DashboardController extends Controller
                 'total_employees' => User::where('employment_status', 'active')->count(),
                 'departments_count' => Department::active()->count(),
                 'today_present' => Attendance::whereDate('date', Carbon::today())
-                    ->where('status', 'present')
+                    ->whereIn('status', ['present', 'late'])
                     ->count(),
                 'monthly_attendance_rate' => $this->calculateMonthlyAttendanceRate(),
                 'pending_leave_requests' => LeaveRequest::pending()->count(),
                 'monthly_overtime_hours' => $this->calculateMonthlyOvertimeHours(),
             ];
+
+            // Late employees today with details
+            $lateToday = Attendance::whereDate('date', Carbon::today())
+                ->where('status', 'late')
+                ->with(['user:id,name,employee_id,department_id', 'user.department:id,name'])
+                ->get()
+                ->map(function ($attendance) {
+                    return [
+                        'id' => $attendance->user->id,
+                        'name' => $attendance->user->name,
+                        'employee_id' => $attendance->user->employee_id,
+                        'department' => $attendance->user->department->name ?? 'N/A',
+                        'check_in_time' => $attendance->check_in_time,
+                        'late_duration' => $attendance->late_duration,
+                    ];
+                });
+
+            $stats['late_today'] = $lateToday;
+            $stats['late_today_count'] = $lateToday->count();
+
+            // Employees on leave today
+            $onLeaveToday = LeaveRequest::where('status', 'approved')
+                ->whereDate('start_date', '<=', Carbon::today())
+                ->whereDate('end_date', '>=', Carbon::today())
+                ->with(['user:id,name,employee_id', 'leaveType:id,name'])
+                ->get()
+                ->map(function ($leave) {
+                    return [
+                        'user_name' => $leave->user->name,
+                        'employee_id' => $leave->user->employee_id,
+                        'leave_type' => $leave->leaveType->name,
+                    ];
+                });
+
+            $stats['on_leave_today'] = $onLeaveToday;
+            $stats['on_leave_today_count'] = $onLeaveToday->count();
+
+            // Trend comparison: This month vs Last month
+            $currentMonthAttendanceRate = $this->calculateMonthlyAttendanceRate();
+            $lastMonthAttendanceRate = $this->calculateMonthlyAttendanceRate($lastMonth, $lastMonthYear);
+
+            $currentMonthLateCount = Attendance::whereMonth('date', $currentMonth)
+                ->whereYear('date', $currentYear)
+                ->where('status', 'late')
+                ->count();
+
+            $lastMonthLateCount = Attendance::whereMonth('date', $lastMonth)
+                ->whereYear('date', $lastMonthYear)
+                ->where('status', 'late')
+                ->count();
+
+            $stats['trend_comparison'] = [
+                'attendance_rate' => [
+                    'current' => $currentMonthAttendanceRate,
+                    'last' => $lastMonthAttendanceRate,
+                    'change' => $currentMonthAttendanceRate - $lastMonthAttendanceRate,
+                ],
+                'late_count' => [
+                    'current' => $currentMonthLateCount,
+                    'last' => $lastMonthLateCount,
+                    'change' => $currentMonthLateCount - $lastMonthLateCount,
+                ],
+            ];
+
+            // Alerts for anomalies
+            $alerts = collect([]);
+
+            // Alert: Employees late more than 3 times this week
+            $weekStart = Carbon::now()->startOfWeek();
+            $frequentLateEmployees = Attendance::whereBetween('date', [$weekStart, Carbon::today()])
+                ->where('status', 'late')
+                ->with('user:id,name,employee_id')
+                ->get()
+                ->groupBy('user_id')
+                ->filter(fn ($group) => $group->count() >= 3)
+                ->map(fn ($group) => [
+                    'type' => 'frequent_late',
+                    'severity' => 'high',
+                    'user_name' => $group->first()->user->name,
+                    'employee_id' => $group->first()->user->employee_id,
+                    'count' => $group->count(),
+                    'message' => "{$group->first()->user->name} terlambat {$group->count()}x minggu ini",
+                ])
+                ->values();
+
+            $alerts = $alerts->concat($frequentLateEmployees);
+
+            // Alert: Low attendance rate (below 80%)
+            if ($currentMonthAttendanceRate < 80) {
+                $alerts->push([
+                    'type' => 'low_attendance',
+                    'severity' => 'medium',
+                    'message' => "Tingkat kehadiran bulan ini rendah ({$currentMonthAttendanceRate}%)",
+                ]);
+            }
+
+            // Alert: High pending leave requests
+            $pendingCount = LeaveRequest::pending()->count();
+            if ($pendingCount > 10) {
+                $alerts->push([
+                    'type' => 'pending_leaves',
+                    'severity' => 'medium',
+                    'message' => "{$pendingCount} pengajuan cuti menunggu persetujuan",
+                ]);
+            }
+
+            $stats['alerts'] = $alerts;
 
             // Department-wise attendance
             $departmentStats = Department::active()
@@ -244,7 +353,7 @@ class DashboardController extends Controller
                         ->whereHas('user', function ($q) use ($dept) {
                             $q->where('department_id', $dept->id);
                         })
-                        ->where('status', 'present')
+                        ->whereIn('status', ['present', 'late'])
                         ->count();
 
                     return [
@@ -280,18 +389,24 @@ class DashboardController extends Controller
         return $stats;
     }
 
-    private function calculateMonthlyAttendanceRate(): float
+    private function calculateMonthlyAttendanceRate(?int $month = null, ?int $year = null): float
     {
-        $currentMonth = Carbon::now()->month;
-        $currentYear = Carbon::now()->year;
-        $workingDays = Carbon::now()->startOfMonth()->diffInWeekdays(Carbon::now());
+        $month = $month ?? Carbon::now()->month;
+        $year = $year ?? Carbon::now()->year;
+
+        $startOfMonth = Carbon::create($year, $month, 1)->startOfMonth();
+        $endOfPeriod = $month === Carbon::now()->month && $year === Carbon::now()->year
+            ? Carbon::now()
+            : Carbon::create($year, $month, 1)->endOfMonth();
+
+        $workingDays = $startOfMonth->diffInWeekdays($endOfPeriod);
 
         $totalEmployees = User::where('employment_status', 'active')->count();
         $totalPossibleAttendances = $totalEmployees * $workingDays;
 
-        $actualAttendances = Attendance::whereMonth('date', $currentMonth)
-            ->whereYear('date', $currentYear)
-            ->where('status', 'present')
+        $actualAttendances = Attendance::whereMonth('date', $month)
+            ->whereYear('date', $year)
+            ->whereIn('status', ['present', 'late'])
             ->count();
 
         return $totalPossibleAttendances > 0

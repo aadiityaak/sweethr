@@ -5,7 +5,19 @@ import AppLayout from '@/layouts/AppLayout.vue';
 // Admin dashboard uses direct URL
 import { type BreadcrumbItem } from '@/types';
 import { Head, Link, useForm } from '@inertiajs/vue3';
-import { AlertCircle, Calendar, CheckCircle, Clock, Users, XCircle } from 'lucide-vue-next';
+import {
+    AlertCircle,
+    AlertTriangle,
+    ArrowDown,
+    ArrowUp,
+    Calendar,
+    CheckCircle,
+    Clock,
+    TrendingDown,
+    TrendingUp,
+    Users,
+    XCircle,
+} from 'lucide-vue-next';
 import { ref } from 'vue';
 
 interface User {
@@ -63,6 +75,41 @@ interface Stats {
     monthly_late_days?: number;
     monthly_work_hours?: number;
     leave_balance?: number;
+    late_today?: Array<{
+        id: number;
+        name: string;
+        employee_id: string;
+        department: string;
+        check_in_time: string;
+        late_duration: number;
+    }>;
+    late_today_count?: number;
+    on_leave_today?: Array<{
+        user_name: string;
+        employee_id: string;
+        leave_type: string;
+    }>;
+    on_leave_today_count?: number;
+    trend_comparison?: {
+        attendance_rate: {
+            current: number;
+            last: number;
+            change: number;
+        };
+        late_count: {
+            current: number;
+            last: number;
+            change: number;
+        };
+    };
+    alerts?: Array<{
+        type: string;
+        severity: string;
+        user_name?: string;
+        employee_id?: string;
+        count?: number;
+        message: string;
+    }>;
     department_stats?: Array<{
         department: string;
         total_employees: number;
@@ -116,6 +163,37 @@ const formatDate = (dateString: string) => {
         month: 'short',
         day: 'numeric',
     });
+};
+
+const formatLateDuration = (minutes: number | null | undefined) => {
+    if (!minutes) return '0 menit';
+    if (minutes < 60) return `${minutes} menit`;
+    const hours = Math.floor(minutes / 60);
+    const mins = minutes % 60;
+    return mins > 0 ? `${hours}j ${mins}m` : `${hours} jam`;
+};
+
+const getTrendIcon = (change: number) => {
+    return change > 0 ? TrendingUp : change < 0 ? TrendingDown : null;
+};
+
+const getTrendColor = (change: number, inverse = false) => {
+    if (change === 0) return 'text-gray-500';
+    if (inverse) {
+        return change > 0 ? 'text-red-600 dark:text-red-400' : 'text-emerald-600 dark:text-emerald-400';
+    }
+    return change > 0 ? 'text-emerald-600 dark:text-emerald-400' : 'text-red-600 dark:text-red-400';
+};
+
+const getSeverityColor = (severity: string) => {
+    switch (severity) {
+        case 'high':
+            return 'bg-red-50 border-red-200 dark:bg-red-950/30 dark:border-red-800/50';
+        case 'medium':
+            return 'bg-amber-50 border-amber-200 dark:bg-amber-950/30 dark:border-amber-800/50';
+        default:
+            return 'bg-blue-50 border-blue-200 dark:bg-blue-950/30 dark:border-blue-800/50';
+    }
 };
 
 // Generate last 30 days labels for line chart
@@ -205,480 +283,298 @@ const generateMockAttendanceData = () => {
 
     <AppLayout :breadcrumbs="breadcrumbs">
         <div class="mx-auto w-full px-4 py-6 sm:px-6 lg:px-8">
-            <!-- Welcome Hero Section -->
-            <div
-                class="relative mb-8 overflow-hidden rounded-xl border border-gray-200/50 bg-gradient-to-br from-blue-50 via-indigo-50/80 to-purple-50/60 p-8 shadow-sm dark:border-gray-800/50 dark:from-blue-950/20 dark:via-indigo-950/20 dark:to-purple-950/20"
-            >
-                <div class="relative z-10">
-                    <div class="mb-2 flex items-center gap-3">
-                        <div class="flex h-10 w-10 items-center justify-center rounded-full bg-blue-500/10 backdrop-blur-sm">
-                            <Users class="h-5 w-5 text-blue-600 dark:text-blue-400" />
-                        </div>
-                        <div class="text-sm font-medium text-blue-600/80 dark:text-blue-400/80">
-                            {{ new Date().toLocaleDateString('id-ID', { weekday: 'long', year: 'numeric', month: 'long', day: 'numeric' }) }}
-                        </div>
-                    </div>
-                    <h1 class="text-3xl font-bold tracking-tight text-gray-900 dark:text-white">Selamat datang, {{ user.name }}!</h1>
-                    <p class="mt-2 flex items-center gap-2 text-gray-600 dark:text-gray-300">
-                        <span
-                            class="inline-flex items-center rounded-full bg-white/60 px-2.5 py-0.5 text-xs font-medium text-gray-700 backdrop-blur-sm dark:bg-gray-900/60 dark:text-gray-300"
-                        >
-                            {{ user.employee_id }}
-                        </span>
-                        <span class="text-gray-400">•</span>
-                        <span>{{ user.department?.name || 'No Department' }}</span>
-                        <span class="text-gray-400">•</span>
-                        <span>{{ user.position?.title || 'No Position' }}</span>
+            <!-- Header Section -->
+            <div class="mb-8 flex items-center justify-between">
+                <div>
+                    <h1 class="text-2xl font-bold text-gray-900 dark:text-white">Dashboard</h1>
+                    <p class="mt-1 text-sm text-gray-600 dark:text-gray-400">
+                        {{ new Date().toLocaleDateString('id-ID', { weekday: 'long', day: 'numeric', month: 'long', year: 'numeric' }) }}
                     </p>
                 </div>
-                <!-- Decorative elements -->
-                <div class="absolute -top-4 -right-4 h-24 w-24 rounded-full bg-blue-400/10 blur-3xl"></div>
-                <div class="absolute -bottom-8 -left-4 h-32 w-32 rounded-full bg-indigo-400/10 blur-3xl"></div>
-            </div>
-
-            <!-- 30-Day Attendance Trend (Admin Only) -->
-            <div
-                v-if="user.is_admin"
-                class="mb-8 rounded-xl border border-gray-200/50 bg-gradient-to-br from-white to-gray-50/30 p-6 shadow-sm dark:border-gray-800/50 dark:from-gray-950 dark:to-gray-900/30"
-            >
-                <div class="mb-6 flex items-center gap-3">
-                    <div class="flex h-8 w-8 items-center justify-center rounded-lg bg-purple-500/10 ring-1 ring-purple-500/20">
-                        <CheckCircle class="h-4 w-4 text-purple-600 dark:text-purple-400" />
+                <div class="flex items-center gap-3">
+                    <div class="flex h-10 w-10 items-center justify-center rounded-full bg-blue-500/10">
+                        <Users class="h-5 w-5 text-blue-600 dark:text-blue-400" />
                     </div>
-                    <div>
-                        <h2 class="text-lg font-semibold text-gray-900 dark:text-white">Tren Kehadiran 30 Hari</h2>
-                        <p class="text-sm text-gray-600 dark:text-gray-400">Grafik tingkat kehadiran harian</p>
-                    </div>
-                </div>
-                <div class="h-64">
-                    <AttendanceChart
-                        type="line"
-                        :monthly-data="{
-                            labels: generateLast30Days(),
-                            data: generateMockAttendanceData(),
-                            presentData: [],
-                            absentData: [],
-                        }"
-                    />
                 </div>
             </div>
 
-            <!-- Key Metrics Grid -->
-            <div class="mb-8 grid gap-6 md:grid-cols-2 lg:grid-cols-4">
-                <!-- Company Overview Card (Admin Only) -->
-                <div
-                    v-if="user.is_admin"
-                    class="group relative overflow-hidden rounded-xl border border-gray-200/50 bg-gradient-to-br from-white to-gray-50/50 p-6 shadow-sm transition-all hover:shadow-md dark:border-gray-800/50 dark:from-gray-950 dark:to-gray-900/50"
-                >
+            <!-- Top Stats Cards (4 horizontal cards) -->
+            <div v-if="user.is_admin" class="mb-6 grid gap-4 md:grid-cols-2 lg:grid-cols-4">
+                <!-- Total Employees Card -->
+                <div class="group relative overflow-hidden rounded-2xl bg-white p-6 shadow-sm ring-1 ring-gray-900/5 dark:bg-gray-900 dark:ring-white/10">
                     <div class="flex items-start justify-between">
-                        <div class="flex items-center gap-3">
-                            <div class="flex h-10 w-10 items-center justify-center rounded-full bg-emerald-500/10 ring-1 ring-emerald-500/20">
-                                <Users class="h-5 w-5 text-emerald-600 dark:text-emerald-400" />
-                            </div>
-                            <div>
-                                <h3 class="font-medium text-gray-900 dark:text-white">Kehadiran Hari Ini</h3>
-                                <p class="text-sm text-gray-600 dark:text-gray-400">
-                                    {{ stats.today_present || 0 }} dari {{ stats.total_employees || 0 }} karyawan
-                                </p>
-                            </div>
+                        <div class="flex h-12 w-12 items-center justify-center rounded-xl bg-blue-500/10">
+                            <Users class="h-6 w-6 text-blue-600 dark:text-blue-400" />
                         </div>
-                        <div class="flex h-2 w-2 rounded-full bg-emerald-400"></div>
-                    </div>
-
-                    <div class="mt-6 space-y-3">
-                        <div class="flex items-center justify-between rounded-lg bg-emerald-50/50 px-3 py-2 dark:bg-emerald-950/30">
-                            <span class="text-sm font-medium text-emerald-700 dark:text-emerald-400">Hadir</span>
-                            <span class="text-sm font-semibold text-emerald-800 dark:text-emerald-300">{{ stats.today_present || 0 }}</span>
-                        </div>
-                        <div class="flex items-center justify-between rounded-lg bg-amber-50/50 px-3 py-2 dark:bg-amber-950/30">
-                            <span class="text-sm font-medium text-amber-700 dark:text-amber-400">Tidak Hadir</span>
-                            <span class="text-sm font-semibold text-amber-800 dark:text-amber-300">{{
-                                (stats.total_employees || 0) - (stats.today_present || 0)
-                            }}</span>
-                        </div>
-                        <div class="flex items-center justify-between rounded-lg bg-blue-50/50 px-3 py-2 dark:bg-blue-950/30">
-                            <span class="text-sm font-medium text-blue-700 dark:text-blue-400">Tingkat Kehadiran</span>
-                            <span class="text-sm font-semibold text-blue-800 dark:text-blue-300"
-                                >{{ Math.round(((stats.today_present || 0) / (stats.total_employees || 1)) * 100) }}%</span
-                            >
+                        <div class="flex items-center gap-1" :class="getTrendColor(5)">
+                            <TrendingUp class="h-4 w-4" />
+                            <span class="text-sm font-medium">5%</span>
                         </div>
                     </div>
-
-                    <!-- Hover effect overlay -->
-                    <div
-                        class="pointer-events-none absolute inset-0 rounded-xl bg-gradient-to-br from-emerald-500/5 to-teal-500/5 opacity-0 transition-opacity group-hover:opacity-100"
-                    ></div>
-                </div>
-
-                <!-- Personal Attendance Card (Non-Admin Only) -->
-                <div
-                    v-else
-                    class="group relative overflow-hidden rounded-xl border border-gray-200/50 bg-gradient-to-br from-white to-gray-50/50 p-6 shadow-sm transition-all hover:shadow-md dark:border-gray-800/50 dark:from-gray-950 dark:to-gray-900/50"
-                >
-                    <div class="flex items-start justify-between">
-                        <div class="flex items-center gap-3">
-                            <div class="flex h-10 w-10 items-center justify-center rounded-full bg-emerald-500/10 ring-1 ring-emerald-500/20">
-                                <Clock class="h-5 w-5 text-emerald-600 dark:text-emerald-400" />
-                            </div>
-                            <div>
-                                <h3 class="font-medium text-gray-900 dark:text-white">Kehadiran Hari Ini</h3>
-                                <p class="text-sm text-gray-600 dark:text-gray-400">
-                                    {{ todayAttendance ? 'Sudah Masuk' : 'Belum Masuk' }}
-                                </p>
-                            </div>
-                        </div>
-                        <div class="flex h-2 w-2 rounded-full" :class="todayAttendance?.check_in_time ? 'bg-emerald-400' : 'bg-gray-300'"></div>
-                    </div>
-
-                    <div class="mt-6 space-y-3">
-                        <div class="flex items-center justify-between rounded-lg bg-gray-50/50 px-3 py-2 dark:bg-gray-800/50">
-                            <span class="text-sm font-medium text-gray-600 dark:text-gray-400">Masuk</span>
-                            <span class="text-sm font-semibold text-gray-900 dark:text-white">{{ formatTime(todayAttendance?.check_in_time) }}</span>
-                        </div>
-                        <div class="flex items-center justify-between rounded-lg bg-gray-50/50 px-3 py-2 dark:bg-gray-800/50">
-                            <span class="text-sm font-medium text-gray-600 dark:text-gray-400">Keluar</span>
-                            <span class="text-sm font-semibold text-gray-900 dark:text-white">{{ formatTime(todayAttendance?.check_out_time) }}</span>
-                        </div>
-                        <div class="flex items-center justify-between rounded-lg bg-emerald-50/50 px-3 py-2 dark:bg-emerald-950/30">
-                            <span class="text-sm font-medium text-emerald-700 dark:text-emerald-400">Durasi</span>
-                            <span class="text-sm font-semibold text-emerald-800 dark:text-emerald-300">{{
-                                formatDuration(todayAttendance?.work_duration)
-                            }}</span>
-                        </div>
-                    </div>
-
                     <div class="mt-4">
-                        <Link
-                            v-if="!todayAttendance?.check_in_time"
-                            href="/home"
-                            class="inline-flex w-full items-center justify-center rounded-lg bg-emerald-600 px-4 py-2.5 text-sm font-medium text-white shadow-sm transition-colors hover:bg-emerald-700 focus:ring-2 focus:ring-emerald-500 focus:ring-offset-2 focus:outline-none"
-                        >
-                            <Clock class="mr-2 h-4 w-4" />
-                            Masuk Sekarang
-                        </Link>
-                        <Link
-                            v-else-if="todayAttendance?.check_in_time && !todayAttendance?.check_out_time"
-                            href="/attendance"
-                            class="inline-flex w-full items-center justify-center rounded-lg bg-red-600 px-4 py-2.5 text-sm font-medium text-white shadow-sm transition-colors hover:bg-red-700 focus:ring-2 focus:ring-red-500 focus:ring-offset-2 focus:outline-none"
-                        >
-                            <XCircle class="mr-2 h-4 w-4" />
-                            Keluar Sekarang
-                        </Link>
-                        <div
-                            v-else
-                            class="inline-flex w-full items-center justify-center rounded-lg border border-gray-200 bg-gray-50 px-4 py-2.5 text-sm font-medium text-gray-600 dark:border-gray-700 dark:bg-gray-800 dark:text-gray-400"
-                        >
-                            <CheckCircle class="mr-2 h-4 w-4" />
-                            Hari Selesai
-                        </div>
+                        <p class="text-sm font-medium text-gray-600 dark:text-gray-400">Total Karyawan</p>
+                        <p class="mt-1 text-3xl font-bold text-gray-900 dark:text-white">{{ stats.total_employees || 0 }}</p>
+                        <p class="mt-1 text-xs text-gray-500 dark:text-gray-500">Karyawan aktif</p>
                     </div>
-
-                    <!-- Hover effect overlay -->
-                    <div
-                        class="pointer-events-none absolute inset-0 rounded-xl bg-gradient-to-br from-emerald-500/5 to-teal-500/5 opacity-0 transition-opacity group-hover:opacity-100"
-                    ></div>
                 </div>
 
-                <!-- Attendance Chart (Admin) / Leave Balance (User) -->
-                <div
-                    v-if="user.is_admin"
-                    class="group relative overflow-hidden rounded-xl border border-gray-200/50 bg-gradient-to-br from-white to-blue-50/30 p-6 shadow-sm transition-all hover:shadow-md dark:border-gray-800/50 dark:from-gray-950 dark:to-blue-950/30"
-                >
-                    <div class="mb-4 flex items-center justify-between">
-                        <div class="flex items-center gap-3">
-                            <div class="flex h-10 w-10 items-center justify-center rounded-full bg-blue-500/10 ring-1 ring-blue-500/20">
-                                <CheckCircle class="h-5 w-5 text-blue-600 dark:text-blue-400" />
-                            </div>
-                            <div>
-                                <h3 class="font-medium text-gray-900 dark:text-white">Grafik Kehadiran</h3>
-                                <p class="text-sm text-gray-600 dark:text-gray-400">Status kehadiran hari ini</p>
-                            </div>
+                <!-- Today Present Card -->
+                <div class="group relative overflow-hidden rounded-2xl bg-white p-6 shadow-sm ring-1 ring-gray-900/5 dark:bg-gray-900 dark:ring-white/10">
+                    <div class="flex items-start justify-between">
+                        <div class="flex h-12 w-12 items-center justify-center rounded-xl bg-emerald-500/10">
+                            <CheckCircle class="h-6 w-6 text-emerald-600 dark:text-emerald-400" />
+                        </div>
+                        <div
+                            class="flex items-center gap-1"
+                            :class="
+                                getTrendColor(
+                                    stats.trend_comparison?.attendance_rate.change || 0,
+                                )
+                            "
+                        >
+                            <component :is="getTrendIcon(stats.trend_comparison?.attendance_rate.change || 0)" class="h-4 w-4" />
+                            <span class="text-sm font-medium">{{ Math.abs(stats.trend_comparison?.attendance_rate.change || 0).toFixed(1) }}%</span>
                         </div>
                     </div>
+                    <div class="mt-4">
+                        <p class="text-sm font-medium text-gray-600 dark:text-gray-400">Hadir Hari Ini</p>
+                        <p class="mt-1 text-3xl font-bold text-gray-900 dark:text-white">{{ stats.today_present || 0 }}</p>
+                        <p class="mt-1 text-xs text-gray-500 dark:text-gray-500">{{ Math.round(((stats.today_present || 0) / (stats.total_employees || 1)) * 100) }}% tingkat kehadiran</p>
+                    </div>
+                </div>
 
-                    <div class="h-48">
+                <!-- Late Today Card -->
+                <div class="group relative overflow-hidden rounded-2xl bg-white p-6 shadow-sm ring-1 ring-gray-900/5 dark:bg-gray-900 dark:ring-white/10">
+                    <div class="flex items-start justify-between">
+                        <div class="flex h-12 w-12 items-center justify-center rounded-xl bg-amber-500/10">
+                            <Clock class="h-6 w-6 text-amber-600 dark:text-amber-400" />
+                        </div>
+                        <div class="flex items-center gap-1" :class="getTrendColor(stats.trend_comparison?.late_count.change || 0, true)">
+                            <component :is="getTrendIcon(stats.trend_comparison?.late_count.change || 0)" class="h-4 w-4" />
+                            <span class="text-sm font-medium">{{ Math.abs(stats.trend_comparison?.late_count.change || 0) }}</span>
+                        </div>
+                    </div>
+                    <div class="mt-4">
+                        <p class="text-sm font-medium text-gray-600 dark:text-gray-400">Terlambat Hari Ini</p>
+                        <p class="mt-1 text-3xl font-bold text-gray-900 dark:text-white">{{ stats.late_today_count || 0 }}</p>
+                        <p class="mt-1 text-xs text-gray-500 dark:text-gray-500">Karyawan terlambat</p>
+                    </div>
+                </div>
+
+                <!-- Pending Leave Card -->
+                <div class="group relative overflow-hidden rounded-2xl bg-white p-6 shadow-sm ring-1 ring-gray-900/5 dark:bg-gray-900 dark:ring-white/10">
+                    <div class="flex items-start justify-between">
+                        <div class="flex h-12 w-12 items-center justify-center rounded-xl bg-purple-500/10">
+                            <AlertCircle class="h-6 w-6 text-purple-600 dark:text-purple-400" />
+                        </div>
+                        <div class="rounded-full bg-purple-100 px-2.5 py-0.5 text-xs font-medium text-purple-700 dark:bg-purple-900/30 dark:text-purple-300">Pending</div>
+                    </div>
+                    <div class="mt-4">
+                        <p class="text-sm font-medium text-gray-600 dark:text-gray-400">Pengajuan Cuti</p>
+                        <p class="mt-1 text-3xl font-bold text-gray-900 dark:text-white">{{ stats.pending_leave_requests || 0 }}</p>
+                        <p class="mt-1 text-xs text-gray-500 dark:text-gray-500">Menunggu persetujuan</p>
+                    </div>
+                </div>
+            </div>
+
+            <!-- Main Content Grid (2 columns) -->
+            <div class="mb-6 grid gap-6 lg:grid-cols-2">
+                <!-- Department Stats -->
+                <div class="rounded-2xl bg-white p-6 shadow-sm ring-1 ring-gray-900/5 dark:bg-gray-900 dark:ring-white/10">
+                    <div class="mb-6 flex items-center justify-between">
+                        <div>
+                            <h2 class="text-lg font-semibold text-gray-900 dark:text-white">Statistik Departemen</h2>
+                            <p class="text-sm text-gray-600 dark:text-gray-400">Kehadiran per departemen hari ini</p>
+                        </div>
+                    </div>
+                    <div class="space-y-4">
+                        <div v-for="dept in stats.department_stats?.slice(0, 5)" :key="dept.department" class="flex items-center justify-between">
+                            <div class="flex-1">
+                                <div class="mb-2 flex items-center justify-between">
+                                    <p class="text-sm font-medium text-gray-900 dark:text-white">{{ dept.department }}</p>
+                                    <p class="text-sm font-semibold text-gray-900 dark:text-white">{{ dept.attendance_rate.toFixed(0) }}%</p>
+                                </div>
+                                <div class="h-2 overflow-hidden rounded-full bg-gray-100 dark:bg-gray-800">
+                                    <div
+                                        class="h-full rounded-full bg-gradient-to-r from-blue-500 to-blue-600 transition-all"
+                                        :style="{ width: `${dept.attendance_rate}%` }"
+                                    ></div>
+                                </div>
+                                <p class="mt-1 text-xs text-gray-500 dark:text-gray-500">{{ dept.present_today }} dari {{ dept.total_employees }} karyawan</p>
+                            </div>
+                        </div>
+                        <div v-if="!stats.department_stats || stats.department_stats.length === 0" class="py-8 text-center">
+                            <Users class="mx-auto h-12 w-12 text-gray-400" />
+                            <p class="mt-2 text-sm text-gray-500 dark:text-gray-400">Belum ada data departemen</p>
+                        </div>
+                    </div>
+                </div>
+
+                <!-- 30-Day Trend Chart -->
+                <div class="rounded-2xl bg-white p-6 shadow-sm ring-1 ring-gray-900/5 dark:bg-gray-900 dark:ring-white/10">
+                    <div class="mb-6 flex items-center justify-between">
+                        <div>
+                            <h2 class="text-lg font-semibold text-gray-900 dark:text-white">Tren Kehadiran 30 Hari</h2>
+                            <p class="text-sm text-gray-600 dark:text-gray-400">Tingkat kehadiran harian</p>
+                        </div>
+                    </div>
+                    <div class="h-64">
                         <AttendanceChart
-                            type="doughnut"
-                            :attendance-data="{
-                                present: stats.today_present || 0,
-                                absent: (stats.total_employees || 0) - (stats.today_present || 0),
-                                late: 0,
+                            type="line"
+                            :monthly-data="{
+                                labels: generateLast30Days(),
+                                data: generateMockAttendanceData(),
+                                presentData: [],
+                                absentData: [],
                             }"
                         />
                     </div>
-
-                    <div
-                        class="pointer-events-none absolute inset-0 rounded-xl bg-gradient-to-br from-blue-500/5 to-indigo-500/5 opacity-0 transition-opacity group-hover:opacity-100"
-                    ></div>
-                </div>
-
-                <div
-                    v-else
-                    class="group relative overflow-hidden rounded-xl border border-gray-200/50 bg-gradient-to-br from-white to-blue-50/30 p-6 shadow-sm transition-all hover:shadow-md dark:border-gray-800/50 dark:from-gray-950 dark:to-blue-950/30"
-                >
-                    <div class="flex items-center justify-between">
-                        <div class="flex h-10 w-10 items-center justify-center rounded-full bg-blue-500/10 ring-1 ring-blue-500/20">
-                            <Calendar class="h-5 w-5 text-blue-600 dark:text-blue-400" />
-                        </div>
-                        <div class="text-right">
-                            <div class="text-2xl font-bold text-blue-600 dark:text-blue-400">{{ stats.leave_balance || 0 }}</div>
-                            <div class="text-sm font-medium text-gray-600 dark:text-gray-400">Sisa Cuti</div>
-                        </div>
-                    </div>
-                    <div class="mt-4 rounded-lg bg-blue-50/50 p-3 dark:bg-blue-950/30">
-                        <div class="text-xs font-medium text-blue-700 dark:text-blue-300">Hari tersisa tahun ini</div>
-                    </div>
-                    <div
-                        class="pointer-events-none absolute inset-0 rounded-xl bg-gradient-to-br from-blue-500/5 to-indigo-500/5 opacity-0 transition-opacity group-hover:opacity-100"
-                    ></div>
-                </div>
-
-                <!-- Monthly Performance -->
-                <div
-                    class="group relative overflow-hidden rounded-xl border border-gray-200/50 bg-gradient-to-br from-white to-purple-50/30 p-6 shadow-sm transition-all hover:shadow-md dark:border-gray-800/50 dark:from-gray-950 dark:to-purple-950/30"
-                >
-                    <div class="flex items-center justify-between">
-                        <div class="flex h-10 w-10 items-center justify-center rounded-full bg-purple-500/10 ring-1 ring-purple-500/20">
-                            <CheckCircle class="h-5 w-5 text-purple-600 dark:text-purple-400" />
-                        </div>
-                        <div class="text-right">
-                            <div class="text-2xl font-bold text-purple-600 dark:text-purple-400">
-                                {{ user.is_admin ? (stats.monthly_attendance_rate || 0) + '%' : stats.monthly_attendance_days || 0 }}
-                            </div>
-                            <div class="text-sm font-medium text-gray-600 dark:text-gray-400">Bulan Ini</div>
-                        </div>
-                    </div>
-                    <div class="mt-4 rounded-lg bg-purple-50/50 p-3 dark:bg-purple-950/30">
-                        <div class="text-xs font-medium text-purple-700 dark:text-purple-300">
-                            {{ user.is_admin ? 'Tingkat kehadiran' : 'Hari hadir' }}
-                        </div>
-                    </div>
-                    <div
-                        class="pointer-events-none absolute inset-0 rounded-xl bg-gradient-to-br from-purple-500/5 to-violet-500/5 opacity-0 transition-opacity group-hover:opacity-100"
-                    ></div>
-                </div>
-
-                <!-- Pending Requests -->
-                <div
-                    class="group relative overflow-hidden rounded-xl border border-gray-200/50 bg-gradient-to-br from-white to-amber-50/30 p-6 shadow-sm transition-all hover:shadow-md dark:border-gray-800/50 dark:from-gray-950 dark:to-amber-950/30"
-                >
-                    <div class="flex items-center justify-between">
-                        <div class="flex h-10 w-10 items-center justify-center rounded-full bg-amber-500/10 ring-1 ring-amber-500/20">
-                            <AlertCircle class="h-5 w-5 text-amber-600 dark:text-amber-400" />
-                        </div>
-                        <div class="text-right">
-                            <div class="text-2xl font-bold text-amber-600 dark:text-amber-400">{{ stats.pending_leave_requests || 0 }}</div>
-                            <div class="text-sm font-medium text-gray-600 dark:text-gray-400">Menunggu</div>
-                        </div>
-                    </div>
-                    <div class="mt-4 rounded-lg bg-amber-50/50 p-3 dark:bg-amber-950/30">
-                        <div class="text-xs font-medium text-amber-700 dark:text-amber-300">
-                            {{ user.is_admin ? 'Pengajuan cuti untuk ditinjau' : 'Pengajuan cuti Anda' }}
-                        </div>
-                    </div>
-                    <div
-                        class="pointer-events-none absolute inset-0 rounded-xl bg-gradient-to-br from-amber-500/5 to-orange-500/5 opacity-0 transition-opacity group-hover:opacity-100"
-                    ></div>
                 </div>
             </div>
 
-            <!-- Pending Leave Requests Section -->
+            <!-- Alerts Banner (if any) -->
             <div
-                v-if="pendingLeaves.length > 0"
-                class="mb-8 rounded-xl border border-gray-200/50 bg-gradient-to-br from-white to-gray-50/30 p-6 shadow-sm dark:border-gray-800/50 dark:from-gray-950 dark:to-gray-900/30"
+                v-if="user.is_admin && stats.alerts && stats.alerts.length > 0"
+                class="mb-6 rounded-2xl border border-amber-200/50 bg-gradient-to-br from-amber-50 to-orange-50/50 p-4 dark:border-amber-800/50 dark:from-amber-950/20 dark:to-orange-950/20"
             >
-                <div class="mb-6 flex items-center gap-3">
-                    <div class="flex h-8 w-8 items-center justify-center rounded-lg bg-amber-500/10 ring-1 ring-amber-500/20">
-                        <AlertCircle class="h-4 w-4 text-amber-600 dark:text-amber-400" />
+                <div class="flex items-start gap-4">
+                    <div class="flex h-10 w-10 shrink-0 items-center justify-center rounded-xl bg-amber-500/10">
+                        <AlertTriangle class="h-5 w-5 text-amber-600 dark:text-amber-400" />
                     </div>
-                    <div>
-                        <h2 class="text-lg font-semibold text-gray-900 dark:text-white">
-                            {{ user.is_admin ? 'Pengajuan Cuti Menunggu' : 'Pengajuan Anda yang Menunggu' }}
-                        </h2>
-                        <p class="text-sm text-gray-600 dark:text-gray-400">{{ pendingLeaves.length }} pengajuan menunggu persetujuan</p>
+                    <div class="flex-1">
+                        <h3 class="text-sm font-semibold text-gray-900 dark:text-white">{{ stats.alerts.length }} Peringatan Aktif</h3>
+                        <div class="mt-2 space-y-1">
+                            <p v-for="(alert, index) in stats.alerts.slice(0, 3)" :key="index" class="text-sm text-gray-700 dark:text-gray-300">• {{ alert.message }}</p>
+                        </div>
                     </div>
                 </div>
-                <div class="space-y-4">
-                    <div
-                        v-for="leave in pendingLeaves"
-                        :key="leave.id"
-                        class="group relative overflow-hidden rounded-lg border border-gray-200/50 bg-white p-4 shadow-sm transition-all hover:shadow-md dark:border-gray-700/50 dark:bg-gray-950"
-                    >
-                        <div class="flex items-start justify-between">
-                            <div class="flex-1">
-                                <div class="mb-2 flex items-center gap-2">
-                                    <div
-                                        class="flex h-8 w-8 items-center justify-center rounded-full bg-gray-100 text-sm font-medium text-gray-700 dark:bg-gray-800 dark:text-gray-300"
-                                    >
-                                        {{ leave.user?.name?.charAt(0) || '?' }}
-                                    </div>
-                                    <div>
-                                        <p class="font-medium text-gray-900 dark:text-white">{{ leave.user?.name || 'Unknown User' }}</p>
-                                        <p class="text-xs text-gray-500 dark:text-gray-400">{{ leave.user?.employee_id || 'N/A' }}</p>
-                                    </div>
+            </div>
+
+            <!-- Quick Actions Grid -->
+            <div class="mb-6 grid gap-6 md:grid-cols-2 lg:grid-cols-4">
+                <!-- Late Today List -->
+                <div class="rounded-2xl bg-gradient-to-br from-red-500 to-pink-600 p-6 text-white shadow-lg">
+                    <div class="mb-4 flex items-center justify-between">
+                        <div class="flex h-10 w-10 items-center justify-center rounded-xl bg-white/20 backdrop-blur-sm">
+                            <Clock class="h-5 w-5" />
+                        </div>
+                        <span class="text-2xl font-bold">{{ stats.late_today_count || 0 }}</span>
+                    </div>
+                    <p class="text-sm font-medium opacity-90">Terlambat Hari Ini</p>
+                    <p class="mt-1 text-xs opacity-75">Karyawan yang datang terlambat</p>
+                </div>
+
+                <!-- On Leave Today -->
+                <div class="rounded-2xl bg-gradient-to-br from-blue-500 to-cyan-600 p-6 text-white shadow-lg">
+                    <div class="mb-4 flex items-center justify-between">
+                        <div class="flex h-10 w-10 items-center justify-center rounded-xl bg-white/20 backdrop-blur-sm">
+                            <Calendar class="h-5 w-5" />
+                        </div>
+                        <span class="text-2xl font-bold">{{ stats.on_leave_today_count || 0 }}</span>
+                    </div>
+                    <p class="text-sm font-medium opacity-90">Cuti Hari Ini</p>
+                    <p class="mt-1 text-xs opacity-75">Karyawan yang sedang cuti</p>
+                </div>
+
+                <!-- Attendance Rate -->
+                <div class="rounded-2xl bg-gradient-to-br from-purple-500 to-indigo-600 p-6 text-white shadow-lg">
+                    <div class="mb-4 flex items-center justify-between">
+                        <div class="flex h-10 w-10 items-center justify-center rounded-xl bg-white/20 backdrop-blur-sm">
+                            <CheckCircle class="h-5 w-5" />
+                        </div>
+                        <span class="text-2xl font-bold">{{ (stats.monthly_attendance_rate || 0).toFixed(0) }}%</span>
+                    </div>
+                    <p class="text-sm font-medium opacity-90">Tingkat Kehadiran</p>
+                    <p class="mt-1 text-xs opacity-75">Rata-rata bulan ini</p>
+                </div>
+
+                <!-- Overtime Hours -->
+                <div class="rounded-2xl bg-gradient-to-br from-orange-500 to-red-600 p-6 text-white shadow-lg">
+                    <div class="mb-4 flex items-center justify-between">
+                        <div class="flex h-10 w-10 items-center justify-center rounded-xl bg-white/20 backdrop-blur-sm">
+                            <Clock class="h-5 w-5" />
+                        </div>
+                        <span class="text-2xl font-bold">{{ (stats.monthly_overtime_hours || 0).toFixed(0) }}</span>
+                    </div>
+                    <p class="text-sm font-medium opacity-90">Jam Lembur</p>
+                    <p class="mt-1 text-xs opacity-75">Total bulan ini</p>
+                </div>
+            </div>
+
+            <!-- Bottom Section: Pending Leaves & Recent Announcements -->
+            <div class="grid gap-6 lg:grid-cols-2">
+                <!-- Pending Leave Requests -->
+                <div v-if="pendingLeaves.length > 0" class="rounded-2xl bg-white p-6 shadow-sm ring-1 ring-gray-900/5 dark:bg-gray-900 dark:ring-white/10">
+                    <div class="mb-6 flex items-center justify-between">
+                        <div>
+                            <h2 class="text-lg font-semibold text-gray-900 dark:text-white">Pengajuan Cuti</h2>
+                            <p class="text-sm text-gray-600 dark:text-gray-400">{{ pendingLeaves.length }} menunggu persetujuan</p>
+                        </div>
+                        <Link href="/admin/leave-requests" class="text-sm font-medium text-blue-600 hover:text-blue-700 dark:text-blue-400">Lihat Semua →</Link>
+                    </div>
+                    <div class="space-y-3">
+                        <div
+                            v-for="leave in pendingLeaves.slice(0, 3)"
+                            :key="leave.id"
+                            class="flex items-center justify-between rounded-xl border border-gray-200 p-4 dark:border-gray-700"
+                        >
+                            <div class="flex items-center gap-3">
+                                <div class="flex h-10 w-10 items-center justify-center rounded-full bg-gray-100 dark:bg-gray-800">
+                                    <span class="text-sm font-medium text-gray-700 dark:text-gray-300">{{ leave.user?.name?.charAt(0) }}</span>
                                 </div>
-                                <div class="ml-10 space-y-1">
-                                    <div
-                                        class="inline-flex items-center rounded-full bg-blue-50 px-2.5 py-0.5 text-xs font-medium text-blue-700 dark:bg-blue-950/50 dark:text-blue-300"
-                                    >
-                                        {{ leave.leave_type?.name || 'Unknown Type' }}
-                                    </div>
-                                    <p class="text-sm text-gray-600 dark:text-gray-400">
-                                        {{ formatDate(leave.start_date) }} - {{ formatDate(leave.end_date) }}
-                                        <span class="font-medium">({{ leave.total_days }} hari)</span>
-                                    </p>
+                                <div>
+                                    <p class="text-sm font-medium text-gray-900 dark:text-white">{{ leave.user?.name }}</p>
+                                    <p class="text-xs text-gray-600 dark:text-gray-400">{{ leave.leave_type?.name }} - {{ leave.total_days }} hari</p>
                                 </div>
                             </div>
-                            <div v-if="user.is_admin" class="relative z-10 flex gap-2">
+                            <div class="flex gap-2">
                                 <button
                                     @click="approveLeave(leave.id)"
-                                    class="inline-flex cursor-pointer items-center rounded-md bg-emerald-50 px-3 py-1.5 text-xs font-medium text-emerald-700 ring-1 ring-emerald-600/20 transition-colors hover:bg-emerald-100 dark:bg-emerald-950/50 dark:text-emerald-400 dark:ring-emerald-400/30 dark:hover:bg-emerald-950"
+                                    class="rounded-lg bg-emerald-50 px-3 py-1.5 text-xs font-medium text-emerald-700 hover:bg-emerald-100 dark:bg-emerald-950/50 dark:text-emerald-400"
                                 >
-                                    <CheckCircle class="mr-1 h-3 w-3" />
                                     Setujui
                                 </button>
                                 <button
                                     @click="rejectLeave(leave.id)"
-                                    class="inline-flex cursor-pointer items-center rounded-md bg-red-50 px-3 py-1.5 text-xs font-medium text-red-700 ring-1 ring-red-600/20 transition-colors hover:bg-red-100 dark:bg-red-950/50 dark:text-red-400 dark:ring-red-400/30 dark:hover:bg-red-950"
+                                    class="rounded-lg bg-red-50 px-3 py-1.5 text-xs font-medium text-red-700 hover:bg-red-100 dark:bg-red-950/50 dark:text-red-400"
                                 >
-                                    <XCircle class="mr-1 h-3 w-3" />
                                     Tolak
                                 </button>
                             </div>
                         </div>
-                        <div
-                            class="absolute inset-0 rounded-lg bg-gradient-to-r from-amber-500/5 to-orange-500/5 opacity-0 transition-opacity group-hover:opacity-100"
-                        ></div>
                     </div>
                 </div>
-            </div>
 
-            <!-- Enhanced Content Grid -->
-            <div class="grid gap-6 lg:grid-cols-2">
                 <!-- Recent Announcements -->
-                <div
-                    class="rounded-xl border border-gray-200/50 bg-gradient-to-br from-white to-gray-50/30 p-6 shadow-sm dark:border-gray-800/50 dark:from-gray-950 dark:to-gray-900/30"
-                >
-                    <div class="mb-6 flex items-center gap-3">
-                        <div class="flex h-8 w-8 items-center justify-center rounded-lg bg-blue-500/10 ring-1 ring-blue-500/20">
-                            <Calendar class="h-4 w-4 text-blue-600 dark:text-blue-400" />
-                        </div>
+                <div class="rounded-2xl bg-white p-6 shadow-sm ring-1 ring-gray-900/5 dark:bg-gray-900 dark:ring-white/10">
+                    <div class="mb-6 flex items-center justify-between">
                         <div>
                             <h2 class="text-lg font-semibold text-gray-900 dark:text-white">Pengumuman Terbaru</h2>
                             <p class="text-sm text-gray-600 dark:text-gray-400">Informasi penting dari perusahaan</p>
                         </div>
+                        <Link href="/admin/announcements" class="text-sm font-medium text-blue-600 hover:text-blue-700 dark:text-blue-400">Lihat Semua →</Link>
                     </div>
-                    <div class="space-y-4">
+                    <div class="space-y-3">
                         <div
                             v-for="announcement in announcements.slice(0, 3)"
                             :key="announcement.id"
-                            class="group relative overflow-hidden rounded-lg border border-gray-200/50 bg-white p-4 shadow-sm transition-all hover:shadow-md dark:border-gray-700/50 dark:bg-gray-950"
+                            class="rounded-xl border border-gray-200 p-4 dark:border-gray-700"
                         >
                             <div class="flex items-start gap-3">
-                                <div
-                                    class="flex h-8 w-8 items-center justify-center rounded-full bg-blue-100 text-xs font-medium text-blue-700 dark:bg-blue-900/30 dark:text-blue-300"
-                                >
-                                    <Calendar class="h-3 w-3" />
+                                <div class="flex h-10 w-10 shrink-0 items-center justify-center rounded-full bg-blue-100 dark:bg-blue-900/30">
+                                    <Calendar class="h-5 w-5 text-blue-600 dark:text-blue-400" />
                                 </div>
                                 <div class="min-w-0 flex-1">
-                                    <h3 class="truncate font-medium text-gray-900 dark:text-white">{{ announcement.title }}</h3>
-                                    <p class="mt-1 line-clamp-2 text-sm text-gray-600 dark:text-gray-400">{{ announcement.message }}</p>
-                                    <div class="mt-2 flex items-center gap-2">
-                                        <div class="flex h-5 w-5 items-center justify-center rounded-full bg-gray-100 dark:bg-gray-800">
-                                            <Clock class="h-2.5 w-2.5 text-gray-500 dark:text-gray-400" />
-                                        </div>
-                                        <span class="text-xs text-gray-500 dark:text-gray-400">{{ formatDate(announcement.created_at) }}</span>
-                                    </div>
+                                    <h3 class="text-sm font-medium text-gray-900 dark:text-white">{{ announcement.title }}</h3>
+                                    <p class="mt-1 line-clamp-2 text-xs text-gray-600 dark:text-gray-400">{{ announcement.message }}</p>
+                                    <p class="mt-2 text-xs text-gray-500 dark:text-gray-500">{{ formatDate(announcement.created_at) }}</p>
                                 </div>
                             </div>
-                            <div
-                                class="absolute inset-0 rounded-lg bg-gradient-to-r from-blue-500/5 to-indigo-500/5 opacity-0 transition-opacity group-hover:opacity-100"
-                            ></div>
                         </div>
-                        <div
-                            v-if="announcements.length === 0"
-                            class="flex flex-col items-center justify-center py-8 text-gray-500 dark:text-gray-400"
-                        >
-                            <Calendar class="mb-3 h-8 w-8 opacity-50" />
-                            <p class="text-sm">Belum ada pengumuman</p>
+                        <div v-if="announcements.length === 0" class="py-8 text-center">
+                            <Calendar class="mx-auto h-12 w-12 text-gray-400" />
+                            <p class="mt-2 text-sm text-gray-500 dark:text-gray-400">Belum ada pengumuman</p>
                         </div>
-                    </div>
-                </div>
-
-                <!-- Quick Actions -->
-                <div
-                    class="rounded-xl border border-gray-200/50 bg-gradient-to-br from-white to-gray-50/30 p-6 shadow-sm dark:border-gray-800/50 dark:from-gray-950 dark:to-gray-900/30"
-                >
-                    <div class="mb-6 flex items-center gap-3">
-                        <div class="flex h-8 w-8 items-center justify-center rounded-lg bg-emerald-500/10 ring-1 ring-emerald-500/20">
-                            <CheckCircle class="h-4 w-4 text-emerald-600 dark:text-emerald-400" />
-                        </div>
-                        <div>
-                            <h2 class="text-lg font-semibold text-gray-900 dark:text-white">Aksi Cepat</h2>
-                            <p class="text-sm text-gray-600 dark:text-gray-400">Pintasan untuk tugas sehari-hari</p>
-                        </div>
-                    </div>
-                    <div class="space-y-3">
-                        <Link
-                            v-if="user.is_admin"
-                            href="/admin/leave-requests"
-                            class="group flex w-full items-center gap-3 rounded-lg border border-gray-200/50 bg-white p-4 shadow-sm transition-all hover:border-amber-300 hover:shadow-md dark:border-gray-700/50 dark:bg-gray-950 dark:hover:border-amber-600"
-                        >
-                            <div
-                                class="flex h-8 w-8 items-center justify-center rounded-lg bg-amber-500/10 ring-1 ring-amber-500/20 group-hover:bg-amber-500/20"
-                            >
-                                <Users class="h-4 w-4 text-amber-600 dark:text-amber-400" />
-                            </div>
-                            <div class="flex-1">
-                                <p class="font-medium text-gray-900 dark:text-white">Kelola Cuti</p>
-                                <p class="text-sm text-gray-600 dark:text-gray-400">Tinjau pengajuan karyawan</p>
-                            </div>
-                        </Link>
-                        <Link
-                            v-if="user.is_admin"
-                            href="/employees"
-                            class="group flex w-full items-center gap-3 rounded-lg border border-gray-200/50 bg-white p-4 shadow-sm transition-all hover:border-purple-300 hover:shadow-md dark:border-gray-700/50 dark:bg-gray-950 dark:hover:border-purple-600"
-                        >
-                            <div
-                                class="flex h-8 w-8 items-center justify-center rounded-lg bg-purple-500/10 ring-1 ring-purple-500/20 group-hover:bg-purple-500/20"
-                            >
-                                <Users class="h-4 w-4 text-purple-600 dark:text-purple-400" />
-                            </div>
-                            <div class="flex-1">
-                                <p class="font-medium text-gray-900 dark:text-white">Kelola Karyawan</p>
-                                <p class="text-sm text-gray-600 dark:text-gray-400">Data karyawan dan departemen</p>
-                            </div>
-                        </Link>
-                        <Link
-                            v-if="user.is_admin"
-                            href="/office-locations"
-                            class="group flex w-full items-center gap-3 rounded-lg border border-gray-200/50 bg-white p-4 shadow-sm transition-all hover:border-green-300 hover:shadow-md dark:border-gray-700/50 dark:bg-gray-950 dark:hover:border-green-600"
-                        >
-                            <div
-                                class="flex h-8 w-8 items-center justify-center rounded-lg bg-green-500/10 ring-1 ring-green-500/20 group-hover:bg-green-500/20"
-                            >
-                                <CheckCircle class="h-4 w-4 text-green-600 dark:text-green-400" />
-                            </div>
-                            <div class="flex-1">
-                                <p class="font-medium text-gray-900 dark:text-white">Lokasi Kantor</p>
-                                <p class="text-sm text-gray-600 dark:text-gray-400">Kelola lokasi dan radius</p>
-                            </div>
-                        </Link>
-                        <Link
-                            v-if="user.is_admin"
-                            href="/admin/shift-change-requests"
-                            class="group flex w-full items-center gap-3 rounded-lg border border-gray-200/50 bg-white p-4 shadow-sm transition-all hover:border-orange-300 hover:shadow-md dark:border-gray-700/50 dark:bg-gray-950 dark:hover:border-orange-600"
-                        >
-                            <div
-                                class="flex h-8 w-8 items-center justify-center rounded-lg bg-orange-500/10 ring-1 ring-orange-500/20 group-hover:bg-orange-500/20"
-                            >
-                                <Calendar class="h-4 w-4 text-orange-600 dark:text-orange-400" />
-                            </div>
-                            <div class="flex-1">
-                                <p class="font-medium text-gray-900 dark:text-white">Request Tukar Libur</p>
-                                <p class="text-sm text-gray-600 dark:text-gray-400">Kelola permintaan tukar jadwal</p>
-                            </div>
-                        </Link>
                     </div>
                 </div>
             </div>
