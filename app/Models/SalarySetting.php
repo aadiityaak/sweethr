@@ -16,6 +16,10 @@ class SalarySetting extends Model
         'is_active',
     ];
 
+    protected $appends = [
+        'total_allowances',
+    ];
+
     protected function casts(): array
     {
         return [
@@ -48,6 +52,17 @@ class SalarySetting extends Model
             return 0;
         }
 
-        return collect($this->allowances)->sum('amount');
+        // Handle both array and object formats
+        if (is_array($this->allowances)) {
+            // If it's an array of objects like [{name: "meal", amount: 300000}]
+            if (isset($this->allowances[0]['amount'])) {
+                return collect($this->allowances)->sum('amount');
+            }
+
+            // If it's an associative array like {"meal": 300000, "transport": 500000}
+            return array_sum(array_values($this->allowances));
+        }
+
+        return 0;
     }
 }

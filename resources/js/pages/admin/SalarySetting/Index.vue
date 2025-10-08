@@ -253,6 +253,7 @@
                                         <component :is="getSortIcon('total_allowances')" class="h-4 w-4" />
                                     </button>
                                 </th>
+                                <th class="px-6 py-3 text-left text-sm font-medium text-gray-500 dark:text-gray-400">Detail Tunjangan</th>
                                 <th class="px-6 py-3 text-left text-sm font-medium text-gray-500 dark:text-gray-400">
                                     <button
                                         @click="toggleSort('has_salary_setting')"
@@ -304,14 +305,53 @@
                                         {{ formatCurrency(user.total_allowances) }}
                                     </div>
                                 </td>
+                                <td class="px-6 py-4">
+                                    <div v-if="user.allowances && user.allowances.length > 0" class="max-w-xs">
+                                        <div class="flex flex-wrap gap-1">
+                                            <span
+                                                v-for="allowance in user.allowances.slice(0, 3)"
+                                                :key="allowance.name"
+                                                class="inline-flex items-center rounded-full bg-blue-100 px-2 py-1 text-xs font-medium text-blue-800 dark:bg-blue-900/30 dark:text-blue-300"
+                                            >
+                                                {{ allowance.name }}
+                                            </span>
+                                            <span
+                                                v-if="user.allowances.length > 3"
+                                                class="inline-flex items-center rounded-full bg-gray-100 px-2 py-1 text-xs font-medium text-gray-600 dark:bg-gray-800 dark:text-gray-400"
+                                            >
+                                                +{{ user.allowances.length - 3 }}
+                                            </span>
+                                        </div>
+                                        <div class="mt-1 space-y-1">
+                                            <div
+                                                v-for="allowance in user.allowances.slice(0, 2)"
+                                                :key="allowance.name"
+                                                class="text-xs text-gray-500 dark:text-gray-400"
+                                            >
+                                                {{ allowance.name }}: {{ formatCurrency(allowance.amount) }}
+                                            </div>
+                                            <div v-if="user.allowances.length > 2" class="text-xs text-gray-400 italic dark:text-gray-500">
+                                                +{{ user.allowances.length - 2 }} tunjangan lainnya
+                                            </div>
+                                        </div>
+                                    </div>
+                                    <div v-else class="text-sm text-gray-400 dark:text-gray-500">
+                                        <span class="italic">Tidak ada tunjangan</span>
+                                    </div>
+                                </td>
                                 <td class="px-6 py-4 whitespace-nowrap">
-                                    <span
-                                        v-if="user.has_salary_setting"
-                                        class="inline-flex items-center rounded-full bg-green-100 px-2.5 py-0.5 text-xs font-medium text-green-800 dark:bg-green-900 dark:text-green-200"
-                                    >
-                                        <CheckCircle class="mr-1 h-3 w-3" />
-                                        Sudah Diatur
-                                    </span>
+                                    <div v-if="user.has_salary_setting" class="space-y-2">
+                                        <span
+                                            class="inline-flex items-center rounded-full bg-green-100 px-2.5 py-0.5 text-xs font-medium text-green-800 dark:bg-green-900 dark:text-green-200"
+                                        >
+                                            <CheckCircle class="mr-1 h-3 w-3" />
+                                            Sudah Diatur
+                                        </span>
+                                        <div class="text-xs text-gray-500 dark:text-gray-400">
+                                            <div>Rate: {{ user.overtime_rate }}x</div>
+                                            <div v-if="user.allowances && user.allowances.length > 0">{{ user.allowances.length }} tunjangan</div>
+                                        </div>
+                                    </div>
                                     <span
                                         v-else
                                         class="inline-flex items-center rounded-full bg-red-100 px-2.5 py-0.5 text-xs font-medium text-red-800 dark:bg-red-900 dark:text-red-200"
@@ -389,6 +429,11 @@ interface User {
     position: string | null;
     current_salary: number | null;
     total_allowances: number | null;
+    allowances: Array<{
+        name: string;
+        amount: number;
+    }>;
+    overtime_rate: number;
     has_salary_setting: boolean;
 }
 

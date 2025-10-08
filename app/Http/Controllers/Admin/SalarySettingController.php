@@ -77,6 +77,19 @@ class SalarySettingController extends Controller
 
         $users = $query->paginate(20)
             ->through(function ($user) {
+                $allowances = [];
+                if ($user->currentSalarySetting && $user->currentSalarySetting->allowances) {
+                    $allowancesData = json_decode($user->currentSalarySetting->allowances, true);
+                    if (is_array($allowancesData)) {
+                        foreach ($allowancesData as $name => $amount) {
+                            $allowances[] = [
+                                'name' => $name,
+                                'amount' => (int) $amount,
+                            ];
+                        }
+                    }
+                }
+
                 return [
                     'id' => $user->id,
                     'name' => $user->name,
@@ -85,6 +98,8 @@ class SalarySettingController extends Controller
                     'position' => $user->position?->name,
                     'current_salary' => $user->currentSalarySetting?->base_salary ?? 0,
                     'total_allowances' => $user->currentSalarySetting?->total_allowances ?? 0,
+                    'allowances' => $allowances,
+                    'overtime_rate' => $user->currentSalarySetting?->overtime_rate ?? 1.5,
                     'has_salary_setting' => $user->currentSalarySetting !== null,
                 ];
             });
@@ -118,6 +133,14 @@ class SalarySettingController extends Controller
         header('Cache-Control: no-store, no-cache, must-revalidate, max-age=0');
         header('Pragma: no-cache');
         header('Expires: 0');
+
+        // Debug: log the current setting data
+        \Log::info('Edit page - Current setting data:', [
+            'user_id' => $user->id,
+            'allowances' => $user->currentSalarySetting?->allowances,
+            'total_allowances' => $user->currentSalarySetting?->total_allowances,
+            'base_salary' => $user->currentSalarySetting?->base_salary,
+        ]);
 
         return Inertia::render('admin/SalarySetting/Edit', [
             'user' => $user,
