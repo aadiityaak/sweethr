@@ -86,7 +86,7 @@
                                 min="0"
                                 max="5"
                                 step="0.1"
-                                class="block w-full rounded-lg border border-gray-300 py-2 pl-3 pr-8 focus:border-blue-500 focus:ring-2 focus:ring-blue-500 dark:border-gray-600 dark:bg-gray-800 dark:text-white"
+                                class="block w-full rounded-lg border border-gray-300 py-2 pr-8 pl-3 focus:border-blue-500 focus:ring-2 focus:ring-blue-500 dark:border-gray-600 dark:bg-gray-800 dark:text-white"
                                 placeholder="0"
                                 required
                             />
@@ -228,6 +228,7 @@ import { index as salarySettingsIndex, update } from '@/routes/admin/salary-sett
 import { Link, useForm } from '@inertiajs/vue3';
 import { DollarSign, Gift, Info as InfoIcon, Plus, Trash2 } from 'lucide-vue-next';
 import { computed, ref } from 'vue';
+import { toast } from 'vue-sonner';
 
 interface Allowance {
     name: string;
@@ -308,8 +309,8 @@ const submit = () => {
 
     // Convert allowances array back to object format for server
     const allowancesObject = form.allowances.reduce((acc: any, allowance: any) => {
-        if (allowance.name && allowance.amount) {
-            acc[allowance.name] = allowance.amount;
+        if (allowance.name && allowance.amount !== null && allowance.amount !== undefined) {
+            acc[allowance.name] = Number(allowance.amount);
         }
         return acc;
     }, {});
@@ -321,6 +322,10 @@ const submit = () => {
         overtime_rate: form.overtime_rate,
         effective_date: form.effective_date,
     };
+
+    console.log('Submitting salary setting:', formData);
+    console.log('Form allowances array:', form.allowances);
+    console.log('Converted allowances object:', allowancesObject);
 
     form.transform(() => formData).put(update.url(props.user.id), {
         onFinish: () => {

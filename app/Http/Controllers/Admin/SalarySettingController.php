@@ -127,14 +127,19 @@ class SalarySettingController extends Controller
 
     public function update(Request $request, User $user)
     {
+        // Debug logging
+        \Log::info('Salary setting update request data:', $request->all());
+
         $validated = $request->validate([
             'base_salary' => 'required|numeric|min:0',
             'allowances' => 'nullable|array',
-            'allowances.*.name' => 'required|string',
-            'allowances.*.amount' => 'required|numeric|min:0',
+            'allowances.*' => 'nullable|numeric|min:0',
             'overtime_rate' => 'required|numeric|min:0|max:5',
             'effective_date' => 'required|date',
         ]);
+
+        // Debug validated data
+        \Log::info('Validated salary setting data:', $validated);
 
         // Deactivate previous settings
         SalarySetting::where('user_id', $user->id)
