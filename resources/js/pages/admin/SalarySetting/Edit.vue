@@ -323,11 +323,41 @@ const submit = () => {
         effective_date: form.effective_date,
     };
 
-    console.log('Submitting salary setting:', formData);
-    console.log('Form allowances array:', form.allowances);
-    console.log('Converted allowances object:', allowancesObject);
-
     form.transform(() => formData).put(update.url(props.user.id), {
+        onSuccess: (page) => {
+            processing.value = false;
+
+            // Show success toast
+            toast.success('Pengaturan gaji berhasil disimpan!', {
+                description: `Rate lembur: ${formData.overtime_rate}x | Tunjangan: ${Object.keys(formData.allowances || {}).length} item`,
+                duration: 4000,
+            });
+        },
+        onError: (errors) => {
+            processing.value = false;
+
+            // Show error toast with specific error details
+            let errorMessage = 'Gagal menyimpan pengaturan gaji';
+
+            if (errors.base_salary) {
+                errorMessage = `Gaji pokok: ${errors.base_salary}`;
+            } else if (errors.overtime_rate) {
+                errorMessage = `Rate lembur: ${errors.overtime_rate}`;
+            } else if (errors.effective_date) {
+                errorMessage = `Tanggal berlaku: ${errors.effective_date}`;
+            } else if (errors.allowances) {
+                errorMessage = `Tunjangan: ${errors.allowances}`;
+            } else if (errors.message || errors.error) {
+                errorMessage = errors.message || errors.error;
+            }
+
+            toast.error(errorMessage, {
+                duration: 6000,
+            });
+
+            // Log errors for debugging
+            console.error('Salary setting save errors:', errors);
+        },
         onFinish: () => {
             processing.value = false;
         },

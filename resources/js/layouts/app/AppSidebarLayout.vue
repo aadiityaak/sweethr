@@ -7,6 +7,7 @@ import VersionFooter from '@/components/VersionFooter.vue';
 import type { BreadcrumbItemType } from '@/types';
 import { usePage } from '@inertiajs/vue3';
 import { computed } from 'vue';
+import { Toaster } from 'vue-sonner';
 
 interface Props {
     breadcrumbs?: BreadcrumbItemType[];
@@ -28,5 +29,6 @@ const user = computed(() => page.props.auth.user);
             <slot />
             <VersionFooter v-if="user?.is_admin" />
         </AppContent>
+        <Toaster position="top-right" :rich-colors="true" :expand="false" :close-button="true" theme="light" />
     </AppShell>
 </template>

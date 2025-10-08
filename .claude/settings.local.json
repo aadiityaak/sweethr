@@ -51,7 +51,8 @@
       "Bash(git rm:*)",
       "Bash(cat:*)",
       "Bash(powershell:*)",
-      "Bash(del:*)"
+      "Bash(del:*)",
+      "WebSearch"
     ],
     "deny": [],
     "ask": []
