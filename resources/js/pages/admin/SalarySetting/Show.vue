@@ -84,32 +84,102 @@
             <div v-if="currentSetting" class="grid grid-cols-1 gap-8 lg:grid-cols-2">
                 <!-- Left Column -->
                 <div class="space-y-6">
-                    <!-- Current Allowances -->
+                    <!-- Detailed Allowances Table -->
                     <div
                         v-if="currentSetting.allowances && currentSetting.allowances.length > 0"
                         class="overflow-hidden rounded-xl bg-white shadow-sm ring-1 ring-gray-900/5 dark:bg-gray-900 dark:ring-white/10"
                     >
                         <div class="border-b border-gray-200 px-6 py-4 dark:border-gray-700">
                             <h3 class="flex items-center text-lg font-semibold text-gray-900 dark:text-white">
-                                <Gift class="mr-2 h-5 w-5 text-green-600 dark:text-green-400" />
-                                Tunjangan Aktif
+                                <List class="mr-2 h-5 w-5 text-blue-600 dark:text-blue-400" />
+                                Detail Tunjangan
                             </h3>
+                            <p class="mt-1 text-sm text-gray-500 dark:text-gray-400">Rincian lengkap semua tunjangan yang diterima</p>
                         </div>
-                        <div class="p-6">
-                            <div class="space-y-3">
-                                <div
-                                    v-for="(allowance, index) in currentSetting.allowances"
-                                    :key="index"
-                                    class="flex items-center justify-between rounded-lg bg-green-50 p-3 dark:bg-green-900/20"
-                                >
-                                    <span class="font-medium text-green-900 dark:text-green-100">{{ allowance.name }}</span>
-                                    <span class="font-bold text-green-600 dark:text-green-400">{{ formatCurrency(allowance.amount) }}</span>
-                                </div>
-                                <hr class="border-gray-200 dark:border-gray-700" />
-                                <div class="flex items-center justify-between font-semibold">
-                                    <span class="text-gray-900 dark:text-white">Total Tunjangan</span>
-                                    <span class="text-green-600 dark:text-green-400">{{ formatCurrency(currentSetting.total_allowances || 0) }}</span>
-                                </div>
+                        <div class="overflow-x-auto">
+                            <table class="w-full">
+                                <thead class="bg-gray-50 dark:bg-gray-800">
+                                    <tr class="border-b border-gray-200 dark:border-gray-700">
+                                        <th class="px-6 py-3 text-left text-xs font-medium tracking-wider text-gray-500 uppercase dark:text-gray-400">
+                                            No
+                                        </th>
+                                        <th class="px-6 py-3 text-left text-xs font-medium tracking-wider text-gray-500 uppercase dark:text-gray-400">
+                                            Nama Tunjangan
+                                        </th>
+                                        <th
+                                            class="px-6 py-3 text-right text-xs font-medium tracking-wider text-gray-500 uppercase dark:text-gray-400"
+                                        >
+                                            Jumlah
+                                        </th>
+                                        <th
+                                            class="px-6 py-3 text-right text-xs font-medium tracking-wider text-gray-500 uppercase dark:text-gray-400"
+                                        >
+                                            Persentase
+                                        </th>
+                                        <th
+                                            class="px-6 py-3 text-center text-xs font-medium tracking-wider text-gray-500 uppercase dark:text-gray-400"
+                                        >
+                                            Keterangan
+                                        </th>
+                                    </tr>
+                                </thead>
+                                <tbody class="divide-y divide-gray-200 bg-white dark:divide-gray-700">
+                                    <tr
+                                        v-for="(allowance, index) in currentSetting.allowances"
+                                        :key="index"
+                                        class="hover:bg-gray-50 dark:hover:bg-gray-900/50"
+                                    >
+                                        <td class="px-6 py-4 text-sm whitespace-nowrap text-gray-900 dark:text-white">
+                                            {{ index + 1 }}
+                                        </td>
+                                        <td class="px-6 py-4 text-sm font-medium whitespace-nowrap text-gray-900 dark:text-white">
+                                            {{ allowance.name }}
+                                        </td>
+                                        <td class="px-6 py-4 text-right text-sm font-semibold whitespace-nowrap text-gray-900 dark:text-white">
+                                            {{ formatCurrency(allowance.amount) }}
+                                        </td>
+                                        <td class="px-6 py-4 text-right text-sm whitespace-nowrap">
+                                            <span
+                                                class="inline-flex items-center rounded-full px-2 py-1 text-xs font-medium"
+                                                :class="
+                                                    allowance.amount >= 500000
+                                                        ? 'bg-blue-100 text-blue-800 dark:bg-blue-900/30 dark:text-blue-300'
+                                                        : allowance.amount >= 200000
+                                                          ? 'bg-yellow-100 text-yellow-800 dark:bg-yellow-900/30 dark:text-yellow-300'
+                                                          : 'bg-green-100 text-green-800 dark:bg-green-900/30 dark:text-green-300'
+                                                "
+                                            >
+                                                {{ Math.round((allowance.amount / currentSetting.total_allowances) * 100) }}%
+                                            </span>
+                                        </td>
+                                        <td class="px-6 py-4 text-center whitespace-nowrap">
+                                            <span
+                                                class="inline-flex items-center rounded-full px-2 py-1 text-xs font-medium"
+                                                :class="
+                                                    allowance.name === 'meal'
+                                                        ? 'bg-purple-100 text-purple-800 dark:bg-purple-900/30 dark:text-purple-300'
+                                                        : allowance.name === 'transport'
+                                                          ? 'bg-blue-100 text-blue-800 dark:bg-blue-900/30 dark:text-blue-300'
+                                                          : allowance.name === 'communication'
+                                                            ? 'bg-cyan-100 text-cyan-800 dark:bg-cyan-900/30 dark:text-cyan-300'
+                                                            : allowance.name === 'pulsa'
+                                                              ? 'bg-orange-100 text-orange-800 dark:bg-orange-900/30 dark:text-orange-300'
+                                                              : 'bg-gray-100 text-gray-800 dark:bg-gray-900/30 dark:text-gray-300'
+                                                "
+                                            >
+                                                {{ allowance.name }}
+                                            </span>
+                                        </td>
+                                    </tr>
+                                </tbody>
+                            </table>
+                        </div>
+                        <div class="border-t border-gray-200 px-6 py-4 dark:border-gray-700">
+                            <div class="flex items-center justify-between">
+                                <span class="text-sm text-gray-500 dark:text-gray-400">Total</span>
+                                <span class="text-sm font-semibold text-gray-900 dark:text-white">
+                                    {{ formatCurrency(currentSetting.total_allowances) }}
+                                </span>
                             </div>
                         </div>
                     </div>
@@ -257,7 +327,7 @@
 <script setup lang="ts">
 import AppLayout from '@/Layouts/AppLayout.vue';
 import { Link } from '@inertiajs/vue3';
-import { AlertTriangle, ArrowLeft, CheckCircle, Clock, Edit, FileText, Gift, History, Plus, User } from 'lucide-vue-next';
+import { AlertTriangle, ArrowLeft, CheckCircle, Clock, Edit, FileText, History, Plus, User } from 'lucide-vue-next';
 import { computed } from 'vue';
 
 interface Allowance {

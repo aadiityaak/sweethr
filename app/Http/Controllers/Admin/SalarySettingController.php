@@ -119,9 +119,51 @@ class SalarySettingController extends Controller
             $query->orderBy('effective_date', 'desc');
         }, 'department', 'position']);
 
+        // Process salary settings to include formatted allowances
+        $salarySettings = $user->salarySettings->map(function ($setting) {
+            $allowances = [];
+            if ($setting->allowances) {
+                // Handle both string and array formats
+                $allowancesData = is_string($setting->allowances)
+                    ? json_decode($setting->allowances, true)
+                    : $setting->allowances;
+
+                if (is_array($allowancesData)) {
+                    // Format: {"meal": 300000, "transport": 500000}
+                    foreach ($allowancesData as $name => $amount) {
+                        $allowances[] = [
+                            'name' => $name,
+                            'amount' => (int) $amount,
+                        ];
+                    }
+                } elseif (is_array($setting->allowances)) {
+                    // Format: [{"name": "meal", "amount": 300000}]
+                    foreach ($setting->allowances as $allowance) {
+                        $allowances[] = [
+                            'name' => $allowance['name'] ?? 'Unknown',
+                            'amount' => (int) ($allowance['amount'] ?? 0),
+                        ];
+                    }
+                }
+            }
+
+            return [
+                'id' => $setting->id,
+                'user_id' => $setting->user_id,
+                'base_salary' => $setting->base_salary,
+                'allowances' => $allowances,
+                'overtime_rate' => $setting->overtime_rate,
+                'effective_date' => $setting->effective_date,
+                'is_active' => $setting->is_active,
+                'total_allowances' => $setting->total_allowances,
+                'created_at' => $setting->created_at,
+                'updated_at' => $setting->updated_at,
+            ];
+        });
+
         return Inertia::render('admin/SalarySetting/Show', [
             'user' => $user,
-            'salarySettings' => $user->salarySettings,
+            'salarySettings' => $salarySettings,
         ]);
     }
 
