@@ -1,5 +1,7 @@
 <template>
-    <div class="group relative overflow-hidden rounded-2xl bg-white shadow-sm ring-1 ring-gray-900/5 transition-all hover:shadow-md dark:bg-gray-900 dark:ring-white/10">
+    <div
+        class="group relative overflow-hidden rounded-2xl bg-white shadow-sm ring-1 ring-gray-900/5 transition-all hover:shadow-md dark:bg-gray-900 dark:ring-white/10"
+    >
         <div class="p-6">
             <div class="flex items-start justify-between">
                 <div class="flex items-start space-x-4">
@@ -13,9 +15,7 @@
                         <p class="mt-1 text-sm font-medium text-gray-600 dark:text-gray-400">
                             {{ document.document_type?.name }}
                         </p>
-                        <p class="mt-0.5 text-sm text-gray-500 dark:text-gray-500">
-                            {{ document.user?.name }} · {{ document.user?.employee_id }}
-                        </p>
+                        <p class="mt-0.5 text-sm text-gray-500 dark:text-gray-500">{{ document.user?.name }} · {{ document.user?.employee_id }}</p>
                     </div>
                 </div>
 
@@ -121,7 +121,9 @@
             </div>
 
             <!-- Upload Info -->
-            <div class="mt-4 flex items-center justify-between border-t border-gray-200 pt-4 text-xs text-gray-500 dark:border-gray-700 dark:text-gray-400">
+            <div
+                class="mt-4 flex items-center justify-between border-t border-gray-200 pt-4 text-xs text-gray-500 dark:border-gray-700 dark:text-gray-400"
+            >
                 <span class="flex items-center gap-1">
                     <span class="font-medium">Diupload oleh:</span>
                     <span>{{ document.uploaded_by?.name }}</span>

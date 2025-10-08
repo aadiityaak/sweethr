@@ -83,11 +83,11 @@
                                 id="overtime_rate"
                                 v-model="form.overtime_rate"
                                 type="number"
-                                min="1"
+                                min="0"
                                 max="5"
                                 step="0.1"
                                 class="block w-full rounded-lg border border-gray-300 py-2 pr-8 focus:border-blue-500 focus:ring-2 focus:ring-blue-500 dark:border-gray-600 dark:bg-gray-800 dark:text-white"
-                                placeholder="1.5"
+                                placeholder="0"
                                 required
                             />
                             <div class="pointer-events-none absolute inset-y-0 right-0 flex items-center pr-3">
@@ -95,7 +95,7 @@
                             </div>
                         </div>
                         <p class="mt-1 text-sm text-gray-500 dark:text-gray-400">
-                            Multiplier untuk perhitungan lembur (contoh: 1.5 = 1.5x gaji normal)
+                            Multiplier untuk perhitungan lembur (contoh: 1.5 = 1.5x gaji normal, 0 = tidak ada lembur)
                         </p>
                         <div v-if="errors.overtime_rate" class="mt-1 text-sm text-red-600 dark:text-red-400">
                             {{ errors.overtime_rate }}
@@ -281,7 +281,7 @@ const convertAllowancesToArray = (allowances: any) => {
 const form = useForm({
     base_salary: props.currentSetting?.base_salary || 0,
     allowances: convertAllowancesToArray(props.currentSetting?.allowances),
-    overtime_rate: props.currentSetting?.overtime_rate || 1.5,
+    overtime_rate: props.currentSetting?.overtime_rate ?? 1.5,
     effective_date: new Date().toISOString().split('T')[0],
 });
 

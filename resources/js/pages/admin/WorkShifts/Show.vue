@@ -129,7 +129,7 @@
                                 <div
                                     v-for="assignment in assignedEmployees"
                                     :key="assignment.id"
-                                    class="flex items-center justify-between rounded-lg border border-gray-200 bg-gray-50 p-4 transition-colors hover:bg-gray-100 dark:border-gray-700 dark:bg-gray-800 dark:hover:bg-gray-750"
+                                    class="dark:hover:bg-gray-750 flex items-center justify-between rounded-lg border border-gray-200 bg-gray-50 p-4 transition-colors hover:bg-gray-100 dark:border-gray-700 dark:bg-gray-800"
                                 >
                                     <div class="flex items-center gap-4">
                                         <div
@@ -253,7 +253,9 @@
                     <!-- Employee Selection -->
                     <div class="space-y-2">
                         <Label>Pilih Karyawan *</Label>
-                        <div class="custom-scrollbar max-h-60 space-y-2 overflow-y-auto rounded-md border border-gray-200 bg-gray-50 p-3 dark:border-gray-700 dark:bg-gray-800">
+                        <div
+                            class="custom-scrollbar max-h-60 space-y-2 overflow-y-auto rounded-md border border-gray-200 bg-gray-50 p-3 dark:border-gray-700 dark:bg-gray-800"
+                        >
                             <div v-if="availableEmployees.length === 0" class="py-4 text-center text-sm text-gray-500 dark:text-gray-400">
                                 Tidak ada karyawan yang tersedia untuk ditugaskan
                             </div>
@@ -270,7 +272,9 @@
                                         :for="`emp-${employee.id}`"
                                         class="flex flex-1 cursor-pointer items-center gap-3 rounded-md p-2 transition-colors hover:bg-white dark:hover:bg-gray-700"
                                     >
-                                        <div class="flex h-8 w-8 shrink-0 items-center justify-center rounded-full bg-blue-600 text-xs font-semibold text-white">
+                                        <div
+                                            class="flex h-8 w-8 shrink-0 items-center justify-center rounded-full bg-blue-600 text-xs font-semibold text-white"
+                                        >
                                             {{ getInitials(employee.name) }}
                                         </div>
                                         <div class="flex-1">
@@ -300,7 +304,11 @@
                         </div>
                         <div class="space-y-2">
                             <Label for="end_date">Tanggal Berakhir (Opsional)</Label>
-                            <DatePicker v-model="assignForm.end_date" :min="assignForm.effective_date || today" placeholder="Pilih tanggal berakhir" />
+                            <DatePicker
+                                v-model="assignForm.end_date"
+                                :min="assignForm.effective_date || today"
+                                placeholder="Pilih tanggal berakhir"
+                            />
                             <p v-if="assignForm.errors.end_date" class="text-sm text-red-600 dark:text-red-400">
                                 {{ assignForm.errors.end_date }}
                             </p>
@@ -312,7 +320,7 @@
                         <select
                             id="assignment_type"
                             v-model="assignForm.assignment_type"
-                            class="flex h-10 w-full rounded-md border border-input bg-background px-3 py-2 text-sm ring-offset-background focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-ring"
+                            class="flex h-10 w-full rounded-md border border-input bg-background px-3 py-2 text-sm ring-offset-background focus-visible:ring-2 focus-visible:ring-ring focus-visible:outline-none"
                         >
                             <option value="permanent">Permanen</option>
                             <option value="temporary">Sementara</option>

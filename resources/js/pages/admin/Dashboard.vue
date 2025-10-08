@@ -5,19 +5,7 @@ import AppLayout from '@/layouts/AppLayout.vue';
 // Admin dashboard uses direct URL
 import { type BreadcrumbItem } from '@/types';
 import { Head, Link, useForm } from '@inertiajs/vue3';
-import {
-    AlertCircle,
-    AlertTriangle,
-    ArrowDown,
-    ArrowUp,
-    Calendar,
-    CheckCircle,
-    Clock,
-    TrendingDown,
-    TrendingUp,
-    Users,
-    XCircle,
-} from 'lucide-vue-next';
+import { AlertCircle, AlertTriangle, Calendar, CheckCircle, Clock, TrendingDown, TrendingUp, Users } from 'lucide-vue-next';
 import { ref } from 'vue';
 
 interface User {
@@ -301,7 +289,9 @@ const generateMockAttendanceData = () => {
             <!-- Top Stats Cards (4 horizontal cards) -->
             <div v-if="user.is_admin" class="mb-6 grid gap-4 md:grid-cols-2 lg:grid-cols-4">
                 <!-- Total Employees Card -->
-                <div class="group relative overflow-hidden rounded-2xl bg-white p-6 shadow-sm ring-1 ring-gray-900/5 dark:bg-gray-900 dark:ring-white/10">
+                <div
+                    class="group relative overflow-hidden rounded-2xl bg-white p-6 shadow-sm ring-1 ring-gray-900/5 dark:bg-gray-900 dark:ring-white/10"
+                >
                     <div class="flex items-start justify-between">
                         <div class="flex h-12 w-12 items-center justify-center rounded-xl bg-blue-500/10">
                             <Users class="h-6 w-6 text-blue-600 dark:text-blue-400" />
@@ -319,19 +309,14 @@ const generateMockAttendanceData = () => {
                 </div>
 
                 <!-- Today Present Card -->
-                <div class="group relative overflow-hidden rounded-2xl bg-white p-6 shadow-sm ring-1 ring-gray-900/5 dark:bg-gray-900 dark:ring-white/10">
+                <div
+                    class="group relative overflow-hidden rounded-2xl bg-white p-6 shadow-sm ring-1 ring-gray-900/5 dark:bg-gray-900 dark:ring-white/10"
+                >
                     <div class="flex items-start justify-between">
                         <div class="flex h-12 w-12 items-center justify-center rounded-xl bg-emerald-500/10">
                             <CheckCircle class="h-6 w-6 text-emerald-600 dark:text-emerald-400" />
                         </div>
-                        <div
-                            class="flex items-center gap-1"
-                            :class="
-                                getTrendColor(
-                                    stats.trend_comparison?.attendance_rate.change || 0,
-                                )
-                            "
-                        >
+                        <div class="flex items-center gap-1" :class="getTrendColor(stats.trend_comparison?.attendance_rate.change || 0)">
                             <component :is="getTrendIcon(stats.trend_comparison?.attendance_rate.change || 0)" class="h-4 w-4" />
                             <span class="text-sm font-medium">{{ Math.abs(stats.trend_comparison?.attendance_rate.change || 0).toFixed(1) }}%</span>
                         </div>
@@ -339,12 +324,16 @@ const generateMockAttendanceData = () => {
                     <div class="mt-4">
                         <p class="text-sm font-medium text-gray-600 dark:text-gray-400">Hadir Hari Ini</p>
                         <p class="mt-1 text-3xl font-bold text-gray-900 dark:text-white">{{ stats.today_present || 0 }}</p>
-                        <p class="mt-1 text-xs text-gray-500 dark:text-gray-500">{{ Math.round(((stats.today_present || 0) / (stats.total_employees || 1)) * 100) }}% tingkat kehadiran</p>
+                        <p class="mt-1 text-xs text-gray-500 dark:text-gray-500">
+                            {{ Math.round(((stats.today_present || 0) / (stats.total_employees || 1)) * 100) }}% tingkat kehadiran
+                        </p>
                     </div>
                 </div>
 
                 <!-- Late Today Card -->
-                <div class="group relative overflow-hidden rounded-2xl bg-white p-6 shadow-sm ring-1 ring-gray-900/5 dark:bg-gray-900 dark:ring-white/10">
+                <div
+                    class="group relative overflow-hidden rounded-2xl bg-white p-6 shadow-sm ring-1 ring-gray-900/5 dark:bg-gray-900 dark:ring-white/10"
+                >
                     <div class="flex items-start justify-between">
                         <div class="flex h-12 w-12 items-center justify-center rounded-xl bg-amber-500/10">
                             <Clock class="h-6 w-6 text-amber-600 dark:text-amber-400" />
@@ -362,12 +351,18 @@ const generateMockAttendanceData = () => {
                 </div>
 
                 <!-- Pending Leave Card -->
-                <div class="group relative overflow-hidden rounded-2xl bg-white p-6 shadow-sm ring-1 ring-gray-900/5 dark:bg-gray-900 dark:ring-white/10">
+                <div
+                    class="group relative overflow-hidden rounded-2xl bg-white p-6 shadow-sm ring-1 ring-gray-900/5 dark:bg-gray-900 dark:ring-white/10"
+                >
                     <div class="flex items-start justify-between">
                         <div class="flex h-12 w-12 items-center justify-center rounded-xl bg-purple-500/10">
                             <AlertCircle class="h-6 w-6 text-purple-600 dark:text-purple-400" />
                         </div>
-                        <div class="rounded-full bg-purple-100 px-2.5 py-0.5 text-xs font-medium text-purple-700 dark:bg-purple-900/30 dark:text-purple-300">Pending</div>
+                        <div
+                            class="rounded-full bg-purple-100 px-2.5 py-0.5 text-xs font-medium text-purple-700 dark:bg-purple-900/30 dark:text-purple-300"
+                        >
+                            Pending
+                        </div>
                     </div>
                     <div class="mt-4">
                         <p class="text-sm font-medium text-gray-600 dark:text-gray-400">Pengajuan Cuti</p>
@@ -400,7 +395,9 @@ const generateMockAttendanceData = () => {
                                         :style="{ width: `${dept.attendance_rate}%` }"
                                     ></div>
                                 </div>
-                                <p class="mt-1 text-xs text-gray-500 dark:text-gray-500">{{ dept.present_today }} dari {{ dept.total_employees }} karyawan</p>
+                                <p class="mt-1 text-xs text-gray-500 dark:text-gray-500">
+                                    {{ dept.present_today }} dari {{ dept.total_employees }} karyawan
+                                </p>
                             </div>
                         </div>
                         <div v-if="!stats.department_stats || stats.department_stats.length === 0" class="py-8 text-center">
@@ -444,7 +441,9 @@ const generateMockAttendanceData = () => {
                     <div class="flex-1">
                         <h3 class="text-sm font-semibold text-gray-900 dark:text-white">{{ stats.alerts.length }} Peringatan Aktif</h3>
                         <div class="mt-2 space-y-1">
-                            <p v-for="(alert, index) in stats.alerts.slice(0, 3)" :key="index" class="text-sm text-gray-700 dark:text-gray-300">• {{ alert.message }}</p>
+                            <p v-for="(alert, index) in stats.alerts.slice(0, 3)" :key="index" class="text-sm text-gray-700 dark:text-gray-300">
+                                • {{ alert.message }}
+                            </p>
                         </div>
                     </div>
                 </div>
@@ -504,13 +503,18 @@ const generateMockAttendanceData = () => {
             <!-- Bottom Section: Pending Leaves & Recent Announcements -->
             <div class="grid gap-6 lg:grid-cols-2">
                 <!-- Pending Leave Requests -->
-                <div v-if="pendingLeaves.length > 0" class="rounded-2xl bg-white p-6 shadow-sm ring-1 ring-gray-900/5 dark:bg-gray-900 dark:ring-white/10">
+                <div
+                    v-if="pendingLeaves.length > 0"
+                    class="rounded-2xl bg-white p-6 shadow-sm ring-1 ring-gray-900/5 dark:bg-gray-900 dark:ring-white/10"
+                >
                     <div class="mb-6 flex items-center justify-between">
                         <div>
                             <h2 class="text-lg font-semibold text-gray-900 dark:text-white">Pengajuan Cuti</h2>
                             <p class="text-sm text-gray-600 dark:text-gray-400">{{ pendingLeaves.length }} menunggu persetujuan</p>
                         </div>
-                        <Link href="/admin/leave-requests" class="text-sm font-medium text-blue-600 hover:text-blue-700 dark:text-blue-400">Lihat Semua →</Link>
+                        <Link href="/admin/leave-requests" class="text-sm font-medium text-blue-600 hover:text-blue-700 dark:text-blue-400"
+                            >Lihat Semua →</Link
+                        >
                     </div>
                     <div class="space-y-3">
                         <div
@@ -552,7 +556,9 @@ const generateMockAttendanceData = () => {
                             <h2 class="text-lg font-semibold text-gray-900 dark:text-white">Pengumuman Terbaru</h2>
                             <p class="text-sm text-gray-600 dark:text-gray-400">Informasi penting dari perusahaan</p>
                         </div>
-                        <Link href="/admin/announcements" class="text-sm font-medium text-blue-600 hover:text-blue-700 dark:text-blue-400">Lihat Semua →</Link>
+                        <Link href="/admin/announcements" class="text-sm font-medium text-blue-600 hover:text-blue-700 dark:text-blue-400"
+                            >Lihat Semua →</Link
+                        >
                     </div>
                     <div class="space-y-3">
                         <div

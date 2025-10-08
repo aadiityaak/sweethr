@@ -284,7 +284,9 @@ const formatDate = (dateString: string) => {
             <!-- Stats Cards -->
             <div class="mb-6 grid gap-4 md:grid-cols-2 lg:grid-cols-4">
                 <!-- Total Employees -->
-                <div class="group relative overflow-hidden rounded-2xl bg-white p-6 shadow-sm ring-1 ring-gray-900/5 dark:bg-gray-900 dark:ring-white/10">
+                <div
+                    class="group relative overflow-hidden rounded-2xl bg-white p-6 shadow-sm ring-1 ring-gray-900/5 dark:bg-gray-900 dark:ring-white/10"
+                >
                     <div class="flex items-start justify-between">
                         <div class="flex h-12 w-12 items-center justify-center rounded-xl bg-blue-500/10">
                             <Users class="h-6 w-6 text-blue-600 dark:text-blue-400" />
@@ -298,7 +300,9 @@ const formatDate = (dateString: string) => {
                 </div>
 
                 <!-- Active Employees -->
-                <div class="group relative overflow-hidden rounded-2xl bg-white p-6 shadow-sm ring-1 ring-gray-900/5 dark:bg-gray-900 dark:ring-white/10">
+                <div
+                    class="group relative overflow-hidden rounded-2xl bg-white p-6 shadow-sm ring-1 ring-gray-900/5 dark:bg-gray-900 dark:ring-white/10"
+                >
                     <div class="flex items-start justify-between">
                         <div class="flex h-12 w-12 items-center justify-center rounded-xl bg-green-500/10">
                             <UserCheck class="h-6 w-6 text-green-600 dark:text-green-400" />
@@ -312,7 +316,9 @@ const formatDate = (dateString: string) => {
                 </div>
 
                 <!-- Inactive Employees -->
-                <div class="group relative overflow-hidden rounded-2xl bg-white p-6 shadow-sm ring-1 ring-gray-900/5 dark:bg-gray-900 dark:ring-white/10">
+                <div
+                    class="group relative overflow-hidden rounded-2xl bg-white p-6 shadow-sm ring-1 ring-gray-900/5 dark:bg-gray-900 dark:ring-white/10"
+                >
                     <div class="flex items-start justify-between">
                         <div class="flex h-12 w-12 items-center justify-center rounded-xl bg-amber-500/10">
                             <Users class="h-6 w-6 text-amber-600 dark:text-amber-400" />
@@ -343,7 +349,7 @@ const formatDate = (dateString: string) => {
             <!-- Filters -->
             <div class="mb-6 overflow-hidden rounded-2xl bg-white shadow-sm ring-1 ring-gray-900/5 dark:bg-gray-900 dark:ring-white/10">
                 <div class="border-b border-gray-200 px-6 py-4 dark:border-gray-700">
-                    <h3 class="text-lg font-semibold text-gray-900 dark:text-white flex items-center">
+                    <h3 class="flex items-center text-lg font-semibold text-gray-900 dark:text-white">
                         <Search class="mr-2 h-5 w-5 text-gray-600 dark:text-gray-400" />
                         Filter & Pencarian
                     </h3>
@@ -397,7 +403,7 @@ const formatDate = (dateString: string) => {
             <!-- Employee List -->
             <div class="overflow-hidden rounded-2xl bg-white shadow-sm ring-1 ring-gray-900/5 dark:bg-gray-900 dark:ring-white/10">
                 <div class="border-b border-gray-200 px-6 py-4 dark:border-gray-700">
-                    <h3 class="text-lg font-semibold text-gray-900 dark:text-white flex items-center">
+                    <h3 class="flex items-center text-lg font-semibold text-gray-900 dark:text-white">
                         <Users class="mr-2 h-5 w-5 text-blue-600 dark:text-blue-400" />
                         Direktori Karyawan
                     </h3>
@@ -407,7 +413,10 @@ const formatDate = (dateString: string) => {
                     <table class="min-w-full divide-y divide-gray-200 dark:divide-gray-700">
                         <thead class="bg-gray-50 dark:bg-gray-800">
                             <tr>
-                                <th scope="col" class="px-6 py-3 text-left text-xs font-medium uppercase tracking-wider text-gray-500 dark:text-gray-400">
+                                <th
+                                    scope="col"
+                                    class="px-6 py-3 text-left text-xs font-medium tracking-wider text-gray-500 uppercase dark:text-gray-400"
+                                >
                                     <button
                                         @click="sortBy('name')"
                                         :class="[
@@ -419,7 +428,10 @@ const formatDate = (dateString: string) => {
                                         <component :is="getSortIcon('name')" class="h-4 w-4" />
                                     </button>
                                 </th>
-                                <th scope="col" class="px-6 py-3 text-left text-xs font-medium uppercase tracking-wider text-gray-500 dark:text-gray-400">
+                                <th
+                                    scope="col"
+                                    class="px-6 py-3 text-left text-xs font-medium tracking-wider text-gray-500 uppercase dark:text-gray-400"
+                                >
                                     <button
                                         @click="sortBy('department')"
                                         :class="[
@@ -431,7 +443,10 @@ const formatDate = (dateString: string) => {
                                         <component :is="getSortIcon('department')" class="h-4 w-4" />
                                     </button>
                                 </th>
-                                <th scope="col" class="px-6 py-3 text-left text-xs font-medium uppercase tracking-wider text-gray-500 dark:text-gray-400">
+                                <th
+                                    scope="col"
+                                    class="px-6 py-3 text-left text-xs font-medium tracking-wider text-gray-500 uppercase dark:text-gray-400"
+                                >
                                     <button
                                         @click="sortBy('position')"
                                         :class="[
@@ -443,7 +458,10 @@ const formatDate = (dateString: string) => {
                                         <component :is="getSortIcon('position')" class="h-4 w-4" />
                                     </button>
                                 </th>
-                                <th scope="col" class="px-6 py-3 text-left text-xs font-medium uppercase tracking-wider text-gray-500 dark:text-gray-400">
+                                <th
+                                    scope="col"
+                                    class="px-6 py-3 text-left text-xs font-medium tracking-wider text-gray-500 uppercase dark:text-gray-400"
+                                >
                                     <button
                                         @click="sortBy('email')"
                                         :class="[
@@ -455,7 +473,10 @@ const formatDate = (dateString: string) => {
                                         <component :is="getSortIcon('email')" class="h-4 w-4" />
                                     </button>
                                 </th>
-                                <th scope="col" class="px-6 py-3 text-left text-xs font-medium uppercase tracking-wider text-gray-500 dark:text-gray-400">
+                                <th
+                                    scope="col"
+                                    class="px-6 py-3 text-left text-xs font-medium tracking-wider text-gray-500 uppercase dark:text-gray-400"
+                                >
                                     <button
                                         @click="sortBy('hire_date')"
                                         :class="[
@@ -467,7 +488,10 @@ const formatDate = (dateString: string) => {
                                         <component :is="getSortIcon('hire_date')" class="h-4 w-4" />
                                     </button>
                                 </th>
-                                <th scope="col" class="px-6 py-3 text-left text-xs font-medium uppercase tracking-wider text-gray-500 dark:text-gray-400">
+                                <th
+                                    scope="col"
+                                    class="px-6 py-3 text-left text-xs font-medium tracking-wider text-gray-500 uppercase dark:text-gray-400"
+                                >
                                     <button
                                         @click="sortBy('status')"
                                         :class="[
@@ -479,16 +503,22 @@ const formatDate = (dateString: string) => {
                                         <component :is="getSortIcon('status')" class="h-4 w-4" />
                                     </button>
                                 </th>
-                                <th scope="col" class="px-6 py-3 text-left text-xs font-medium uppercase tracking-wider text-gray-500 dark:text-gray-400">Shift Default</th>
-                                <th scope="col" class="px-6 py-3 text-right text-xs font-medium uppercase tracking-wider text-gray-500 dark:text-gray-400">Aksi</th>
+                                <th
+                                    scope="col"
+                                    class="px-6 py-3 text-left text-xs font-medium tracking-wider text-gray-500 uppercase dark:text-gray-400"
+                                >
+                                    Shift Default
+                                </th>
+                                <th
+                                    scope="col"
+                                    class="px-6 py-3 text-right text-xs font-medium tracking-wider text-gray-500 uppercase dark:text-gray-400"
+                                >
+                                    Aksi
+                                </th>
                             </tr>
                         </thead>
                         <tbody class="divide-y divide-gray-200 bg-white dark:divide-gray-700 dark:bg-gray-900">
-                            <tr
-                                v-for="employee in employees?.data || []"
-                                :key="employee.id"
-                                class="hover:bg-gray-50 dark:hover:bg-gray-800"
-                            >
+                            <tr v-for="employee in employees?.data || []" :key="employee.id" class="hover:bg-gray-50 dark:hover:bg-gray-800">
                                 <td class="px-6 py-4">
                                     <div class="flex items-center gap-3">
                                         <div v-if="employee.profile_photo_url" class="h-10 w-10 rounded-full">
@@ -540,7 +570,9 @@ const formatDate = (dateString: string) => {
                                 </td>
                                 <td class="px-6 py-4">
                                     <div v-if="employee.employee_shifts && employee.employee_shifts.length > 0" class="space-y-1">
-                                        <div class="inline-flex items-center gap-2 rounded-md bg-blue-100 px-2.5 py-1 text-xs font-medium text-blue-800 dark:bg-blue-900/30 dark:text-blue-400">
+                                        <div
+                                            class="inline-flex items-center gap-2 rounded-md bg-blue-100 px-2.5 py-1 text-xs font-medium text-blue-800 dark:bg-blue-900/30 dark:text-blue-400"
+                                        >
                                             <span class="font-semibold">{{ employee.employee_shifts[0].work_shift?.name }}</span>
                                         </div>
                                         <div class="text-xs text-gray-500 dark:text-gray-400">
@@ -548,11 +580,9 @@ const formatDate = (dateString: string) => {
                                             {{ employee.employee_shifts[0].work_shift?.end_time?.substring(0, 5) }}
                                         </div>
                                     </div>
-                                    <div v-else class="text-sm text-gray-400 dark:text-gray-500">
-                                        Belum ditugaskan
-                                    </div>
+                                    <div v-else class="text-sm text-gray-400 dark:text-gray-500">Belum ditugaskan</div>
                                 </td>
-                                <td class="whitespace-nowrap px-6 py-4 text-right text-sm font-medium">
+                                <td class="px-6 py-4 text-right text-sm font-medium whitespace-nowrap">
                                     <div class="flex items-center justify-end gap-2">
                                         <Link
                                             :href="`/employees/${employee.id}/edit?v=${Date.now()}`"

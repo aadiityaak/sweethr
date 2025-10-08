@@ -14,8 +14,8 @@ import { Head, Link, router } from '@inertiajs/vue3';
 import {
     AlertCircle,
     ArrowDown,
-    ArrowUpDown,
     ArrowUp,
+    ArrowUpDown,
     BarChart3,
     Calendar,
     CheckCircle,
@@ -840,7 +840,7 @@ onUnmounted(() => {
                 <div class="mb-8 grid gap-6 lg:grid-cols-2">
                     <!-- Quick Date Selection -->
                     <div>
-                        <div class="flex items-center gap-3 mb-4">
+                        <div class="mb-4 flex items-center gap-3">
                             <div class="flex h-8 w-8 items-center justify-center rounded-lg bg-blue-500/10 ring-1 ring-blue-500/20">
                                 <Calendar class="h-4 w-4 text-blue-600 dark:text-blue-400" />
                             </div>
@@ -885,7 +885,7 @@ onUnmounted(() => {
 
                     <!-- Date Range Filter -->
                     <div>
-                        <div class="flex items-center gap-3 mb-4">
+                        <div class="mb-4 flex items-center gap-3">
                             <div class="flex h-8 w-8 items-center justify-center rounded-lg bg-purple-500/10 ring-1 ring-purple-500/20">
                                 <Calendar class="h-4 w-4 text-purple-600 dark:text-purple-400" />
                             </div>
@@ -962,7 +962,7 @@ onUnmounted(() => {
                             <tr>
                                 <th
                                     @click="sortBy('user.name')"
-                                    class="px-8 py-4 text-left text-xs font-medium tracking-wide text-gray-500 uppercase dark:text-gray-400 cursor-pointer hover:bg-gray-100/50 dark:hover:bg-gray-800/50 transition-colors"
+                                    class="cursor-pointer px-8 py-4 text-left text-xs font-medium tracking-wide text-gray-500 uppercase transition-colors hover:bg-gray-100/50 dark:text-gray-400 dark:hover:bg-gray-800/50"
                                 >
                                     <div class="flex items-center gap-1">
                                         Karyawan
@@ -971,7 +971,7 @@ onUnmounted(() => {
                                 </th>
                                 <th
                                     @click="sortBy('shift_info.name')"
-                                    class="px-8 py-4 text-left text-xs font-medium tracking-wide text-gray-500 uppercase dark:text-gray-400 cursor-pointer hover:bg-gray-100/50 dark:hover:bg-gray-800/50 transition-colors"
+                                    class="cursor-pointer px-8 py-4 text-left text-xs font-medium tracking-wide text-gray-500 uppercase transition-colors hover:bg-gray-100/50 dark:text-gray-400 dark:hover:bg-gray-800/50"
                                 >
                                     <div class="flex items-center gap-1">
                                         Shift
@@ -980,7 +980,7 @@ onUnmounted(() => {
                                 </th>
                                 <th
                                     @click="sortBy('date')"
-                                    class="px-8 py-4 text-left text-xs font-medium tracking-wide text-gray-500 uppercase dark:text-gray-400 cursor-pointer hover:bg-gray-100/50 dark:hover:bg-gray-800/50 transition-colors"
+                                    class="cursor-pointer px-8 py-4 text-left text-xs font-medium tracking-wide text-gray-500 uppercase transition-colors hover:bg-gray-100/50 dark:text-gray-400 dark:hover:bg-gray-800/50"
                                 >
                                     <div class="flex items-center gap-1">
                                         Tanggal
@@ -989,7 +989,7 @@ onUnmounted(() => {
                                 </th>
                                 <th
                                     @click="sortBy('check_in_time')"
-                                    class="px-8 py-4 text-left text-xs font-medium tracking-wide text-gray-500 uppercase dark:text-gray-400 cursor-pointer hover:bg-gray-100/50 dark:hover:bg-gray-800/50 transition-colors"
+                                    class="cursor-pointer px-8 py-4 text-left text-xs font-medium tracking-wide text-gray-500 uppercase transition-colors hover:bg-gray-100/50 dark:text-gray-400 dark:hover:bg-gray-800/50"
                                 >
                                     <div class="flex items-center gap-1">
                                         Check In
@@ -998,7 +998,7 @@ onUnmounted(() => {
                                 </th>
                                 <th
                                     @click="sortBy('check_out_time')"
-                                    class="px-8 py-4 text-left text-xs font-medium tracking-wide text-gray-500 uppercase dark:text-gray-400 cursor-pointer hover:bg-gray-100/50 dark:hover:bg-gray-800/50 transition-colors"
+                                    class="cursor-pointer px-8 py-4 text-left text-xs font-medium tracking-wide text-gray-500 uppercase transition-colors hover:bg-gray-100/50 dark:text-gray-400 dark:hover:bg-gray-800/50"
                                 >
                                     <div class="flex items-center gap-1">
                                         Check Out
@@ -1007,7 +1007,7 @@ onUnmounted(() => {
                                 </th>
                                 <th
                                     @click="sortBy('work_duration')"
-                                    class="px-8 py-4 text-left text-xs font-medium tracking-wide text-gray-500 uppercase dark:text-gray-400 cursor-pointer hover:bg-gray-100/50 dark:hover:bg-gray-800/50 transition-colors"
+                                    class="cursor-pointer px-8 py-4 text-left text-xs font-medium tracking-wide text-gray-500 uppercase transition-colors hover:bg-gray-100/50 dark:text-gray-400 dark:hover:bg-gray-800/50"
                                 >
                                     <div class="flex items-center gap-1">
                                         Durasi
@@ -1016,7 +1016,7 @@ onUnmounted(() => {
                                 </th>
                                 <th
                                     @click="sortBy('status')"
-                                    class="px-8 py-4 text-left text-xs font-medium tracking-wide text-gray-500 uppercase dark:text-gray-400 cursor-pointer hover:bg-gray-100/50 dark:hover:bg-gray-800/50 transition-colors"
+                                    class="cursor-pointer px-8 py-4 text-left text-xs font-medium tracking-wide text-gray-500 uppercase transition-colors hover:bg-gray-100/50 dark:text-gray-400 dark:hover:bg-gray-800/50"
                                 >
                                     <div class="flex items-center gap-1">
                                         Status
@@ -1025,7 +1025,7 @@ onUnmounted(() => {
                                 </th>
                                 <th
                                     @click="sortBy('office_location.name')"
-                                    class="px-8 py-4 text-left text-xs font-medium tracking-wide text-gray-500 uppercase dark:text-gray-400 cursor-pointer hover:bg-gray-100/50 dark:hover:bg-gray-800/50 transition-colors"
+                                    class="cursor-pointer px-8 py-4 text-left text-xs font-medium tracking-wide text-gray-500 uppercase transition-colors hover:bg-gray-100/50 dark:text-gray-400 dark:hover:bg-gray-800/50"
                                 >
                                     <div class="flex items-center gap-1">
                                         Lokasi

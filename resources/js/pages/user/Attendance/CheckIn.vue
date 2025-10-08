@@ -459,25 +459,37 @@ const performCheckIn = () => {
                         <!-- Status Icon -->
                         <div
                             class="mx-auto flex h-16 w-16 items-center justify-center rounded-full"
-                            :class="hasCheckedInToday ? 'bg-green-100 dark:bg-green-900/50' : (isInRange || user.allow_outside_radius) ? 'bg-green-100 dark:bg-green-900/50' : 'bg-muted'"
+                            :class="
+                                hasCheckedInToday
+                                    ? 'bg-green-100 dark:bg-green-900/50'
+                                    : isInRange || user.allow_outside_radius
+                                      ? 'bg-green-100 dark:bg-green-900/50'
+                                      : 'bg-muted'
+                            "
                         >
                             <CheckCircle v-if="hasCheckedInToday" class="h-8 w-8 text-green-600 dark:text-green-400" />
                             <Clock
                                 v-else
                                 class="h-8 w-8"
-                                :class="(isInRange || user.allow_outside_radius) ? 'text-green-600 dark:text-green-400' : 'text-muted-foreground'"
+                                :class="isInRange || user.allow_outside_radius ? 'text-green-600 dark:text-green-400' : 'text-muted-foreground'"
                             />
                         </div>
 
                         <div>
                             <h2 class="text-lg font-semibold">
-                                {{ hasCheckedInToday ? 'Sudah Check In Hari Ini' : (isInRange || user.allow_outside_radius) ? 'Siap Check In!' : 'Belum Bisa Check In' }}
+                                {{
+                                    hasCheckedInToday
+                                        ? 'Sudah Check In Hari Ini'
+                                        : isInRange || user.allow_outside_radius
+                                          ? 'Siap Check In!'
+                                          : 'Belum Bisa Check In'
+                                }}
                             </h2>
                             <p class="mt-1 text-sm text-muted-foreground">
                                 {{
                                     hasCheckedInToday
                                         ? 'Absensi masuk Anda sudah tercatat untuk hari ini'
-                                        : (isInRange || user.allow_outside_radius)
+                                        : isInRange || user.allow_outside_radius
                                           ? 'Anda dapat melakukan absensi masuk sekarang'
                                           : 'Mohon mendekat ke lokasi kantor'
                                 }}
@@ -490,7 +502,7 @@ const performCheckIn = () => {
                             :disabled="(!isInRange && !user.allow_outside_radius) || form.processing"
                             class="inline-flex w-full items-center justify-center gap-2 rounded-lg px-6 py-4 text-sm font-medium transition-colors disabled:cursor-not-allowed disabled:opacity-50"
                             :class="
-                                (isInRange || user.allow_outside_radius)
+                                isInRange || user.allow_outside_radius
                                     ? 'bg-green-600 text-white shadow-sm hover:bg-green-700'
                                     : 'cursor-not-allowed bg-muted text-muted-foreground'
                             "
@@ -498,7 +510,7 @@ const performCheckIn = () => {
                             <Loader2 v-if="form.processing" class="h-4 w-4 animate-spin" />
                             <Clock v-else class="h-4 w-4" />
                             <span v-if="form.processing">Sedang Check In...</span>
-                            <span v-else>{{ (isInRange || user.allow_outside_radius) ? 'Check In Sekarang' : 'Belum Bisa Check In' }}</span>
+                            <span v-else>{{ isInRange || user.allow_outside_radius ? 'Check In Sekarang' : 'Belum Bisa Check In' }}</span>
                         </button>
 
                         <!-- Already Checked In Button -->

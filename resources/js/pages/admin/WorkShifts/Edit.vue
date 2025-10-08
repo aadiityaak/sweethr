@@ -87,7 +87,9 @@
                                         </p>
                                     </div>
                                     <div class="space-y-2">
-                                        <Label for="overtime_multiplier" class="text-sm font-medium text-gray-900 dark:text-white">Multiplier Lembur *</Label>
+                                        <Label for="overtime_multiplier" class="text-sm font-medium text-gray-900 dark:text-white"
+                                            >Multiplier Lembur *</Label
+                                        >
                                         <Input
                                             id="overtime_multiplier"
                                             v-model.number="form.overtime_multiplier"
@@ -219,8 +221,8 @@
                                 Peringatan
                             </h4>
                             <p class="text-sm leading-relaxed text-yellow-800 dark:text-yellow-300">
-                                Shift ini memiliki <strong>{{ workShift.employee_shifts_count }}</strong> penugasan aktif. Perubahan akan mempengaruhi jadwal
-                                karyawan yang sudah ditugaskan.
+                                Shift ini memiliki <strong>{{ workShift.employee_shifts_count }}</strong> penugasan aktif. Perubahan akan mempengaruhi
+                                jadwal karyawan yang sudah ditugaskan.
                             </p>
                         </div>
                     </div>
