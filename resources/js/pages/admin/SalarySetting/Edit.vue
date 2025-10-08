@@ -86,7 +86,7 @@
                                 min="0"
                                 max="5"
                                 step="0.1"
-                                class="block w-full rounded-lg border border-gray-300 py-2 pr-8 focus:border-blue-500 focus:ring-2 focus:ring-blue-500 dark:border-gray-600 dark:bg-gray-800 dark:text-white"
+                                class="block w-full rounded-lg border border-gray-300 py-2 pl-3 pr-8 focus:border-blue-500 focus:ring-2 focus:ring-blue-500 dark:border-gray-600 dark:bg-gray-800 dark:text-white"
                                 placeholder="0"
                                 required
                             />
@@ -326,6 +326,8 @@ const submit = () => {
         onFinish: () => {
             processing.value = false;
         },
+        preserveState: false,
+        preserveScroll: false,
     });
 };
 
