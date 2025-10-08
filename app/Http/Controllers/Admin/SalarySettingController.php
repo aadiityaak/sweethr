@@ -79,8 +79,13 @@ class SalarySettingController extends Controller
             ->through(function ($user) {
                 $allowances = [];
                 if ($user->currentSalarySetting && $user->currentSalarySetting->allowances) {
-                    $allowancesData = json_decode($user->currentSalarySetting->allowances, true);
+                    // Handle both string and array formats
+                    $allowancesData = is_string($user->currentSalarySetting->allowances)
+                        ? json_decode($user->currentSalarySetting->allowances, true)
+                        : $user->currentSalarySetting->allowances;
+
                     if (is_array($allowancesData)) {
+                        // Format: {"meal": 300000, "transport": 500000}
                         foreach ($allowancesData as $name => $amount) {
                             $allowances[] = [
                                 'name' => $name,
