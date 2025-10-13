@@ -6,7 +6,6 @@ use App\Helpers\UrlHelper;
 use App\Models\Announcement;
 use App\Models\Attendance;
 use App\Models\Department;
-use App\Models\EmployeeShift;
 use App\Models\LeaveRequest;
 use App\Models\OfficeLocation;
 use App\Models\User;
@@ -20,7 +19,9 @@ class DashboardController extends Controller
 {
     public function __construct(
         private FaceRecognitionService $faceRecognitionService
-    ) {}
+    ) {
+        // Constructor
+    }
 
     public function index(): Response
     {
@@ -75,16 +76,15 @@ class DashboardController extends Controller
         header('Expires: 0');
 
         // Get fresh user data from database to avoid cache issues
-        $userId = auth()->id();
-        $user = \App\Models\User::find($userId);
+        $user = auth()->user();
 
         // Force refresh user data from database to ensure fresh face recognition data
         $user->refresh();
 
-        // Get today's attendance
+        // Get today's attendance with work shift
         $todayAttendance = Attendance::where('user_id', $user->id)
             ->where('date', Carbon::today())
-            ->with('officeLocation')
+            ->with(['officeLocation', 'workShift'])
             ->first();
 
         // Get user's attendance this month
@@ -126,38 +126,7 @@ class DashboardController extends Controller
                 ];
             });
 
-        // Get user's assigned work shifts (for reference)
-        $assignedShifts = EmployeeShift::with('workShift')
-            ->where('user_id', $user->id)
-            ->where('is_active', true)
-            ->where(function ($query) {
-                $query->whereNull('end_date')
-                    ->orWhere('end_date', '>=', Carbon::today());
-            })
-            ->where('effective_date', '<=', Carbon::today())
-            ->get()
-            ->filter(function ($employeeShift) {
-                // Only include shifts that have a valid work_shift relationship
-                return $employeeShift->workShift !== null;
-            })
-            ->map(function ($employeeShift) {
-                return [
-                    'id' => $employeeShift->workShift->id,
-                    'name' => $employeeShift->workShift->name,
-                    'code' => $employeeShift->workShift->code,
-                    'start_time' => $employeeShift->workShift->start_time,
-                    'end_time' => $employeeShift->workShift->end_time,
-                    'work_hours' => $employeeShift->workShift->work_hours,
-                    'break_duration' => $employeeShift->workShift->break_duration,
-                    'workdays' => $employeeShift->workShift->workdays,
-                    'is_night_shift' => $employeeShift->workShift->is_night_shift,
-                    'assignment_type' => $employeeShift->assignment_type,
-                    'effective_date' => $employeeShift->effective_date,
-                    'end_date' => $employeeShift->end_date,
-                ];
-            });
-
-        // Use all work shifts instead of just assigned shifts
+        // Use all work shifts for user to choose from
         $userShifts = $allWorkShifts;
 
         // Get face recognition data - ensure fresh data from database

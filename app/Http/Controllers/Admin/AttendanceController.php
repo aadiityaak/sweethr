@@ -211,8 +211,21 @@ class AttendanceController extends Controller
                 }
 
                 if ($workShift) {
-                    $shiftStartTime = $workShift->start_time;
-                    $record->late_duration = $record->getLateDuration($shiftStartTime);
+                    // Ensure shift start time is in proper format
+                    $shiftStartTime = $workShift->start_time instanceof \DateTime
+                        ? $workShift->start_time->format('H:i:s')
+                        : $workShift->start_time;
+
+                    // Calculate late duration - use existing value if available, otherwise calculate
+                    if ($record->late_duration !== null) {
+                        // Use existing stored value (already calculated at check-in)
+                        $lateDuration = $record->late_duration;
+                    } else {
+                        // Calculate on the fly for backward compatibility
+                        $lateDuration = $record->getLateDuration($shiftStartTime);
+                    }
+
+                    $record->late_duration = $lateDuration;
 
                     // Add shift info for display - format times as strings
                     $record->shift_info = [

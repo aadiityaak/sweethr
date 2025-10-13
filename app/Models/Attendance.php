@@ -122,6 +122,7 @@ class Attendance extends Model
             return null; // Not late
         }
 
+        // diffInMinutes returns absolute difference, which is correct for late calculation
         return $checkIn->diffInMinutes($shiftStart);
     }
 }
