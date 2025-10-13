@@ -23,7 +23,7 @@ class AttendanceController extends Controller
         $user = auth()->user();
 
         // Check if work_shift_id column exists in attendances table
-        if (!\Illuminate\Support\Facades\Schema::hasColumn('attendances', 'work_shift_id')) {
+        if (! \Illuminate\Support\Facades\Schema::hasColumn('attendances', 'work_shift_id')) {
             Log::warning('work_shift_id column does not exist in attendances table');
 
             // Try to add the column if it doesn't exist
@@ -33,7 +33,7 @@ class AttendanceController extends Controller
                 });
                 Log::info('work_shift_id column added to attendances table');
             } catch (\Exception $e) {
-                Log::error('Failed to add work_shift_id column: ' . $e->getMessage());
+                Log::error('Failed to add work_shift_id column: '.$e->getMessage());
             }
         }
 
@@ -44,23 +44,23 @@ class AttendanceController extends Controller
                 // Show all data without date filtering
                 return $query;
             })
-            ->when(!$request->show_all, function ($query) use ($request) {
+            ->when(! $request->show_all, function ($query) use ($request) {
                 // Apply date filters when not showing all data
                 return $query->when($request->date_from, function ($query, $dateFrom) {
                     $query->whereDate('date', '>=', $dateFrom);
                 })
-                ->when($request->date_to, function ($query, $dateTo) {
-                    $query->whereDate('date', '<=', $dateTo);
-                })
-                ->when(!$request->date_from && !$request->date_to, function ($query) use ($request) {
-                    // Fall back to month/year filtering if no date range specified
-                    $query->when($request->month, function ($query, $month) {
-                        $query->whereMonth('date', $month);
+                    ->when($request->date_to, function ($query, $dateTo) {
+                        $query->whereDate('date', '<=', $dateTo);
                     })
-                    ->when($request->year, function ($query, $year) {
-                        $query->whereYear('date', $year);
+                    ->when(! $request->date_from && ! $request->date_to, function ($query) use ($request) {
+                        // Fall back to month/year filtering if no date range specified
+                        $query->when($request->month, function ($query, $month) {
+                            $query->whereMonth('date', $month);
+                        })
+                            ->when($request->year, function ($query, $year) {
+                                $query->whereYear('date', $year);
+                            });
                     });
-                });
             })
             ->paginate(20);
 
@@ -149,8 +149,9 @@ class AttendanceController extends Controller
         try {
             $user = auth()->user();
 
-            if (!$user) {
+            if (! $user) {
                 Log::error('Check-in failed: User not authenticated');
+
                 return back()->withErrors(['message' => 'Anda harus login terlebih dahulu']);
             }
             // Force refresh user data from database to get latest settings
@@ -163,7 +164,7 @@ class AttendanceController extends Controller
             ];
 
             // Office location is required only if user doesn't have remote attendance permission
-            if (!$user->allow_outside_radius) {
+            if (! $user->allow_outside_radius) {
                 $validationRules['office_location_id'] = 'required|exists:office_locations,id';
             } else {
                 $validationRules['office_location_id'] = 'nullable|exists:office_locations,id';
@@ -186,6 +187,7 @@ class AttendanceController extends Controller
                 'errors' => $e->errors(),
                 'user_id' => auth()->id(),
             ]);
+
             return back()->withErrors($e->errors());
         } catch (\Exception $e) {
             Log::error('Check-in validation error', [
@@ -193,7 +195,8 @@ class AttendanceController extends Controller
                 'trace' => $e->getTraceAsString(),
                 'user_id' => auth()->id(),
             ]);
-            return back()->withErrors(['message' => 'Terjadi kesalahan: ' . $e->getMessage()]);
+
+            return back()->withErrors(['message' => 'Terjadi kesalahan: '.$e->getMessage()]);
         }
 
         $today = Carbon::today();
@@ -334,7 +337,7 @@ class AttendanceController extends Controller
         }
 
         // If no valid selected shift, fall back to current assigned shift
-        if (!$shift) {
+        if (! $shift) {
             $shift = $user->employeeShifts()->current()->with('workShift')->first();
             Log::info('Using current assigned shift for attendance', [
                 'user_id' => $user->id,
@@ -379,7 +382,7 @@ class AttendanceController extends Controller
                 ],
                 [
                     'office_location_id' => $request->office_location_id,
-                    'work_shift_id' => $shift?->work_shift_id,
+                    'work_shift_id' => $shift?->workShift->id,
                     'check_in_time' => $checkInTime->format('H:i:s'),
                     'check_in_latitude' => $request->latitude,
                     'check_in_longitude' => $request->longitude,
@@ -404,7 +407,8 @@ class AttendanceController extends Controller
                     'work_shift_id' => $shift?->work_shift_id,
                 ],
             ]);
-            return back()->withErrors(['message' => 'Gagal menyimpan absensi: ' . $e->getMessage()]);
+
+            return back()->withErrors(['message' => 'Gagal menyimpan absensi: '.$e->getMessage()]);
         }
 
         // Debug logging for saved attendance
@@ -519,10 +523,10 @@ class AttendanceController extends Controller
                     $extension
                 );
 
-                $fullPath = $directory . '/' . $filename;
+                $fullPath = $directory.'/'.$filename;
 
                 if (file_put_contents($fullPath, $imageData)) {
-                    return 'face-photos/' . $filename;
+                    return 'face-photos/'.$filename;
                 }
             }
         } catch (\Exception $e) {
