@@ -372,6 +372,10 @@ class AttendanceController extends Controller
             'face_photo_path_value' => $facePhotoPath,
             'face_match_confidence' => $faceMatchConfidence,
             'face_verification_passed' => $faceVerificationPassed,
+            'work_shift_id' => $shift?->workShift->id,
+            'work_shift_name' => $shift?->workShift->name,
+            'work_shift_start_time' => $shift?->workShift->start_time,
+            'work_shift_end_time' => $shift?->workShift->end_time,
         ]);
 
         try {
@@ -416,6 +420,10 @@ class AttendanceController extends Controller
             'attendance_id' => $attendance->id,
             'work_shift_id' => $attendance->work_shift_id,
             'shift_name' => $shift?->workShift->name,
+            'saved_work_shift_id' => $attendance->work_shift_id,
+            'saved_shift_name' => $attendance->workShift?->name,
+            'date' => $attendance->date,
+            'check_in_time' => $attendance->check_in_time,
         ]);
 
         $message = 'Check in berhasil!';

@@ -128,6 +128,7 @@ class AttendanceController extends Controller
                     $query->with(['department:id,name', 'position:id,title']);
                 },
                 'officeLocation:id,name,address',
+                'workShift:id,name,code,start_time,end_time',
             ])
                 ->whereBetween('date', [$dateFrom, $dateTo])
                 ->when($filters['status'] ?? false, function ($query, $status) {
@@ -190,13 +191,15 @@ class AttendanceController extends Controller
 
             // Calculate late duration for each attendance record and add shift info
             $attendanceRecords = $attendanceRecords->map(function ($record) {
-                // PRIORITY 1: Use the work_shift_id saved in attendance record (user's selected shift)
-                $workShift = null;
-                if ($record->work_shift_id) {
+                // PRIORITY 1: Use the workShift relationship that was already loaded (user's selected shift)
+                $workShift = $record->workShift;
+
+                // FALLBACK: If no workShift relationship, try to find by work_shift_id
+                if (! $workShift && $record->work_shift_id) {
                     $workShift = \App\Models\WorkShift::find($record->work_shift_id);
                 }
 
-                // FALLBACK: Get user's assigned shift for the attendance date
+                // FALLBACK 2: Get user's assigned shift for the attendance date
                 if (! $workShift) {
                     $shift = $record->user->employeeShifts()
                         ->where('effective_date', '<=', $record->date)
