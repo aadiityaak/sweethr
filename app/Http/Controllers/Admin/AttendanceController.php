@@ -27,9 +27,9 @@ class AttendanceController extends Controller
         // Get filters
         $filters = $request->only(['date', 'date_from', 'date_to', 'status', 'department', 'office_location', 'search', 'sort', 'direction']);
 
-        // Handle date range logic - default to current month
-        $dateFrom = $filters['date_from'] ?? Carbon::now()->startOfMonth()->format('Y-m-d');
-        $dateTo = $filters['date_to'] ?? Carbon::now()->endOfMonth()->format('Y-m-d');
+        // Handle date range logic - default to last 7 days to show recent attendance
+        $dateFrom = $filters['date_from'] ?? Carbon::now()->subDays(7)->format('Y-m-d');
+        $dateTo = $filters['date_to'] ?? Carbon::today()->format('Y-m-d');
         $date = $filters['date'] ?? Carbon::today()->format('Y-m-d');
 
         // Special handling for absent status - show employees without attendance records
@@ -150,11 +150,12 @@ class AttendanceController extends Controller
                 });
 
             // Add sorting for attendance records
-            $sort = $filters['sort'] ?? 'date';
+            $sort = $filters['sort'] ?? 'id';
             $direction = $filters['direction'] ?? 'desc';
 
             // Map frontend sort fields to database columns with relationships
             $sortMapping = [
+                'id' => 'id',
                 'user.name' => 'user.name',
                 'shift_info.name' => 'date', // fallback to date for shift sorting
                 'date' => 'date',

@@ -315,7 +315,8 @@ class AttendanceController extends Controller
         // First try to use the selected shift from the request
         if ($request->has('selected_shift_id')) {
             $selectedShiftId = $request->input('selected_shift_id');
-            // Verify this shift is assigned to the user
+
+            // First try to find assigned shift
             $assignedShift = $user->employeeShifts()
                 ->where('work_shift_id', $selectedShiftId)
                 ->where('effective_date', '<=', $today)
@@ -328,11 +329,25 @@ class AttendanceController extends Controller
 
             if ($assignedShift) {
                 $shift = $assignedShift;
-                Log::info('Using selected shift for attendance', [
+                Log::info('Using selected assigned shift for attendance', [
                     'user_id' => $user->id,
                     'selected_shift_id' => $selectedShiftId,
                     'shift_name' => $shift->workShift->name,
                 ]);
+            } else {
+                // Fallback: If no assignment found, use the selected shift directly
+                $directShift = \App\Models\WorkShift::find($selectedShiftId);
+                if ($directShift) {
+                    // Create a temporary shift object for compatibility
+                    $shift = (object) [
+                        'workShift' => $directShift
+                    ];
+                    Log::info('Using selected shift directly (no assignment found)', [
+                        'user_id' => $user->id,
+                        'selected_shift_id' => $selectedShiftId,
+                        'shift_name' => $directShift->name,
+                    ]);
+                }
             }
         }
 

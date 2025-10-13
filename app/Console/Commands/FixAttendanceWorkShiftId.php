@@ -40,9 +40,15 @@ class FixAttendanceWorkShiftId extends Command
             $this->warn('DRY RUN MODE - No changes will be made');
         }
 
-        // Build query
+        // Build query - get all attendance records that need fixing
         $query = Attendance::with(['user', 'workShift'])
-            ->whereNotNull('work_shift_id');
+            ->where(function($q) {
+                $q->whereNull('work_shift_id')
+                  ->orWhereHas('workShift', function($subQ) {
+                      // Also get records with invalid work_shift_id
+                      $subQ->whereNull('id');
+                  });
+            });
 
         if ($specificDate) {
             $query->where('date', $specificDate);

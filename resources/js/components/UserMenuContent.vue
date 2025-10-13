@@ -1,7 +1,6 @@
 <script setup lang="ts">
 import UserInfo from '@/components/UserInfo.vue';
 import { DropdownMenuGroup, DropdownMenuItem, DropdownMenuLabel, DropdownMenuSeparator } from '@/components/ui/dropdown-menu';
-import { logout } from '@/routes';
 import { edit } from '@/routes/profile';
 import type { User } from '@/types';
 import { Link, router } from '@inertiajs/vue3';
@@ -33,6 +32,9 @@ const handleLogout = async () => {
 
     // Clear Inertia router cache
     router.flushAll();
+
+    // Perform logout
+    router.post('/logout');
 };
 
 defineProps<Props>();
@@ -55,9 +57,9 @@ defineProps<Props>();
     </DropdownMenuGroup>
     <DropdownMenuSeparator />
     <DropdownMenuItem :as-child="true">
-        <Link class="block w-full" :href="logout()" @click="handleLogout" as="button" data-test="logout-button">
+        <button class="block w-full text-left" @click="handleLogout" data-test="logout-button">
             <LogOut class="mr-2 h-4 w-4" />
             Log out
-        </Link>
+        </button>
     </DropdownMenuItem>
 </template>

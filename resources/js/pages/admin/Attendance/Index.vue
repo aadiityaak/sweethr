@@ -455,9 +455,9 @@ const toggleDropdown = (recordId: number) => {
 // Charts visibility state
 const showCharts = ref(false);
 
-// Sorting functionality
-const sortField = ref(filters.sort || '');
-const sortDirection = ref(filters.direction || 'asc');
+// Sorting functionality - default to ID descending
+const sortField = ref(filters.sort || 'id');
+const sortDirection = ref(filters.direction || 'desc');
 
 // Close dropdown when clicking outside
 const closeDropdown = () => {
@@ -961,6 +961,15 @@ onUnmounted(() => {
                         <thead class="border-b border-gray-200/50 bg-gray-50/50 dark:border-gray-800/50 dark:bg-gray-900/50">
                             <tr>
                                 <th
+                                    @click="sortBy('id')"
+                                    class="cursor-pointer px-6 py-4 text-left text-xs font-medium tracking-wide text-gray-500 uppercase transition-colors hover:bg-gray-100/50 dark:text-gray-400 dark:hover:bg-gray-800/50"
+                                >
+                                    <div class="flex items-center gap-1">
+                                        ID
+                                        <component :is="getSortIcon('id')" class="h-3 w-3" />
+                                    </div>
+                                </th>
+                                <th
                                     @click="sortBy('user.name')"
                                     class="cursor-pointer px-8 py-4 text-left text-xs font-medium tracking-wide text-gray-500 uppercase transition-colors hover:bg-gray-100/50 dark:text-gray-400 dark:hover:bg-gray-800/50"
                                 >
@@ -1037,6 +1046,9 @@ onUnmounted(() => {
                         </thead>
                         <tbody class="divide-y divide-gray-200/50 dark:divide-gray-800/50">
                             <tr v-for="record in attendanceRecords" :key="record.id" class="group hover:bg-gray-50/50 dark:hover:bg-gray-900/50">
+                                <td class="px-6 py-5 text-sm font-medium text-gray-900 dark:text-white">
+                                    {{ record.id }}
+                                </td>
                                 <td class="px-8 py-5">
                                     <div class="flex items-center gap-3">
                                         <div
