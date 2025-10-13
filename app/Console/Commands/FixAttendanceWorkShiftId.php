@@ -44,9 +44,10 @@ class FixAttendanceWorkShiftId extends Command
         $query = Attendance::with(['user', 'workShift'])
             ->where(function($q) {
                 $q->whereNull('work_shift_id')
-                  ->orWhereHas('workShift', function($subQ) {
-                      // Also get records with invalid work_shift_id
-                      $subQ->whereNull('id');
+                  ->orWhere(function($subQ) {
+                      // Get records where work_shift_id exists but references non-existent shift
+                      $subQ->whereNotNull('work_shift_id')
+                            ->whereDoesntHave('workShift');
                   });
             });
 
@@ -75,9 +76,18 @@ class FixAttendanceWorkShiftId extends Command
         $errorCount = 0;
 
         foreach ($attendances as $attendance) {
-            // Check if the work_shift_id matches an actual work_shift
-            if (! $attendance->workShift) {
-                // This record has an invalid work_shift_id, try to find the correct one
+            // Check if user relationship exists
+            if (!$attendance->user) {
+                $this->warn("Record ID {$attendance->id} has no associated user - skipping");
+                $errorCount++;
+                continue;
+            }
+
+            // Check if work_shift_id is NULL or invalid
+            $isInvalid = is_null($attendance->work_shift_id) || !$attendance->workShift;
+
+            if ($isInvalid) {
+                // This record needs fixing, try to find the correct shift
                 $employeeShift = EmployeeShift::where('user_id', $attendance->user_id)
                     ->where('effective_date', '<=', $attendance->date)
                     ->where(function ($query) use ($attendance) {
@@ -89,9 +99,10 @@ class FixAttendanceWorkShiftId extends Command
 
                 if ($employeeShift && $employeeShift->workShift) {
                     $correctWorkShiftId = $employeeShift->workShift->id;
+                    $currentValue = $attendance->work_shift_id ?? 'NULL';
 
                     $this->warn("Record ID {$attendance->id} (User: {$attendance->user->name}, Date: {$attendance->date})");
-                    $this->line("  Current: work_shift_id = {$attendance->work_shift_id} (invalid)");
+                    $this->line("  Current: work_shift_id = {$currentValue} (invalid)");
                     $this->line("  Should be: work_shift_id = {$correctWorkShiftId} ({$employeeShift->workShift->name})");
 
                     if (! $dryRun) {
@@ -108,13 +119,15 @@ class FixAttendanceWorkShiftId extends Command
                         $fixedCount++;
                     }
                 } else {
+                    // Check if there's a default shift we can use
                     $this->warn("Record ID {$attendance->id} (User: {$attendance->user->name}, Date: {$attendance->date})");
-                    $this->error('  ✗ No valid work shift found for this date');
+                    $this->error('  ✗ No valid work shift assignment found for this date');
+                    $this->line('  Note: User may need to be assigned a shift or use flexible shift selection');
                     $errorCount++;
                 }
             } else {
                 // This record has a valid work_shift_id
-                $this->line("Record ID {$attendance->id} (User: {$attendance->user->name}, Date: {$attendance->date}) - OK");
+                $this->line("Record ID {$attendance->id} (User: {$attendance->user->name}, Date: {$attendance->date}) - ✓ OK");
             }
         }
 
