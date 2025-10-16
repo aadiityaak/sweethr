@@ -644,7 +644,7 @@ const debouncedCheckEmployeeId = useDebounceFn(checkEmployeeId, 500);
 
 const filteredPositions = computed(() => {
     if (!form.department_id) return props.positions;
-    return props.positions.filter((pos) => pos.department_id == form.department_id);
+    return props.positions.filter((pos) => pos.department_id === Number(form.department_id));
 });
 
 // Watch for department changes and reset position if it's no longer valid
@@ -653,8 +653,8 @@ watch(
     (newDepartmentId, oldDepartmentId) => {
         if (newDepartmentId !== oldDepartmentId && form.position_id) {
             // Check if current position belongs to the new department
-            const currentPosition = props.positions.find((pos) => pos.id == form.position_id);
-            if (!currentPosition || currentPosition.department_id != newDepartmentId) {
+            const currentPosition = props.positions.find((pos) => pos.id === Number(form.position_id));
+            if (!currentPosition || currentPosition.department_id !== Number(newDepartmentId)) {
                 form.position_id = '';
             }
         }
@@ -679,13 +679,13 @@ onMounted(() => {
 
 const selectedDepartmentName = computed(() => {
     if (!form.department_id) return null;
-    const dept = props.departments.find((d) => d.id == form.department_id);
+    const dept = props.departments.find((d) => d.id === Number(form.department_id));
     return dept ? dept.name : null;
 });
 
 const selectedPositionName = computed(() => {
     if (!form.position_id) return null;
-    const pos = props.positions.find((p) => p.id == form.position_id);
+    const pos = props.positions.find((p) => p.id === Number(form.position_id));
     return pos ? pos.title : null;
 });
 

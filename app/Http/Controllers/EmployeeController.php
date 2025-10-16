@@ -122,7 +122,7 @@ class EmployeeController extends Controller
     public function create(): Response
     {
         $departments = Department::orderBy('name')->get(['id', 'name']);
-        $positions = Position::orderBy('title')->get(['id', 'title', 'level']);
+        $positions = Position::orderBy('title')->get(['id', 'title', 'level', 'department_id']);
 
         return Inertia::render('admin/Employees/Create', [
             'departments' => $departments,
@@ -167,7 +167,7 @@ class EmployeeController extends Controller
             ->findOrFail($employee->id);
 
         $departments = Department::orderBy('name')->get(['id', 'name']);
-        $positions = Position::orderBy('title')->get(['id', 'title', 'level']);
+        $positions = Position::orderBy('title')->get(['id', 'title', 'level', 'department_id']);
 
         return Inertia::render('admin/Employees/Edit', [
             'employee' => $freshEmployee,

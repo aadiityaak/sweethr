@@ -593,7 +593,7 @@ const generateNextEmployeeId = async () => {
 
 const filteredPositions = computed(() => {
     if (!form.department_id) return props.positions;
-    return props.positions.filter((pos) => pos.department_id == form.department_id);
+    return props.positions.filter((pos) => pos.department_id === Number(form.department_id));
 });
 
 // Watch for department changes and reset position when department changes
@@ -622,13 +622,13 @@ onMounted(() => {
 
 const selectedDepartmentName = computed(() => {
     if (!form.department_id) return null;
-    const dept = props.departments.find((d) => d.id == form.department_id);
+    const dept = props.departments.find((d) => d.id === Number(form.department_id));
     return dept ? dept.name : null;
 });
 
 const selectedPositionName = computed(() => {
     if (!form.position_id) return null;
-    const pos = props.positions.find((p) => p.id == form.position_id);
+    const pos = props.positions.find((p) => p.id === Number(form.position_id));
     return pos ? pos.title : null;
 });
 
