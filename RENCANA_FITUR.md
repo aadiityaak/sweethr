@@ -66,15 +66,32 @@ Daftar lengkap fitur yang akan dikembangkan untuk sistem HR management.
 
 ---
 
+## 💰 Payroll & Penggajian
+
+| No | Fitur | Status | Estimasi | Keterangan |
+|----|-------|--------|----------|------------|
+| 41 | **Payroll Cut-Off Period** | ✅ | 6 hari | **Periode gaji kustom (26 Sep - 25 Okt 2025)** |
+| 42 | Payroll Generation & Management | ✅ | 4 hari | Generate payroll dengan perhitungan otomatis |
+| 43 | Slip Gaji Karyawan | ✅ | 2 hari | Employee payroll slip dengan detail lengkap |
+| 44 | Perhitungan Lembur | ✅ | 3 hari | Overtime calculation dengan rate berbeda |
+| 45 | Potongan Gaji (Late/Absent) | ✅ | 2 hari | Automatic deductions untuk keterlambatan |
+| 46 | Pengaturan Gaji & Tunjangan | ✅ | 3 hari | Salary settings dengan allowances |
+| 47 | Payroll Reports | ⏳ | 3 hari | Laporan payroll per periode/employee |
+| 48 | Payroll Export (PDF/Excel) | ⏳ | 2 hari | Export slip gaji dan laporan |
+| 49 | Bank Integration | ⏳ | 5 hari | Transfer gaji otomatis ke bank |
+| 50 | Pajak Penghasilan (PPh 21) | ⏳ | 4 hari | Perhitungan pajak otomatis |
+
+---
+
 ## 📊 Laporan & Analitik
 
 | No | Fitur | Status | Estimasi | Keterangan |
 |----|-------|--------|----------|------------|
-| 42 | Statistik Performa Karyawan | ⏳ | 5 hari | Performance analytics |
-| 43 | Laporan Catatan Kerja Karyawan | ⏳ | 3 hari | Work log reports |
-| 44 | Laporan Izin dan Cuti | ✅ | 2 hari | Leave reports (basic) |
-| 45 | Ringkasan Kehadiran | ✅ | 2 hari | Attendance summary dashboard |
-| 46 | Rekap Tukar Jadwal Shift | ⏳ | 2 hari | Shift swap reports |
+| 51 | Statistik Performa Karyawan | ⏳ | 5 hari | Performance analytics |
+| 52 | Laporan Catatan Kerja Karyawan | ⏳ | 3 hari | Work log reports |
+| 53 | Laporan Izin dan Cuti | ✅ | 2 hari | Leave reports (basic) |
+| 54 | Ringkasan Kehadiran | ✅ | 2 hari | Attendance summary dashboard |
+| 55 | Rekap Tukar Jadwal Shift | ⏳ | 2 hari | Shift swap reports |
 
 ---
 
@@ -82,11 +99,11 @@ Daftar lengkap fitur yang akan dikembangkan untuk sistem HR management.
 
 | No | Fitur | Status | Estimasi | Keterangan |
 |----|-------|--------|----------|------------|
-| 51 | **PWA Implementation** | ⏳ | 5 hari | **🔥 HIGH PRIORITY - Service workers, offline, install prompt** |
-| 52 | **Mobile UI Optimization** | ⏳ | 4 hari | **🔥 HIGH PRIORITY - Touch-friendly interface** |
-| 53 | **Push Notifications** | ⏳ | 3 hari | **🔥 HIGH PRIORITY - Real-time notifications** |
-| 54 | Offline Mode | ⏳ | 4 hari | Offline functionality untuk presensi |
-| 55 | App Icon & Splash Screen | ⏳ | 1 hari | PWA branding |
+| 56 | **PWA Implementation** | ⏳ | 5 hari | **🔥 HIGH PRIORITY - Service workers, offline, install prompt** |
+| 57 | **Mobile UI Optimization** | ⏳ | 4 hari | **🔥 HIGH PRIORITY - Touch-friendly interface** |
+| 58 | **Push Notifications** | ⏳ | 3 hari | **🔥 HIGH PRIORITY - Real-time notifications** |
+| 59 | Offline Mode | ⏳ | 4 hari | Offline functionality untuk presensi |
+| 60 | App Icon & Splash Screen | ⏳ | 1 hari | PWA branding |
 
 ---
 
@@ -94,13 +111,13 @@ Daftar lengkap fitur yang akan dikembangkan untuk sistem HR management.
 
 | No | Fitur | Status | Estimasi | Keterangan |
 |----|-------|--------|----------|------------|
-| 56 | **Employee Directory** | ⏳ | 4 hari | **🟡 MEDIUM PRIORITY - Contact directory & org chart** |
-| 57 | **Performance Reviews** | ⏳ | 8 hari | **🟡 MEDIUM PRIORITY - Evaluation system** |
-| 58 | **Training Management** | ⏳ | 6 hari | **🟡 MEDIUM PRIORITY - Training tracking** |
-| 59 | **Asset Management** | ⏳ | 5 hari | **🟢 LOW PRIORITY - Company equipment tracking** |
-| 60 | **Expense Claims** | ⏳ | 5 hari | **🟡 MEDIUM PRIORITY - Reimbursement system** |
-| 61 | Time Tracking | ⏳ | 4 hari | Project time logging |
-| 62 | Employee Self-Update | ⏳ | 3 hari | Profile & document updates |
+| 61 | **Employee Directory** | ⏳ | 4 hari | **🟡 MEDIUM PRIORITY - Contact directory & org chart** |
+| 62 | **Performance Reviews** | ⏳ | 8 hari | **🟡 MEDIUM PRIORITY - Evaluation system** |
+| 63 | **Training Management** | ⏳ | 6 hari | **🟡 MEDIUM PRIORITY - Training tracking** |
+| 64 | **Asset Management** | ⏳ | 5 hari | **🟢 LOW PRIORITY - Company equipment tracking** |
+| 65 | **Expense Claims** | ⏳ | 5 hari | **🟡 MEDIUM PRIORITY - Reimbursement system** |
+| 66 | Time Tracking | ⏳ | 4 hari | Project time logging |
+| 67 | Employee Self-Update | ⏳ | 3 hari | Profile & document updates |
 
 ---
 
@@ -108,10 +125,10 @@ Daftar lengkap fitur yang akan dikembangkan untuk sistem HR management.
 
 | No | Fitur | Status | Estimasi | Keterangan |
 |----|-------|--------|----------|------------|
-| 63 | **HR Dashboard Analytics** | ⏳ | 6 hari | **🟡 MEDIUM PRIORITY - Advanced reporting** |
-| 64 | **Attendance Analytics** | ⏳ | 4 hari | **🟡 MEDIUM PRIORITY - Trend analysis** |
-| 65 | Export Reports (PDF/Excel) | ⏳ | 3 hari | Report export functionality |
-| 66 | Custom Report Builder | ⏳ | 7 hari | Dynamic report creation |
+| 68 | **HR Dashboard Analytics** | ⏳ | 6 hari | **🟡 MEDIUM PRIORITY - Advanced reporting** |
+| 69 | **Attendance Analytics** | ⏳ | 4 hari | **🟡 MEDIUM PRIORITY - Trend analysis** |
+| 70 | Export Reports (PDF/Excel) | ⏳ | 3 hari | Report export functionality |
+| 71 | Custom Report Builder | ⏳ | 7 hari | Dynamic report creation |
 
 ---
 
@@ -119,55 +136,59 @@ Daftar lengkap fitur yang akan dikembangkan untuk sistem HR management.
 
 | No | Fitur | Status | Estimasi | Keterangan |
 |----|-------|--------|----------|------------|
-| 67 | Notifikasi Presensi via Slack | ⏳ | 3 hari | Slack integration |
-| 68 | Notifikasi Presensi via Telegram | ⏳ | 3 hari | Telegram bot integration |
-| 69 | Webhook Presensi | ⏳ | 4 hari | REST API webhooks |
-| 70 | Open API | ⏳ | 5 hari | Public API documentation |
+| 72 | Notifikasi Presensi via Slack | ⏳ | 3 hari | Slack integration |
+| 73 | Notifikasi Presensi via Telegram | ⏳ | 3 hari | Telegram bot integration |
+| 74 | Webhook Presensi | ⏳ | 4 hari | REST API webhooks |
+| 75 | Open API | ⏳ | 5 hari | Public API documentation |
 
 ---
 
 ## 📈 Summary Progress
 
-**Total Fitur:** 70
-**✅ Sudah Selesai:** 8 fitur (11%) - **24 hari kerja**
+**Total Fitur:** 75
+**✅ Sudah Selesai:** 14 fitur (19%) - **39 hari kerja**
 **🚧 Dalam Pengembangan:** 0 fitur (0%) - **0 hari**
-**⏳ Direncanakan:** 62 fitur (89%) - **235 hari kerja**
+**⏳ Direncanakan:** 61 fitur (81%) - **254 hari kerja**
 
 ### ⏱️ Estimasi Waktu Total
-- **Fitur Selesai**: 24 hari kerja (~5 minggu)
-- **Fitur Tertunda**: 235 hari kerja (~47 minggu)
-- **Total Estimasi**: **259 hari kerja (~52 minggu / 12 bulan)**
+- **Fitur Selesai**: 39 hari kerja (~8 minggu)
+- **Fitur Tertunda**: 254 hari kerja (~51 minggu)
+- **Total Estimasi**: **293 hari kerja (~59 minggu / 14 bulan)**
 
 ### 📊 Breakdown Estimasi per Kategori
 | Kategori | Selesai | Tertenda | Total Hari |
 |----------|---------|----------|-------------|
 | **📱 Presensi & Kehadiran** | 8 fitur (22 hari) | 18 fitur (58 hari) | **80 hari** |
 | **👥 Manajemen Karyawan** | 2 fitur (7 hari) | 12 fitur (36 hari) | **43 hari** |
-| **📊 Laporan & Analitik** | 2 fitur (4 hari) | 3 fitur (10 hari) | **14 hari** |
+| **💰 Payroll & Penggajian** | 6 fitur (20 hari) | 4 fitur (18 hari) | **38 hari** |
+| **📊 Laporan & Analitik** | 2 fitur (4 hari) | 3 fitur (14 hari) | **18 hari** |
 | **📱 Mobile & PWA** | 0 fitur (0 hari) | 5 fitur (17 hari) | **17 hari** |
 | **👤 Employee Self-Service** | 0 fitur (0 hari) | 7 fitur (35 hari) | **35 hari** |
 | **📊 Advanced Analytics** | 0 fitur (0 hari) | 4 fitur (20 hari) | **20 hari** |
 | **🔔 Notifikasi & Integrasi** | 0 fitur (0 hari) | 4 fitur (15 hari) | **15 hari** |
 
-### 🎯 Fitur Prioritas Tinggi - 7 Fitur Utama
+### 🎯 Fitur Prioritas Tinggi - 10 Fitur Utama
 
-#### 🔥 **HIGH PRIORITY** (Sprint 1-2: 20 hari)
+#### 🔥 **HIGH PRIORITY** (Sprint 1-2: 25 hari)
 1. **Manajemen Dokumen Karyawan** (6 hari) - Upload, kelola, monitoring kontrak
 2. **PWA Implementation** (5 hari) - Service workers, offline, install prompt
 3. **Mobile UI Optimization** (4 hari) - Touch-friendly interface
 4. **Push Notifications** (3 hari) - Real-time notifications
 5. **Employee Directory** (4 hari) - Contact directory & org chart
+6. **Payroll Reports** (3 hari) - Laporan payroll per periode/employee
 
-#### 🟡 **MEDIUM PRIORITY** (Sprint 3-4: 22 hari)
-6. **HR Dashboard Analytics** (6 hari) - Advanced reporting dashboard
-7. **Performance Reviews** (8 hari) - Employee evaluation system
-8. **Training Management** (6 hari) - Training tracking & certificates
-9. **Expense Claims** (5 hari) - Reimbursement system
+#### 🟡 **MEDIUM PRIORITY** (Sprint 3-4: 27 hari)
+7. **HR Dashboard Analytics** (6 hari) - Advanced reporting dashboard
+8. **Performance Reviews** (8 hari) - Employee evaluation system
+9. **Training Management** (6 hari) - Training tracking & certificates
+10. **Expense Claims** (5 hari) - Reimbursement system
+11. **Payroll Export (PDF/Excel)** (2 hari) - Export slip gaji dan laporan
 
-#### 🟢 **LOW PRIORITY** (Sprint 5: 5 hari)
-10. **Asset Management** (5 hari) - Company equipment tracking
+#### 🟢 **LOW PRIORITY** (Sprint 5: 8 hari)
+12. **Asset Management** (5 hari) - Company equipment tracking
+13. **Bank Integration** (5 hari) - Transfer gaji otomatis ke bank
 
-**Total 7 Fitur Utama: 47 hari kerja (~9-10 minggu)**
+**Total 10 Fitur Utama: 60 hari kerja (~12 minggu)**
 
 ### 📝 Catatan Implementasi
 
@@ -177,8 +198,12 @@ Daftar lengkap fitur yang akan dikembangkan untuk sistem HR management.
 - **Pengumuman:** Banner carousel dengan rich content editor
 - **Leave Management:** Approval workflow dengan email notifications
 - **Dashboard:** Real-time stats dengan charts dan analytics
+- **Payroll System:** Complete payroll management dengan cut-off period support
+- **Payroll Cut-Off:** Periode gaji kustom (26 Sep - 25 Okt 2025)
+- **Salary Calculation:** Automatic overtime dan deductions
+- **Employee Payslips:** Digital slip gaji dengan detail lengkap
 
-**Fitur Baru - 7 Prioritas:**
+**Fitur Baru - 10 Prioritas:**
 - **Dokumen Management:** File upload, versioning, expiry tracking
 - **PWA:** Manifest, service workers, offline caching, install prompt
 - **Mobile UI:** Touch gestures, responsive design, bottom navigation
@@ -205,5 +230,5 @@ Daftar lengkap fitur yang akan dikembangkan untuk sistem HR management.
 
 ---
 
-*Last Updated: 23 September 2025*
-*Version: 1.2.0 - Added 7 Priority Features & New Categories*
+*Last Updated: 21 October 2025*
+*Version: 1.3.0 - Added Payroll Category with Cut-Off Period Feature*
