@@ -109,7 +109,7 @@
                                             {{ payroll.period_name }}
                                         </h4>
                                         <p class="text-sm text-gray-500 dark:text-gray-400">
-                                            {{ formatDate(payroll.created_at) }}
+                                            {{ payroll.formatted_period || formatDate(payroll.created_at) }}
                                         </p>
                                     </div>
                                 </div>

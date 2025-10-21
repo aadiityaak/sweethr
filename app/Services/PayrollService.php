@@ -6,13 +6,25 @@ use App\Models\Attendance;
 use App\Models\DeductionRule;
 use App\Models\Payroll;
 use App\Models\PayrollDetail;
+use App\Models\PayrollPeriod;
 use App\Models\User;
 use Carbon\Carbon;
 use Illuminate\Support\Facades\DB;
 
 class PayrollService
 {
+    /**
+     * Validate payroll prerequisites for a specific period (with cut-off support)
+     */
     public function validatePayrollPrerequisites(int $year, int $month, ?array $userIds = null): array
+    {
+        return $this->validatePayrollPrerequisitesForPeriod($year, $month, null, $userIds);
+    }
+
+    /**
+     * Validate payroll prerequisites for a specific payroll period
+     */
+    public function validatePayrollPrerequisitesForPeriod(int $year, int $month, ?PayrollPeriod $period = null, ?array $userIds = null): array
     {
         $users = User::with('currentSalarySetting')
             ->active()
@@ -26,7 +38,7 @@ class PayrollService
             return [
                 'valid' => false,
                 'message' => 'Tidak ada karyawan aktif yang ditemukan untuk di-generate payroll.',
-                'details' => []
+                'details' => [],
             ];
         }
 
@@ -36,42 +48,50 @@ class PayrollService
         foreach ($users as $user) {
             $salarySetting = $user->currentSalarySetting;
 
-            if (!$salarySetting) {
+            if (! $salarySetting) {
                 $usersWithoutSalary[] = $user->name;
             } elseif ($salarySetting->base_salary <= 0) {
                 $usersWithInvalidSalary[] = $user->name;
             }
         }
 
-        if (!empty($usersWithoutSalary) || !empty($usersWithInvalidSalary)) {
+        if (! empty($usersWithoutSalary) || ! empty($usersWithInvalidSalary)) {
             $details = [];
             $message = 'Tidak dapat generate payroll karena ada masalah:';
 
-            if (!empty($usersWithoutSalary)) {
+            if (! empty($usersWithoutSalary)) {
                 $details['missing_salary'] = $usersWithoutSalary;
-                $message .= "\n• Karyawan belum memiliki pengaturan gaji: " . implode(', ', $usersWithoutSalary);
+                $message .= "\n• Karyawan belum memiliki pengaturan gaji: ".implode(', ', $usersWithoutSalary);
             }
 
-            if (!empty($usersWithInvalidSalary)) {
+            if (! empty($usersWithInvalidSalary)) {
                 $details['invalid_salary'] = $usersWithInvalidSalary;
-                $message .= "\n• Karyawan dengan gaji tidak valid: " . implode(', ', $usersWithInvalidSalary);
+                $message .= "\n• Karyawan dengan gaji tidak valid: ".implode(', ', $usersWithInvalidSalary);
             }
 
             return [
                 'valid' => false,
                 'message' => $message,
-                'details' => $details
+                'details' => $details,
             ];
         }
 
         return [
             'valid' => true,
             'message' => 'Semua prerequisite terpenuhi',
-            'users_count' => $users->count()
+            'users_count' => $users->count(),
         ];
     }
 
     public function generatePayrolls(int $year, int $month, ?array $userIds = null): array
+    {
+        return $this->generatePayrollsForPeriod($year, $month, null, $userIds);
+    }
+
+    /**
+     * Generate payrolls for a specific period (with cut-off support)
+     */
+    public function generatePayrollsForPeriod(int $year, int $month, ?PayrollPeriod $period = null, ?array $userIds = null): array
     {
         $users = User::with('currentSalarySetting')
             ->active()
@@ -87,20 +107,25 @@ class PayrollService
 
         foreach ($users as $user) {
             try {
-                // Check if payroll already exists
-                $existingPayroll = Payroll::forUser($user->id)
-                    ->forPeriod($year, $month)
-                    ->first();
+                // Check if payroll already exists for this period
+                $existingPayroll = $period
+                    ? Payroll::where('user_id', $user->id)
+                        ->where('payroll_period_id', $period->id)
+                        ->first()
+                    : Payroll::forUser($user->id)
+                        ->forPeriod($year, $month)
+                        ->first();
 
                 if ($existingPayroll) {
                     $skipped++;
+
                     continue;
                 }
 
-                $this->generatePayrollForUser($user, $year, $month);
+                $this->generatePayrollForUser($user, $year, $month, $period);
                 $generated++;
             } catch (\Exception $e) {
-                $errors[] = "Error untuk {$user->name}: " . $e->getMessage();
+                $errors[] = "Error untuk {$user->name}: ".$e->getMessage();
             }
         }
 
@@ -108,17 +133,22 @@ class PayrollService
             'generated' => $generated,
             'skipped' => $skipped,
             'errors' => $errors,
-            'total_users' => $users->count()
+            'total_users' => $users->count(),
+            'period' => $period ? $period->payroll_period_name : null,
         ];
     }
 
-    public function generatePayrollForUser(User $user, int $year, int $month, bool $skipExistingCheck = false): Payroll
+    public function generatePayrollForUser(User $user, int $year, int $month, ?PayrollPeriod $period = null, bool $skipExistingCheck = false): Payroll
     {
         // Check if payroll already exists (skip when regenerating)
-        if (!$skipExistingCheck) {
-            $existingPayroll = Payroll::forUser($user->id)
-                ->forPeriod($year, $month)
-                ->first();
+        if (! $skipExistingCheck) {
+            $existingPayroll = $period
+                ? Payroll::where('user_id', $user->id)
+                    ->where('payroll_period_id', $period->id)
+                    ->first()
+                : Payroll::forUser($user->id)
+                    ->forPeriod($year, $month)
+                    ->first();
 
             if ($existingPayroll) {
                 return $this->regeneratePayroll($existingPayroll);
@@ -130,8 +160,10 @@ class PayrollService
             throw new \Exception("User {$user->name} belum memiliki pengaturan gaji");
         }
 
-        // Calculate attendance data
-        $attendanceData = $this->calculateAttendanceData($user, $year, $month);
+        // Calculate attendance data with period support
+        $attendanceData = $period
+            ? $this->calculateAttendanceDataForPeriod($user, $period)
+            : $this->calculateAttendanceData($user, $year, $month);
 
         // Calculate gross salary
         $grossSalary = $salarySetting->base_salary + ($salarySetting->total_allowances ?? 0);
@@ -147,9 +179,9 @@ class PayrollService
         // Net salary
         $netSalary = $grossSalary - $totalDeductions;
 
-        return DB::transaction(function () use ($user, $year, $month, $salarySetting, $attendanceData, $grossSalary, $deductions, $totalDeductions, $netSalary, $overtimePay) {
+        return DB::transaction(function () use ($user, $year, $month, $period, $salarySetting, $attendanceData, $grossSalary, $deductions, $totalDeductions, $netSalary, $overtimePay) {
             // Create payroll
-            $payroll = Payroll::create([
+            $payrollData = [
                 'user_id' => $user->id,
                 'period_year' => $year,
                 'period_month' => $month,
@@ -164,7 +196,16 @@ class PayrollService
                 'overtime_hours' => $attendanceData['overtime_hours'],
                 'late_minutes' => $attendanceData['late_minutes'],
                 'absent_days' => $attendanceData['absent_days'],
-            ]);
+            ];
+
+            // Add period-specific data if using payroll period
+            if ($period) {
+                $payrollData['payroll_period_id'] = $period->id;
+                $payrollData['start_date'] = $period->start_date;
+                $payrollData['end_date'] = $period->end_date;
+            }
+
+            $payroll = Payroll::create($payrollData);
 
             // Create allowance details
             if ($salarySetting->allowances) {
@@ -229,6 +270,22 @@ class PayrollService
         $startDate = Carbon::create($year, $month, 1);
         $endDate = $startDate->copy()->endOfMonth();
 
+        return $this->calculateAttendanceDataInRange($user, $startDate, $endDate);
+    }
+
+    /**
+     * Calculate attendance data for a specific payroll period (cut-off support)
+     */
+    private function calculateAttendanceDataForPeriod(User $user, PayrollPeriod $period): array
+    {
+        return $this->calculateAttendanceDataInRange($user, $period->start_date, $period->end_date);
+    }
+
+    /**
+     * Calculate attendance data within a specific date range
+     */
+    private function calculateAttendanceDataInRange(User $user, $startDate, $endDate): array
+    {
         // Get all attendances for the period
         $attendances = Attendance::where('user_id', $user->id)
             ->where('date', '>=', $startDate)

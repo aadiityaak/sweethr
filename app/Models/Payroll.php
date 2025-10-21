@@ -10,8 +10,11 @@ class Payroll extends Model
 {
     protected $fillable = [
         'user_id',
+        'payroll_period_id',
         'period_year',
         'period_month',
+        'start_date',
+        'end_date',
         'base_salary',
         'allowances',
         'gross_salary',
@@ -36,12 +39,19 @@ class Payroll extends Model
             'late_minutes' => 'decimal:2',
             'allowances' => 'array',
             'deductions' => 'array',
+            'start_date' => 'date',
+            'end_date' => 'date',
         ];
     }
 
     public function user(): BelongsTo
     {
         return $this->belongsTo(User::class);
+    }
+
+    public function payrollPeriod(): BelongsTo
+    {
+        return $this->belongsTo(PayrollPeriod::class);
     }
 
     public function details(): HasMany
@@ -76,6 +86,12 @@ class Payroll extends Model
 
     public function getPeriodNameAttribute(): string
     {
+        // If using payroll period, return the period name
+        if ($this->payrollPeriod) {
+            return $this->payrollPeriod->payroll_period_name;
+        }
+
+        // Fallback to month-year format
         $monthNames = [
             1 => 'Januari', 2 => 'Februari', 3 => 'Maret', 4 => 'April',
             5 => 'Mei', 6 => 'Juni', 7 => 'Juli', 8 => 'Agustus',
@@ -83,5 +99,17 @@ class Payroll extends Model
         ];
 
         return $monthNames[$this->period_month].' '.$this->period_year;
+    }
+
+    /**
+     * Get formatted period range for display
+     */
+    public function getFormattedPeriodAttribute(): string
+    {
+        if ($this->start_date && $this->end_date) {
+            return $this->start_date->format('d M Y').' - '.$this->end_date->format('d M Y');
+        }
+
+        return $this->period_name;
     }
 }

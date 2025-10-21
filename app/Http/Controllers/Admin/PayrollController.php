@@ -4,6 +4,7 @@ namespace App\Http\Controllers\Admin;
 
 use App\Http\Controllers\Controller;
 use App\Models\Payroll;
+use App\Models\PayrollPeriod;
 use App\Services\PayrollService;
 use Illuminate\Http\Request;
 use Inertia\Inertia;
@@ -34,10 +35,18 @@ class PayrollController extends Controller
                 ];
             });
 
+        $activePeriod = PayrollPeriod::getActive();
+
         return Inertia::render('admin/Payroll/Index', [
             'payrolls' => $payrolls,
             'currentYear' => (int) $year,
             'currentMonth' => (int) $month,
+            'activePeriod' => $activePeriod ? [
+                'id' => $activePeriod->id,
+                'name' => $activePeriod->name,
+                'formatted_period' => $activePeriod->formatted_period,
+                'is_active' => $activePeriod->is_active,
+            ] : null,
         ]);
     }
 
@@ -66,9 +75,9 @@ class PayrollController extends Controller
         // Validasi prerequisite sebelum generate
         $validationResult = $this->payrollService->validatePayrollPrerequisites($year, $month, $userIds);
 
-        if (!$validationResult['valid']) {
+        if (! $validationResult['valid']) {
             return back()->withErrors([
-                'validation' => $validationResult['message']
+                'validation' => $validationResult['message'],
             ])->with('validation_details', $validationResult['details'] ?? []);
         }
 
@@ -86,7 +95,7 @@ class PayrollController extends Controller
                 ->route('admin.payrolls.index', ['year' => $year, 'month' => $month])
                 ->with('success', $message);
         } catch (\Exception $e) {
-            return back()->withErrors(['error' => 'Terjadi kesalahan: ' . $e->getMessage()]);
+            return back()->withErrors(['error' => 'Terjadi kesalahan: '.$e->getMessage()]);
         }
     }
 
@@ -97,7 +106,7 @@ class PayrollController extends Controller
 
             return back()->with('success', 'Payroll berhasil digenerate ulang');
         } catch (\Exception $e) {
-            return back()->withErrors(['error' => 'Terjadi kesalahan: ' . $e->getMessage()]);
+            return back()->withErrors(['error' => 'Terjadi kesalahan: '.$e->getMessage()]);
         }
     }
 }

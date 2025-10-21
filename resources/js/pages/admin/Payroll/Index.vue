@@ -6,7 +6,13 @@
                 <div class="flex items-center justify-between">
                     <div>
                         <h1 class="text-3xl font-bold text-gray-900 dark:text-white">Manajemen Payroll</h1>
-                        <p class="mt-1 text-gray-600 dark:text-gray-400">Generate dan kelola payroll karyawan</p>
+                        <p class="mt-1 text-gray-600 dark:text-gray-400">
+                            Generate dan kelola payroll karyawan
+                            <span v-if="activePeriod" class="ml-2 inline-flex items-center rounded-full bg-blue-100 px-2.5 py-0.5 text-xs font-medium text-blue-800 dark:bg-blue-900/30 dark:text-blue-400">
+                                <Calendar class="mr-1 h-3 w-3" />
+                                {{ activePeriod.formatted_period }}
+                            </span>
+                        </p>
                     </div>
                     <div class="flex items-center space-x-3">
                         <select
@@ -27,6 +33,13 @@
                                 {{ month.label }}
                             </option>
                         </select>
+                        <Link
+                            :href="route('admin.payroll-periods.index')"
+                            class="inline-flex items-center rounded-lg border border-gray-300 bg-white px-4 py-2 text-gray-700 transition-colors hover:bg-gray-50 dark:border-gray-600 dark:bg-gray-800 dark:text-gray-300 dark:hover:bg-gray-700"
+                        >
+                            <Calendar class="mr-2 h-4 w-4" />
+                            Periode Gaji
+                        </Link>
                         <button
                             @click="showGenerateModal = true"
                             class="inline-flex items-center rounded-lg bg-blue-500 px-4 py-2 text-white transition-colors hover:bg-blue-600"
@@ -353,7 +366,7 @@
 import AppLayout from '@/layouts/AppLayout.vue';
 import { type BreadcrumbItem } from '@/types';
 import { Link, router } from '@inertiajs/vue3';
-import { AlertCircle, CheckCircle, Clock, DollarSign, Eye, FileText, Plus, RotateCcw, TrendingDown, X } from 'lucide-vue-next';
+import { AlertCircle, Calendar, CheckCircle, Clock, DollarSign, Eye, FileText, Plus, RotateCcw, TrendingDown, X } from 'lucide-vue-next';
 import { computed, ref } from 'vue';
 
 interface Payroll {
@@ -374,6 +387,12 @@ interface Props {
     payrolls: Payroll[];
     currentYear: number;
     currentMonth: number;
+    activePeriod?: {
+        id: number;
+        name: string;
+        formatted_period: string;
+        is_active: boolean;
+    };
 }
 
 const props = defineProps<Props>();

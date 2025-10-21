@@ -232,6 +232,28 @@ Route::middleware(['auth', 'verified', 'admin'])->group(function () {
     Route::post('admin/payrolls/{payroll}/regenerate', [App\Http\Controllers\Admin\PayrollController::class, 'regenerate'])
         ->name('admin.payrolls.regenerate');
 
+    // Admin Payroll Periods Management
+    Route::get('admin/payroll-periods', [App\Http\Controllers\Admin\PayrollPeriodController::class, 'index'])
+        ->name('admin.payroll-periods.index');
+    Route::get('admin/payroll-periods/create', [App\Http\Controllers\Admin\PayrollPeriodController::class, 'create'])
+        ->name('admin.payroll-periods.create');
+    Route::post('admin/payroll-periods', [App\Http\Controllers\Admin\PayrollPeriodController::class, 'store'])
+        ->name('admin.payroll-periods.store');
+    Route::get('admin/payroll-periods/{payrollPeriod}', [App\Http\Controllers\Admin\PayrollPeriodController::class, 'show'])
+        ->name('admin.payroll-periods.show');
+    Route::get('admin/payroll-periods/{payrollPeriod}/edit', [App\Http\Controllers\Admin\PayrollPeriodController::class, 'edit'])
+        ->name('admin.payroll-periods.edit');
+    Route::put('admin/payroll-periods/{payrollPeriod}', [App\Http\Controllers\Admin\PayrollPeriodController::class, 'update'])
+        ->name('admin.payroll-periods.update');
+    Route::delete('admin/payroll-periods/{payrollPeriod}', [App\Http\Controllers\Admin\PayrollPeriodController::class, 'destroy'])
+        ->name('admin.payroll-periods.destroy');
+    Route::post('admin/payroll-periods/{payrollPeriod}/set-active', [App\Http\Controllers\Admin\PayrollPeriodController::class, 'setActive'])
+        ->name('admin.payroll-periods.set-active');
+    Route::post('admin/payroll-periods/{payrollPeriod}/generate-payroll', [App\Http\Controllers\Admin\PayrollPeriodController::class, 'generatePayroll'])
+        ->name('admin.payroll-periods.generate-payroll');
+    Route::post('admin/payroll-periods/generate-yearly', [App\Http\Controllers\Admin\PayrollPeriodController::class, 'generateYearlyPeriods'])
+        ->name('admin.payroll-periods.generate-yearly');
+
     // Admin Document Management
     Route::resource('admin/documents', App\Http\Controllers\Admin\DocumentController::class, [
         'names' => [
@@ -275,5 +297,5 @@ Route::get('/offline', function () {
     return \Inertia\Inertia::render('PWA/Offline');
 })->name('pwa.offline');
 
-require __DIR__ . '/settings.php';
-require __DIR__ . '/auth.php';
+require __DIR__.'/settings.php';
+require __DIR__.'/auth.php';
