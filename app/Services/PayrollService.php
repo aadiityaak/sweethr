@@ -343,21 +343,31 @@ class PayrollService
 
             switch ($rule->type) {
                 case 'late':
-                    $parameters = ['minutes' => $attendanceData['late_minutes']];
+                    $lateMinutes = $attendanceData['late_minutes'];
+                    $parameters = [
+                        'minutes' => $lateMinutes,
+                        'hours' => round($lateMinutes / 60, 2), // Also provide hours for clarity
+                    ];
                     break;
                 case 'absent':
-                    $parameters = ['days' => $attendanceData['absent_days']];
+                    $absentDays = $attendanceData['absent_days'];
+                    $parameters = ['days' => $absentDays];
                     break;
                 case 'excess_leave':
                     // TODO: Calculate excess leave days
                     $parameters = ['days' => 0];
+                    break;
+                case 'other':
+                    // For BPJS and other fixed percentage deductions
+                    $parameters = ['base_salary' => $salarySetting->base_salary];
                     break;
             }
 
             $amount = $rule->calculateDeduction($salarySetting->base_salary, $parameters);
 
             // Always show late deduction even if amount is 0, for other types only show if amount > 0
-            if ($amount > 0 || $rule->type === 'late') {
+            // Also always show other deductions (BPJS) even if amount is 0 for transparency
+            if ($amount > 0 || in_array($rule->type, ['late', 'other'])) {
                 $deductions[] = [
                     'name' => $rule->name,
                     'description' => $rule->description,
@@ -365,6 +375,7 @@ class PayrollService
                     'calculation_basis' => array_merge($parameters, [
                         'rule_id' => $rule->id,
                         'method' => $rule->calculation_method,
+                        'rate' => $rule->amount,
                     ]),
                 ];
             }

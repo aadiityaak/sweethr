@@ -8,7 +8,10 @@
                         <h1 class="text-3xl font-bold text-gray-900 dark:text-white">Manajemen Payroll</h1>
                         <p class="mt-1 text-gray-600 dark:text-gray-400">
                             Generate dan kelola payroll karyawan
-                            <span v-if="activePeriod" class="ml-2 inline-flex items-center rounded-full bg-blue-100 px-2.5 py-0.5 text-xs font-medium text-blue-800 dark:bg-blue-900/30 dark:text-blue-400">
+                            <span
+                                v-if="activePeriod"
+                                class="ml-2 inline-flex items-center rounded-full bg-blue-100 px-2.5 py-0.5 text-xs font-medium text-blue-800 dark:bg-blue-900/30 dark:text-blue-400"
+                            >
                                 <Calendar class="mr-1 h-3 w-3" />
                                 {{ activePeriod.formatted_period }}
                             </span>

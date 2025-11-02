@@ -252,12 +252,63 @@
                             </h3>
                         </div>
                         <div class="space-y-3 p-6">
-                            <div v-for="deduction in deductionDetails" :key="deduction.id" class="flex items-center justify-between">
-                                <div>
-                                    <span class="text-gray-600 dark:text-gray-400">{{ deduction.name }}</span>
-                                    <p v-if="deduction.description" class="text-xs text-gray-500 dark:text-gray-500">{{ deduction.description }}</p>
+                            <div v-for="deduction in deductionDetails" :key="deduction.id" class="space-y-2">
+                                <div class="flex items-center justify-between">
+                                    <div>
+                                        <span class="text-gray-600 dark:text-gray-400">{{ deduction.name }}</span>
+                                        <p v-if="deduction.description" class="text-xs text-gray-500 dark:text-gray-500">
+                                            {{ deduction.description }}
+                                        </p>
+                                    </div>
+                                    <span class="font-medium text-red-600 dark:text-red-400">-{{ formatCurrency(deduction.amount) }}</span>
                                 </div>
-                                <span class="font-medium text-red-600 dark:text-red-400">-{{ formatCurrency(deduction.amount) }}</span>
+
+                                <!-- Show calculation details for attendance-based deductions -->
+                                <div
+                                    v-if="deduction.calculation_basis && (deduction.name.includes('Telat') || deduction.name.includes('Tidak Masuk'))"
+                                    class="ml-4 rounded-lg bg-gray-50 p-2 text-xs dark:bg-gray-800"
+                                >
+                                    <div class="text-gray-600 dark:text-gray-400">
+                                        <!-- Late deduction calculation -->
+                                        <div v-if="deduction.calculation_basis.minutes !== undefined">
+                                            <span
+                                                >Detail: {{ deduction.calculation_basis.minutes }} menit × Rp
+                                                {{
+                                                    formatCurrency(deduction.calculation_basis.rate || 0)
+                                                        .replace('Rp', '')
+                                                        .replace(/\D/g, '')
+                                                }}/menit</span
+                                            >
+                                            <div v-if="deduction.calculation_basis.hours" class="text-gray-500 dark:text-gray-500">
+                                                ({{ deduction.calculation_basis.hours }} jam)
+                                            </div>
+                                        </div>
+
+                                        <!-- Absent deduction calculation -->
+                                        <div v-else-if="deduction.calculation_basis.days !== undefined">
+                                            <span
+                                                >Detail: {{ deduction.calculation_basis.days }} hari × Rp
+                                                {{
+                                                    formatCurrency(deduction.calculation_basis.rate || 0)
+                                                        .replace('Rp', '')
+                                                        .replace(/\D/g, '')
+                                                }}/hari</span
+                                            >
+                                        </div>
+
+                                        <!-- Percentage deduction calculation -->
+                                        <div v-else-if="deduction.calculation_basis.method === 'percentage'">
+                                            <span
+                                                >Detail: {{ deduction.calculation_basis.rate }}% × Rp
+                                                {{
+                                                    formatCurrency(deduction.calculation_basis.base_salary || 0)
+                                                        .replace('Rp', '')
+                                                        .replace(/\D/g, '')
+                                                }}</span
+                                            >
+                                        </div>
+                                    </div>
+                                </div>
                             </div>
 
                             <hr class="border-gray-200 dark:border-gray-700" />
@@ -314,6 +365,15 @@ interface PayrollDetail {
     name: string;
     description: string | null;
     amount: number;
+    calculation_basis?: {
+        minutes?: number;
+        hours?: number;
+        days?: number;
+        method?: string;
+        rate?: number;
+        base_salary?: number;
+        rule_id?: number;
+    };
 }
 
 interface Payroll {
