@@ -12,8 +12,11 @@ return new class extends Migration
     public function up(): void
     {
         Schema::table('attendances', function (Blueprint $table) {
-            $table->foreignId('work_shift_id')->nullable()->constrained('work_shifts')->nullOnDelete();
-            $table->index('work_shift_id'); // Add index for better performance
+            // Check if column doesn't exist before adding
+            if (!Schema::hasColumn('attendances', 'work_shift_id')) {
+                $table->foreignId('work_shift_id')->nullable()->constrained('work_shifts')->nullOnDelete();
+                $table->index('work_shift_id'); // Add index for better performance
+            }
         });
     }
 
