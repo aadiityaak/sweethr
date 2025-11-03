@@ -112,6 +112,9 @@
             "powershell -Command \"(Get-Content 'flat-deployment\\index.php') -replace '__DIR__\\.\\'/\\.\\./vendor/autoload.php', '__DIR__.'/application/vendor/autoload.php' | Set-Content 'flat-deployment\\index.php'\"",
             "powershell -Command \"(Get-Content 'flat-deployment\\index.php') -replace '__DIR__\\.\\'/\\.\\./bootstrap/app.php', '__DIR__.'/application/bootstrap/app.php' | Set-Content 'flat-deployment\\index.php'\"",
             "powershell -Command \"(Get-Content 'flat-deployment\\index.php') -replace '__DIR__\\.\\'/\\.\\./storage/framework/maintenance.php', '__DIR__.'/application/storage/framework/maintenance.php' | Set-Content 'flat-deployment\\index.php'\""
+        ],
+        "build:production-novendor": [
+            "@php artisan build:production-novendor"
         ]
     },
     "extra": {
