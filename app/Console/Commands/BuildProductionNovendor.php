@@ -30,7 +30,8 @@ class BuildProductionNovendor extends Command
 
         // 1. Build frontend assets
         $this->info('📦 Building frontend assets...');
-        $result = Process::run('npm run build');
+        $result = Process::timeout(300) // 5 minutes timeout
+            ->run('npm run build');
 
         if (!$result->successful()) {
             $this->error('❌ Frontend build failed!');
@@ -42,7 +43,8 @@ class BuildProductionNovendor extends Command
 
         // 2. Optimize composer autoloader
         $this->info('🔧 Optimizing composer autoloader...');
-        $result = Process::run('composer dump-autoload --optimize --no-dev');
+        $result = Process::timeout(120) // 2 minutes timeout
+            ->run('composer dump-autoload --optimize --no-dev');
 
         if (!$result->successful()) {
             $this->error('❌ Composer optimization failed!');

@@ -26,7 +26,7 @@ Route::middleware(['auth:web'])->group(function () {
     Route::get('/dashboard/stats', [DashboardController::class, 'stats']);
 
     // Employee Management
-    Route::apiResource('employees', EmployeeController::class);
+    Route::apiResource('api-employees', EmployeeController::class);
     Route::get('/employees/{employee}/attendance', [EmployeeController::class, 'attendance']);
     Route::get('/employees/{employee}/leave-requests', [EmployeeController::class, 'leaveRequests']);
 
@@ -46,7 +46,7 @@ Route::middleware(['auth:web'])->group(function () {
     Route::get('/attendances/report', [AttendanceController::class, 'report']);
 
     // Leave Management
-    Route::apiResource('leave-requests', LeaveController::class);
+    Route::apiResource('leaves', LeaveController::class);
     Route::post('/leave-requests/{leaveRequest}/approve', [LeaveController::class, 'approve']);
     Route::post('/leave-requests/{leaveRequest}/reject', [LeaveController::class, 'reject']);
     Route::get('/leave-types', [LeaveController::class, 'types']);

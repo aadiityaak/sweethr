@@ -280,7 +280,7 @@
                                 <td class="px-6 py-4">
                                     <div class="flex space-x-2">
                                         <Link
-                                            :href="`/admin/payrolls/${payroll.id}`"
+                                            :href="route('admin.payrolls.show', payroll.id)"
                                             class="relative z-10 rounded-lg bg-blue-100 p-2 text-blue-600 hover:bg-blue-200 dark:bg-blue-900/30 dark:text-blue-400 dark:hover:bg-blue-900/50"
                                         >
                                             <Eye class="h-4 w-4" />
@@ -455,14 +455,14 @@ const getCurrentPeriodName = () => {
 };
 
 const changeYear = () => {
-    router.get('/admin/payrolls', {
+    router.get(route('admin.payrolls.index'), {
         year: selectedYear.value,
         month: selectedMonth.value,
     });
 };
 
 const changeMonth = () => {
-    router.get('/admin/payrolls', {
+    router.get(route('admin.payrolls.index'), {
         year: selectedYear.value,
         month: selectedMonth.value,
     });
@@ -492,7 +492,7 @@ const hideToast = () => {
 const confirmGenerate = () => {
     generating.value = true;
     router.post(
-        '/admin/payrolls/generate',
+        route('admin.payrolls.generate'),
         {
             year: selectedYear.value,
             month: selectedMonth.value,
@@ -538,7 +538,7 @@ const confirmGenerate = () => {
 const regeneratePayroll = (payroll: Payroll) => {
     if (confirm(`Yakin ingin regenerate payroll untuk ${payroll.user?.name || 'Unknown User'}?`)) {
         router.post(
-            `/admin/payrolls/${payroll.id}/regenerate`,
+            route('admin.payrolls.regenerate', payroll.id),
             {},
             {
                 onSuccess: () => {

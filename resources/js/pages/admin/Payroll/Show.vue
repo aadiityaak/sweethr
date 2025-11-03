@@ -12,7 +12,7 @@
                     </div>
                     <div class="no-print flex space-x-3">
                         <Link
-                            href="/admin/payrolls"
+                            :href="route('admin.payrolls.index')"
                             class="inline-flex items-center rounded-lg bg-gray-300 px-4 py-2 text-gray-700 transition-colors hover:bg-gray-400"
                         >
                             <ArrowLeft class="mr-2 h-4 w-4" />
@@ -491,7 +491,7 @@ const regeneratePayroll = () => {
         }, 30000); // 30 seconds timeout
 
         router.post(
-            `/admin/payrolls/${props.payroll.id}/regenerate`,
+            route('admin.payrolls.regenerate', props.payroll.id),
             {},
             {
                 preserveState: false,
