@@ -371,6 +371,7 @@ import { type BreadcrumbItem } from '@/types';
 import { Link, router } from '@inertiajs/vue3';
 import { AlertCircle, Calendar, CheckCircle, Clock, DollarSign, Eye, FileText, Plus, RotateCcw, TrendingDown, X } from 'lucide-vue-next';
 import { computed, ref } from 'vue';
+import { route } from '@/composables/useRoute';
 
 interface Payroll {
     id: number;

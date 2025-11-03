@@ -358,6 +358,7 @@ import AppLayout from '@/Layouts/AppLayout.vue';
 import { Link, router } from '@inertiajs/vue3';
 import { AlertCircle, ArrowLeft, CheckCircle, Clock, DollarSign, Minus, Printer, RotateCcw, User, X } from 'lucide-vue-next';
 import { computed, ref } from 'vue';
+import { route } from '@/composables/useRoute';
 
 interface PayrollDetail {
     id: number;
