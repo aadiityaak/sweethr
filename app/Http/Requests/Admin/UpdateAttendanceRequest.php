@@ -14,8 +14,16 @@ class UpdateAttendanceRequest extends FormRequest
 
     public function rules(): array
     {
+        $attendance = $this->route('attendance');
+
         return [
-            'date' => ['required', 'date'],
+            'date' => [
+                'required',
+                'date',
+                Rule::unique('attendances')
+                    ->where('user_id', $attendance->user_id)
+                    ->ignore($attendance->id)
+            ],
             'check_in_time' => ['nullable', 'date_format:H:i'],
             'check_out_time' => ['nullable', 'date_format:H:i', 'after:check_in_time'],
             'status' => ['required', Rule::in(['present', 'late', 'absent', 'half_day'])],
@@ -29,6 +37,7 @@ class UpdateAttendanceRequest extends FormRequest
         return [
             'date.required' => 'Tanggal wajib diisi.',
             'date.date' => 'Format tanggal tidak valid.',
+            'date.unique' => 'Karyawan sudah memiliki data kehadiran untuk tanggal yang dipilih.',
             'check_in_time.date_format' => 'Format waktu check in harus HH:MM.',
             'check_out_time.date_format' => 'Format waktu check out harus HH:MM.',
             'check_out_time.after' => 'Waktu check out harus setelah check in.',
