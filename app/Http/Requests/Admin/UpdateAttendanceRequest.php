@@ -16,13 +16,16 @@ class UpdateAttendanceRequest extends FormRequest
     {
         $attendance = $this->route('attendance');
 
+        // Get user_id from the attendance record if exists, otherwise from request
+        $userId = $attendance?->user_id ?? $this->input('user_id');
+
         return [
             'date' => [
                 'required',
                 'date',
                 Rule::unique('attendances')
-                    ->where('user_id', $attendance->user_id)
-                    ->ignore($attendance->id)
+                    ->where('user_id', $userId)
+                    ->ignore($attendance?->id ?? 0)
             ],
             'check_in_time' => ['nullable', 'date_format:H:i'],
             'check_out_time' => ['nullable', 'date_format:H:i', 'after:check_in_time'],

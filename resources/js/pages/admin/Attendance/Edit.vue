@@ -127,6 +127,7 @@ const breadcrumbs: BreadcrumbItem[] = [
                                 </label>
                                 <DatePicker v-model="attendanceDate" placeholder="Pilih tanggal kehadiran" class="w-full" />
                                 <input type="hidden" name="date" :value="attendanceDate" />
+                                <input type="hidden" name="user_id" :value="attendance.user.id" />
                                 <div v-if="errors.date" class="mt-1 text-sm text-red-600 dark:text-red-400">
                                     {{ errors.date }}
                                 </div>
