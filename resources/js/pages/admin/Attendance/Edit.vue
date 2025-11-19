@@ -1,10 +1,8 @@
 <script setup lang="ts">
-import { DatePicker } from '@/components/ui/date-picker';
 import AppLayout from '@/layouts/AppLayout.vue';
 import { type BreadcrumbItem } from '@/types';
 import { Form, Head } from '@inertiajs/vue3';
 import { Calendar, Clock, MapPin, Save, User, X } from 'lucide-vue-next';
-import { ref } from 'vue';
 
 interface User {
     id: number;
@@ -48,10 +46,6 @@ interface Props {
 
 const { attendance, officeLocations } = defineProps<Props>();
 
-// Format date for input
-const formatDateForInput = (date: string) => {
-    return new Date(date).toISOString().split('T')[0];
-};
 
 // Format time for input (remove seconds if present)
 const formatTimeForInput = (time: string | null) => {
@@ -59,7 +53,16 @@ const formatTimeForInput = (time: string | null) => {
     return time.substring(0, 5); // Get HH:MM from HH:MM:SS
 };
 
-const attendanceDate = ref(formatDateForInput(attendance.date));
+// Format date for display
+const formatDate = (date: string) => {
+    const options: Intl.DateTimeFormatOptions = {
+        weekday: 'long',
+        year: 'numeric',
+        month: 'long',
+        day: 'numeric'
+    };
+    return new Date(date).toLocaleDateString('id-ID', options);
+};
 
 const breadcrumbs: BreadcrumbItem[] = [
     { title: 'Dasbor', href: '/dashboard' },
@@ -119,18 +122,18 @@ const breadcrumbs: BreadcrumbItem[] = [
                 <div class="p-6">
                     <Form :action="`/admin/attendance/${attendance.id}`" method="put" #default="{ errors, processing }" class="space-y-6">
                         <div class="grid grid-cols-1 gap-6 md:grid-cols-2">
-                            <!-- Date -->
+                            <!-- Date (Readonly) -->
                             <div>
                                 <label class="mb-2 block text-sm font-medium text-gray-700 dark:text-gray-300">
                                     <Calendar class="mr-1 inline h-4 w-4" />
                                     Tanggal
                                 </label>
-                                <DatePicker v-model="attendanceDate" placeholder="Pilih tanggal kehadiran" class="w-full" />
-                                <input type="hidden" name="date" :value="attendanceDate" />
-                                <input type="hidden" name="user_id" :value="attendance.user.id" />
-                                <div v-if="errors.date" class="mt-1 text-sm text-red-600 dark:text-red-400">
-                                    {{ errors.date }}
+                                <div class="w-full rounded-lg border border-gray-300 bg-gray-50 px-3 py-2 text-sm dark:border-gray-600 dark:bg-gray-700 dark:text-gray-300">
+                                    {{ formatDate(attendance.date) }}
                                 </div>
+                                <input type="hidden" name="date" :value="attendance.date" />
+                                <input type="hidden" name="user_id" :value="attendance.user.id" />
+                                <p class="mt-1 text-xs text-gray-500 dark:text-gray-400">Tanggal tidak dapat diubah</p>
                             </div>
 
                             <!-- Status -->

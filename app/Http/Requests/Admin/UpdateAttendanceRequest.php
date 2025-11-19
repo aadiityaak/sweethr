@@ -14,19 +14,9 @@ class UpdateAttendanceRequest extends FormRequest
 
     public function rules(): array
     {
-        $attendance = $this->route('attendance');
-
-        // Get user_id from the attendance record if exists, otherwise from request
-        $userId = $attendance?->user_id ?? $this->input('user_id');
-
         return [
-            'date' => [
-                'required',
-                'date',
-                Rule::unique('attendances')
-                    ->where('user_id', $userId)
-                    ->ignore($attendance?->id ?? 0)
-            ],
+            'date' => ['required', 'date'], // Date is required but not validated for uniqueness since it's readonly in edit form
+            'user_id' => ['required', 'exists:users,id'], // Ensure user_id exists
             'check_in_time' => ['nullable', 'date_format:H:i'],
             'check_out_time' => ['nullable', 'date_format:H:i', 'after:check_in_time'],
             'status' => ['required', Rule::in(['present', 'late', 'absent', 'half_day'])],
@@ -40,7 +30,8 @@ class UpdateAttendanceRequest extends FormRequest
         return [
             'date.required' => 'Tanggal wajib diisi.',
             'date.date' => 'Format tanggal tidak valid.',
-            'date.unique' => 'Karyawan sudah memiliki data kehadiran untuk tanggal yang dipilih.',
+            'user_id.required' => 'User ID wajib diisi.',
+            'user_id.exists' => 'User tidak ditemukan.',
             'check_in_time.date_format' => 'Format waktu check in harus HH:MM.',
             'check_out_time.date_format' => 'Format waktu check out harus HH:MM.',
             'check_out_time.after' => 'Waktu check out harus setelah check in.',

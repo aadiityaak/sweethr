@@ -11,6 +11,7 @@ use App\Models\OfficeLocation;
 use App\Models\User;
 use Carbon\Carbon;
 use Illuminate\Http\Request;
+use Illuminate\Support\Facades\Log;
 use Inertia\Inertia;
 use Inertia\Response;
 use Maatwebsite\Excel\Facades\Excel;
@@ -372,6 +373,17 @@ class AttendanceController extends Controller
     public function update(UpdateAttendanceRequest $request, Attendance $attendance)
     {
         $data = $request->validated();
+
+        // Debug logging
+        \Log::info('Update Attendance Debug:', [
+            'attendance_id' => $attendance->id,
+            'original_date' => $attendance->date,
+            'original_user_id' => $attendance->user_id,
+            'request_data' => $data,
+        ]);
+
+        // Remove date and user_id from update data since they shouldn't change
+        unset($data['date'], $data['user_id']);
 
         // Calculate work duration if both check in and check out times are provided
         if ($data['check_in_time'] && $data['check_out_time']) {
