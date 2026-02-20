@@ -26,6 +26,7 @@ class LoginRequest extends FormRequest
     protected function prepareForValidation(): void
     {
         $email = (string) $this->input('email', '');
+        $email = preg_replace('/[\x{00A0}\x{200B}-\x{200D}\x{FEFF}]/u', '', $email);
         $this->merge([
             'email' => strtolower(trim($email)),
         ]);

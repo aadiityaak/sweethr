@@ -10,12 +10,15 @@ import AuthBase from '@/layouts/AuthLayout.vue';
 import { register } from '@/routes';
 import { request } from '@/routes/password';
 import { Form, Head } from '@inertiajs/vue3';
-import { LoaderCircle } from 'lucide-vue-next';
+import { Eye, EyeOff, LoaderCircle } from 'lucide-vue-next';
+import { ref } from 'vue';
 
 defineProps<{
     status?: string;
     canResetPassword: boolean;
 }>();
+
+const showPassword = ref(false);
 </script>
 
 <template>
@@ -74,7 +77,7 @@ defineProps<{
                     <div class="relative">
                         <Input
                             id="password"
-                            type="password"
+                            :type="showPassword ? 'text' : 'password'"
                             name="password"
                             autocapitalize="none"
                             autocorrect="off"
@@ -85,6 +88,16 @@ defineProps<{
                             placeholder="Masukkan password Anda"
                             class="h-12 min-h-[48px] touch-manipulation rounded-lg border bg-background transition-all duration-200 placeholder:text-muted-foreground/70 focus:border-primary focus:ring-2 focus:ring-primary/20"
                         />
+                        <button
+                            type="button"
+                            class="absolute inset-y-0 right-3 flex items-center text-muted-foreground hover:text-foreground"
+                            @click="showPassword = !showPassword"
+                            aria-label="Toggle password visibility"
+                            tabindex="-1"
+                        >
+                            <Eye v-if="!showPassword" class="h-4 w-4" />
+                            <EyeOff v-else class="h-4 w-4" />
+                        </button>
                     </div>
                     <InputError :message="errors.password" class="text-xs" />
                 </div>
