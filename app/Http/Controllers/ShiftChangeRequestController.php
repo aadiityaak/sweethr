@@ -4,8 +4,8 @@ namespace App\Http\Controllers;
 
 use App\Models\ShiftChangeRequest;
 use App\Services\DatabaseHealthService;
-use Illuminate\Http\Request;
 use Illuminate\Database\QueryException;
+use Illuminate\Http\Request;
 use Illuminate\Support\Facades\Log;
 use Inertia\Inertia;
 use Inertia\Response;
@@ -35,7 +35,7 @@ class ShiftChangeRequestController extends Controller
                 'user_id' => auth()->id(),
                 'error' => $e->getMessage(),
                 'code' => $e->getCode(),
-                'db_health' => DatabaseHealthService::getConnectionInfo()
+                'db_health' => DatabaseHealthService::getConnectionInfo(),
             ]);
 
             // Attempt to reconnect and retry
@@ -49,7 +49,7 @@ class ShiftChangeRequestController extends Controller
                     $monthlyCount = $this->getMonthlyRequestCount();
 
                     Log::info('Database reconnection successful in ShiftChangeRequestController@index', [
-                        'user_id' => auth()->id()
+                        'user_id' => auth()->id(),
                     ]);
 
                     return Inertia::render('user/ShiftChangeRequest/Index', [
@@ -60,7 +60,7 @@ class ShiftChangeRequestController extends Controller
                 } catch (QueryException $retryError) {
                     Log::error('Database retry failed after reconnection in ShiftChangeRequestController@index', [
                         'user_id' => auth()->id(),
-                        'retry_error' => $retryError->getMessage()
+                        'retry_error' => $retryError->getMessage(),
                     ]);
                 }
             }
@@ -70,7 +70,7 @@ class ShiftChangeRequestController extends Controller
                 'requests' => collect([]),
                 'monthlyCount' => 0,
                 'monthlyLimit' => 5,
-                'error' => 'Terjadi masalah koneksi database. Silakan refresh halaman atau coba lagi nanti.'
+                'error' => 'Terjadi masalah koneksi database. Silakan refresh halaman atau coba lagi nanti.',
             ]);
         }
     }
@@ -100,7 +100,7 @@ class ShiftChangeRequestController extends Controller
 
         if ($monthlyCount >= 5) {
             return back()->withErrors([
-                'limit' => 'Anda telah mencapai batas maksimal 5 request per bulan.'
+                'limit' => 'Anda telah mencapai batas maksimal 5 request per bulan.',
             ]);
         }
 
@@ -115,13 +115,13 @@ class ShiftChangeRequestController extends Controller
             ->where('status', ShiftChangeRequest::STATUS_PENDING)
             ->where(function ($query) use ($validated) {
                 $query->where('original_date', $validated['original_date'])
-                      ->orWhere('requested_date', $validated['requested_date']);
+                    ->orWhere('requested_date', $validated['requested_date']);
             })
             ->exists();
 
         if ($conflict) {
             return back()->withErrors([
-                'conflict' => 'Sudah ada request pending untuk tanggal tersebut.'
+                'conflict' => 'Sudah ada request pending untuk tanggal tersebut.',
             ]);
         }
 
@@ -160,7 +160,7 @@ class ShiftChangeRequestController extends Controller
     public function destroy(ShiftChangeRequest $shiftChangeRequest)
     {
         // Ensure user can only delete their own pending requests
-        if ($shiftChangeRequest->user_id !== auth()->id() || !$shiftChangeRequest->isPending()) {
+        if ($shiftChangeRequest->user_id !== auth()->id() || ! $shiftChangeRequest->isPending()) {
             abort(403);
         }
 
@@ -182,8 +182,9 @@ class ShiftChangeRequestController extends Controller
         } catch (QueryException $e) {
             Log::error('Database error in getMonthlyRequestCount', [
                 'user_id' => auth()->id(),
-                'error' => $e->getMessage()
+                'error' => $e->getMessage(),
             ]);
+
             return 0;
         }
     }

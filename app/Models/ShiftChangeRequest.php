@@ -28,7 +28,9 @@ class ShiftChangeRequest extends Model
 
     // Status constants
     public const STATUS_PENDING = 'pending';
+
     public const STATUS_APPROVED = 'approved';
+
     public const STATUS_REJECTED = 'rejected';
 
     // Relationships
@@ -61,7 +63,7 @@ class ShiftChangeRequest extends Model
     public function scopeForMonth($query, $year, $month)
     {
         return $query->whereYear('requested_at', $year)
-                    ->whereMonth('requested_at', $month);
+            ->whereMonth('requested_at', $month);
     }
 
     // Helper methods

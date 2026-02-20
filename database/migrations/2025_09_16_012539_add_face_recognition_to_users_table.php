@@ -33,7 +33,7 @@ return new class extends Migration
                 'face_setup_at',
                 'face_recognition_attempts',
                 'face_attempts_date',
-                'face_recognition_mandatory'
+                'face_recognition_mandatory',
             ]);
         });
     }

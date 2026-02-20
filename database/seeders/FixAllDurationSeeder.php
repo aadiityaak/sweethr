@@ -3,7 +3,6 @@
 namespace Database\Seeders;
 
 use App\Models\Attendance;
-use Illuminate\Database\Console\Seeds\WithoutModelEvents;
 use Illuminate\Database\Seeder;
 
 class FixAllDurationSeeder extends Seeder
@@ -75,7 +74,7 @@ class FixAllDurationSeeder extends Seeder
         ')->whereNotNull('work_duration')->first();
 
         if ($stats) {
-            $this->command->info("📊 Updated Statistics:");
+            $this->command->info('📊 Updated Statistics:');
             $minHours = floor($stats->min_duration / 60);
             $minMins = $stats->min_duration % 60;
             $maxHours = floor($stats->max_duration / 60);

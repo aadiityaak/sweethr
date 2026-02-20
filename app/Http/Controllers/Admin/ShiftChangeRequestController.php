@@ -63,7 +63,7 @@ class ShiftChangeRequestController extends Controller
      */
     public function approve(Request $request, ShiftChangeRequest $shiftChangeRequest)
     {
-        if (!$shiftChangeRequest->isPending()) {
+        if (! $shiftChangeRequest->isPending()) {
             return back()->withErrors(['error' => 'Request ini sudah diproses sebelumnya.']);
         }
 
@@ -82,7 +82,7 @@ class ShiftChangeRequestController extends Controller
      */
     public function reject(Request $request, ShiftChangeRequest $shiftChangeRequest)
     {
-        if (!$shiftChangeRequest->isPending()) {
+        if (! $shiftChangeRequest->isPending()) {
             return back()->withErrors(['error' => 'Request ini sudah diproses sebelumnya.']);
         }
 

@@ -6,8 +6,6 @@ use App\Http\Controllers\Controller;
 use App\Models\Department;
 use App\Models\LeaveRequest;
 use App\Models\LeaveType;
-use App\Models\User;
-use Carbon\Carbon;
 use Illuminate\Http\Request;
 use Illuminate\Support\Facades\Auth;
 use Inertia\Inertia;
@@ -28,8 +26,8 @@ class LeaveRequestController extends Controller
         // Apply filters
         if ($request->search) {
             $query->whereHas('user', function ($q) use ($request) {
-                $q->where('name', 'like', '%' . $request->search . '%')
-                    ->orWhere('employee_id', 'like', '%' . $request->search . '%');
+                $q->where('name', 'like', '%'.$request->search.'%')
+                    ->orWhere('employee_id', 'like', '%'.$request->search.'%');
             });
         }
 
@@ -232,6 +230,7 @@ class LeaveRequestController extends Controller
     public function destroy(LeaveRequest $leaveRequest)
     {
         $leaveRequest->delete();
+
         return back()->with('success', 'Leave request deleted successfully.');
     }
 }

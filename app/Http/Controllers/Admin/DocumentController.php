@@ -32,7 +32,6 @@ class DocumentController extends Controller
             $query->where('document_type_id', $request->document_type_id);
         }
 
-
         $documents = $query->paginate(15)->withQueryString();
 
         // Get filter options
@@ -84,7 +83,7 @@ class DocumentController extends Controller
         $file = $request->file('file');
 
         // Generate unique filename
-        $filename = time() . '_' . $file->getClientOriginalName();
+        $filename = time().'_'.$file->getClientOriginalName();
         $path = $file->storeAs('documents', $filename, 'private');
 
         $document = EmployeeDocument::create([
@@ -158,7 +157,6 @@ class DocumentController extends Controller
         return redirect()->route('admin.documents.index')
             ->with('success', 'Dokumen berhasil diperbarui.');
     }
-
 
     /**
      * Download document file

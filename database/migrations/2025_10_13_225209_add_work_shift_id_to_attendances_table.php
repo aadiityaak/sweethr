@@ -13,7 +13,7 @@ return new class extends Migration
     {
         Schema::table('attendances', function (Blueprint $table) {
             // Check if column doesn't exist before adding
-            if (!Schema::hasColumn('attendances', 'work_shift_id')) {
+            if (! Schema::hasColumn('attendances', 'work_shift_id')) {
                 $table->foreignId('work_shift_id')->nullable()->constrained('work_shifts')->nullOnDelete();
                 $table->index('work_shift_id'); // Add index for better performance
             }

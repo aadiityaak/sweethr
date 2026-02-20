@@ -24,7 +24,7 @@ class AuthController extends Controller
 
         $user = User::where('email', $request->email)->first();
 
-        if (!$user || !Hash::check($request->password, $user->password)) {
+        if (! $user || ! Hash::check($request->password, $user->password)) {
             throw ValidationException::withMessages([
                 'email' => ['The provided credentials are incorrect.'],
             ]);
@@ -33,7 +33,7 @@ class AuthController extends Controller
         // Check if user is active
         if ($user->employment_status !== 'active') {
             return response()->json([
-                'message' => 'Account is not active'
+                'message' => 'Account is not active',
             ], 403);
         }
 
@@ -44,7 +44,7 @@ class AuthController extends Controller
         $token = $user->createToken('api-token', [
             'attendance:manage',
             'leave:manage',
-            'profile:update'
+            'profile:update',
         ])->plainTextToken;
 
         return response()->json([
@@ -85,7 +85,7 @@ class AuthController extends Controller
         $token = $user->createToken('api-token', [
             'attendance:manage',
             'leave:manage',
-            'profile:update'
+            'profile:update',
         ])->plainTextToken;
 
         return response()->json([
@@ -99,7 +99,7 @@ class AuthController extends Controller
         $request->user()->currentAccessToken()->delete();
 
         return response()->json([
-            'message' => 'Logged out successfully'
+            'message' => 'Logged out successfully',
         ]);
     }
 
@@ -109,8 +109,8 @@ class AuthController extends Controller
             'user' => $request->user()->load([
                 'department',
                 'position',
-                'manager:id,name,employee_id'
-            ])
+                'manager:id,name,employee_id',
+            ]),
         ]);
     }
 
@@ -140,7 +140,7 @@ class AuthController extends Controller
 
         return response()->json([
             'message' => 'Profile updated successfully',
-            'user' => $user->load(['department', 'position'])
+            'user' => $user->load(['department', 'position']),
         ]);
     }
 
@@ -157,21 +157,21 @@ class AuthController extends Controller
 
         $user = $request->user();
 
-        if (!Hash::check($request->current_password, $user->password)) {
+        if (! Hash::check($request->current_password, $user->password)) {
             return response()->json([
-                'errors' => ['current_password' => ['Current password is incorrect']]
+                'errors' => ['current_password' => ['Current password is incorrect']],
             ], 422);
         }
 
         $user->update([
-            'password' => Hash::make($request->password)
+            'password' => Hash::make($request->password),
         ]);
 
         // Revoke all tokens to force re-login
         $user->tokens()->delete();
 
         return response()->json([
-            'message' => 'Password changed successfully. Please login again.'
+            'message' => 'Password changed successfully. Please login again.',
         ]);
     }
 }

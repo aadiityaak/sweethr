@@ -44,10 +44,13 @@ defineProps<{
                             id="email"
                             type="email"
                             name="email"
+                            autocapitalize="off"
+                            autocomplete="email"
+                            autocorrect="off"
+                            spellcheck="false"
                             required
                             autofocus
                             :tabindex="1"
-                            autocomplete="email"
                             placeholder="Masukkan email Anda"
                             class="h-12 min-h-[48px] touch-manipulation rounded-lg border bg-background transition-all duration-200 placeholder:text-muted-foreground/70 focus:border-primary focus:ring-2 focus:ring-primary/20"
                         />

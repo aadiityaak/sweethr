@@ -46,7 +46,7 @@ return new class extends Migration
             $table->dropColumn([
                 'employee_id', 'phone', 'date_of_birth', 'gender', 'address',
                 'hire_date', 'department_id', 'position_id', 'manager_id',
-                'employment_status', 'emergency_contact', 'is_admin'
+                'employment_status', 'emergency_contact', 'is_admin',
             ]);
         });
     }

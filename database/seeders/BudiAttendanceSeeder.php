@@ -6,7 +6,6 @@ use App\Models\Attendance;
 use App\Models\OfficeLocation;
 use App\Models\User;
 use Carbon\Carbon;
-use Illuminate\Database\Console\Seeds\WithoutModelEvents;
 use Illuminate\Database\Seeder;
 
 class BudiAttendanceSeeder extends Seeder
@@ -20,8 +19,9 @@ class BudiAttendanceSeeder extends Seeder
         $budiUser = User::where('name', 'Budi Santoso')->first();
         $officeLocation = OfficeLocation::first();
 
-        if (!$budiUser || !$officeLocation) {
+        if (! $budiUser || ! $officeLocation) {
             $this->command->error('Budi Santoso user or office location not found!');
+
             return;
         }
 
@@ -129,6 +129,7 @@ class BudiAttendanceSeeder extends Seeder
     {
         $checkIn = Carbon::createFromFormat('H:i:s', $checkInTime);
         $checkOut = Carbon::createFromFormat('H:i:s', $checkOutTime);
+
         return $checkIn->diffInMinutes($checkOut);
     }
 

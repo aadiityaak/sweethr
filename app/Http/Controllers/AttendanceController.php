@@ -340,7 +340,7 @@ class AttendanceController extends Controller
                 if ($directShift) {
                     // Create a temporary shift object for compatibility
                     $shift = (object) [
-                        'workShift' => $directShift
+                        'workShift' => $directShift,
                     ];
                     Log::info('Using selected shift directly (no assignment found)', [
                         'user_id' => $user->id,

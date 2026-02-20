@@ -16,7 +16,7 @@ class UrlHelper
 
         // If APP_URL is set and doesn't match current URL, use current URL
         if (config('app.url') !== $currentUrl) {
-            return $currentUrl . '/' . ltrim($path, '/');
+            return $currentUrl.'/'.ltrim($path, '/');
         }
 
         // Otherwise use Laravel's asset helper
@@ -33,7 +33,7 @@ class UrlHelper
 
         // If APP_URL is set and doesn't match current URL, use current URL
         if (config('app.url') !== $currentUrl) {
-            return $currentUrl . '/storage/' . ltrim($path, '/');
+            return $currentUrl.'/storage/'.ltrim($path, '/');
         }
 
         // Otherwise use standard Storage URL
@@ -45,7 +45,7 @@ class UrlHelper
      */
     public static function avatar(?string $avatarPath): ?string
     {
-        if (!$avatarPath) {
+        if (! $avatarPath) {
             return null;
         }
 

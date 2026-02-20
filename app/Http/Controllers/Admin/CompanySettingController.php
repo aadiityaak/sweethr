@@ -6,7 +6,6 @@ use App\Http\Controllers\Controller;
 use App\Models\CompanySetting;
 use Illuminate\Http\Request;
 use Illuminate\Support\Facades\Storage;
-use Illuminate\Validation\Rule;
 use Inertia\Inertia;
 use Inertia\Response;
 
@@ -20,7 +19,7 @@ class CompanySettingController extends Controller
                 'description' => 'Nama resmi perusahaan yang akan ditampilkan di aplikasi',
                 'required' => true,
                 'is_public' => true,
-                'default' => 'PT Perusahaan Indonesia'
+                'default' => 'PT Perusahaan Indonesia',
             ],
             'company_tagline' => [
                 'type' => 'text',
@@ -56,7 +55,7 @@ class CompanySettingController extends Controller
                 'description' => 'Warna utama untuk tema aplikasi',
                 'required' => false,
                 'is_public' => true,
-                'default' => '#3b82f6'
+                'default' => '#3b82f6',
             ],
         ],
         'company_info' => [
@@ -88,7 +87,7 @@ class CompanySettingController extends Controller
                 'required' => false,
                 'is_public' => true,
             ],
-        ]
+        ],
     ];
 
     public function index(): Response
@@ -158,12 +157,12 @@ class CompanySettingController extends Controller
                     }
 
                     $rules[$key] = implode('|', $fieldRules);
-                    $messages["{$key}.required"] = $definition['label'] . ' wajib diisi.';
-                    $messages["{$key}.email"] = $definition['label'] . ' harus berupa alamat email yang valid.';
-                    $messages["{$key}.url"] = $definition['label'] . ' harus berupa URL yang valid.';
-                    $messages["{$key}.image"] = $definition['label'] . ' harus berupa file gambar.';
-                    $messages["{$key}.max"] = $definition['label'] . ' maksimal 2MB.';
-                    $messages["{$key}.regex"] = $definition['label'] . ' harus berupa kode warna hex yang valid.';
+                    $messages["{$key}.required"] = $definition['label'].' wajib diisi.';
+                    $messages["{$key}.email"] = $definition['label'].' harus berupa alamat email yang valid.';
+                    $messages["{$key}.url"] = $definition['label'].' harus berupa URL yang valid.';
+                    $messages["{$key}.image"] = $definition['label'].' harus berupa file gambar.';
+                    $messages["{$key}.max"] = $definition['label'].' maksimal 2MB.';
+                    $messages["{$key}.regex"] = $definition['label'].' harus berupa kode warna hex yang valid.';
                 }
             }
         }
@@ -181,7 +180,9 @@ class CompanySettingController extends Controller
                 }
             }
 
-            if (!$definition) continue;
+            if (! $definition) {
+                continue;
+            }
 
             // Handle file uploads
             if ($definition['type'] === 'image' && $request->hasFile($key)) {
@@ -213,17 +214,17 @@ class CompanySettingController extends Controller
     public function deleteFile(Request $request, string $key)
     {
         $request->validate([
-            'key' => 'required|string'
+            'key' => 'required|string',
         ]);
 
         $setting = CompanySetting::where('key', $key)->first();
 
-        if (!$setting) {
+        if (! $setting) {
             return back()->with('error', 'Setting tidak ditemukan.');
         }
 
         // Check if it's an image/file type
-        if (!in_array($setting->type, ['image', 'file'])) {
+        if (! in_array($setting->type, ['image', 'file'])) {
             return back()->with('error', 'Setting ini bukan file.');
         }
 

@@ -5,22 +5,25 @@ namespace App\Exports;
 use App\Models\Attendance;
 use Carbon\Carbon;
 use Maatwebsite\Excel\Concerns\FromCollection;
+use Maatwebsite\Excel\Concerns\ShouldAutoSize;
+use Maatwebsite\Excel\Concerns\WithColumnWidths;
 use Maatwebsite\Excel\Concerns\WithHeadings;
 use Maatwebsite\Excel\Concerns\WithMapping;
 use Maatwebsite\Excel\Concerns\WithStyles;
-use Maatwebsite\Excel\Concerns\WithColumnWidths;
 use Maatwebsite\Excel\Concerns\WithTitle;
-use Maatwebsite\Excel\Concerns\ShouldAutoSize;
-use PhpOffice\PhpSpreadsheet\Worksheet\Worksheet;
 use PhpOffice\PhpSpreadsheet\Style\Alignment;
 use PhpOffice\PhpSpreadsheet\Style\Border;
 use PhpOffice\PhpSpreadsheet\Style\Fill;
+use PhpOffice\PhpSpreadsheet\Worksheet\Worksheet;
 
-class AttendanceExport implements FromCollection, WithHeadings, WithMapping, WithStyles, WithColumnWidths, WithTitle, ShouldAutoSize
+class AttendanceExport implements FromCollection, ShouldAutoSize, WithColumnWidths, WithHeadings, WithMapping, WithStyles, WithTitle
 {
     protected $filters;
+
     protected $date;
+
     protected $dateFrom;
+
     protected $dateTo;
 
     public function __construct($filters = [])
@@ -43,7 +46,7 @@ class AttendanceExport implements FromCollection, WithHeadings, WithMapping, Wit
             ->when($this->dateFrom && $this->dateTo, function ($query) {
                 $query->whereBetween('date', [$this->dateFrom, $this->dateTo]);
             })
-            ->when(!$this->dateFrom || !$this->dateTo, function ($query) {
+            ->when(! $this->dateFrom || ! $this->dateTo, function ($query) {
                 $query->where('date', $this->date);
             })
             ->when($this->filters['status'] ?? false, function ($query, $status) {
@@ -105,7 +108,7 @@ class AttendanceExport implements FromCollection, WithHeadings, WithMapping, Wit
             $this->getStatusLabel($attendance->status),
             $attendance->officeLocation->name ?? 'N/A',
             $attendance->overtime_duration ? number_format($attendance->overtime_duration / 60, 2) : '0.00',
-            $attendance->face_confidence ? $attendance->face_confidence . '%' : 'N/A',
+            $attendance->face_confidence ? $attendance->face_confidence.'%' : 'N/A',
             $attendance->notes ?? '',
         ];
     }
@@ -143,15 +146,15 @@ class AttendanceExport implements FromCollection, WithHeadings, WithMapping, Wit
                 ],
             ],
             // Center align specific columns
-            "A:A" => ['alignment' => ['horizontal' => Alignment::HORIZONTAL_CENTER]], // No
-            "B:B" => ['alignment' => ['horizontal' => Alignment::HORIZONTAL_CENTER]], // ID Karyawan
-            "F:F" => ['alignment' => ['horizontal' => Alignment::HORIZONTAL_CENTER]], // Tanggal
-            "G:G" => ['alignment' => ['horizontal' => Alignment::HORIZONTAL_CENTER]], // Jam Masuk
-            "H:H" => ['alignment' => ['horizontal' => Alignment::HORIZONTAL_CENTER]], // Jam Keluar
-            "I:I" => ['alignment' => ['horizontal' => Alignment::HORIZONTAL_CENTER]], // Durasi Kerja
-            "J:J" => ['alignment' => ['horizontal' => Alignment::HORIZONTAL_CENTER]], // Status
-            "L:L" => ['alignment' => ['horizontal' => Alignment::HORIZONTAL_CENTER]], // Lembur
-            "M:M" => ['alignment' => ['horizontal' => Alignment::HORIZONTAL_CENTER]], // Face Confidence
+            'A:A' => ['alignment' => ['horizontal' => Alignment::HORIZONTAL_CENTER]], // No
+            'B:B' => ['alignment' => ['horizontal' => Alignment::HORIZONTAL_CENTER]], // ID Karyawan
+            'F:F' => ['alignment' => ['horizontal' => Alignment::HORIZONTAL_CENTER]], // Tanggal
+            'G:G' => ['alignment' => ['horizontal' => Alignment::HORIZONTAL_CENTER]], // Jam Masuk
+            'H:H' => ['alignment' => ['horizontal' => Alignment::HORIZONTAL_CENTER]], // Jam Keluar
+            'I:I' => ['alignment' => ['horizontal' => Alignment::HORIZONTAL_CENTER]], // Durasi Kerja
+            'J:J' => ['alignment' => ['horizontal' => Alignment::HORIZONTAL_CENTER]], // Status
+            'L:L' => ['alignment' => ['horizontal' => Alignment::HORIZONTAL_CENTER]], // Lembur
+            'M:M' => ['alignment' => ['horizontal' => Alignment::HORIZONTAL_CENTER]], // Face Confidence
         ];
     }
 
@@ -178,6 +181,7 @@ class AttendanceExport implements FromCollection, WithHeadings, WithMapping, Wit
     public function title(): string
     {
         $dateFormatted = Carbon::parse($this->date)->format('d-m-Y');
+
         return "Laporan Kehadiran {$dateFormatted}";
     }
 

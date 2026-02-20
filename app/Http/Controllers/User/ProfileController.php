@@ -43,7 +43,7 @@ class ProfileController extends Controller
         $userData['face_recognition_enabled'] = (bool) $user->face_recognition_enabled;
         $userData['face_recognition_mandatory'] = (bool) $user->face_recognition_mandatory;
         $userData['face_setup_at'] = $user->face_setup_at?->toISOString();
-        $userData['has_face_descriptors'] = !empty($user->face_descriptors);
+        $userData['has_face_descriptors'] = ! empty($user->face_descriptors);
 
         // Add avatar URL if exists - use helper for production compatibility
         $userData['avatar'] = UrlHelper::avatar($user->avatar);
@@ -136,5 +136,4 @@ class ProfileController extends Controller
 
         return back()->with('success', 'Foto profil berhasil dihapus!');
     }
-
 }

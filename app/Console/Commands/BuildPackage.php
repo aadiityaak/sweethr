@@ -11,6 +11,7 @@ use ZipArchive;
 class BuildPackage extends Command
 {
     protected $signature = 'build:package';
+
     protected $description = 'Create WordPress-style package with installer system';
 
     public function handle(): int
@@ -93,12 +94,12 @@ class BuildPackage extends Command
             $destinationPath = $destination.DIRECTORY_SEPARATOR.$relativePath;
 
             if ($item->isDir()) {
-                if (!File::exists($destinationPath)) {
+                if (! File::exists($destinationPath)) {
                     File::makeDirectory($destinationPath, 0755, true);
                 }
             } elseif ($item->isFile()) {
                 $destinationDir = dirname($destinationPath);
-                if (!File::exists($destinationDir)) {
+                if (! File::exists($destinationDir)) {
                     File::makeDirectory($destinationDir, 0755, true);
                 }
                 File::copy($item->getPathname(), $destinationPath);

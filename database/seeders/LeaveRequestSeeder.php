@@ -6,7 +6,6 @@ use App\Models\LeaveRequest;
 use App\Models\LeaveType;
 use App\Models\User;
 use Carbon\Carbon;
-use Illuminate\Database\Console\Seeds\WithoutModelEvents;
 use Illuminate\Database\Seeder;
 
 class LeaveRequestSeeder extends Seeder
@@ -32,7 +31,7 @@ class LeaveRequestSeeder extends Seeder
             ->get();
         $admin = User::where('is_admin', true)->first();
 
-        if (!$annualLeave || $employees->isEmpty()) {
+        if (! $annualLeave || $employees->isEmpty()) {
             return;
         }
 

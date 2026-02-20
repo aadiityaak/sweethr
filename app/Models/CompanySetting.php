@@ -32,6 +32,7 @@ class CompanySetting extends Model
     {
         return Cache::remember("company_setting_{$key}", 3600, function () use ($key, $default) {
             $setting = static::where('key', $key)->first();
+
             return $setting ? $setting->value : $default;
         });
     }

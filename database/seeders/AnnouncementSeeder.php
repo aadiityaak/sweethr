@@ -18,8 +18,9 @@ class AnnouncementSeeder extends Seeder
         $adminUser = User::where('is_admin', true)->first();
         $categories = AnnouncementCategory::all();
 
-        if (!$adminUser || $categories->isEmpty()) {
+        if (! $adminUser || $categories->isEmpty()) {
             $this->command->warn('Please seed users and announcement categories first.');
+
             return;
         }
 

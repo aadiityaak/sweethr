@@ -34,9 +34,9 @@ class EmployeeController extends Controller
         // Apply filters
         if ($request->search) {
             $query->where(function ($q) use ($request) {
-                $q->where('name', 'like', '%' . $request->search . '%')
-                    ->orWhere('email', 'like', '%' . $request->search . '%')
-                    ->orWhere('employee_id', 'like', '%' . $request->search . '%');
+                $q->where('name', 'like', '%'.$request->search.'%')
+                    ->orWhere('email', 'like', '%'.$request->search.'%')
+                    ->orWhere('employee_id', 'like', '%'.$request->search.'%');
             });
         }
 
@@ -180,8 +180,8 @@ class EmployeeController extends Controller
     {
         $validated = $request->validate([
             'name' => 'required|string|max:255',
-            'email' => 'required|email|unique:users,email,' . $employee->id,
-            'employee_id' => 'required|string|unique:users,employee_id,' . $employee->id,
+            'email' => 'required|email|unique:users,email,'.$employee->id,
+            'employee_id' => 'required|string|unique:users,employee_id,'.$employee->id,
             'phone' => 'required|numeric|digits_between:10,15',
             'department_id' => 'required|exists:departments,id',
             'position_id' => 'nullable|exists:positions,id',
@@ -257,7 +257,7 @@ class EmployeeController extends Controller
                 }
 
                 if ($hasConstraints) {
-                    throw new \Exception('Cannot delete employee: still referenced by ' . implode(', ', $constraintMessages));
+                    throw new \Exception('Cannot delete employee: still referenced by '.implode(', ', $constraintMessages));
                 }
 
                 // Delete related records that can be safely deleted
@@ -306,7 +306,7 @@ class EmployeeController extends Controller
                 'trace' => $e->getTraceAsString(),
             ]);
 
-            return back()->with('error', 'Gagal menghapus karyawan: ' . $e->getMessage());
+            return back()->with('error', 'Gagal menghapus karyawan: '.$e->getMessage());
         }
 
         return to_route('employees.index')

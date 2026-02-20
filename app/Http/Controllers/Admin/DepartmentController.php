@@ -86,7 +86,7 @@ class DepartmentController extends Controller
         }
 
         // If not manually paginated yet
-        if (!isset($departments)) {
+        if (! isset($departments)) {
             $departments = $query->paginate(15)->withQueryString();
         }
 

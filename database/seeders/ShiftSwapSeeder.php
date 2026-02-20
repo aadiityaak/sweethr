@@ -2,11 +2,10 @@
 
 namespace Database\Seeders;
 
-use Illuminate\Database\Console\Seeds\WithoutModelEvents;
-use Illuminate\Database\Seeder;
-use App\Models\User;
 use App\Models\ShiftSwap;
+use App\Models\User;
 use App\Models\WorkShift;
+use Illuminate\Database\Seeder;
 
 class ShiftSwapSeeder extends Seeder
 {
@@ -20,6 +19,7 @@ class ShiftSwapSeeder extends Seeder
 
         if ($users->count() < 2 || $shifts->count() < 2) {
             $this->command->info('Not enough users or shifts to create shift swap samples.');
+
             return;
         }
 

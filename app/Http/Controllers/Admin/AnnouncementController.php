@@ -54,7 +54,7 @@ class AnnouncementController extends Controller
         $validated['created_by'] = auth()->id();
 
         // Set published_at to now if not provided and is_active is true
-        if ($validated['is_active'] && !$validated['published_at']) {
+        if ($validated['is_active'] && ! $validated['published_at']) {
             $validated['published_at'] = now();
         }
 
@@ -147,8 +147,8 @@ class AnnouncementController extends Controller
     public function toggleStatus(Announcement $announcement)
     {
         $announcement->update([
-            'is_active' => !$announcement->is_active,
-            'published_at' => !$announcement->is_active ? now() : $announcement->published_at,
+            'is_active' => ! $announcement->is_active,
+            'published_at' => ! $announcement->is_active ? now() : $announcement->published_at,
         ]);
 
         $status = $announcement->is_active ? 'diaktifkan' : 'dinonaktifkan';

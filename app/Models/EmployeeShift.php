@@ -2,8 +2,8 @@
 
 namespace App\Models;
 
-use Illuminate\Database\Eloquent\Model;
 use Illuminate\Database\Eloquent\Factories\HasFactory;
+use Illuminate\Database\Eloquent\Model;
 
 class EmployeeShift extends Model
 {
@@ -47,10 +47,11 @@ class EmployeeShift extends Model
     public function scopeCurrent($query)
     {
         $today = today();
+
         return $query->where('effective_date', '<=', $today)
-                    ->where(function ($q) use ($today) {
-                        $q->whereNull('end_date')
-                          ->orWhere('end_date', '>=', $today);
-                    });
+            ->where(function ($q) use ($today) {
+                $q->whereNull('end_date')
+                    ->orWhere('end_date', '>=', $today);
+            });
     }
 }

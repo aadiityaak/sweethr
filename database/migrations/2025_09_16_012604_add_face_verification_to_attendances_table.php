@@ -29,7 +29,7 @@ return new class extends Migration
                 'face_match_confidence',
                 'face_verification_passed',
                 'face_verification_skipped',
-                'face_verification_notes'
+                'face_verification_notes',
             ]);
         });
     }

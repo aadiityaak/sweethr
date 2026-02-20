@@ -11,6 +11,7 @@ use ZipArchive;
 class BuildProductionStructure extends Command
 {
     protected $signature = 'build:production-structure';
+
     protected $description = 'Create production build structure with Laravel and public_html folders';
 
     public function handle(): int
@@ -199,8 +200,9 @@ class BuildProductionStructure extends Command
     {
         $indexPhpPath = $publicHtmlPath.'/index.php';
 
-        if (!File::exists($indexPhpPath)) {
+        if (! File::exists($indexPhpPath)) {
             $this->error('index.php not found in public_html directory');
+
             return;
         }
 
@@ -258,7 +260,7 @@ class BuildProductionStructure extends Command
                     $destinationFile = $assetsDestination.DIRECTORY_SEPARATOR.$relativePath;
                     $destinationDir = dirname($destinationFile);
 
-                    if (!File::exists($destinationDir)) {
+                    if (! File::exists($destinationDir)) {
                         File::makeDirectory($destinationDir, 0755, true);
                     }
 

@@ -2,8 +2,8 @@
 
 namespace App\Models;
 
-use Illuminate\Database\Eloquent\Model;
 use Illuminate\Database\Eloquent\Factories\HasFactory;
+use Illuminate\Database\Eloquent\Model;
 
 class WorkShift extends Model
 {
@@ -48,6 +48,7 @@ class WorkShift extends Model
     {
         $hours = floor($this->work_hours / 60);
         $minutes = $this->work_hours % 60;
+
         return sprintf('%02d:%02d', $hours, $minutes);
     }
 

@@ -2,9 +2,9 @@
 
 namespace App\Services;
 
+use Illuminate\Database\QueryException;
 use Illuminate\Support\Facades\DB;
 use Illuminate\Support\Facades\Log;
-use Illuminate\Database\QueryException;
 
 class DatabaseHealthService
 {
@@ -15,12 +15,14 @@ class DatabaseHealthService
     {
         try {
             DB::select('SELECT 1');
+
             return true;
         } catch (QueryException $e) {
             Log::warning('Database health check failed', [
                 'error' => $e->getMessage(),
-                'code' => $e->getCode()
+                'code' => $e->getCode(),
             ]);
+
             return false;
         }
     }
@@ -32,12 +34,14 @@ class DatabaseHealthService
     {
         try {
             DB::select("SHOW TABLES LIKE '{$table}'");
+
             return true;
         } catch (QueryException $e) {
             Log::warning("Table health check failed for {$table}", [
                 'error' => $e->getMessage(),
-                'code' => $e->getCode()
+                'code' => $e->getCode(),
             ]);
+
             return false;
         }
     }
@@ -49,11 +53,13 @@ class DatabaseHealthService
     {
         try {
             DB::reconnect();
+
             return self::isHealthy();
         } catch (\Exception $e) {
             Log::error('Database reconnection failed', [
-                'error' => $e->getMessage()
+                'error' => $e->getMessage(),
             ]);
+
             return false;
         }
     }
@@ -65,6 +71,7 @@ class DatabaseHealthService
     {
         try {
             $result = DB::select('SELECT CONNECTION_ID() as connection_id, NOW() as server_time');
+
             return [
                 'status' => 'healthy',
                 'connection_id' => $result[0]->connection_id ?? null,
@@ -74,7 +81,7 @@ class DatabaseHealthService
             return [
                 'status' => 'unhealthy',
                 'error' => $e->getMessage(),
-                'code' => $e->getCode()
+                'code' => $e->getCode(),
             ];
         }
     }

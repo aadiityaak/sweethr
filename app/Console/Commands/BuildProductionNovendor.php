@@ -33,9 +33,10 @@ class BuildProductionNovendor extends Command
         $result = Process::timeout(300) // 5 minutes timeout
             ->run('npm run build');
 
-        if (!$result->successful()) {
+        if (! $result->successful()) {
             $this->error('❌ Frontend build failed!');
             $this->line($result->errorOutput());
+
             return 1;
         }
 
@@ -46,9 +47,10 @@ class BuildProductionNovendor extends Command
         $result = Process::timeout(120) // 2 minutes timeout
             ->run('composer dump-autoload --optimize --no-dev');
 
-        if (!$result->successful()) {
+        if (! $result->successful()) {
             $this->error('❌ Composer optimization failed!');
             $this->line($result->errorOutput());
+
             return 1;
         }
 
@@ -84,7 +86,7 @@ class BuildProductionNovendor extends Command
     {
         $this->info('📦 Creating production zip...');
 
-        $zipName = 'sweethr-production-' . date('Y-m-d-H-i-s') . '.zip';
+        $zipName = 'sweethr-production-'.date('Y-m-d-H-i-s').'.zip';
         $excludePatterns = [
             'node_modules/*',
             'vendor/*',
@@ -98,12 +100,12 @@ class BuildProductionNovendor extends Command
             'bootstrap/cache/*',
             '*.log',
             '.DS_Store',
-            'Thumbs.db'
+            'Thumbs.db',
         ];
 
         // Create exclude parameters for zip command
         $excludeParams = collect($excludePatterns)
-            ->map(fn($pattern) => "-x '{$pattern}'")
+            ->map(fn ($pattern) => "-x '{$pattern}'")
             ->implode(' ');
 
         $command = "cd .. && zip -r {$zipName} sweethr {$excludeParams}";
@@ -112,7 +114,7 @@ class BuildProductionNovendor extends Command
 
         if ($result->successful()) {
             $this->info("✅ Production zip created: ../{$zipName}");
-            $this->info('📏 Zip size: ' . $this->formatBytes(filesize("../{$zipName}")));
+            $this->info('📏 Zip size: '.$this->formatBytes(filesize("../{$zipName}")));
         } else {
             $this->error('❌ Failed to create zip file');
             $this->line($result->errorOutput());
@@ -130,6 +132,6 @@ class BuildProductionNovendor extends Command
             $bytes /= 1024;
         }
 
-        return round($bytes, $precision) . ' ' . $units[$i];
+        return round($bytes, $precision).' '.$units[$i];
     }
 }

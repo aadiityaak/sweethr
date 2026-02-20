@@ -2,8 +2,8 @@
 
 namespace Database\Seeders;
 
-use App\Models\Position;
 use App\Models\Department;
+use App\Models\Position;
 use Illuminate\Database\Seeder;
 
 class PositionSeeder extends Seeder

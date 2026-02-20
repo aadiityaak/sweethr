@@ -38,8 +38,8 @@ class BackfillLateDuration extends Command
         // Get all attendance records that might need late_duration calculated
         // (records with check_in_time but late_duration not set or negative)
         $attendances = Attendance::with(['user.employeeShifts' => function ($q) {
-                $q->with('workShift')->active();
-            }])
+            $q->with('workShift')->active();
+        }])
             ->where(function ($query) {
                 $query->where('late_duration', '<=', 0)
                     ->orWhereNull('late_duration');
@@ -66,9 +66,10 @@ class BackfillLateDuration extends Command
                 })
                 ->first();
 
-            if (!$shift || !$shift->workShift) {
+            if (! $shift || ! $shift->workShift) {
                 $skipped++;
                 $bar->advance();
+
                 continue;
             }
 
@@ -80,13 +81,13 @@ class BackfillLateDuration extends Command
                 // Calculate late duration (absolute value to ensure positive)
                 $lateDuration = abs($checkInTime->diffInMinutes($shiftStartTime));
 
-                if (!$dryRun) {
+                if (! $dryRun) {
                     $attendance->late_duration = $lateDuration;
                     $saved = $attendance->save();
 
                     if ($this->getOutput()->isVerbose()) {
                         $this->newLine();
-                        $this->line("  ID {$attendance->id}: {$attendance->user->name} - {$lateDuration} minutes late - Saved: " . ($saved ? 'YES' : 'NO'));
+                        $this->line("  ID {$attendance->id}: {$attendance->user->name} - {$lateDuration} minutes late - Saved: ".($saved ? 'YES' : 'NO'));
                     }
                 }
 
@@ -101,7 +102,7 @@ class BackfillLateDuration extends Command
         $bar->finish();
         $this->newLine(2);
 
-        $this->info("✅ Backfill completed!");
+        $this->info('✅ Backfill completed!');
         $this->table(
             ['Status', 'Count'],
             [

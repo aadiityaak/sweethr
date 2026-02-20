@@ -94,7 +94,7 @@ class FaceRecognitionController extends Controller
             'setup_at' => $user->face_setup_at?->toISOString(),
             'attempts_today' => $user->face_recognition_attempts,
             'attempts_date' => $user->face_attempts_date,
-            'has_descriptors' => !empty($descriptors),
+            'has_descriptors' => ! empty($descriptors),
         ]);
     }
 
@@ -131,7 +131,7 @@ class FaceRecognitionController extends Controller
         $userId = auth()->id();
         $user = \App\Models\User::find($userId);
 
-        if (!$user->face_recognition_enabled) {
+        if (! $user->face_recognition_enabled) {
             return response()->json([
                 'success' => false,
                 'message' => 'Pengenalan wajah belum diaktifkan.',
@@ -140,7 +140,7 @@ class FaceRecognitionController extends Controller
 
         $descriptors = $this->faceRecognitionService->getFaceDescriptors($user);
 
-        if (!$descriptors) {
+        if (! $descriptors) {
             return response()->json([
                 'success' => false,
                 'message' => 'Data wajah tidak ditemukan.',
@@ -173,7 +173,7 @@ class FaceRecognitionController extends Controller
         $user = auth()->user();
 
         // Only admin can view stats
-        if (!$user->is_admin) {
+        if (! $user->is_admin) {
             return response()->json([
                 'success' => false,
                 'message' => 'Akses ditolak.',

@@ -42,13 +42,13 @@ class FixAttendanceWorkShiftId extends Command
 
         // Build query - get all attendance records that need fixing
         $query = Attendance::with(['user', 'workShift'])
-            ->where(function($q) {
+            ->where(function ($q) {
                 $q->whereNull('work_shift_id')
-                  ->orWhere(function($subQ) {
-                      // Get records where work_shift_id exists but references non-existent shift
-                      $subQ->whereNotNull('work_shift_id')
+                    ->orWhere(function ($subQ) {
+                        // Get records where work_shift_id exists but references non-existent shift
+                        $subQ->whereNotNull('work_shift_id')
                             ->whereDoesntHave('workShift');
-                  });
+                    });
             });
 
         if ($specificDate) {
@@ -77,14 +77,15 @@ class FixAttendanceWorkShiftId extends Command
 
         foreach ($attendances as $attendance) {
             // Check if user relationship exists
-            if (!$attendance->user) {
+            if (! $attendance->user) {
                 $this->warn("Record ID {$attendance->id} has no associated user - skipping");
                 $errorCount++;
+
                 continue;
             }
 
             // Check if work_shift_id is NULL or invalid
-            $isInvalid = is_null($attendance->work_shift_id) || !$attendance->workShift;
+            $isInvalid = is_null($attendance->work_shift_id) || ! $attendance->workShift;
 
             if ($isInvalid) {
                 // This record needs fixing, try to find the correct shift

@@ -2,10 +2,9 @@
 
 namespace Database\Seeders;
 
-use Illuminate\Database\Console\Seeds\WithoutModelEvents;
-use Illuminate\Database\Seeder;
-use App\Models\User;
 use App\Models\SalarySetting;
+use App\Models\User;
+use Illuminate\Database\Seeder;
 
 class SalarySettingSeeder extends Seeder
 {
@@ -23,7 +22,7 @@ class SalarySettingSeeder extends Seeder
             }
 
             // Base salary based on position level or default
-            $baseSalary = match($user->position?->level ?? 1) {
+            $baseSalary = match ($user->position?->level ?? 1) {
                 1 => 5000000,  // Staff level
                 2 => 7500000,  // Senior level
                 3 => 10000000, // Supervisor level

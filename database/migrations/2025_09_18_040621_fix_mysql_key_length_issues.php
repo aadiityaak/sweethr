@@ -15,7 +15,7 @@ return new class extends Migration
         // (older MySQL versions with utf8mb4 charset)
         $shouldApplyFix = $this->shouldApplyKeyLengthFix();
 
-        if (!$shouldApplyFix) {
+        if (! $shouldApplyFix) {
             return;
         }
 
@@ -128,19 +128,17 @@ return new class extends Migration
 
     /**
      * Determine if we should apply the key length fix
-     *
-     * @return bool
      */
     private function shouldApplyKeyLengthFix(): bool
     {
         try {
             // Get MySQL version
-            $version = \DB::select("SELECT VERSION() as version")[0]->version;
+            $version = \DB::select('SELECT VERSION() as version')[0]->version;
 
             // Extract major and minor version numbers
             preg_match('/^(\d+)\.(\d+)/', $version, $matches);
-            $majorVersion = (int)($matches[1] ?? 0);
-            $minorVersion = (int)($matches[2] ?? 0);
+            $majorVersion = (int) ($matches[1] ?? 0);
+            $minorVersion = (int) ($matches[2] ?? 0);
 
             // Check if it's MySQL 5.7 or earlier, or MariaDB 10.2 or earlier
             if (strpos(strtolower($version), 'mariadb') !== false) {

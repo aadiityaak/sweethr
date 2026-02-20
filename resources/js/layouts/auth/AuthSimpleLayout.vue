@@ -52,9 +52,5 @@ const { companyName, companyLogo } = useCompanySettings();
             </div>
         </div>
 
-        <!-- Footer -->
-        <div class="absolute right-0 bottom-6 left-0 text-center">
-            <p class="text-xs text-muted-foreground">© {{ new Date().getFullYear() }} {{ companyName }}. Sistem Manajemen SDM Modern</p>
-        </div>
     </div>
 </template>

@@ -131,7 +131,7 @@ class DocumentTypeSeeder extends Seeder
                 'allowed_extensions' => [
                     'pdf', 'doc', 'docx', 'xls', 'xlsx', 'ppt', 'pptx', 'txt', 'rtf', 'odt', 'ods', 'odp',
                     'jpg', 'jpeg', 'png', 'gif', 'bmp', 'svg', 'webp',
-                    'zip', 'rar', '7z', 'csv', 'xml', 'json'
+                    'zip', 'rar', '7z', 'csv', 'xml', 'json',
                 ],
                 'max_file_size_mb' => 20,
                 'is_mandatory' => false,

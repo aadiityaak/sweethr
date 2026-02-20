@@ -34,9 +34,9 @@ if (file_exists($basePath.'/../laravel/vendor/autoload.php')) {
     echo '<p>Could not locate Laravel application files. Please check your deployment structure.</p>';
     echo '<p>Searched for autoload.php in:</p>';
     echo '<ul>';
-    echo '<li>' . $basePath . '/../laravel/vendor/autoload.php</li>';
-    echo '<li>' . $basePath . '/application/vendor/autoload.php</li>';
-    echo '<li>' . $basePath . '/../vendor/autoload.php</li>';
+    echo '<li>'.$basePath.'/../laravel/vendor/autoload.php</li>';
+    echo '<li>'.$basePath.'/application/vendor/autoload.php</li>';
+    echo '<li>'.$basePath.'/../vendor/autoload.php</li>';
     echo '</ul>';
     exit(1);
 }

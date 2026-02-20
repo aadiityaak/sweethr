@@ -28,8 +28,8 @@ class DepartmentManagerSeeder extends Seeder
 
         foreach ($managerAssignments as $deptCode => $employeeId) {
             $manager = User::where('employee_id', $employeeId)
-                          ->where('employment_status', 'active')
-                          ->first();
+                ->where('employment_status', 'active')
+                ->first();
 
             if ($manager && isset($departments[$deptCode])) {
                 $department = $departments[$deptCode];

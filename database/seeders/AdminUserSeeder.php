@@ -2,9 +2,9 @@
 
 namespace Database\Seeders;
 
-use App\Models\User;
 use App\Models\Department;
 use App\Models\Position;
+use App\Models\User;
 use Illuminate\Database\Seeder;
 use Illuminate\Support\Facades\Hash;
 
@@ -37,7 +37,7 @@ class AdminUserSeeder extends Seeder
                 'emergency_contact' => [
                     'name' => 'Admin Emergency',
                     'phone' => '08111111111',
-                    'relationship' => 'spouse'
+                    'relationship' => 'spouse',
                 ],
             ]
         );
@@ -59,7 +59,7 @@ class AdminUserSeeder extends Seeder
                 'emergency_contact' => [
                     'name' => 'Sari Santoso',
                     'phone' => '08111111112',
-                    'relationship' => 'spouse'
+                    'relationship' => 'spouse',
                 ],
             ],
             [
@@ -77,7 +77,7 @@ class AdminUserSeeder extends Seeder
                 'emergency_contact' => [
                     'name' => 'Rina Wijaya',
                     'phone' => '08111111114',
-                    'relationship' => 'spouse'
+                    'relationship' => 'spouse',
                 ],
             ],
             [
@@ -95,7 +95,7 @@ class AdminUserSeeder extends Seeder
                 'emergency_contact' => [
                     'name' => 'Budi Kartika',
                     'phone' => '08111111115',
-                    'relationship' => 'spouse'
+                    'relationship' => 'spouse',
                 ],
             ],
             [
@@ -113,7 +113,7 @@ class AdminUserSeeder extends Seeder
                 'emergency_contact' => [
                     'name' => 'Maya Setiawan',
                     'phone' => '08111111116',
-                    'relationship' => 'spouse'
+                    'relationship' => 'spouse',
                 ],
             ],
             // Inactive employees (5 out of 10)
@@ -132,7 +132,7 @@ class AdminUserSeeder extends Seeder
                 'emergency_contact' => [
                     'name' => 'Eko Sari',
                     'phone' => '08111111117',
-                    'relationship' => 'spouse'
+                    'relationship' => 'spouse',
                 ],
             ],
             [
@@ -150,7 +150,7 @@ class AdminUserSeeder extends Seeder
                 'emergency_contact' => [
                     'name' => 'Rina Prasetyo',
                     'phone' => '08111111118',
-                    'relationship' => 'spouse'
+                    'relationship' => 'spouse',
                 ],
             ],
             [
@@ -168,7 +168,7 @@ class AdminUserSeeder extends Seeder
                 'emergency_contact' => [
                     'name' => 'Doni Melati',
                     'phone' => '08111111119',
-                    'relationship' => 'spouse'
+                    'relationship' => 'spouse',
                 ],
             ],
             [
@@ -186,7 +186,7 @@ class AdminUserSeeder extends Seeder
                 'emergency_contact' => [
                     'name' => 'Lina Pratama',
                     'phone' => '08111111120',
-                    'relationship' => 'spouse'
+                    'relationship' => 'spouse',
                 ],
             ],
             [
@@ -204,7 +204,7 @@ class AdminUserSeeder extends Seeder
                 'emergency_contact' => [
                     'name' => 'Andi Sari',
                     'phone' => '08111111121',
-                    'relationship' => 'brother'
+                    'relationship' => 'brother',
                 ],
             ],
         ];

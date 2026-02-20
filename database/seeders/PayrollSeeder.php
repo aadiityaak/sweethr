@@ -2,11 +2,10 @@
 
 namespace Database\Seeders;
 
-use Illuminate\Database\Console\Seeds\WithoutModelEvents;
-use Illuminate\Database\Seeder;
-use App\Models\User;
 use App\Models\Payroll;
 use App\Models\PayrollDetail;
+use App\Models\User;
+use Illuminate\Database\Seeder;
 
 class PayrollSeeder extends Seeder
 {
@@ -20,7 +19,7 @@ class PayrollSeeder extends Seeder
         foreach ($users as $user) {
             $salarySettings = $user->salarySettings()->where('is_active', true)->first();
 
-            if (!$salarySettings) {
+            if (! $salarySettings) {
                 continue;
             }
 
@@ -79,7 +78,7 @@ class PayrollSeeder extends Seeder
                     PayrollDetail::create([
                         'payroll_id' => $payroll->id,
                         'type' => 'allowance',
-                        'name' => ucfirst($key) . ' Allowance',
+                        'name' => ucfirst($key).' Allowance',
                         'amount' => $amount,
                         'calculation_basis' => ['type' => 'allowance', 'key' => $key],
                     ]);

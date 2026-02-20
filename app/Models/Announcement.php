@@ -42,7 +42,7 @@ class Announcement extends Model
             }
 
             // Set published_at if not set and is_active is true
-            if ($announcement->is_active && !$announcement->published_at) {
+            if ($announcement->is_active && ! $announcement->published_at) {
                 $announcement->published_at = now();
             }
         });
@@ -92,20 +92,21 @@ class Announcement extends Model
         $priorities = ['urgent' => 4, 'high' => 3, 'normal' => 2, 'low' => 1];
 
         return $query->orderByRaw(
-            'CASE priority ' .
-            'WHEN "urgent" THEN 4 ' .
-            'WHEN "high" THEN 3 ' .
-            'WHEN "normal" THEN 2 ' .
-            'WHEN "low" THEN 1 ' .
-            'END ' . $direction
+            'CASE priority '.
+            'WHEN "urgent" THEN 4 '.
+            'WHEN "high" THEN 3 '.
+            'WHEN "normal" THEN 2 '.
+            'WHEN "low" THEN 1 '.
+            'END '.$direction
         );
     }
 
     public function getImageUrlAttribute(): ?string
     {
         if ($this->image_path) {
-            return asset('storage/' . $this->image_path);
+            return asset('storage/'.$this->image_path);
         }
+
         return null;
     }
 
@@ -119,6 +120,6 @@ class Announcement extends Model
         return $this->is_active &&
                $this->published_at &&
                $this->published_at->isPast() &&
-               !$this->isExpired();
+               ! $this->isExpired();
     }
 }

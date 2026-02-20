@@ -7,13 +7,13 @@
  * Run with: php database/troubleshoot-mysql.php
  */
 
-require_once __DIR__ . '/../vendor/autoload.php';
+require_once __DIR__.'/../vendor/autoload.php';
 
 use Illuminate\Support\Facades\DB;
 use Illuminate\Support\Facades\Schema;
 
 // Bootstrap Laravel app
-$app = require_once __DIR__ . '/../bootstrap/app.php';
+$app = require_once __DIR__.'/../bootstrap/app.php';
 $app->make(Illuminate\Contracts\Console\Kernel::class)->bootstrap();
 
 class MySQLTroubleshooter
@@ -38,10 +38,10 @@ class MySQLTroubleshooter
             $connection = DB::connection();
             $pdo = $connection->getPdo();
             echo "✅ Database connection successful\n";
-            echo "   Driver: " . $pdo->getAttribute(PDO::ATTR_DRIVER_NAME) . "\n";
-            echo "   Server: " . $pdo->getAttribute(PDO::ATTR_SERVER_INFO) . "\n\n";
+            echo '   Driver: '.$pdo->getAttribute(PDO::ATTR_DRIVER_NAME)."\n";
+            echo '   Server: '.$pdo->getAttribute(PDO::ATTR_SERVER_INFO)."\n\n";
         } catch (Exception $e) {
-            echo "❌ Database connection failed: " . $e->getMessage() . "\n\n";
+            echo '❌ Database connection failed: '.$e->getMessage()."\n\n";
             exit(1);
         }
     }
@@ -50,7 +50,7 @@ class MySQLTroubleshooter
     {
         echo "🔢 Checking MySQL/MariaDB Version...\n";
         try {
-            $version = DB::select("SELECT VERSION() as version")[0]->version;
+            $version = DB::select('SELECT VERSION() as version')[0]->version;
             echo "   Version: $version\n";
 
             $isMariaDB = stripos($version, 'mariadb') !== false;
@@ -63,7 +63,7 @@ class MySQLTroubleshooter
             }
             echo "\n";
         } catch (Exception $e) {
-            echo "❌ Could not determine version: " . $e->getMessage() . "\n\n";
+            echo '❌ Could not determine version: '.$e->getMessage()."\n\n";
         }
     }
 
@@ -71,8 +71,8 @@ class MySQLTroubleshooter
     {
         echo "🔤 Checking Character Set Configuration...\n";
         try {
-            $charset = DB::select("SELECT @@character_set_database as charset")[0]->charset;
-            $collation = DB::select("SELECT @@collation_database as collation")[0]->collation;
+            $charset = DB::select('SELECT @@character_set_database as charset')[0]->charset;
+            $collation = DB::select('SELECT @@collation_database as collation')[0]->collation;
 
             echo "   Database Charset: $charset\n";
             echo "   Database Collation: $collation\n";
@@ -85,7 +85,7 @@ class MySQLTroubleshooter
             }
             echo "\n";
         } catch (Exception $e) {
-            echo "❌ Could not check charset: " . $e->getMessage() . "\n\n";
+            echo '❌ Could not check charset: '.$e->getMessage()."\n\n";
         }
     }
 
@@ -93,15 +93,15 @@ class MySQLTroubleshooter
     {
         echo "🔑 Checking Key Length Limits...\n";
         try {
-            $innodbPageSize = DB::select("SELECT @@innodb_page_size as size")[0]->size;
+            $innodbPageSize = DB::select('SELECT @@innodb_page_size as size')[0]->size;
             $maxKeyLength = ($innodbPageSize / 4); // Rough calculation
 
             echo "   InnoDB Page Size: $innodbPageSize bytes\n";
             echo "   Estimated Max Key Length: ~$maxKeyLength bytes\n";
             echo "   utf8mb4 uses 4 bytes per character\n";
-            echo "   Safe string length for utf8mb4 keys: ~" . floor($maxKeyLength / 4 / 2) . " chars\n\n";
+            echo '   Safe string length for utf8mb4 keys: ~'.floor($maxKeyLength / 4 / 2)." chars\n\n";
         } catch (Exception $e) {
-            echo "❌ Could not check key limits: " . $e->getMessage() . "\n\n";
+            echo '❌ Could not check key limits: '.$e->getMessage()."\n\n";
         }
     }
 
@@ -120,15 +120,16 @@ class MySQLTroubleshooter
         ];
 
         foreach ($tables as $table => $columns) {
-            if (!Schema::hasTable($table)) {
+            if (! Schema::hasTable($table)) {
                 echo "   ⏭️  Table '$table' doesn't exist - skipping\n";
+
                 continue;
             }
 
             echo "   📋 Checking table: $table\n";
 
             foreach ($columns as $column) {
-                if (!Schema::hasColumn($table, $column)) {
+                if (! Schema::hasColumn($table, $column)) {
                     continue;
                 }
 
@@ -137,7 +138,7 @@ class MySQLTroubleshooter
                     $type = $columnInfo->Type;
 
                     if (preg_match('/varchar\((\d+)\)/', $type, $matches)) {
-                        $length = (int)$matches[1];
+                        $length = (int) $matches[1];
                         if ($length > 100) {
                             echo "      ⚠️  Column '$column': $type (may cause key length issues)\n";
                         } else {
@@ -147,7 +148,7 @@ class MySQLTroubleshooter
                         echo "      ✅ Column '$column': $type (OK)\n";
                     }
                 } catch (Exception $e) {
-                    echo "      ❌ Could not check column '$column': " . $e->getMessage() . "\n";
+                    echo "      ❌ Could not check column '$column': ".$e->getMessage()."\n";
                 }
             }
         }
@@ -187,8 +188,8 @@ class MySQLTroubleshooter
     private function isOldVersion($version, $isMariaDB)
     {
         preg_match('/^(\d+)\.(\d+)/', $version, $matches);
-        $majorVersion = (int)($matches[1] ?? 0);
-        $minorVersion = (int)($matches[2] ?? 0);
+        $majorVersion = (int) ($matches[1] ?? 0);
+        $minorVersion = (int) ($matches[2] ?? 0);
 
         if ($isMariaDB) {
             return $majorVersion < 10 || ($majorVersion == 10 && $minorVersion < 3);
@@ -200,9 +201,9 @@ class MySQLTroubleshooter
 
 // Run the troubleshooter
 try {
-    $troubleshooter = new MySQLTroubleshooter();
+    $troubleshooter = new MySQLTroubleshooter;
     $troubleshooter->run();
 } catch (Exception $e) {
-    echo "❌ Script failed: " . $e->getMessage() . "\n";
+    echo '❌ Script failed: '.$e->getMessage()."\n";
     echo "Make sure you're running this from the Laravel project root.\n";
 }

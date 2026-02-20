@@ -141,7 +141,7 @@ class User extends Authenticatable
     {
         $currentShift = $this->getCurrentShift();
 
-        if (!$currentShift) {
+        if (! $currentShift) {
             return null;
         }
 
