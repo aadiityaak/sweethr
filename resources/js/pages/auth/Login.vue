@@ -76,9 +76,12 @@ defineProps<{
                             id="password"
                             type="password"
                             name="password"
+                            autocapitalize="none"
+                            autocorrect="off"
+                            spellcheck="false"
+                            autocomplete="current-password"
                             required
                             :tabindex="2"
-                            autocomplete="current-password"
                             placeholder="Masukkan password Anda"
                             class="h-12 min-h-[48px] touch-manipulation rounded-lg border bg-background transition-all duration-200 placeholder:text-muted-foreground/70 focus:border-primary focus:ring-2 focus:ring-primary/20"
                         />

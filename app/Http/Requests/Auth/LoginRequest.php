@@ -6,6 +6,7 @@ use App\Models\User;
 use Illuminate\Auth\Events\Lockout;
 use Illuminate\Foundation\Http\FormRequest;
 use Illuminate\Support\Facades\Auth;
+use Illuminate\Support\Facades\Log;
 use Illuminate\Support\Facades\RateLimiter;
 use Illuminate\Validation\ValidationException;
 
@@ -56,6 +57,12 @@ class LoginRequest extends FormRequest
         $user = Auth::getProvider()->retrieveByCredentials($this->only('email', 'password'));
 
         if (! $user || ! Auth::getProvider()->validateCredentials($user, $this->only('password'))) {
+            Log::warning('Login failed: credentials mismatch', [
+                'email' => strtolower(trim((string) $this->input('email'))),
+                'user_found' => (bool) $user,
+                'ip' => $this->ip(),
+                'user_agent' => $this->userAgent(),
+            ]);
             RateLimiter::hit($this->throttleKey());
 
             throw ValidationException::withMessages([
