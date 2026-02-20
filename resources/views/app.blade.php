@@ -69,7 +69,8 @@
         <script>
             if ('serviceWorker' in navigator) {
                 window.addEventListener('load', function() {
-                    navigator.serviceWorker.register('/sw.js')
+                    const swUrl = '/sw.js?v={{ @filemtime(public_path('sw.js')) }}';
+                    navigator.serviceWorker.register(swUrl)
                         .then(function(registration) {
                             console.log('SW registered: ', registration);
 
@@ -85,6 +86,12 @@
                                         showUpdateNotification();
                                     }
                                 });
+                            });
+                            let swRefreshing = false;
+                            navigator.serviceWorker.addEventListener('controllerchange', () => {
+                                if (swRefreshing) return;
+                                swRefreshing = true;
+                                window.location.reload();
                             });
                         })
                         .catch(function(registrationError) {
@@ -282,10 +289,22 @@
                 document.head.appendChild(spinStyle);
                 document.body.appendChild(loadingIndicator);
 
-                // Reload after short delay
-                setTimeout(() => {
-                    window.location.reload();
-                }, 1000);
+                (async () => {
+                    try {
+                        const reg = await navigator.serviceWorker.getRegistration();
+                        if (reg && reg.waiting) {
+                            reg.waiting.postMessage({ type: 'SKIP_WAITING' });
+                            return;
+                        }
+                        if (navigator.serviceWorker.controller) {
+                            navigator.serviceWorker.controller.postMessage({ type: 'SKIP_WAITING' });
+                            return;
+                        }
+                    } catch (e) {}
+                    setTimeout(() => {
+                        window.location.reload();
+                    }, 1000);
+                })();
             }
 
             function dismissUpdateNotification() {

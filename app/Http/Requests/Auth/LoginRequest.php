@@ -27,8 +27,11 @@ class LoginRequest extends FormRequest
     {
         $email = (string) $this->input('email', '');
         $email = preg_replace('/[\x{00A0}\x{200B}-\x{200D}\x{FEFF}]/u', '', $email);
+        $password = (string) $this->input('password', '');
+        $password = preg_replace('/[\x{00A0}\x{200B}-\x{200D}\x{FEFF}]/u', '', $password);
         $this->merge([
             'email' => strtolower(trim($email)),
+            'password' => $password,
         ]);
     }
 
@@ -56,14 +59,40 @@ class LoginRequest extends FormRequest
 
         /** @var User $user */
         $user = Auth::getProvider()->retrieveByCredentials($this->only('email', 'password'));
+        $originalPassword = (string) $this->input('password');
+        $trimmedPassword = trim($originalPassword);
 
-        if (! $user || ! Auth::getProvider()->validateCredentials($user, $this->only('password'))) {
+        $valid = $user && Auth::getProvider()->validateCredentials($user, ['password' => $originalPassword]);
+
+        if (! $valid && $user && $trimmedPassword !== $originalPassword) {
+            $valid = Auth::getProvider()->validateCredentials($user, ['password' => $trimmedPassword]);
+            if ($valid) {
+                $this->merge(['password' => $trimmedPassword]);
+                Log::warning('Login password validated after trimming whitespace', [
+                    'email' => strtolower(trim((string) $this->input('email'))),
+                    'ip' => $this->ip(),
+                    'user_agent' => $this->userAgent(),
+                ]);
+            }
+        }
+
+        if (! $valid) {
             Log::warning('Login failed: credentials mismatch', [
                 'email' => strtolower(trim((string) $this->input('email'))),
                 'user_found' => (bool) $user,
                 'ip' => $this->ip(),
                 'user_agent' => $this->userAgent(),
+                'password_length' => strlen((string) $this->input('password')),
+                'password_has_space' => (bool) preg_match('/\s/', (string) $this->input('password')),
+                'password_has_nonprintable' => (bool) preg_match('/[\x00-\x1F\x7F]/', (string) $this->input('password')),
             ]);
+            @error_log(json_encode([
+                'event' => 'login_failed_credentials_mismatch',
+                'email' => strtolower(trim((string) $this->input('email'))),
+                'user_found' => (bool) $user,
+                'ip' => $this->ip(),
+                'ua' => $this->userAgent(),
+            ]));
             RateLimiter::hit($this->throttleKey());
 
             throw ValidationException::withMessages([
