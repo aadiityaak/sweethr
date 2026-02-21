@@ -121,22 +121,15 @@
             // PWA Install prompt
             let deferredPrompt;
             window.addEventListener('beforeinstallprompt', (e) => {
-                // Prevent Chrome 67 and earlier from automatically showing the prompt
                 e.preventDefault();
-                // Stash the event so it can be triggered later
                 deferredPrompt = e;
-
-                // Optional: Show your own install button
-                console.log('PWA install prompt available');
-
-                // You can add your own install button here
-                // showInstallButton();
+                showInstallBanner();
             });
 
             // Track PWA install
             window.addEventListener('appinstalled', (evt) => {
                 console.log('PWA was installed');
-                // Optional: Analytics tracking
+                hideInstallBanner();
             });
 
             // Modern update notification system
@@ -241,6 +234,64 @@
                         setTimeout(() => notification.remove(), 300);
                     }
                 }, 10000);
+            }
+
+            function showInstallBanner() {
+                if (document.getElementById('pwa-install-banner')) return;
+                const container = document.createElement('div');
+                container.id = 'pwa-install-banner';
+                container.style.position = 'fixed';
+                container.style.bottom = '20px';
+                container.style.left = '50%';
+                container.style.transform = 'translateX(-50%)';
+                container.style.background = '#111827';
+                container.style.color = 'white';
+                container.style.padding = '12px 16px';
+                container.style.borderRadius = '10px';
+                container.style.boxShadow = '0 10px 25px rgba(0,0,0,0.2)';
+                container.style.zIndex = '10000';
+                container.style.display = 'flex';
+                container.style.alignItems = 'center';
+                container.style.gap = '10px';
+                const text = document.createElement('div');
+                text.textContent = 'Install aplikasi ke layar utama';
+                text.style.fontSize = '14px';
+                const btn = document.createElement('button');
+                btn.textContent = 'Install';
+                btn.style.background = 'white';
+                btn.style.color = '#3B82F6';
+                btn.style.border = 'none';
+                btn.style.padding = '6px 12px';
+                btn.style.borderRadius = '6px';
+                btn.style.fontWeight = '600';
+                btn.style.cursor = 'pointer';
+                btn.addEventListener('click', async () => {
+                    if (!deferredPrompt) return;
+                    deferredPrompt.prompt();
+                    try {
+                        await deferredPrompt.userChoice;
+                    } catch (_) {}
+                    deferredPrompt = null;
+                    hideInstallBanner();
+                });
+                const close = document.createElement('button');
+                close.textContent = 'Tutup';
+                close.style.background = 'transparent';
+                close.style.color = 'white';
+                close.style.border = '1px solid rgba(255,255,255,0.3)';
+                close.style.padding = '6px 12px';
+                close.style.borderRadius = '6px';
+                close.style.cursor = 'pointer';
+                close.addEventListener('click', hideInstallBanner);
+                container.appendChild(text);
+                container.appendChild(btn);
+                container.appendChild(close);
+                document.body.appendChild(container);
+            }
+
+            function hideInstallBanner() {
+                const el = document.getElementById('pwa-install-banner');
+                if (el) el.remove();
             }
 
             function updateApp() {

@@ -2,8 +2,13 @@
 let APP_VERSION = '1.0.0';
 let BUILD_TIMESTAMP = Date.now();
 
-// Load version info if available
-fetch('/version.json')
+// Helper to compute current cache name from app version
+function getCacheName() {
+    return `sistemhr-${APP_VERSION || 'fallback'}`;
+}
+
+// Load version info if available (avoid caching)
+fetch(`/version.json?ts=${Date.now()}`, { cache: 'no-store' })
     .then((response) => response.json())
     .then((versionInfo) => {
         APP_VERSION = versionInfo.fullVersion;
@@ -14,26 +19,30 @@ fetch('/version.json')
         console.log('SW: Using fallback version:', APP_VERSION);
     });
 
-const CACHE_NAME = `sistemhr-${APP_VERSION || 'fallback'}`;
-const urlsToCache = ['/', '/manifest.json', '/icons/icon-192x192.svg', '/icons/icon-512x512.svg', '/offline.html'];
+const urlsToCache = ['/', '/manifest.json', '/offline.html'];
 
 // Install event - cache resources
 self.addEventListener('install', (event) => {
     console.log('SW: Installing service worker');
-    event.waitUntil(
-        caches
-            .open(CACHE_NAME)
-            .then((cache) => {
-                console.log('SW: Opened cache');
-                // Only cache essential files, skip ones that might fail
-                return cache.addAll(['/', '/manifest.json', '/offline.html']);
-            })
-            .catch((error) => {
-                console.log('SW: Cache install failed:', error);
-                // Don't fail the install if cache fails
-                return Promise.resolve();
-            }),
-    );
+    event.waitUntil((async () => {
+        try {
+            // Refresh version info before seeding cache
+            try {
+                const res = await fetch(`/version.json?ts=${Date.now()}`, { cache: 'no-store' });
+                if (res.ok) {
+                    const info = await res.json();
+                    APP_VERSION = info.fullVersion || APP_VERSION;
+                    BUILD_TIMESTAMP = new Date(info.buildDate || Date.now()).getTime();
+                }
+            } catch (_) {}
+
+            const cache = await caches.open(getCacheName());
+            await cache.addAll(urlsToCache);
+            console.log('SW: Precached core assets with cache', getCacheName());
+        } catch (error) {
+            console.log('SW: Cache install failed:', error);
+        }
+    })());
     // Force the waiting service worker to become the active service worker
     self.skipWaiting();
 });
@@ -46,7 +55,7 @@ self.addEventListener('activate', (event) => {
             caches.keys().then((cacheNames) => {
                 return Promise.all(
                     cacheNames.map((cacheName) => {
-                        if (cacheName !== CACHE_NAME) {
+                        if (cacheName !== getCacheName()) {
                             console.log('SW: Deleting old cache:', cacheName);
                             return caches.delete(cacheName);
                         }
@@ -109,7 +118,7 @@ self.addEventListener('fetch', (event) => {
                     // Only cache successful responses for offline fallback
                     if (response.status === 200) {
                         const responseClone = response.clone();
-                        caches.open(CACHE_NAME).then((cache) => {
+                        caches.open(getCacheName()).then((cache) => {
                             cache.put(event.request, responseClone);
                         });
                     }
@@ -164,7 +173,7 @@ self.addEventListener('fetch', (event) => {
 
                 // Cache the response for offline fallback only
                 const responseToCache = response.clone();
-                caches.open(CACHE_NAME).then((cache) => {
+                caches.open(getCacheName()).then((cache) => {
                     cache.put(event.request, responseToCache);
                 });
 
