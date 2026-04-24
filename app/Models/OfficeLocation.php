@@ -2,8 +2,8 @@
 
 namespace App\Models;
 
-use Illuminate\Database\Eloquent\Model;
 use Illuminate\Database\Eloquent\Factories\HasFactory;
+use Illuminate\Database\Eloquent\Model;
 
 class OfficeLocation extends Model
 {
@@ -41,10 +41,11 @@ class OfficeLocation extends Model
     public function isWithinRadius($lat, $lng)
     {
         $distance = $this->calculateDistance($lat, $lng);
+
         return $distance <= $this->radius_meters;
     }
 
-    private function calculateDistance($lat, $lng)
+    public function calculateDistance($lat, $lng)
     {
         $earthRadius = 6371000; // meters
         $lat1 = deg2rad($this->latitude);

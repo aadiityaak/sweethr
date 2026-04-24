@@ -46,10 +46,22 @@ class OfficeLocationSeeder extends Seeder
                 'timezone' => 'Asia/Makassar',
                 'is_active' => true,
             ],
+            [
+                'name' => 'WebSweet Studio Klaten',
+                'address' => 'Klaten, Jawa Tengah',
+                'latitude' => -7.793983712752481,
+                'longitude' => 110.65907539269323,
+                'radius_meters' => 100,
+                'timezone' => 'Asia/Jakarta',
+                'is_active' => true,
+            ],
         ];
 
         foreach ($offices as $office) {
-            OfficeLocation::create($office);
+            OfficeLocation::updateOrCreate(
+                ['name' => $office['name']],
+                $office
+            );
         }
     }
 }

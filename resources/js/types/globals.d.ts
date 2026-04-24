@@ -22,5 +22,11 @@ declare module 'vue' {
         $inertia: typeof Router;
         $page: Page;
         $headManager: ReturnType<typeof createHeadManager>;
+        route: typeof import('@/helpers/route').route;
     }
+}
+
+// Global route function (for direct usage in templates)
+declare global {
+    var route: (name: import('@/helpers/route').RouteName, params?: any) => string;
 }

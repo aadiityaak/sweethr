@@ -2,8 +2,8 @@
 
 namespace App\Models;
 
-use Illuminate\Database\Eloquent\Model;
 use Illuminate\Database\Eloquent\Factories\HasFactory;
+use Illuminate\Database\Eloquent\Model;
 
 class ShiftSwap extends Model
 {
@@ -70,6 +70,6 @@ class ShiftSwap extends Model
     public function scopeForUser($query, $userId)
     {
         return $query->where('requester_id', $userId)
-                    ->orWhere('target_user_id', $userId);
+            ->orWhere('target_user_id', $userId);
     }
 }

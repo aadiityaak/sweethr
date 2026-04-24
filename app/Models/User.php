@@ -23,6 +23,7 @@ class User extends Authenticatable
         'name',
         'email',
         'password',
+        'avatar',
         'employee_id',
         'phone',
         'date_of_birth',
@@ -35,6 +36,13 @@ class User extends Authenticatable
         'employment_status',
         'emergency_contact',
         'is_admin',
+        'face_descriptors',
+        'face_recognition_enabled',
+        'face_setup_at',
+        'face_recognition_attempts',
+        'face_attempts_date',
+        'face_recognition_mandatory',
+        'allow_outside_radius',
     ];
 
     /**
@@ -61,6 +69,12 @@ class User extends Authenticatable
             'hire_date' => 'date',
             'emergency_contact' => 'array',
             'is_admin' => 'boolean',
+            'face_descriptors' => 'encrypted:array',
+            'face_recognition_enabled' => 'boolean',
+            'face_setup_at' => 'datetime',
+            'face_attempts_date' => 'date',
+            'face_recognition_mandatory' => 'boolean',
+            'allow_outside_radius' => 'boolean',
         ];
     }
 
@@ -94,9 +108,57 @@ class User extends Authenticatable
         return $this->hasMany(LeaveRequest::class);
     }
 
+    public function documents()
+    {
+        return $this->hasMany(EmployeeDocument::class);
+    }
+
+    public function uploadedDocuments()
+    {
+        return $this->hasMany(EmployeeDocument::class, 'uploaded_by');
+    }
+
+    public function approvedDocuments()
+    {
+        return $this->hasMany(EmployeeDocument::class, 'approved_by');
+    }
+
     public function employeeShifts()
     {
         return $this->hasMany(EmployeeShift::class);
+    }
+
+    public function getCurrentShift()
+    {
+        return $this->employeeShifts()
+            ->active()
+            ->current()
+            ->with('workShift')
+            ->first()?->workShift;
+    }
+
+    public function getCurrentShiftData()
+    {
+        $currentShift = $this->getCurrentShift();
+
+        if (! $currentShift) {
+            return null;
+        }
+
+        return [
+            'id' => $currentShift->id,
+            'name' => $currentShift->name,
+            'code' => $currentShift->code,
+            'start_time' => $currentShift->start_time->format('H:i'),
+            'end_time' => $currentShift->end_time->format('H:i'),
+            'work_hours' => $currentShift->work_hours,
+            'break_duration' => $currentShift->break_duration,
+            'workdays' => $currentShift->workdays,
+            'is_night_shift' => $currentShift->is_night_shift,
+            'assignment_type' => 'assigned',
+            'effective_date' => now()->toDateString(),
+            'end_date' => null,
+        ];
     }
 
     public function shiftSwapsAsRequester()
@@ -117,5 +179,32 @@ class User extends Authenticatable
     public function getIsActiveAttribute()
     {
         return $this->employment_status === 'active';
+    }
+
+    public function salarySettings()
+    {
+        return $this->hasMany(SalarySetting::class);
+    }
+
+    public function currentSalarySetting()
+    {
+        return $this->hasOne(SalarySetting::class)
+            ->where('is_active', true)
+            ->orderBy('effective_date', 'desc');
+    }
+
+    public function payrolls()
+    {
+        return $this->hasMany(Payroll::class);
+    }
+
+    public function shiftChangeRequests()
+    {
+        return $this->hasMany(ShiftChangeRequest::class);
+    }
+
+    public function reviewedShiftChangeRequests()
+    {
+        return $this->hasMany(ShiftChangeRequest::class, 'reviewed_by');
     }
 }

@@ -1,7 +1,6 @@
 <script setup lang="ts">
 import UserInfo from '@/components/UserInfo.vue';
 import { DropdownMenuGroup, DropdownMenuItem, DropdownMenuLabel, DropdownMenuSeparator } from '@/components/ui/dropdown-menu';
-import { logout } from '@/routes';
 import { edit } from '@/routes/profile';
 import type { User } from '@/types';
 import { Link, router } from '@inertiajs/vue3';
@@ -11,8 +10,31 @@ interface Props {
     user: User;
 }
 
-const handleLogout = () => {
+const handleLogout = async () => {
+    // Clear service worker cache and unregister to prevent stale redirects
+    try {
+        // Clear all caches
+        if ('caches' in window) {
+            const cacheNames = await caches.keys();
+            await Promise.all(cacheNames.map((cacheName) => caches.delete(cacheName)));
+            console.log('SW: All caches cleared on logout');
+        }
+
+        // Unregister service worker
+        if ('serviceWorker' in navigator) {
+            const registrations = await navigator.serviceWorker.getRegistrations();
+            await Promise.all(registrations.map((registration) => registration.unregister()));
+            console.log('SW: Service worker unregistered on logout');
+        }
+    } catch (error) {
+        console.warn('SW: Failed to clear service worker on logout:', error);
+    }
+
+    // Clear Inertia router cache
     router.flushAll();
+
+    // Perform logout
+    router.post('/logout');
 };
 
 defineProps<Props>();
@@ -35,9 +57,9 @@ defineProps<Props>();
     </DropdownMenuGroup>
     <DropdownMenuSeparator />
     <DropdownMenuItem :as-child="true">
-        <Link class="block w-full" :href="logout()" @click="handleLogout" as="button" data-test="logout-button">
+        <button class="block w-full text-left" @click="handleLogout" data-test="logout-button">
             <LogOut class="mr-2 h-4 w-4" />
             Log out
-        </Link>
+        </button>
     </DropdownMenuItem>
 </template>

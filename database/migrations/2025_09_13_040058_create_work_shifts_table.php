@@ -13,8 +13,8 @@ return new class extends Migration
     {
         Schema::create('work_shifts', function (Blueprint $table) {
             $table->id();
-            $table->string('name');
-            $table->string('code')->unique();
+            $table->string('name', 191);
+            $table->string('code', 191)->unique();
             $table->time('start_time');
             $table->time('end_time');
             $table->integer('work_hours')->comment('Work hours in minutes');

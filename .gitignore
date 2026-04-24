@@ -26,3 +26,9 @@ yarn-error.log
 /.nova
 /.vscode
 /.zed
+/dist
+/package
+/flat-deployment
+version.json
+nul
+/.claude

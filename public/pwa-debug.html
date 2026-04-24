@@ -1,0 +1,385 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>PWA Debug - HR Management System</title>
+    <style>
+        body {
+            font-family: Arial, sans-serif;
+            max-width: 800px;
+            margin: 0 auto;
+            padding: 20px;
+            background: #f5f5f5;
+        }
+        .container {
+            background: white;
+            padding: 30px;
+            border-radius: 10px;
+            box-shadow: 0 2px 10px rgba(0,0,0,0.1);
+        }
+        .check {
+            display: flex;
+            align-items: center;
+            margin: 10px 0;
+            padding: 15px;
+            border-radius: 8px;
+            border: 1px solid #ddd;
+        }
+        .check.pass {
+            background: #d4edda;
+            border-color: #c3e6cb;
+            color: #155724;
+        }
+        .check.fail {
+            background: #f8d7da;
+            border-color: #f5c6cb;
+            color: #721c24;
+        }
+        .check.warn {
+            background: #fff3cd;
+            border-color: #ffeaa7;
+            color: #856404;
+        }
+        .icon {
+            margin-right: 10px;
+            font-size: 18px;
+            font-weight: bold;
+        }
+        button {
+            background: #3b82f6;
+            color: white;
+            border: none;
+            padding: 12px 24px;
+            border-radius: 6px;
+            cursor: pointer;
+            font-size: 16px;
+            margin: 10px 5px;
+        }
+        button:hover {
+            background: #2563eb;
+        }
+        .debug-info {
+            background: #f8f9fa;
+            padding: 15px;
+            border-radius: 8px;
+            margin: 20px 0;
+            border-left: 4px solid #007bff;
+        }
+        .debug-info h3 {
+            margin-top: 0;
+        }
+        pre {
+            background: #f1f3f4;
+            padding: 10px;
+            border-radius: 4px;
+            overflow-x: auto;
+        }
+    </style>
+</head>
+<body>
+    <div class="container">
+        <h1>🔍 PWA Debug Tools - HR Management System</h1>
+        <p>Check PWA installation requirements and debug issues</p>
+
+        <button onclick="runAllChecks()">🚀 Run PWA Checks</button>
+        <button onclick="installPWA()">📱 Try Install PWA</button>
+        <button onclick="checkServiceWorker()">⚙️ Check Service Worker</button>
+
+        <div id="results"></div>
+
+        <div class="debug-info">
+            <h3>📋 Manual Debugging Steps:</h3>
+            <ol>
+                <li><strong>Open Chrome DevTools</strong> (F12)</li>
+                <li><strong>Go to Application tab</strong></li>
+                <li><strong>Check Manifest:</strong> Look for errors in manifest.json</li>
+                <li><strong>Check Service Workers:</strong> Verify SW is registered and running</li>
+                <li><strong>Run Lighthouse:</strong> Go to Lighthouse tab → PWA audit</li>
+                <li><strong>Check Console:</strong> Look for any JS errors</li>
+            </ol>
+        </div>
+
+        <div class="debug-info">
+            <h3>🛠️ Common PWA Issues:</h3>
+            <ul>
+                <li><strong>HTTPS Required:</strong> PWA needs HTTPS (or localhost)</li>
+                <li><strong>Missing Icons:</strong> Need at least 192x192 and 512x512 icons</li>
+                <li><strong>Invalid Manifest:</strong> Check manifest.json syntax</li>
+                <li><strong>Service Worker Errors:</strong> Check SW registration</li>
+                <li><strong>Minimum Criteria:</strong> Need manifest + service worker + HTTPS</li>
+            </ul>
+        </div>
+
+        <div id="debug-details"></div>
+    </div>
+
+    <script>
+        let deferredPrompt = null;
+
+        // Listen for install prompt
+        window.addEventListener('beforeinstallprompt', (e) => {
+            console.log('PWA install prompt available');
+            e.preventDefault();
+            deferredPrompt = e;
+
+            const results = document.getElementById('results');
+            results.innerHTML += `
+                <div class="check pass">
+                    <span class="icon">✅</span>
+                    PWA Install Prompt Available! Ready to install.
+                </div>
+            `;
+        });
+
+        // Listen for app installed
+        window.addEventListener('appinstalled', (evt) => {
+            console.log('PWA was installed');
+            const results = document.getElementById('results');
+            results.innerHTML += `
+                <div class="check pass">
+                    <span class="icon">🎉</span>
+                    PWA Successfully Installed!
+                </div>
+            `;
+        });
+
+        function runAllChecks() {
+            const results = document.getElementById('results');
+            results.innerHTML = '<h2>🔍 PWA Compatibility Check Results:</h2>';
+
+            // Check HTTPS
+            const isSecure = location.protocol === 'https:' || location.hostname === 'localhost' || location.hostname === '127.0.0.1';
+            results.innerHTML += `
+                <div class="check ${isSecure ? 'pass' : 'fail'}">
+                    <span class="icon">${isSecure ? '✅' : '❌'}</span>
+                    HTTPS/Secure Context: ${location.protocol} on ${location.hostname}
+                </div>
+            `;
+
+            // Check Service Worker support
+            const swSupported = 'serviceWorker' in navigator;
+            results.innerHTML += `
+                <div class="check ${swSupported ? 'pass' : 'fail'}">
+                    <span class="icon">${swSupported ? '✅' : '❌'}</span>
+                    Service Worker Support: ${swSupported ? 'Supported' : 'Not Supported'}
+                </div>
+            `;
+
+            // Check Manifest
+            checkManifest().then(manifestResult => {
+                results.innerHTML += manifestResult;
+            });
+
+            // Check Service Worker registration
+            checkServiceWorkerRegistration().then(swResult => {
+                results.innerHTML += swResult;
+            });
+
+            // Check if already in standalone mode
+            const isStandalone = window.matchMedia('(display-mode: standalone)').matches ||
+                                window.navigator.standalone === true;
+            results.innerHTML += `
+                <div class="check ${isStandalone ? 'pass' : 'warn'}">
+                    <span class="icon">${isStandalone ? '✅' : '⚠️'}</span>
+                    Standalone Mode: ${isStandalone ? 'Running as PWA' : 'Running in browser'}
+                </div>
+            `;
+
+            // Check install prompt
+            setTimeout(() => {
+                if (!deferredPrompt) {
+                    results.innerHTML += `
+                        <div class="check warn">
+                            <span class="icon">⚠️</span>
+                            Install Prompt: Not yet available (may appear after user engagement)
+                        </div>
+                    `;
+                }
+            }, 2000);
+        }
+
+        async function checkManifest() {
+            try {
+                const response = await fetch('/manifest.json');
+                const manifest = await response.json();
+
+                const hasName = manifest.name || manifest.short_name;
+                const hasIcons = manifest.icons && manifest.icons.length > 0;
+                const hasStartUrl = manifest.start_url;
+                const hasDisplay = manifest.display;
+
+                let result = `
+                    <div class="check ${response.ok ? 'pass' : 'fail'}">
+                        <span class="icon">${response.ok ? '✅' : '❌'}</span>
+                        Manifest File: ${response.ok ? 'Found' : 'Not Found'}
+                    </div>
+                `;
+
+                if (response.ok) {
+                    result += `
+                        <div class="check ${hasName ? 'pass' : 'fail'}">
+                            <span class="icon">${hasName ? '✅' : '❌'}</span>
+                            App Name: ${hasName ? manifest.name || manifest.short_name : 'Missing'}
+                        </div>
+                        <div class="check ${hasIcons ? 'pass' : 'fail'}">
+                            <span class="icon">${hasIcons ? '✅' : '❌'}</span>
+                            Icons: ${hasIcons ? manifest.icons.length + ' icons found' : 'No icons'}
+                        </div>
+                        <div class="check ${hasStartUrl ? 'pass' : 'fail'}">
+                            <span class="icon">${hasStartUrl ? '✅' : '❌'}</span>
+                            Start URL: ${hasStartUrl ? manifest.start_url : 'Missing'}
+                        </div>
+                        <div class="check ${hasDisplay ? 'pass' : 'fail'}">
+                            <span class="icon">${hasDisplay ? '✅' : '❌'}</span>
+                            Display Mode: ${hasDisplay ? manifest.display : 'Missing'}
+                        </div>
+                    `;
+
+                    // Show manifest details
+                    const debugDetails = document.getElementById('debug-details');
+                    debugDetails.innerHTML = `
+                        <div class="debug-info">
+                            <h3>📄 Manifest Details:</h3>
+                            <pre>${JSON.stringify(manifest, null, 2)}</pre>
+                        </div>
+                    `;
+                }
+
+                return result;
+            } catch (error) {
+                return `
+                    <div class="check fail">
+                        <span class="icon">❌</span>
+                        Manifest Error: ${error.message}
+                    </div>
+                `;
+            }
+        }
+
+        async function checkServiceWorkerRegistration() {
+            if (!('serviceWorker' in navigator)) {
+                return `
+                    <div class="check fail">
+                        <span class="icon">❌</span>
+                        Service Worker: Not supported
+                    </div>
+                `;
+            }
+
+            try {
+                const registration = await navigator.serviceWorker.getRegistration();
+                if (registration) {
+                    const swState = registration.active ? 'Active' : registration.installing ? 'Installing' : registration.waiting ? 'Waiting' : 'Unknown';
+                    return `
+                        <div class="check pass">
+                            <span class="icon">✅</span>
+                            Service Worker: Registered and ${swState}
+                        </div>
+                    `;
+                } else {
+                    return `
+                        <div class="check fail">
+                            <span class="icon">❌</span>
+                            Service Worker: Not registered
+                        </div>
+                    `;
+                }
+            } catch (error) {
+                return `
+                    <div class="check fail">
+                        <span class="icon">❌</span>
+                        Service Worker Error: ${error.message}
+                    </div>
+                `;
+            }
+        }
+
+        async function installPWA() {
+            if (deferredPrompt) {
+                try {
+                    await deferredPrompt.prompt();
+                    const { outcome } = await deferredPrompt.userChoice;
+
+                    const results = document.getElementById('results');
+                    results.innerHTML += `
+                        <div class="check ${outcome === 'accepted' ? 'pass' : 'warn'}">
+                            <span class="icon">${outcome === 'accepted' ? '✅' : '⚠️'}</span>
+                            Install Result: User ${outcome} the install prompt
+                        </div>
+                    `;
+
+                    deferredPrompt = null;
+                } catch (error) {
+                    console.error('Install error:', error);
+                }
+            } else {
+                alert('PWA install prompt is not available yet. The app may already be installed or criteria not met.');
+            }
+        }
+
+        async function checkServiceWorker() {
+            const results = document.getElementById('results');
+            results.innerHTML = '<h2>⚙️ Service Worker Status:</h2>';
+
+            if ('serviceWorker' in navigator) {
+                try {
+                    const registration = await navigator.serviceWorker.getRegistration();
+                    if (registration) {
+                        results.innerHTML += `
+                            <div class="check pass">
+                                <span class="icon">✅</span>
+                                Service Worker: Found at ${registration.scope}
+                            </div>
+                        `;
+
+                        if (registration.active) {
+                            results.innerHTML += `
+                                <div class="check pass">
+                                    <span class="icon">✅</span>
+                                    SW State: Active and running
+                                </div>
+                            `;
+                        }
+
+                        if (registration.waiting) {
+                            results.innerHTML += `
+                                <div class="check warn">
+                                    <span class="icon">⚠️</span>
+                                    SW State: Update waiting (refresh to activate)
+                                </div>
+                            `;
+                        }
+                    } else {
+                        results.innerHTML += `
+                            <div class="check fail">
+                                <span class="icon">❌</span>
+                                Service Worker: Not registered
+                            </div>
+                        `;
+                    }
+                } catch (error) {
+                    results.innerHTML += `
+                        <div class="check fail">
+                            <span class="icon">❌</span>
+                            Service Worker Error: ${error.message}
+                        </div>
+                    `;
+                }
+            } else {
+                results.innerHTML += `
+                    <div class="check fail">
+                        <span class="icon">❌</span>
+                        Service Worker: Not supported in this browser
+                    </div>
+                `;
+            }
+        }
+
+        // Auto-run checks on page load
+        window.onload = () => {
+            setTimeout(runAllChecks, 1000);
+        };
+    </script>
+</body>
+</html>

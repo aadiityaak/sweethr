@@ -2,9 +2,9 @@
 
 namespace App\Models;
 
-use Illuminate\Database\Eloquent\Model;
-use Illuminate\Database\Eloquent\Factories\HasFactory;
 use Carbon\Carbon;
+use Illuminate\Database\Eloquent\Factories\HasFactory;
+use Illuminate\Database\Eloquent\Model;
 
 class Attendance extends Model
 {
@@ -13,6 +13,7 @@ class Attendance extends Model
     protected $fillable = [
         'user_id',
         'office_location_id',
+        'work_shift_id',
         'date',
         'check_in_time',
         'check_out_time',
@@ -23,8 +24,16 @@ class Attendance extends Model
         'work_duration',
         'break_duration',
         'overtime_duration',
+        'late_duration',
         'status',
         'notes',
+        'face_match_confidence',
+        'face_verification_passed',
+        'face_verification_skipped',
+        'face_verification_notes',
+        'face_photo_path',
+        'face_confidence_score',
+        'face_detected',
     ];
 
     protected function casts(): array
@@ -37,6 +46,11 @@ class Attendance extends Model
             'check_in_longitude' => 'decimal:8',
             'check_out_latitude' => 'decimal:8',
             'check_out_longitude' => 'decimal:8',
+            'face_match_confidence' => 'decimal:2',
+            'face_verification_passed' => 'boolean',
+            'face_verification_skipped' => 'boolean',
+            'face_confidence_score' => 'decimal:4',
+            'face_detected' => 'boolean',
         ];
     }
 
@@ -48,6 +62,11 @@ class Attendance extends Model
     public function officeLocation()
     {
         return $this->belongsTo(OfficeLocation::class);
+    }
+
+    public function workShift()
+    {
+        return $this->belongsTo(WorkShift::class);
     }
 
     public function scopeForUser($query, $userId)
@@ -67,15 +86,43 @@ class Attendance extends Model
 
     public function getWorkDurationFormatted()
     {
-        if (!$this->work_duration) return null;
-        $hours = floor($this->work_duration / 60);
-        $minutes = $this->work_duration % 60;
+        if (! $this->work_duration) {
+            return null;
+        }
+
+        // Always use absolute value for duration
+        $absDuration = abs($this->work_duration);
+        $hours = floor($absDuration / 60);
+        $minutes = $absDuration % 60;
+
         return sprintf('%02d:%02d', $hours, $minutes);
     }
 
     public function isLate($shiftStartTime)
     {
-        if (!$this->check_in_time) return false;
-        return Carbon::parse($this->check_in_time)->format('H:i:s') > $shiftStartTime;
+        if (! $this->check_in_time) {
+            return false;
+        }
+
+        // No tolerance - any check-in after shift start is considered late
+        return Carbon::parse($this->check_in_time)->format('H:i:s') > Carbon::parse($shiftStartTime)->format('H:i:s');
+    }
+
+    public function getLateDuration($shiftStartTime)
+    {
+        if (! $this->check_in_time) {
+            return null;
+        }
+
+        $checkIn = Carbon::parse($this->check_in_time);
+        $shiftStart = Carbon::parse($shiftStartTime);
+
+        // No tolerance - calculate late duration from exact shift start time
+        if ($checkIn <= $shiftStart) {
+            return null; // Not late
+        }
+
+        // diffInMinutes returns absolute difference, which is correct for late calculation
+        return $checkIn->diffInMinutes($shiftStart);
     }
 }

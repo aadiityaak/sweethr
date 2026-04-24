@@ -2,8 +2,8 @@
 
 namespace App\Models;
 
-use Illuminate\Database\Eloquent\Model;
 use Illuminate\Database\Eloquent\Factories\HasFactory;
+use Illuminate\Database\Eloquent\Model;
 
 class LeaveRequest extends Model
 {
@@ -19,8 +19,10 @@ class LeaveRequest extends Model
         'status',
         'approved_by',
         'approved_at',
+        'admin_notes',
         'rejection_reason',
-        'attachments',
+        'attachment_path',
+        'attachment_original_name',
     ];
 
     protected function casts(): array
@@ -29,8 +31,13 @@ class LeaveRequest extends Model
             'start_date' => 'date',
             'end_date' => 'date',
             'approved_at' => 'datetime',
-            'attachments' => 'array',
         ];
+    }
+
+    // Accessor untuk compatibility dengan frontend
+    public function getDurationAttribute()
+    {
+        return $this->total_days;
     }
 
     public function user()
@@ -67,11 +74,11 @@ class LeaveRequest extends Model
     {
         return $query->where(function ($q) use ($startDate, $endDate) {
             $q->whereBetween('start_date', [$startDate, $endDate])
-              ->orWhereBetween('end_date', [$startDate, $endDate])
-              ->orWhere(function ($q2) use ($startDate, $endDate) {
-                  $q2->where('start_date', '<=', $startDate)
-                     ->where('end_date', '>=', $endDate);
-              });
+                ->orWhereBetween('end_date', [$startDate, $endDate])
+                ->orWhere(function ($q2) use ($startDate, $endDate) {
+                    $q2->where('start_date', '<=', $startDate)
+                        ->where('end_date', '>=', $endDate);
+                });
         });
     }
 }

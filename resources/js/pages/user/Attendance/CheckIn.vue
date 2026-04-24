@@ -1,10 +1,11 @@
 <script setup lang="ts">
-import AppLayout from '@/layouts/AppLayout.vue';
-import { type BreadcrumbItem } from '@/types';
-import { Head, useForm } from '@inertiajs/vue3';
-import { MapPin, Clock, AlertCircle, CheckCircle, Loader2 } from 'lucide-vue-next';
-import { ref, onMounted } from 'vue';
+import BottomNavigation from '@/components/BottomNavigation.vue';
 import LeafletMap from '@/components/LeafletMap.vue';
+import { useToast } from '@/components/ui/toast/use-toast';
+import { useCompanySettings } from '@/composables/useCompanySettings';
+import { Head, Link, useForm } from '@inertiajs/vue3';
+import { AlertCircle, AlertTriangle, ArrowLeft, CheckCircle, Clock, Loader2, MapPin, User } from 'lucide-vue-next';
+import { onMounted, ref } from 'vue';
 
 interface OfficeLocation {
     id: number;
@@ -18,24 +19,18 @@ interface OfficeLocation {
 interface Props {
     officeLocations: OfficeLocation[];
     existingAttendance: any | null;
+    user: {
+        face_recognition_enabled: boolean;
+        face_recognition_mandatory: boolean;
+        face_descriptors?: any;
+        allow_outside_radius?: boolean;
+    };
 }
 
-const { officeLocations, existingAttendance } = defineProps<Props>();
+const { officeLocations, existingAttendance, user } = defineProps<Props>();
 
-const breadcrumbs: BreadcrumbItem[] = [
-    {
-        title: 'Dashboard',
-        href: '/dashboard',
-    },
-    {
-        title: 'Attendance',
-        href: '/attendance',
-    },
-    {
-        title: 'Check In',
-        href: '/attendance/check-in',
-    },
-];
+const { companyName, companyLogo } = useCompanySettings();
+const { toast } = useToast();
 
 const form = useForm({
     office_location_id: '',
@@ -48,8 +43,19 @@ const locationError = ref('');
 const selectedOffice = ref<OfficeLocation | null>(null);
 const isInRange = ref(false);
 const distanceToOffice = ref(0);
+const hasShownOutOfRangeAlert = ref(false);
+const hasCheckedInToday = ref(false);
 
 onMounted(() => {
+    // Debug: Log user data
+    console.log('User data:', user);
+    console.log('Allow outside radius:', user.allow_outside_radius);
+
+    // Check if user already checked in today
+    if (existingAttendance?.check_in_time) {
+        hasCheckedInToday.value = true;
+    }
+
     getCurrentLocation();
 });
 
@@ -87,8 +93,8 @@ const getCurrentLocation = () => {
         {
             enableHighAccuracy: true,
             timeout: 10000,
-            maximumAge: 60000
-        }
+            maximumAge: 60000,
+        },
     );
 };
 
@@ -102,9 +108,8 @@ const calculateDistance = (lat1: number, lng1: number, lat2: number, lng2: numbe
     const deltaLat = lat2Rad - lat1Rad;
     const deltaLng = lng2Rad - lng1Rad;
 
-    const a = Math.sin(deltaLat / 2) * Math.sin(deltaLat / 2) +
-              Math.cos(lat1Rad) * Math.cos(lat2Rad) *
-              Math.sin(deltaLng / 2) * Math.sin(deltaLng / 2);
+    const a =
+        Math.sin(deltaLat / 2) * Math.sin(deltaLat / 2) + Math.cos(lat1Rad) * Math.cos(lat2Rad) * Math.sin(deltaLng / 2) * Math.sin(deltaLng / 2);
     const c = 2 * Math.atan2(Math.sqrt(a), Math.sqrt(1 - a));
 
     return earthRadius * c;
@@ -117,13 +122,8 @@ const checkOfficeProximity = () => {
     let nearestDistance = Infinity;
     let isWithinRange = false;
 
-    officeLocations.forEach(office => {
-        const distance = calculateDistance(
-            form.latitude,
-            form.longitude,
-            office.latitude,
-            office.longitude
-        );
+    officeLocations.forEach((office) => {
+        const distance = calculateDistance(form.latitude, form.longitude, office.latitude, office.longitude);
 
         if (distance < nearestDistance) {
             nearestDistance = distance;
@@ -138,188 +138,411 @@ const checkOfficeProximity = () => {
 
     selectedOffice.value = nearestOffice;
     distanceToOffice.value = Math.round(nearestDistance);
+
+    // Show immediate feedback when location is determined
+    if (nearestOffice) {
+        if (isWithinRange && !isInRange.value) {
+            // User just entered the range
+            toast({
+                title: '✅ Lokasi Ditemukan!',
+                description: `Anda berada dalam radius ${nearestOffice.name}. Siap untuk check in!`,
+                variant: 'success',
+            });
+        } else if (!isWithinRange && !hasShownOutOfRangeAlert.value) {
+            // User is outside range - show alert immediately
+            const distanceNeeded = Math.round(nearestDistance - nearestOffice.radius_meters);
+            toast({
+                title: '⚠️ Di Luar Jangkauan',
+                description: `Anda harus berada dalam radius ${nearestOffice.radius_meters}m. Mohon mendekat ${distanceNeeded}m lagi ke ${nearestOffice.name}.`,
+                variant: 'destructive',
+                duration: 8000, // Show longer for important info
+            });
+            hasShownOutOfRangeAlert.value = true;
+        }
+    }
+
     isInRange.value = isWithinRange;
 };
 
 const submitCheckIn = () => {
-    if (!isInRange.value) {
-        alert('You are not within range of any office location. Please move closer to an office.');
+    // Debug logging
+    console.log('Submit check-in clicked');
+    console.log('isInRange:', isInRange.value);
+    console.log('user.allow_outside_radius:', user.allow_outside_radius);
+    console.log('Will proceed?', isInRange.value || user.allow_outside_radius);
+
+    // Check if user is in range OR has permission to check-in outside radius
+    if (!isInRange.value && !user.allow_outside_radius) {
+        if (selectedOffice.value) {
+            const distanceNeeded = Math.round(distanceToOffice.value - selectedOffice.value.radius_meters);
+            toast({
+                title: '❌ Tidak Dapat Check In',
+                description: `Anda masih berada di luar radius ${selectedOffice.value.radius_meters}m. Mohon mendekat ${distanceNeeded}m lagi ke ${selectedOffice.value.name}.`,
+                variant: 'destructive',
+                duration: 6000,
+            });
+        } else {
+            toast({
+                title: '❌ Tidak Dapat Check In',
+                description: 'Anda tidak berada dalam jangkauan lokasi kantor manapun. Mohon mendekat ke lokasi kantor.',
+                variant: 'destructive',
+            });
+        }
         return;
     }
 
-    form.post('/attendance/check-in');
+    // Proceed with check-in directly
+    // Face verification is optional and handled on server-side
+    performCheckIn();
+};
+
+const performCheckIn = () => {
+    toast({
+        title: '🕐 Sedang Check In...',
+        description: 'Memproses absensi masuk Anda.',
+        variant: 'default',
+    });
+
+    form.post('/attendance/check-in', {
+        onSuccess: (page) => {
+            hasCheckedInToday.value = true;
+            toast({
+                title: '✅ Check In Berhasil!',
+                description: `Absensi masuk Anda telah tercatat pada ${new Date().toLocaleTimeString('id-ID')}.`,
+                variant: 'success',
+                duration: 5000,
+            });
+
+            // Update the form to reflect successful check-in
+            form.reset();
+        },
+        onError: (errors) => {
+            console.error('Check-in errors:', errors);
+            toast({
+                title: '❌ Check In Gagal',
+                description: errors.message || 'Terjadi kesalahan saat melakukan check in. Silakan coba lagi.',
+                variant: 'destructive',
+                duration: 6000,
+            });
+        },
+        preserveState: true,
+        preserveScroll: true,
+    });
 };
 </script>
 
 <template>
-    <Head title="Check In" />
+    <Head :title="`Check In - ${companyName}`" />
 
-    <AppLayout :breadcrumbs="breadcrumbs">
-        <div class="flex h-full flex-1 flex-col gap-6 p-6">
-            <!-- Header -->
-            <div>
-                <h1 class="text-2xl font-bold text-gray-900 dark:text-white">Check In</h1>
-                <p class="text-gray-600 dark:text-gray-300">Use your location to check in to work</p>
-            </div>
-
-            <!-- Location Status -->
-            <div class="rounded-xl border border-sidebar-border/70 bg-white p-6 dark:border-sidebar-border dark:bg-gray-950">
-                <h2 class="mb-4 text-lg font-semibold text-gray-900 dark:text-white">Location Status</h2>
-
-                <!-- Loading State -->
-                <div v-if="locationStatus === 'loading'" class="flex items-center gap-3">
-                    <Loader2 class="h-5 w-5 animate-spin text-blue-600" />
-                    <div>
-                        <p class="font-medium text-gray-900 dark:text-white">Getting your location...</p>
-                        <p class="text-sm text-gray-500 dark:text-gray-400">Please allow location access when prompted</p>
-                    </div>
-                </div>
-
-                <!-- Error State -->
-                <div v-else-if="locationStatus === 'error'" class="flex items-center gap-3">
-                    <div class="rounded-lg bg-red-100 p-2 dark:bg-red-900/30">
-                        <AlertCircle class="h-5 w-5 text-red-600 dark:text-red-400" />
-                    </div>
-                    <div>
-                        <p class="font-medium text-red-900 dark:text-red-400">Location Error</p>
-                        <p class="text-sm text-red-600 dark:text-red-300">{{ locationError }}</p>
-                        <button
-                            @click="getCurrentLocation"
-                            class="mt-2 rounded-lg bg-red-600 px-3 py-1 text-sm font-medium text-white hover:bg-red-700"
-                        >
-                            Try Again
-                        </button>
-                    </div>
-                </div>
-
-                <!-- Success State -->
-                <div v-else class="space-y-4">
+    <div class="min-h-screen bg-background">
+        <!-- Mobile Header - Full Width -->
+        <div class="sticky top-0 z-40 border-b bg-background/95 backdrop-blur-sm">
+            <div class="mx-auto max-w-[480px] px-4 py-4">
+                <div class="flex items-center justify-between">
                     <div class="flex items-center gap-3">
-                        <div class="rounded-lg bg-green-100 p-2 dark:bg-green-900/30">
-                            <CheckCircle class="h-5 w-5 text-green-600 dark:text-green-400" />
+                        <Link href="/home" class="rounded-lg bg-muted p-2 transition-colors hover:bg-muted/80">
+                            <ArrowLeft class="h-4 w-4" />
+                        </Link>
+                        <div class="overflow-hidden rounded-lg bg-primary p-2">
+                            <img v-if="companyLogo" :src="companyLogo" :alt="companyName" class="h-4 w-4 object-contain" />
+                            <User v-else class="h-4 w-4 text-primary-foreground" />
                         </div>
                         <div>
-                            <p class="font-medium text-green-900 dark:text-green-400">Location Found</p>
-                            <p class="text-sm text-green-600 dark:text-green-300">
-                                Coordinates: {{ form.latitude.toFixed(6) }}, {{ form.longitude.toFixed(6) }}
-                            </p>
+                            <h1 class="text-lg font-semibold">Check In</h1>
+                            <p class="text-sm text-muted-foreground">Absensi Masuk</p>
                         </div>
                     </div>
-
-                    <!-- Office Proximity -->
-                    <div v-if="selectedOffice" class="rounded-lg border border-gray-200 p-4 dark:border-gray-700">
-                        <div class="flex items-start justify-between">
-                            <div>
-                                <h3 class="font-medium text-gray-900 dark:text-white">{{ selectedOffice.name }}</h3>
-                                <p class="text-sm text-gray-500 dark:text-gray-400">{{ selectedOffice.address }}</p>
-                                <div class="mt-2 flex items-center gap-2">
-                                    <MapPin class="h-4 w-4 text-gray-400" />
-                                    <span class="text-sm text-gray-600 dark:text-gray-300">
-                                        Distance: {{ distanceToOffice }}m
-                                    </span>
-                                </div>
-                            </div>
-                            <div v-if="isInRange" class="rounded-lg bg-green-100 p-2 dark:bg-green-900/30">
-                                <CheckCircle class="h-5 w-5 text-green-600 dark:text-green-400" />
-                            </div>
-                            <div v-else class="rounded-lg bg-red-100 p-2 dark:bg-red-900/30">
-                                <AlertCircle class="h-5 w-5 text-red-600 dark:text-red-400" />
-                            </div>
-                        </div>
-
-                        <div class="mt-3">
-                            <div v-if="isInRange" class="rounded-lg bg-green-50 p-3 dark:bg-green-900/20">
-                                <p class="text-sm font-medium text-green-800 dark:text-green-300">
-                                    ✓ You are within the check-in radius ({{ selectedOffice.radius_meters }}m)
-                                </p>
-                            </div>
-                            <div v-else class="rounded-lg bg-red-50 p-3 dark:bg-red-900/20">
-                                <p class="text-sm font-medium text-red-800 dark:text-red-300">
-                                    ✗ You need to be within {{ selectedOffice.radius_meters }}m to check in
-                                </p>
-                                <p class="mt-1 text-xs text-red-600 dark:text-red-400">
-                                    Please move {{ distanceToOffice - selectedOffice.radius_meters }}m closer
-                                </p>
-                            </div>
-                        </div>
-                    </div>
-                </div>
-            </div>
-
-            <!-- Office Locations -->
-            <div class="rounded-xl border border-sidebar-border/70 bg-white p-6 dark:border-sidebar-border dark:bg-gray-950">
-                <h2 class="mb-4 text-lg font-semibold text-gray-900 dark:text-white">Available Office Locations</h2>
-                <div class="grid gap-4 md:grid-cols-2">
-                    <div
-                        v-for="office in officeLocations"
-                        :key="office.id"
-                        class="rounded-lg border border-gray-200 p-4 dark:border-gray-700"
-                        :class="{
-                            'border-green-300 bg-green-50 dark:border-green-600 dark:bg-green-900/20':
-                                form.office_location_id === office.id.toString()
-                        }"
-                    >
-                        <div class="flex items-start justify-between">
-                            <div>
-                                <h3 class="font-medium text-gray-900 dark:text-white">{{ office.name }}</h3>
-                                <p class="text-sm text-gray-500 dark:text-gray-400">{{ office.address }}</p>
-                                <div class="mt-2 flex items-center gap-2">
-                                    <MapPin class="h-4 w-4 text-gray-400" />
-                                    <span class="text-sm text-gray-600 dark:text-gray-300">
-                                        Radius: {{ office.radius_meters }}m
-                                    </span>
-                                </div>
-                            </div>
-                            <div v-if="form.office_location_id === office.id.toString()" class="rounded-lg bg-green-100 p-2 dark:bg-green-900/30">
-                                <CheckCircle class="h-5 w-5 text-green-600 dark:text-green-400" />
-                            </div>
-                        </div>
-                    </div>
-                </div>
-            </div>
-
-            <!-- Interactive Map -->
-            <div v-if="locationStatus === 'success'" class="rounded-xl border border-sidebar-border/70 bg-white p-6 dark:border-sidebar-border dark:bg-gray-950">
-                <h2 class="mb-4 text-lg font-semibold text-gray-900 dark:text-white">Location Map</h2>
-                <LeafletMap
-                    :locations="officeLocations"
-                    :user-location="{ latitude: form.latitude, longitude: form.longitude }"
-                    height="300px"
-                    :show-radius="true"
-                    :interactive="true"
-                />
-            </div>
-
-            <!-- Check In Action -->
-            <div class="rounded-xl border border-sidebar-border/70 bg-white p-6 dark:border-sidebar-border dark:bg-gray-950">
-                <div class="flex items-center justify-between">
-                    <div>
-                        <h2 class="text-lg font-semibold text-gray-900 dark:text-white">Ready to Check In?</h2>
-                        <p class="text-sm text-gray-500 dark:text-gray-400">
-                            {{ isInRange ? 'You can now check in!' : 'Please move closer to an office location' }}
-                        </p>
-                    </div>
-                    <button
-                        @click="submitCheckIn"
-                        :disabled="!isInRange || form.processing"
-                        class="inline-flex items-center gap-2 rounded-lg px-6 py-3 text-sm font-medium text-white disabled:opacity-50 disabled:cursor-not-allowed"
-                        :class="isInRange
-                            ? 'bg-green-600 hover:bg-green-700'
-                            : 'bg-gray-400 cursor-not-allowed'"
-                    >
-                        <Clock class="h-4 w-4" />
-                        <span v-if="form.processing">Checking In...</span>
-                        <span v-else>Check In Now</span>
-                    </button>
-                </div>
-
-                <!-- Current Time -->
-                <div class="mt-4 rounded-lg bg-gray-50 p-3 dark:bg-gray-800">
-                    <p class="text-sm text-gray-600 dark:text-gray-300">
-                        Current time: {{ new Date().toLocaleTimeString() }}
-                    </p>
                 </div>
             </div>
         </div>
-    </AppLayout>
+
+        <!-- Mobile Container for Content -->
+        <div class="relative mx-auto min-h-screen max-w-[480px] bg-background">
+            <!-- Main Content -->
+            <div class="space-y-6 px-4 py-6 pb-20">
+                <!-- Out of Range Alert -->
+                <div
+                    v-if="locationStatus === 'success' && selectedOffice && !isInRange && !user.allow_outside_radius"
+                    class="animate-pulse rounded-lg border-2 border-destructive/50 bg-destructive/10 p-4"
+                >
+                    <div class="flex items-start gap-3">
+                        <div class="rounded-lg bg-destructive/20 p-2">
+                            <AlertTriangle class="h-5 w-5 text-destructive" />
+                        </div>
+                        <div class="flex-1">
+                            <h3 class="font-semibold text-destructive">Di Luar Jangkauan!</h3>
+                            <p class="mt-1 text-sm text-destructive/80">
+                                Anda harus berada dalam radius {{ selectedOffice.radius_meters }}m dari {{ selectedOffice.name }}
+                            </p>
+                            <p class="mt-2 text-sm font-medium text-destructive">
+                                📍 Mohon mendekat {{ Math.round(distanceToOffice - selectedOffice.radius_meters) }}m lagi
+                            </p>
+                        </div>
+                    </div>
+                </div>
+
+                <!-- Remote Attendance Enabled Alert -->
+                <div
+                    v-if="locationStatus === 'success' && selectedOffice && !isInRange && user.allow_outside_radius"
+                    class="rounded-lg border-2 border-blue-500/50 bg-blue-50 p-4 dark:bg-blue-950/50"
+                >
+                    <div class="flex items-start gap-3">
+                        <div class="rounded-lg bg-blue-100 p-2 dark:bg-blue-900/50">
+                            <CheckCircle class="h-5 w-5 text-blue-600 dark:text-blue-400" />
+                        </div>
+                        <div class="flex-1">
+                            <h3 class="font-semibold text-blue-800 dark:text-blue-300">Absen Diluar Lokasi Diizinkan</h3>
+                            <p class="mt-1 text-sm text-blue-700 dark:text-blue-400">
+                                Anda memiliki izin untuk melakukan absensi di luar radius kantor.
+                            </p>
+                            <p class="mt-2 text-sm text-blue-600 dark:text-blue-500">
+                                📍 Jarak dari {{ selectedOffice.name }}: {{ Math.round(distanceToOffice) }}m
+                            </p>
+                        </div>
+                    </div>
+                </div>
+
+                <!-- Success Alert -->
+                <div
+                    v-if="locationStatus === 'success' && isInRange"
+                    class="rounded-lg border-2 border-green-500/50 bg-green-50 p-4 dark:bg-green-950/50"
+                >
+                    <div class="flex items-start gap-3">
+                        <div class="rounded-lg bg-green-100 p-2 dark:bg-green-900/50">
+                            <CheckCircle class="h-5 w-5 text-green-600 dark:text-green-400" />
+                        </div>
+                        <div class="flex-1">
+                            <h3 class="font-semibold text-green-800 dark:text-green-300">Siap Check In!</h3>
+                            <p class="mt-1 text-sm text-green-700 dark:text-green-400">
+                                Anda berada dalam radius {{ selectedOffice?.name }}. Silakan lakukan check in.
+                            </p>
+                        </div>
+                    </div>
+                </div>
+
+                <!-- Location Status -->
+                <div class="rounded-lg border bg-card p-6">
+                    <h2 class="mb-4 flex items-center gap-2 text-lg font-semibold">
+                        <MapPin class="h-4 w-4 text-primary" />
+                        Status Lokasi
+                    </h2>
+
+                    <!-- Loading State -->
+                    <div v-if="locationStatus === 'loading'" class="flex items-center gap-3 rounded-lg bg-muted/50 p-4">
+                        <Loader2 class="h-5 w-5 animate-spin text-primary" />
+                        <div>
+                            <p class="font-medium">Mencari lokasi Anda...</p>
+                            <p class="text-sm text-muted-foreground">Mohon izinkan akses lokasi</p>
+                        </div>
+                    </div>
+
+                    <!-- Error State -->
+                    <div v-else-if="locationStatus === 'error'" class="rounded-lg border border-destructive/20 bg-destructive/10 p-4">
+                        <div class="flex items-start gap-3">
+                            <div class="rounded-lg bg-destructive/20 p-2">
+                                <AlertCircle class="h-5 w-5 text-destructive" />
+                            </div>
+                            <div class="flex-1">
+                                <p class="font-medium text-destructive">Error Lokasi</p>
+                                <p class="mt-1 text-sm text-destructive/80">{{ locationError }}</p>
+                                <button
+                                    @click="getCurrentLocation"
+                                    class="mt-3 rounded-lg bg-destructive px-4 py-2 text-sm font-medium text-destructive-foreground transition-colors hover:bg-destructive/90"
+                                >
+                                    Coba Lagi
+                                </button>
+                            </div>
+                        </div>
+                    </div>
+
+                    <!-- Success State -->
+                    <div v-else class="space-y-4">
+                        <div
+                            class="flex items-center gap-3 rounded-lg border border-green-200 bg-green-50 p-4 dark:border-green-800 dark:bg-green-950/50"
+                        >
+                            <div class="rounded-lg bg-green-100 p-2 dark:bg-green-900/50">
+                                <CheckCircle class="h-5 w-5 text-green-600 dark:text-green-400" />
+                            </div>
+                            <div>
+                                <p class="font-medium text-green-900 dark:text-green-100">Lokasi Ditemukan</p>
+                                <p class="text-sm text-green-700 dark:text-green-300">
+                                    {{ form.latitude.toFixed(6) }}, {{ form.longitude.toFixed(6) }}
+                                </p>
+                            </div>
+                        </div>
+
+                        <!-- Office Proximity -->
+                        <div v-if="selectedOffice" class="rounded-lg border bg-card p-4">
+                            <div class="mb-3 flex items-start justify-between">
+                                <div class="flex-1">
+                                    <h3 class="font-medium">{{ selectedOffice.name }}</h3>
+                                    <p class="text-sm text-muted-foreground">{{ selectedOffice.address }}</p>
+                                    <div class="mt-2 flex items-center gap-2">
+                                        <MapPin class="h-4 w-4 text-muted-foreground" />
+                                        <span class="text-sm text-muted-foreground"> Jarak: {{ distanceToOffice }}m </span>
+                                    </div>
+                                </div>
+                                <div v-if="isInRange" class="rounded-lg bg-green-100 p-2 dark:bg-green-900/50">
+                                    <CheckCircle class="h-5 w-5 text-green-600 dark:text-green-400" />
+                                </div>
+                                <div v-else class="rounded-lg bg-red-100 p-2 dark:bg-red-900/50">
+                                    <AlertCircle class="h-5 w-5 text-red-600 dark:text-red-400" />
+                                </div>
+                            </div>
+
+                            <div
+                                v-if="isInRange"
+                                class="rounded-lg border border-green-200 bg-green-50 p-3 dark:border-green-800 dark:bg-green-950/50"
+                            >
+                                <p class="text-sm font-medium text-green-800 dark:text-green-300">
+                                    ✓ Anda berada dalam radius check-in ({{ selectedOffice.radius_meters }}m)
+                                </p>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+
+                <!-- Office Locations -->
+                <div class="rounded-lg border bg-card p-6">
+                    <h2 class="mb-4 flex items-center gap-2 text-lg font-semibold">
+                        <Clock class="h-4 w-4 text-primary" />
+                        Lokasi Kantor
+                    </h2>
+                    <div class="space-y-3">
+                        <div
+                            v-for="office in officeLocations"
+                            :key="office.id"
+                            class="rounded-lg border p-4 transition-colors"
+                            :class="{
+                                'border-green-300 bg-green-50 dark:border-green-600 dark:bg-green-900/20':
+                                    form.office_location_id === office.id.toString(),
+                                'border-border hover:bg-muted/50': form.office_location_id !== office.id.toString(),
+                            }"
+                        >
+                            <div class="flex items-start justify-between">
+                                <div class="flex-1">
+                                    <h3 class="font-medium">{{ office.name }}</h3>
+                                    <p class="mt-1 text-sm text-muted-foreground">{{ office.address }}</p>
+                                    <div class="mt-2 flex items-center gap-2">
+                                        <div class="h-2 w-2 rounded-full bg-primary"></div>
+                                        <span class="text-sm text-muted-foreground"> Radius: {{ office.radius_meters }}m </span>
+                                    </div>
+                                </div>
+                                <div v-if="form.office_location_id === office.id.toString()" class="rounded-lg bg-green-100 p-2 dark:bg-green-900/50">
+                                    <CheckCircle class="h-5 w-5 text-green-600 dark:text-green-400" />
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+
+                <!-- Interactive Map -->
+                <div v-if="locationStatus === 'success'" class="rounded-lg border bg-card p-6">
+                    <h2 class="mb-4 flex items-center gap-2 text-lg font-semibold">
+                        <MapPin class="h-4 w-4 text-primary" />
+                        Peta Lokasi
+                    </h2>
+                    <div class="overflow-hidden rounded-lg border">
+                        <LeafletMap
+                            :locations="officeLocations"
+                            :user-location="{ latitude: form.latitude, longitude: form.longitude }"
+                            height="250px"
+                            :show-radius="true"
+                            :interactive="true"
+                        />
+                    </div>
+                </div>
+
+                <!-- Check In Action -->
+                <div class="rounded-lg border bg-card p-6">
+                    <div class="space-y-4 text-center">
+                        <!-- Status Icon -->
+                        <div
+                            class="mx-auto flex h-16 w-16 items-center justify-center rounded-full"
+                            :class="
+                                hasCheckedInToday
+                                    ? 'bg-green-100 dark:bg-green-900/50'
+                                    : isInRange || user.allow_outside_radius
+                                      ? 'bg-green-100 dark:bg-green-900/50'
+                                      : 'bg-muted'
+                            "
+                        >
+                            <CheckCircle v-if="hasCheckedInToday" class="h-8 w-8 text-green-600 dark:text-green-400" />
+                            <Clock
+                                v-else
+                                class="h-8 w-8"
+                                :class="isInRange || user.allow_outside_radius ? 'text-green-600 dark:text-green-400' : 'text-muted-foreground'"
+                            />
+                        </div>
+
+                        <div>
+                            <h2 class="text-lg font-semibold">
+                                {{
+                                    hasCheckedInToday
+                                        ? 'Sudah Check In Hari Ini'
+                                        : isInRange || user.allow_outside_radius
+                                          ? 'Siap Check In!'
+                                          : 'Belum Bisa Check In'
+                                }}
+                            </h2>
+                            <p class="mt-1 text-sm text-muted-foreground">
+                                {{
+                                    hasCheckedInToday
+                                        ? 'Absensi masuk Anda sudah tercatat untuk hari ini'
+                                        : isInRange || user.allow_outside_radius
+                                          ? 'Anda dapat melakukan absensi masuk sekarang'
+                                          : 'Mohon mendekat ke lokasi kantor'
+                                }}
+                            </p>
+                        </div>
+
+                        <button
+                            v-if="!hasCheckedInToday"
+                            @click="submitCheckIn"
+                            :disabled="(!isInRange && !user.allow_outside_radius) || form.processing"
+                            class="inline-flex w-full items-center justify-center gap-2 rounded-lg px-6 py-4 text-sm font-medium transition-colors disabled:cursor-not-allowed disabled:opacity-50"
+                            :class="
+                                isInRange || user.allow_outside_radius
+                                    ? 'bg-green-600 text-white shadow-sm hover:bg-green-700'
+                                    : 'cursor-not-allowed bg-muted text-muted-foreground'
+                            "
+                        >
+                            <Loader2 v-if="form.processing" class="h-4 w-4 animate-spin" />
+                            <Clock v-else class="h-4 w-4" />
+                            <span v-if="form.processing">Sedang Check In...</span>
+                            <span v-else>{{ isInRange || user.allow_outside_radius ? 'Check In Sekarang' : 'Belum Bisa Check In' }}</span>
+                        </button>
+
+                        <!-- Already Checked In Button -->
+                        <div
+                            v-if="hasCheckedInToday"
+                            class="inline-flex w-full items-center justify-center gap-2 rounded-lg border border-green-200 bg-green-100 px-6 py-4 text-sm font-medium text-green-800 dark:border-green-800 dark:bg-green-900/50 dark:text-green-300"
+                        >
+                            <CheckCircle class="h-4 w-4" />
+                            <span>Sudah Check In</span>
+                        </div>
+
+                        <!-- Current Time -->
+                        <div class="rounded-lg border bg-muted/50 p-3">
+                            <p class="text-center text-sm text-muted-foreground">
+                                <Clock class="mr-2 inline h-4 w-4" />
+                                Waktu saat ini: {{ new Date().toLocaleTimeString('id-ID') }}
+                            </p>
+                        </div>
+
+                        <!-- Navigation Button -->
+                        <Link
+                            href="/home"
+                            class="inline-flex w-full items-center justify-center gap-2 rounded-lg border border-primary/20 bg-primary/10 px-6 py-3 text-sm font-medium text-primary transition-colors hover:bg-primary/20"
+                        >
+                            <ArrowLeft class="h-4 w-4" />
+                            Kembali ke Beranda
+                        </Link>
+                    </div>
+                </div>
+            </div>
+        </div>
+
+        <BottomNavigation current-route="/attendance" />
+    </div>
 </template>

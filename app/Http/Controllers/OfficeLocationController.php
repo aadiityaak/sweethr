@@ -18,8 +18,8 @@ class OfficeLocationController extends Controller
         // Apply filters
         if ($request->search) {
             $query->where(function ($q) use ($request) {
-                $q->where('name', 'like', '%' . $request->search . '%')
-                  ->orWhere('address', 'like', '%' . $request->search . '%');
+                $q->where('name', 'like', '%'.$request->search.'%')
+                    ->orWhere('address', 'like', '%'.$request->search.'%');
             });
         }
 
@@ -75,7 +75,7 @@ class OfficeLocationController extends Controller
             'attendances',
             'attendances as today_checkins_count' => function ($query) {
                 $query->whereDate('created_at', Carbon::today());
-            }
+            },
         ]);
 
         return Inertia::render('admin/OfficeLocations/Show', [
@@ -85,8 +85,11 @@ class OfficeLocationController extends Controller
 
     public function edit(OfficeLocation $officeLocation): Response
     {
+        // Get fresh data from database to avoid any caching issues
+        $freshOfficeLocation = OfficeLocation::findOrFail($officeLocation->id);
+
         return Inertia::render('admin/OfficeLocations/Edit', [
-            'officeLocation' => $officeLocation,
+            'officeLocation' => $freshOfficeLocation,
         ]);
     }
 

@@ -10,16 +10,17 @@
     "license": "MIT",
     "require": {
         "php": "^8.2",
+        "fakerphp/faker": "*",
         "inertiajs/inertia-laravel": "^2.0",
         "laravel/fortify": "^1.30",
         "laravel/framework": "^12.0",
         "laravel/sanctum": "^4.2",
         "laravel/tinker": "^2.10.1",
-        "laravel/wayfinder": "^0.1.9"
+        "laravel/wayfinder": "^0.1.9",
+        "maatwebsite/excel": "^3.1"
     },
     "require-dev": {
-        "fakerphp/faker": "^1.23",
-        "laravel/boost": "^1.1",
+        "laravel/boost": "*",
         "laravel/pail": "^1.2.2",
         "laravel/pint": "^1.18",
         "laravel/sail": "^1.41",
@@ -67,6 +68,53 @@
         "test": [
             "@php artisan config:clear --ansi",
             "@php artisan test"
+        ],
+        "build:production": [
+            "powershell -Command \"if (Test-Path 'dist') { Remove-Item -Recurse -Force 'dist' }\"",
+            "npm run build",
+            "@php artisan config:cache",
+            "@php artisan view:cache",
+            "@php artisan event:cache",
+            "@php artisan storage:link",
+            "@php artisan build:production-structure"
+        ],
+        "build:clean": [
+            "powershell -Command \"if (Test-Path 'public/build') { Remove-Item -Recurse -Force 'public/build' }\"",
+            "powershell -Command \"if (Test-Path 'public/storage') { Remove-Item -Recurse -Force 'public/storage' }\"",
+            "powershell -Command \"if (Test-Path 'bootstrap/cache/*.php') { Remove-Item -Force 'bootstrap/cache/*.php' }\"",
+            "@php artisan config:clear",
+            "@php artisan cache:clear",
+            "@php artisan view:clear",
+            "@php artisan event:clear"
+        ],
+        "optimize": [
+            "@php artisan config:cache",
+            "@php artisan view:cache",
+            "@php artisan event:cache"
+        ],
+        "optimize:clear": [
+            "@php artisan config:clear",
+            "@php artisan cache:clear",
+            "@php artisan view:clear",
+            "@php artisan event:clear"
+        ],
+        "build:structure": [
+            "@php artisan build:production-structure"
+        ],
+        "build:package": [
+            "@php artisan build:package"
+        ],
+        "build:flat-deployment": [
+            "powershell -Command \"if (Test-Path 'flat-deployment') { Remove-Item -Recurse -Force 'flat-deployment' }\"",
+            "powershell -Command \"New-Item -ItemType Directory -Force -Path 'flat-deployment'\"",
+            "powershell -Command \"Copy-Item -Path 'public\\*' -Destination 'flat-deployment\\' -Recurse -Force\"",
+            "powershell -Command \"Copy-Item -Path '.' -Destination 'flat-deployment\\application' -Recurse -Force -Exclude @('public', 'flat-deployment', 'node_modules', '.git', 'tests', 'storage\\logs\\*')\"",
+            "powershell -Command \"(Get-Content 'flat-deployment\\index.php') -replace '__DIR__\\.\\'/\\.\\./vendor/autoload.php', '__DIR__.'/application/vendor/autoload.php' | Set-Content 'flat-deployment\\index.php'\"",
+            "powershell -Command \"(Get-Content 'flat-deployment\\index.php') -replace '__DIR__\\.\\'/\\.\\./bootstrap/app.php', '__DIR__.'/application/bootstrap/app.php' | Set-Content 'flat-deployment\\index.php'\"",
+            "powershell -Command \"(Get-Content 'flat-deployment\\index.php') -replace '__DIR__\\.\\'/\\.\\./storage/framework/maintenance.php', '__DIR__.'/application/storage/framework/maintenance.php' | Set-Content 'flat-deployment\\index.php'\""
+        ],
+        "build:production-novendor": [
+            "@php artisan build:production-novendor"
         ]
     },
     "extra": {
