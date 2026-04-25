@@ -6,6 +6,7 @@ import { Sidebar, SidebarContent, SidebarFooter, SidebarHeader, SidebarMenu, Sid
 import { type NavItem } from '@/types';
 import { Link, usePage } from '@inertiajs/vue3';
 import {
+    BookOpen,
     Building,
     Calendar,
     Clock,
@@ -132,6 +133,17 @@ const adminNavItems: NavItem[] = [
         title: 'Pengumuman',
         href: '/admin/announcements',
         icon: Megaphone,
+    },
+    {
+        title: 'LMS',
+        icon: BookOpen,
+        items: [
+            {
+                title: 'Pengelolaan Konten',
+                href: '/admin/lms-materials',
+                icon: FileText,
+            },
+        ],
     },
     {
         title: 'Pengaturan Sistem',

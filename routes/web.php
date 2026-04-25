@@ -202,6 +202,21 @@ Route::middleware(['auth', 'verified', 'admin'])->group(function () {
     Route::patch('admin/announcements/{announcement}/toggle-status', [App\Http\Controllers\Admin\AnnouncementController::class, 'toggleStatus'])
         ->name('admin.announcements.toggle-status');
 
+    // Admin LMS Materials Management
+    Route::resource('admin/lms-materials', App\Http\Controllers\Admin\LmsMaterialController::class, [
+        'names' => [
+            'index' => 'admin.lms-materials.index',
+            'create' => 'admin.lms-materials.create',
+            'store' => 'admin.lms-materials.store',
+            'show' => 'admin.lms-materials.show',
+            'edit' => 'admin.lms-materials.edit',
+            'update' => 'admin.lms-materials.update',
+            'destroy' => 'admin.lms-materials.destroy',
+        ],
+    ]);
+    Route::post('admin/lms-materials/{lms_material}/update', [App\Http\Controllers\Admin\LmsMaterialController::class, 'updateWithFiles'])
+        ->name('admin.lms-materials.update-with-files');
+
     // Admin Payroll Management
     Route::get('admin/salary-settings', [App\Http\Controllers\Admin\SalarySettingController::class, 'index'])
         ->name('admin.salary-settings.index');
