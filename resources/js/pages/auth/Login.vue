@@ -31,8 +31,7 @@ const { companyName, companyTagline, companyLogo } = useCompanySettings();
             <div class="flex flex-col justify-between px-6 py-10 text-white sm:px-10 lg:px-14">
                 <div class="flex items-center justify-between">
                     <Link :href="home()" class="inline-flex items-center gap-3">
-                        <img v-if="companyLogo" :src="companyLogo" :alt="companyName" class="h-10 w-10 object-contain" />
-                        <AppLogoIcon v-else class="h-10 w-10 fill-white" />
+                        <img src="/icons/logo.jpg" alt="logo" class="h-10 w-10 object-contain" />
                         <div class="text-sm font-semibold tracking-wide uppercase">{{ companyName }}</div>
                     </Link>
 

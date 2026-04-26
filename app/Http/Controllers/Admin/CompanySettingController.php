@@ -19,7 +19,7 @@ class CompanySettingController extends Controller
                 'description' => 'Nama resmi perusahaan yang akan ditampilkan di aplikasi',
                 'required' => true,
                 'is_public' => true,
-                'default' => 'PT Perusahaan Indonesia',
+                'default' => 'WarungMasMbull.id',
             ],
             'company_tagline' => [
                 'type' => 'text',
@@ -157,12 +157,12 @@ class CompanySettingController extends Controller
                     }
 
                     $rules[$key] = implode('|', $fieldRules);
-                    $messages["{$key}.required"] = $definition['label'].' wajib diisi.';
-                    $messages["{$key}.email"] = $definition['label'].' harus berupa alamat email yang valid.';
-                    $messages["{$key}.url"] = $definition['label'].' harus berupa URL yang valid.';
-                    $messages["{$key}.image"] = $definition['label'].' harus berupa file gambar.';
-                    $messages["{$key}.max"] = $definition['label'].' maksimal 2MB.';
-                    $messages["{$key}.regex"] = $definition['label'].' harus berupa kode warna hex yang valid.';
+                    $messages["{$key}.required"] = $definition['label'] . ' wajib diisi.';
+                    $messages["{$key}.email"] = $definition['label'] . ' harus berupa alamat email yang valid.';
+                    $messages["{$key}.url"] = $definition['label'] . ' harus berupa URL yang valid.';
+                    $messages["{$key}.image"] = $definition['label'] . ' harus berupa file gambar.';
+                    $messages["{$key}.max"] = $definition['label'] . ' maksimal 2MB.';
+                    $messages["{$key}.regex"] = $definition['label'] . ' harus berupa kode warna hex yang valid.';
                 }
             }
         }

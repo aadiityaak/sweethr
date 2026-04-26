@@ -2,7 +2,32 @@
 import AppLayout from '@/layouts/AppLayout.vue';
 import { type BreadcrumbItem } from '@/types';
 import { Head, useForm } from '@inertiajs/vue3';
-import { ArrowLeft, Save } from 'lucide-vue-next';
+import { EditorContent, useEditor } from '@tiptap/vue-3';
+import LinkExtension from '@tiptap/extension-link';
+import Placeholder from '@tiptap/extension-placeholder';
+import TextAlign from '@tiptap/extension-text-align';
+import Underline from '@tiptap/extension-underline';
+import StarterKit from '@tiptap/starter-kit';
+import {
+    AlignCenter,
+    AlignLeft,
+    AlignRight,
+    ArrowLeft,
+    Bold,
+    Code,
+    Heading1,
+    Heading2,
+    Link2,
+    List,
+    ListOrdered,
+    Quote,
+    Redo2,
+    Save,
+    Strikethrough,
+    Underline as UnderlineIcon,
+    Undo2,
+    Unlink,
+} from 'lucide-vue-next';
 import { computed } from 'vue';
 
 interface LmsCategory {
@@ -37,6 +62,49 @@ const form = useForm({
     is_active: true,
 });
 
+const instructionsEditor = useEditor({
+    content: form.instructions || '',
+    extensions: [
+        StarterKit,
+        Underline,
+        LinkExtension.configure({
+            openOnClick: false,
+            autolink: true,
+            linkOnPaste: true,
+            HTMLAttributes: {
+                target: '_blank',
+                rel: 'noopener noreferrer',
+            },
+        }),
+        TextAlign.configure({
+            types: ['heading', 'paragraph'],
+        }),
+        Placeholder.configure({
+            placeholder: 'Tulis instruksi tugas di sini...',
+        }),
+    ],
+    editorProps: {
+        attributes: {
+            class: 'prose prose-sm max-w-none min-h-[240px] max-h-[60vh] overflow-y-auto p-3 text-sm text-gray-700 focus:outline-none dark:prose-invert dark:text-gray-200',
+        },
+    },
+    onUpdate: ({ editor }) => {
+        form.instructions = editor.getHTML();
+    },
+});
+
+const setInstructionsLink = () => {
+    if (!instructionsEditor.value) return;
+    const previousUrl = instructionsEditor.value.getAttributes('link').href as string | undefined;
+    const url = window.prompt('Masukkan URL', previousUrl || '');
+    if (url === null) return;
+    if (url === '') {
+        instructionsEditor.value.chain().focus().unsetLink().run();
+        return;
+    }
+    instructionsEditor.value.chain().focus().extendMarkRange('link').setLink({ href: url }).run();
+};
+
 const flattenCategories = (items: LmsCategory[], depth = 0): Array<{ id: number; label: string }> => {
     const result: Array<{ id: number; label: string }> = [];
     for (const item of items) {
@@ -69,8 +137,7 @@ const submit = () => {
                         href="/admin/lms-assignments"
                         class="inline-flex items-center rounded-lg border border-gray-300 bg-white px-3 py-2 text-sm font-medium text-gray-700 shadow-sm transition-colors hover:bg-gray-50 dark:border-gray-600 dark:bg-gray-800 dark:text-gray-300 dark:hover:bg-gray-700"
                     >
-                        <ArrowLeft class="mr-2 h-4 w-4" />
-                        Kembali
+                        <ArrowLeft class="h-4 w-4" />
                     </a>
                     <div>
                         <h1 class="text-3xl font-bold text-gray-900 dark:text-white">Tambah Tugas</h1>
@@ -120,12 +187,144 @@ const submit = () => {
 
                     <div>
                         <label class="block text-sm font-medium text-gray-700 dark:text-gray-300">Instruksi (Opsional)</label>
-                        <textarea
-                            v-model="form.instructions"
-                            rows="8"
-                            class="mt-1 block w-full rounded-lg border border-gray-300 bg-white px-3 py-2 text-sm focus:border-blue-500 focus:ring-1 focus:ring-blue-500 focus:outline-none dark:border-gray-600 dark:bg-gray-800 dark:text-gray-300"
+                        <div
+                            class="mt-1 overflow-hidden rounded-lg border border-gray-300 bg-white dark:border-gray-600 dark:bg-gray-800"
                             :class="{ 'border-red-500': form.errors.instructions }"
-                        />
+                        >
+                            <div class="flex flex-wrap items-center gap-1 border-b border-gray-200 bg-gray-50 px-2 py-2 dark:border-gray-700 dark:bg-gray-900">
+                                <button
+                                    type="button"
+                                    class="rounded-md p-2 text-gray-700 hover:bg-gray-200 disabled:opacity-50 dark:text-gray-200 dark:hover:bg-gray-800"
+                                    :class="{ 'bg-gray-200 dark:bg-gray-800': instructionsEditor?.isActive('bold') }"
+                                    @click="instructionsEditor?.chain().focus().toggleBold().run()"
+                                >
+                                    <Bold class="h-4 w-4" />
+                                </button>
+                                <button
+                                    type="button"
+                                    class="rounded-md p-2 text-gray-700 hover:bg-gray-200 disabled:opacity-50 dark:text-gray-200 dark:hover:bg-gray-800"
+                                    :class="{ 'bg-gray-200 dark:bg-gray-800': instructionsEditor?.isActive('underline') }"
+                                    @click="instructionsEditor?.chain().focus().toggleUnderline().run()"
+                                >
+                                    <UnderlineIcon class="h-4 w-4" />
+                                </button>
+                                <button
+                                    type="button"
+                                    class="rounded-md p-2 text-gray-700 hover:bg-gray-200 disabled:opacity-50 dark:text-gray-200 dark:hover:bg-gray-800"
+                                    :class="{ 'bg-gray-200 dark:bg-gray-800': instructionsEditor?.isActive('strike') }"
+                                    @click="instructionsEditor?.chain().focus().toggleStrike().run()"
+                                >
+                                    <Strikethrough class="h-4 w-4" />
+                                </button>
+                                <button
+                                    type="button"
+                                    class="rounded-md p-2 text-gray-700 hover:bg-gray-200 disabled:opacity-50 dark:text-gray-200 dark:hover:bg-gray-800"
+                                    :class="{ 'bg-gray-200 dark:bg-gray-800': instructionsEditor?.isActive('code') }"
+                                    @click="instructionsEditor?.chain().focus().toggleCode().run()"
+                                >
+                                    <Code class="h-4 w-4" />
+                                </button>
+                                <div class="mx-1 h-6 w-px bg-gray-200 dark:bg-gray-700" />
+                                <button
+                                    type="button"
+                                    class="rounded-md p-2 text-gray-700 hover:bg-gray-200 disabled:opacity-50 dark:text-gray-200 dark:hover:bg-gray-800"
+                                    :class="{ 'bg-gray-200 dark:bg-gray-800': instructionsEditor?.isActive('heading', { level: 1 }) }"
+                                    @click="instructionsEditor?.chain().focus().toggleHeading({ level: 1 }).run()"
+                                >
+                                    <Heading1 class="h-4 w-4" />
+                                </button>
+                                <button
+                                    type="button"
+                                    class="rounded-md p-2 text-gray-700 hover:bg-gray-200 disabled:opacity-50 dark:text-gray-200 dark:hover:bg-gray-800"
+                                    :class="{ 'bg-gray-200 dark:bg-gray-800': instructionsEditor?.isActive('heading', { level: 2 }) }"
+                                    @click="instructionsEditor?.chain().focus().toggleHeading({ level: 2 }).run()"
+                                >
+                                    <Heading2 class="h-4 w-4" />
+                                </button>
+                                <div class="mx-1 h-6 w-px bg-gray-200 dark:bg-gray-700" />
+                                <button
+                                    type="button"
+                                    class="rounded-md p-2 text-gray-700 hover:bg-gray-200 disabled:opacity-50 dark:text-gray-200 dark:hover:bg-gray-800"
+                                    :class="{ 'bg-gray-200 dark:bg-gray-800': instructionsEditor?.isActive('bulletList') }"
+                                    @click="instructionsEditor?.chain().focus().toggleBulletList().run()"
+                                >
+                                    <List class="h-4 w-4" />
+                                </button>
+                                <button
+                                    type="button"
+                                    class="rounded-md p-2 text-gray-700 hover:bg-gray-200 disabled:opacity-50 dark:text-gray-200 dark:hover:bg-gray-800"
+                                    :class="{ 'bg-gray-200 dark:bg-gray-800': instructionsEditor?.isActive('orderedList') }"
+                                    @click="instructionsEditor?.chain().focus().toggleOrderedList().run()"
+                                >
+                                    <ListOrdered class="h-4 w-4" />
+                                </button>
+                                <button
+                                    type="button"
+                                    class="rounded-md p-2 text-gray-700 hover:bg-gray-200 disabled:opacity-50 dark:text-gray-200 dark:hover:bg-gray-800"
+                                    :class="{ 'bg-gray-200 dark:bg-gray-800': instructionsEditor?.isActive('blockquote') }"
+                                    @click="instructionsEditor?.chain().focus().toggleBlockquote().run()"
+                                >
+                                    <Quote class="h-4 w-4" />
+                                </button>
+                                <div class="mx-1 h-6 w-px bg-gray-200 dark:bg-gray-700" />
+                                <button
+                                    type="button"
+                                    class="rounded-md p-2 text-gray-700 hover:bg-gray-200 disabled:opacity-50 dark:text-gray-200 dark:hover:bg-gray-800"
+                                    @click="instructionsEditor?.chain().focus().setTextAlign('left').run()"
+                                >
+                                    <AlignLeft class="h-4 w-4" />
+                                </button>
+                                <button
+                                    type="button"
+                                    class="rounded-md p-2 text-gray-700 hover:bg-gray-200 disabled:opacity-50 dark:text-gray-200 dark:hover:bg-gray-800"
+                                    @click="instructionsEditor?.chain().focus().setTextAlign('center').run()"
+                                >
+                                    <AlignCenter class="h-4 w-4" />
+                                </button>
+                                <button
+                                    type="button"
+                                    class="rounded-md p-2 text-gray-700 hover:bg-gray-200 disabled:opacity-50 dark:text-gray-200 dark:hover:bg-gray-800"
+                                    @click="instructionsEditor?.chain().focus().setTextAlign('right').run()"
+                                >
+                                    <AlignRight class="h-4 w-4" />
+                                </button>
+                                <div class="mx-1 h-6 w-px bg-gray-200 dark:bg-gray-700" />
+                                <button
+                                    type="button"
+                                    class="rounded-md p-2 text-gray-700 hover:bg-gray-200 disabled:opacity-50 dark:text-gray-200 dark:hover:bg-gray-800"
+                                    :class="{ 'bg-gray-200 dark:bg-gray-800': instructionsEditor?.isActive('link') }"
+                                    @click="setInstructionsLink"
+                                >
+                                    <Link2 class="h-4 w-4" />
+                                </button>
+                                <button
+                                    type="button"
+                                    class="rounded-md p-2 text-gray-700 hover:bg-gray-200 disabled:opacity-50 dark:text-gray-200 dark:hover:bg-gray-800"
+                                    :disabled="!instructionsEditor?.isActive('link')"
+                                    @click="instructionsEditor?.chain().focus().unsetLink().run()"
+                                >
+                                    <Unlink class="h-4 w-4" />
+                                </button>
+                                <div class="mx-1 h-6 w-px bg-gray-200 dark:bg-gray-700" />
+                                <button
+                                    type="button"
+                                    class="rounded-md p-2 text-gray-700 hover:bg-gray-200 disabled:opacity-50 dark:text-gray-200 dark:hover:bg-gray-800"
+                                    :disabled="!instructionsEditor?.can().chain().focus().undo().run()"
+                                    @click="instructionsEditor?.chain().focus().undo().run()"
+                                >
+                                    <Undo2 class="h-4 w-4" />
+                                </button>
+                                <button
+                                    type="button"
+                                    class="rounded-md p-2 text-gray-700 hover:bg-gray-200 disabled:opacity-50 dark:text-gray-200 dark:hover:bg-gray-800"
+                                    :disabled="!instructionsEditor?.can().chain().focus().redo().run()"
+                                    @click="instructionsEditor?.chain().focus().redo().run()"
+                                >
+                                    <Redo2 class="h-4 w-4" />
+                                </button>
+                            </div>
+                            <EditorContent v-if="instructionsEditor" :editor="instructionsEditor" />
+                        </div>
                         <p v-if="form.errors.instructions" class="mt-1 text-xs text-red-600">{{ form.errors.instructions }}</p>
                     </div>
 

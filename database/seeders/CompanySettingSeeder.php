@@ -16,7 +16,7 @@ class CompanySettingSeeder extends Seeder
             // Branding & Identity
             [
                 'key' => 'company_name',
-                'value' => 'PT Perusahaan Indonesia',
+                'value' => 'WarungMasMbull.id',
                 'type' => 'text',
                 'group' => 'branding',
                 'description' => 'Nama resmi perusahaan yang akan ditampilkan di aplikasi',

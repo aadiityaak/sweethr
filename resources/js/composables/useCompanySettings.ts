@@ -9,7 +9,7 @@ export function useCompanySettings() {
         const pageSettings = (page.props.companySettings as Record<string, any>) || {};
 
         return {
-            companyName: pageSettings.company_name || 'PT Perusahaan Indonesia',
+            companyName: pageSettings.company_name || 'WarungMasMbull.id',
             companyTagline: pageSettings.company_tagline || 'Human Resource Management System',
             companyLogo: pageSettings.logo || null,
             companyLogoDark: pageSettings.logo_dark || null,
