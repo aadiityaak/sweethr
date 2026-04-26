@@ -140,6 +140,12 @@ const handleFileChange = (event: Event) => {
     form.file = file;
 };
 
+const fileInputRef = ref<HTMLInputElement | null>(null);
+
+const openFilePicker = () => {
+    fileInputRef.value?.click();
+};
+
 const handleThumbnailChange = (event: Event) => {
     const target = event.target as HTMLInputElement;
     const file = target.files?.[0] ?? null;
@@ -417,18 +423,23 @@ const categoryOptions = computed(() => flattenCategories(categories));
                             </a>
                         </div>
                         <label class="mt-4 block text-sm font-medium text-gray-700 dark:text-gray-300">Ganti File (Opsional)</label>
-                        <div class="mt-1 flex justify-center rounded-lg border-2 border-dashed border-gray-300 px-6 py-10 dark:border-gray-600">
+                        <div
+                            class="mt-1 flex cursor-pointer justify-center rounded-lg border-2 border-dashed border-gray-300 px-6 py-10 dark:border-gray-600"
+                            role="button"
+                            tabindex="0"
+                            @click="openFilePicker"
+                            @keydown.enter.prevent="openFilePicker"
+                            @keydown.space.prevent="openFilePicker"
+                        >
                             <div class="text-center">
                                 <Upload class="mx-auto h-12 w-12 text-gray-400" />
                                 <div class="mt-4">
-                                    <label class="cursor-pointer">
-                                        <span class="mt-2 block text-sm font-medium text-gray-900 dark:text-white">Pilih file</span>
-                                        <input type="file" class="sr-only" @change="handleFileChange" />
-                                    </label>
+                                    <span class="mt-2 block text-sm font-medium text-gray-900 dark:text-white">Pilih file</span>
                                     <p class="mt-1 text-xs text-gray-500 dark:text-gray-400">Maks 50MB</p>
                                 </div>
                                 <p v-if="form.file" class="mt-3 text-xs text-gray-700 dark:text-gray-300">{{ form.file.name }}</p>
                             </div>
+                            <input ref="fileInputRef" type="file" class="sr-only" @change="handleFileChange" />
                         </div>
                         <p v-if="form.errors.file" class="mt-1 text-xs text-red-600">{{ form.errors.file }}</p>
                     </div>
