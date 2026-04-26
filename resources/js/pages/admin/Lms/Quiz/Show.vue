@@ -59,6 +59,13 @@ const typeLabel = (type: QuestionType) => {
     if (type === 'true_false') return 'Benar/Salah';
     return 'Jawaban singkat';
 };
+
+const stripHtml = (html: string) => {
+    return String(html ?? '')
+        .replace(/<[^>]*>/g, ' ')
+        .replace(/\s+/g, ' ')
+        .trim();
+};
 </script>
 
 <template>
@@ -136,7 +143,7 @@ const typeLabel = (type: QuestionType) => {
                                 <tr v-for="(q, idx) in quiz.questions" :key="q.id">
                                     <td class="px-6 py-4 text-sm text-gray-700 dark:text-gray-300">{{ idx + 1 }}</td>
                                     <td class="px-6 py-4 text-sm text-gray-700 dark:text-gray-300">{{ typeLabel(q.type) }}</td>
-                                    <td class="px-6 py-4 text-sm text-gray-700 dark:text-gray-300">{{ q.question }}</td>
+                                    <td class="px-6 py-4 text-sm text-gray-700 dark:text-gray-300">{{ stripHtml(q.question) }}</td>
                                     <td class="px-6 py-4 text-sm text-gray-700 dark:text-gray-300">{{ q.points }}</td>
                                     <td class="px-6 py-4">
                                         <span
