@@ -18,6 +18,7 @@ interface LmsMaterial {
     file_path: string | null;
     thumbnail_path: string | null;
     created_at: string;
+    is_read?: boolean;
 }
 
 interface LmsQuiz {
@@ -29,6 +30,11 @@ interface LmsQuiz {
     questions_count: number;
     category: CategoryRef | null;
     created_at: string;
+    is_done?: boolean;
+    submitted_attempts?: number;
+    best_is_passed?: boolean;
+    best_percent?: number | null;
+    last_submitted_at?: string | null;
 }
 
 interface LmsAssignment {
@@ -40,6 +46,11 @@ interface LmsAssignment {
     max_score: number;
     category: CategoryRef | null;
     created_at: string;
+    is_done?: boolean;
+    submitted_at?: string | null;
+    graded_at?: string | null;
+    score?: number | null;
+    score_percent?: number | null;
 }
 
 interface Props {
@@ -63,9 +74,15 @@ interface Props {
         quizzes: number;
         assignments: number;
     };
+    progress: {
+        quizzes_taken: number;
+        quiz_submitted_attempts: number;
+        quiz_passed_attempts: number;
+        quiz_avg_percent: number | null;
+    };
 }
 
-const { materials, quizzes, assignments, totals } = defineProps<Props>();
+const { materials, quizzes, assignments, totals, progress } = defineProps<Props>();
 
 const openPanel = ref<'materi' | 'kuis' | 'tugas'>('materi');
 
@@ -193,6 +210,9 @@ const nextUrl = (paginator: any): string | null => {
                         </div>
                         <p class="text-xs font-medium text-muted-foreground">Kuis</p>
                         <p class="text-lg font-bold">{{ totals.quizzes }}</p>
+                        <p class="mt-0.5 text-[10px] font-semibold text-muted-foreground">
+                            Ikut {{ progress.quizzes_taken }} • Rata2 {{ progress.quiz_avg_percent ?? '-' }}<span v-if="progress.quiz_avg_percent !== null">%</span>
+                        </p>
                     </button>
 
                     <button
@@ -247,12 +267,24 @@ const nextUrl = (paginator: any): string | null => {
                                                             {{ categoryLabel(material) }} • {{ formatDate(material.created_at) }}
                                                         </p>
                                                     </div>
-                                                    <Link
-                                                        :href="`/lms/${material.id}`"
-                                                        class="shrink-0 rounded-md bg-primary px-3 py-2 text-xs font-semibold text-primary-foreground transition-colors hover:bg-primary/90"
-                                                    >
-                                                        Buka
-                                                    </Link>
+                                                    <div class="shrink-0 flex items-center gap-2">
+                                                        <span
+                                                            class="rounded-full border px-2 py-1 text-[10px] font-semibold"
+                                                            :class="
+                                                                material.is_read
+                                                                    ? 'border-emerald-200 bg-emerald-50 text-emerald-700 dark:border-emerald-900/30 dark:bg-emerald-950/30 dark:text-emerald-300'
+                                                                    : 'border-muted bg-background text-muted-foreground'
+                                                            "
+                                                        >
+                                                            {{ material.is_read ? 'Sudah dibaca' : 'Belum dibaca' }}
+                                                        </span>
+                                                        <Link
+                                                            :href="`/lms/${material.id}`"
+                                                            class="rounded-md bg-primary px-3 py-2 text-xs font-semibold text-primary-foreground transition-colors hover:bg-primary/90"
+                                                        >
+                                                            Buka
+                                                        </Link>
+                                                    </div>
                                                 </div>
 
                                                 <p v-if="material.description" class="mt-2 text-sm text-muted-foreground">
@@ -310,13 +342,30 @@ const nextUrl = (paginator: any): string | null => {
                                                 <p class="mt-0.5 text-xs text-muted-foreground">
                                                     {{ categoryLabel(quiz) }} • {{ formatDate(quiz.created_at) }} • {{ quiz.questions_count }} soal
                                                 </p>
+                                                <p v-if="quiz.is_done" class="mt-1 text-xs text-muted-foreground">
+                                                    Skor terbaik {{ quiz.best_percent ?? '-' }}<span v-if="quiz.best_percent !== null">%</span>
+                                                    <span v-if="quiz.best_is_passed"> • Lulus</span>
+                                                    <span v-else-if="quiz.best_percent !== null"> • Belum lulus</span>
+                                                </p>
                                             </div>
-                                            <Link
-                                                :href="`/lms/quizzes/${quiz.id}`"
-                                                class="shrink-0 rounded-md bg-primary px-3 py-2 text-xs font-semibold text-primary-foreground transition-colors hover:bg-primary/90"
-                                            >
-                                                Buka
-                                            </Link>
+                                            <div class="shrink-0 flex items-center gap-2">
+                                                <span
+                                                    class="rounded-full border px-2 py-1 text-[10px] font-semibold"
+                                                    :class="
+                                                        quiz.is_done
+                                                            ? 'border-emerald-200 bg-emerald-50 text-emerald-700 dark:border-emerald-900/30 dark:bg-emerald-950/30 dark:text-emerald-300'
+                                                            : 'border-muted bg-background text-muted-foreground'
+                                                    "
+                                                >
+                                                    {{ quiz.is_done ? 'Sudah dikerjakan' : 'Belum dikerjakan' }}
+                                                </span>
+                                                <Link
+                                                    :href="`/lms/quizzes/${quiz.id}`"
+                                                    class="rounded-md bg-primary px-3 py-2 text-xs font-semibold text-primary-foreground transition-colors hover:bg-primary/90"
+                                                >
+                                                    Buka
+                                                </Link>
+                                            </div>
                                         </div>
                                         <p v-if="quiz.description" class="mt-2 text-sm text-muted-foreground">
                                             {{ truncate(stripHtml(quiz.description)) }}
@@ -372,13 +421,31 @@ const nextUrl = (paginator: any): string | null => {
                                                     {{ categoryLabel(assignment) }} • {{ formatDate(assignment.created_at) }}
                                                     <span v-if="assignment.due_at"> • Due {{ formatDateTime(assignment.due_at) }}</span>
                                                 </p>
+                                                <p v-if="assignment.is_done" class="mt-1 text-xs text-muted-foreground">
+                                                    <span v-if="assignment.graded_at && assignment.score_percent !== null">
+                                                        Nilai {{ assignment.score_percent }}%
+                                                    </span>
+                                                    <span v-else>Sudah dikumpulkan</span>
+                                                </p>
                                             </div>
-                                            <Link
-                                                :href="`/lms/assignments/${assignment.id}`"
-                                                class="shrink-0 rounded-md bg-primary px-3 py-2 text-xs font-semibold text-primary-foreground transition-colors hover:bg-primary/90"
-                                            >
-                                                Buka
-                                            </Link>
+                                            <div class="shrink-0 flex items-center gap-2">
+                                                <span
+                                                    class="rounded-full border px-2 py-1 text-[10px] font-semibold"
+                                                    :class="
+                                                        assignment.is_done
+                                                            ? 'border-emerald-200 bg-emerald-50 text-emerald-700 dark:border-emerald-900/30 dark:bg-emerald-950/30 dark:text-emerald-300'
+                                                            : 'border-muted bg-background text-muted-foreground'
+                                                    "
+                                                >
+                                                    {{ assignment.is_done ? 'Sudah dikerjakan' : 'Belum dikerjakan' }}
+                                                </span>
+                                                <Link
+                                                    :href="`/lms/assignments/${assignment.id}`"
+                                                    class="rounded-md bg-primary px-3 py-2 text-xs font-semibold text-primary-foreground transition-colors hover:bg-primary/90"
+                                                >
+                                                    Buka
+                                                </Link>
+                                            </div>
                                         </div>
                                         <p v-if="assignment.description" class="mt-2 text-sm text-muted-foreground">
                                             {{ truncate(stripHtml(assignment.description)) }}
