@@ -6,6 +6,7 @@ import { Sidebar, SidebarContent, SidebarFooter, SidebarHeader, SidebarMenu, Sid
 import { type NavItem } from '@/types';
 import { Link, usePage } from '@inertiajs/vue3';
 import {
+    BarChart3,
     BookOpen,
     Building,
     Calendar,
@@ -157,6 +158,11 @@ const adminNavItems: NavItem[] = [
                 title: 'Tugas',
                 href: '/admin/lms-assignments',
                 icon: FileText,
+            },
+            {
+                title: 'Pelacakan',
+                href: '/admin/lms-tracking',
+                icon: BarChart3,
             },
         ],
     },

@@ -17,21 +17,21 @@ class LmsController extends Controller
         $materials = LmsMaterial::with(['category.parent'])
             ->where('is_active', true)
             ->latest()
-            ->paginate(10)
+            ->paginate(5, ['*'], 'materials_page')
             ->withQueryString();
 
         $quizzes = LmsQuiz::with(['category.parent'])
             ->withCount('questions')
             ->where('is_active', true)
             ->latest()
-            ->limit(5)
-            ->get();
+            ->paginate(5, ['*'], 'quizzes_page')
+            ->withQueryString();
 
         $assignments = LmsAssignment::with(['category.parent'])
             ->where('is_active', true)
             ->latest()
-            ->limit(5)
-            ->get();
+            ->paginate(5, ['*'], 'assignments_page')
+            ->withQueryString();
 
         return Inertia::render('user/Lms/Index', [
             'materials' => $materials,

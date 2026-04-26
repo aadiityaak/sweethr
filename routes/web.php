@@ -292,6 +292,9 @@ Route::middleware(['auth', 'verified', 'admin'])->group(function () {
     Route::get('admin/lms-assignments/{lms_assignment}/submissions', [App\Http\Controllers\Admin\LmsAssignmentController::class, 'submissions'])
         ->name('admin.lms-assignments.submissions.index');
 
+    Route::get('admin/lms-tracking', [App\Http\Controllers\Admin\LmsTrackingController::class, 'index'])
+        ->name('admin.lms-tracking.index');
+
     // Admin Payroll Management
     Route::get('admin/salary-settings', [App\Http\Controllers\Admin\SalarySettingController::class, 'index'])
         ->name('admin.salary-settings.index');
