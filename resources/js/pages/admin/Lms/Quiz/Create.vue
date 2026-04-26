@@ -32,6 +32,7 @@ const form = useForm({
     lms_category_id: null as number | null,
     time_limit_minutes: null as number | null,
     passing_score: 70,
+    max_attempts: 1,
     is_active: true,
 });
 
@@ -140,6 +141,19 @@ const submit = () => {
                         </div>
                     </div>
 
+                    <div>
+                        <label class="block text-sm font-medium text-gray-700 dark:text-gray-300">Max Attempt</label>
+                        <input
+                            v-model.number="form.max_attempts"
+                            type="number"
+                            min="1"
+                            max="1000"
+                            class="mt-1 block w-full rounded-lg border border-gray-300 bg-white px-3 py-2 text-sm focus:border-blue-500 focus:ring-1 focus:ring-blue-500 focus:outline-none dark:border-gray-600 dark:bg-gray-800 dark:text-gray-300"
+                            :class="{ 'border-red-500': form.errors.max_attempts }"
+                        />
+                        <p v-if="form.errors.max_attempts" class="mt-1 text-xs text-red-600">{{ form.errors.max_attempts }}</p>
+                    </div>
+
                     <div class="flex items-center gap-2">
                         <input v-model="form.is_active" type="checkbox" class="h-4 w-4 rounded border-gray-300 text-blue-600 focus:ring-blue-500" />
                         <label class="text-sm text-gray-700 dark:text-gray-300">Aktif</label>
@@ -160,4 +174,3 @@ const submit = () => {
         </div>
     </AppLayout>
 </template>
-

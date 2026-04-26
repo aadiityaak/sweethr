@@ -8,7 +8,6 @@ use App\Models\LmsAssignmentSubmission;
 use Illuminate\Http\RedirectResponse;
 use Illuminate\Http\Request;
 use Illuminate\Support\Facades\DB;
-use Illuminate\Support\Facades\Storage;
 use Inertia\Inertia;
 use Inertia\Response;
 
@@ -34,15 +33,31 @@ class LmsAssignmentController extends Controller
 
         $lms_assignment->load(['category.parent']);
 
+        $userId = (int) auth()->id();
+
         $submission = LmsAssignmentSubmission::query()
             ->where('lms_assignment_id', $lms_assignment->id)
-            ->where('user_id', (int) auth()->id())
+            ->where('user_id', $userId)
             ->latest('submitted_at')
             ->first();
+
+        $submittedAttempts = (int) LmsAssignmentSubmission::query()
+            ->where('lms_assignment_id', $lms_assignment->id)
+            ->where('user_id', $userId)
+            ->whereNotNull('submitted_at')
+            ->count();
+
+        $maxAttempts = max(1, (int) ($lms_assignment->max_attempts ?? 1));
+        $remainingAttempts = max(0, $maxAttempts - $submittedAttempts);
 
         return Inertia::render('user/Lms/Assignment/Show', [
             'assignment' => $lms_assignment,
             'submission' => $submission,
+            'attemptStats' => [
+                'max_attempts' => $maxAttempts,
+                'submitted_attempts' => $submittedAttempts,
+                'remaining_attempts' => $remainingAttempts,
+            ],
         ]);
     }
 
@@ -59,41 +74,35 @@ class LmsAssignmentController extends Controller
 
         $userId = (int) auth()->id();
 
-        $existing = LmsAssignmentSubmission::query()
+        $submittedAttempts = (int) LmsAssignmentSubmission::query()
             ->where('lms_assignment_id', $lms_assignment->id)
             ->where('user_id', $userId)
-            ->latest('submitted_at')
-            ->first();
+            ->whereNotNull('submitted_at')
+            ->count();
 
-        $attachmentPath = $existing?->attachment_path;
+        $maxAttempts = max(1, (int) ($lms_assignment->max_attempts ?? 1));
+        if ($submittedAttempts >= $maxAttempts) {
+            return redirect()->route('user.lms-assignments.show', $lms_assignment)
+                ->with('error', 'Max attempt sudah tercapai untuk tugas ini.');
+        }
+
+        $attachmentPath = null;
         if ($request->hasFile('attachment')) {
             $file = $request->file('attachment');
             $attachmentPath = $file->store('lms/assignments/submissions', 'public');
         }
 
-        DB::transaction(function () use ($existing, $lms_assignment, $userId, $validated, $attachmentPath) {
-            $submission = $existing ?? new LmsAssignmentSubmission([
+        DB::transaction(function () use ($lms_assignment, $userId, $validated, $attachmentPath) {
+            LmsAssignmentSubmission::create([
                 'lms_assignment_id' => $lms_assignment->id,
                 'user_id' => $userId,
-            ]);
-
-            $oldAttachment = $submission->attachment_path;
-
-            $submission->fill([
                 'content' => $validated['content'] ?? null,
                 'attachment_path' => $attachmentPath,
                 'submitted_at' => now(),
             ]);
-
-            $submission->save();
-
-            if ($oldAttachment && $oldAttachment !== $attachmentPath) {
-                Storage::disk('public')->delete($oldAttachment);
-            }
         });
 
         return redirect()->route('user.lms-assignments.show', $lms_assignment)
             ->with('success', 'Tugas berhasil dikumpulkan.');
     }
 }
-

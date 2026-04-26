@@ -67,6 +67,7 @@ interface LmsQuiz {
     lms_category_id: number;
     time_limit_minutes: number | null;
     passing_score: number;
+    max_attempts: number;
     is_active: boolean;
     category: CategoryRef | null;
     questions: LmsQuizQuestion[];
@@ -104,6 +105,7 @@ const quizForm = useForm({
     lms_category_id: quiz.lms_category_id,
     time_limit_minutes: quiz.time_limit_minutes,
     passing_score: quiz.passing_score,
+    max_attempts: quiz.max_attempts ?? 1,
     is_active: quiz.is_active,
 });
 
@@ -354,6 +356,19 @@ const deleteQuestion = (q: LmsQuizQuestion) => {
                                 />
                                 <p v-if="quizForm.errors.passing_score" class="mt-1 text-xs text-red-600">{{ quizForm.errors.passing_score }}</p>
                             </div>
+                        </div>
+
+                        <div>
+                            <label class="block text-sm font-medium text-gray-700 dark:text-gray-300">Max Attempt</label>
+                            <input
+                                v-model.number="quizForm.max_attempts"
+                                type="number"
+                                min="1"
+                                max="1000"
+                                class="mt-1 block w-full rounded-lg border border-gray-300 bg-white px-3 py-2 text-sm focus:border-blue-500 focus:ring-1 focus:ring-blue-500 focus:outline-none dark:border-gray-600 dark:bg-gray-800 dark:text-gray-300"
+                                :class="{ 'border-red-500': quizForm.errors.max_attempts }"
+                            />
+                            <p v-if="quizForm.errors.max_attempts" class="mt-1 text-xs text-red-600">{{ quizForm.errors.max_attempts }}</p>
                         </div>
 
                         <div class="flex items-center gap-2">

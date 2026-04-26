@@ -42,6 +42,7 @@ class LmsQuizController extends Controller
             'lms_category_id' => 'required|exists:lms_categories,id',
             'time_limit_minutes' => 'nullable|integer|min:1|max:1440',
             'passing_score' => 'required|integer|min:0|max:100',
+            'max_attempts' => 'required|integer|min:1|max:1000',
             'is_active' => 'boolean',
         ]);
 
@@ -79,6 +80,7 @@ class LmsQuizController extends Controller
             'lms_category_id' => 'required|exists:lms_categories,id',
             'time_limit_minutes' => 'nullable|integer|min:1|max:1440',
             'passing_score' => 'required|integer|min:0|max:100',
+            'max_attempts' => 'required|integer|min:1|max:1000',
             'is_active' => 'boolean',
         ]);
 

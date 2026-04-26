@@ -52,10 +52,24 @@ class LmsQuizController extends Controller
             ->limit(10)
             ->get();
 
+        $submittedAttempts = (int) LmsQuizAttempt::query()
+            ->where('lms_quiz_id', $lms_quiz->id)
+            ->where('user_id', $userId)
+            ->whereNotNull('submitted_at')
+            ->count();
+
+        $maxAttempts = max(1, (int) ($lms_quiz->max_attempts ?? 1));
+        $remainingAttempts = max(0, $maxAttempts - $submittedAttempts);
+
         return Inertia::render('user/Lms/Quiz/Show', [
             'quiz' => $lms_quiz,
             'inProgressAttempt' => $inProgress,
             'attempts' => $attempts,
+            'attemptStats' => [
+                'max_attempts' => $maxAttempts,
+                'submitted_attempts' => $submittedAttempts,
+                'remaining_attempts' => $remainingAttempts,
+            ],
         ]);
     }
 
@@ -76,6 +90,18 @@ class LmsQuizController extends Controller
 
         if ($existing) {
             return redirect()->route('user.lms-quizzes.attempts.take', [$lms_quiz, $existing]);
+        }
+
+        $submittedAttempts = (int) LmsQuizAttempt::query()
+            ->where('lms_quiz_id', $lms_quiz->id)
+            ->where('user_id', $userId)
+            ->whereNotNull('submitted_at')
+            ->count();
+
+        $maxAttempts = max(1, (int) ($lms_quiz->max_attempts ?? 1));
+        if ($submittedAttempts >= $maxAttempts) {
+            return redirect()->route('user.lms-quizzes.show', $lms_quiz)
+                ->with('error', 'Max attempt sudah tercapai untuk kuis ini.');
         }
 
         $maxScore = (int) $lms_quiz->questions()->where('is_active', true)->sum('points');
@@ -246,4 +272,3 @@ class LmsQuizController extends Controller
         return mb_strtolower($expected) === mb_strtolower($given);
     }
 }
-

@@ -20,6 +20,12 @@ interface LmsAssignment {
     category: CategoryRef | null;
 }
 
+interface AttemptStats {
+    max_attempts: number;
+    submitted_attempts: number;
+    remaining_attempts: number;
+}
+
 interface Submission {
     id: number;
     submitted_at: string | null;
@@ -33,9 +39,10 @@ interface Submission {
 interface Props {
     assignment: LmsAssignment;
     submission: Submission | null;
+    attemptStats: AttemptStats;
 }
 
-const { assignment, submission } = defineProps<Props>();
+const { assignment, submission, attemptStats } = defineProps<Props>();
 
 const categoryLabel = computed(() => {
     if (!assignment.category) return '-';
@@ -92,6 +99,10 @@ const attachmentUrl = computed(() => {
     if (!submission?.attachment_path) return null;
     return `/storage/${submission.attachment_path}`;
 });
+
+const canSubmit = computed(() => {
+    return attemptStats.remaining_attempts > 0;
+});
 </script>
 
 <template>
@@ -122,6 +133,8 @@ const attachmentUrl = computed(() => {
                         </h2>
                         <div class="mt-2 text-sm text-muted-foreground">
                             <span>Skor maks {{ assignment.max_score }}</span>
+                            <span class="mx-2">•</span>
+                            <span>Attempt {{ attemptStats.submitted_attempts }}/{{ attemptStats.max_attempts }}</span>
                             <span v-if="assignment.due_at" class="mx-2">•</span>
                             <span v-if="assignment.due_at" :class="isLate ? 'text-destructive' : ''">Due {{ formatDateTime(assignment.due_at) }}</span>
                         </div>
@@ -197,6 +210,10 @@ const attachmentUrl = computed(() => {
                     </div>
 
                     <form class="p-4" @submit.prevent="submit">
+                        <div v-if="!canSubmit" class="mb-4 rounded-lg border bg-background p-3 text-sm text-muted-foreground">
+                            Max attempt sudah tercapai.
+                        </div>
+
                         <div>
                             <label class="text-sm font-semibold">Jawaban</label>
                             <textarea
@@ -222,7 +239,7 @@ const attachmentUrl = computed(() => {
 
                         <button
                             type="submit"
-                            :disabled="form.processing"
+                            :disabled="form.processing || !canSubmit"
                             class="mt-6 inline-flex w-full items-center justify-center gap-2 rounded-lg bg-primary px-4 py-3 text-sm font-semibold text-primary-foreground transition-colors hover:bg-primary/90 disabled:opacity-60"
                         >
                             <Send class="h-4 w-4" />
@@ -236,4 +253,3 @@ const attachmentUrl = computed(() => {
         </div>
     </div>
 </template>
-

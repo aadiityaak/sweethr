@@ -14,6 +14,7 @@ class LmsQuiz extends Model
         'description',
         'time_limit_minutes',
         'passing_score',
+        'max_attempts',
         'is_active',
     ];
 
@@ -21,6 +22,7 @@ class LmsQuiz extends Model
         'lms_category_id' => 'integer',
         'time_limit_minutes' => 'integer',
         'passing_score' => 'integer',
+        'max_attempts' => 'integer',
         'is_active' => 'boolean',
     ];
 

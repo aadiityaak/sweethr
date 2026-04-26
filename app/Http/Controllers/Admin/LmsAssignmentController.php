@@ -40,6 +40,7 @@ class LmsAssignmentController extends Controller
             'lms_category_id' => 'required|exists:lms_categories,id',
             'due_at' => 'nullable|date',
             'max_score' => 'required|integer|min:1|max:100000',
+            'max_attempts' => 'required|integer|min:1|max:1000',
             'is_active' => 'boolean',
         ]);
 
@@ -78,6 +79,7 @@ class LmsAssignmentController extends Controller
             'lms_category_id' => 'required|exists:lms_categories,id',
             'due_at' => 'nullable|date',
             'max_score' => 'required|integer|min:1|max:100000',
+            'max_attempts' => 'required|integer|min:1|max:1000',
             'is_active' => 'boolean',
         ]);
 

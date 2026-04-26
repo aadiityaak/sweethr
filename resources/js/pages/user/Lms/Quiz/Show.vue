@@ -21,6 +21,12 @@ interface LmsQuiz {
     questions_count: number;
 }
 
+interface AttemptStats {
+    max_attempts: number;
+    submitted_attempts: number;
+    remaining_attempts: number;
+}
+
 interface AttemptRef {
     id: number;
     started_at: string | null;
@@ -34,9 +40,10 @@ interface Props {
     quiz: LmsQuiz;
     inProgressAttempt: AttemptRef | null;
     attempts: AttemptRef[];
+    attemptStats: AttemptStats;
 }
 
-const { quiz, inProgressAttempt, attempts } = defineProps<Props>();
+const { quiz, inProgressAttempt, attempts, attemptStats } = defineProps<Props>();
 
 const categoryLabel = computed(() => {
     if (!quiz.category) return '-';
@@ -45,6 +52,11 @@ const categoryLabel = computed(() => {
 });
 
 const startForm = useForm({});
+
+const canStartNewAttempt = computed(() => {
+    if (inProgressAttempt) return true;
+    return attemptStats.remaining_attempts > 0;
+});
 
 const startOrResume = () => {
     startForm.post(`/lms/quizzes/${quiz.id}/start`, { preserveScroll: true });
@@ -97,6 +109,8 @@ const formatDateTime = (dateString: string | null) => {
                             <span>{{ quiz.questions_count }} soal</span>
                             <span class="mx-2">•</span>
                             <span>Lulus {{ quiz.passing_score }}%</span>
+                            <span class="mx-2">•</span>
+                            <span>Attempt {{ attemptStats.submitted_attempts }}/{{ attemptStats.max_attempts }}</span>
                             <span v-if="quiz.time_limit_minutes" class="mx-2">•</span>
                             <span v-if="quiz.time_limit_minutes">Durasi {{ quiz.time_limit_minutes }} menit</span>
                         </div>
@@ -110,7 +124,7 @@ const formatDateTime = (dateString: string | null) => {
                             <button
                                 type="button"
                                 @click="startOrResume"
-                                :disabled="startForm.processing"
+                                :disabled="startForm.processing || !canStartNewAttempt"
                                 class="inline-flex items-center justify-center gap-2 rounded-lg bg-primary px-4 py-3 text-sm font-semibold text-primary-foreground transition-colors hover:bg-primary/90 disabled:opacity-60"
                             >
                                 <component :is="inProgressAttempt ? RotateCcw : Play" class="h-4 w-4" />
@@ -165,4 +179,3 @@ const formatDateTime = (dateString: string | null) => {
         </div>
     </div>
 </template>
-

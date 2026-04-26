@@ -1,0 +1,31 @@
+<?php
+
+use Illuminate\Database\Migrations\Migration;
+use Illuminate\Database\Schema\Blueprint;
+use Illuminate\Support\Facades\Schema;
+
+return new class extends Migration
+{
+    public function up(): void
+    {
+        Schema::table('lms_quizzes', function (Blueprint $table) {
+            $table->unsignedInteger('max_attempts')->default(1)->after('passing_score');
+        });
+
+        Schema::table('lms_assignments', function (Blueprint $table) {
+            $table->unsignedInteger('max_attempts')->default(1)->after('max_score');
+        });
+    }
+
+    public function down(): void
+    {
+        Schema::table('lms_quizzes', function (Blueprint $table) {
+            $table->dropColumn('max_attempts');
+        });
+
+        Schema::table('lms_assignments', function (Blueprint $table) {
+            $table->dropColumn('max_attempts');
+        });
+    }
+};
+

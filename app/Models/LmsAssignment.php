@@ -15,6 +15,7 @@ class LmsAssignment extends Model
         'instructions',
         'due_at',
         'max_score',
+        'max_attempts',
         'is_active',
     ];
 
@@ -22,6 +23,7 @@ class LmsAssignment extends Model
         'lms_category_id' => 'integer',
         'due_at' => 'datetime',
         'max_score' => 'integer',
+        'max_attempts' => 'integer',
         'is_active' => 'boolean',
     ];
 
