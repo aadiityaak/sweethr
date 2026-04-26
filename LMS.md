@@ -9,10 +9,12 @@ Dokumen ini digunakan untuk mencatat progress pengembangan fitur LMS.
 
 ### 1. Pengelolaan Konten
 - **Deskripsi**: Mengunggah materi seperti video, PDF, dan modul pelatihan
-- **Status**: [Belum Dimulai | Dalam Progress | Selesai]
+- **Status**: Selesai (MVP)
 - **Target Selesai**: -
 - **Catatan**:
-  - [Tambah item saat ada progress]
+  - Menambahkan menu admin: LMS → Pengelolaan Konten
+  - Menambahkan halaman Inertia untuk CRUD materi (Index/Create/Edit/Show)
+  - Implementasi upload file (video/PDF/modul) tersimpan ke storage public dan dapat dipreview/diunduh
 
 ### 2. Evaluasi
 - **Deskripsi**: Fitur kuis, tugas, dan penilaian otomatis
@@ -42,3 +44,4 @@ Dokumen ini digunakan untuk mencatat progress pengembangan fitur LMS.
 | Tanggal | Fitur | Deskripsi Perubahan | Status |
 |---------|-------|---------------------|--------|
 | 2026-04-24 | - | Inisialisasi dokumen | Dibuat |
+| 2026-04-26 | Pengelolaan Konten | CRUD Materi + upload file + menu admin + halaman Inertia | Selesai (MVP) |

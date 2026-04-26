@@ -39,27 +39,28 @@ class LmsMaterialController extends Controller
             $validated['file_path'] = $path;
         }
 
+        unset($validated['file']);
         LmsMaterial::create($validated);
 
         return redirect()->route('admin.lms-materials.index')
             ->with('success', 'Materi berhasil diunggah!');
     }
 
-    public function show(LmsMaterial $lmsMaterial)
+    public function show(LmsMaterial $lms_material)
     {
         return Inertia::render('admin/Lms/Material/Show', [
-            'material' => $lmsMaterial,
+            'material' => $lms_material,
         ]);
     }
 
-    public function edit(LmsMaterial $lmsMaterial)
+    public function edit(LmsMaterial $lms_material)
     {
         return Inertia::render('admin/Lms/Material/Edit', [
-            'material' => $lmsMaterial,
+            'material' => $lms_material,
         ]);
     }
 
-    public function update(Request $request, LmsMaterial $lmsMaterial)
+    public function update(Request $request, LmsMaterial $lms_material)
     {
         $validated = $request->validate([
             'title' => 'required|string|max:255',
@@ -71,32 +72,33 @@ class LmsMaterialController extends Controller
 
         if ($request->hasFile('file')) {
             // Delete old file
-            if ($lmsMaterial->file_path) {
-                Storage::disk('public')->delete($lmsMaterial->file_path);
+            if ($lms_material->file_path) {
+                Storage::disk('public')->delete($lms_material->file_path);
             }
 
             $path = $request->file('file')->store('lms/materials', 'public');
             $validated['file_path'] = $path;
         }
 
-        $lmsMaterial->update($validated);
+        unset($validated['file']);
+        $lms_material->update($validated);
 
         return redirect()->route('admin.lms-materials.index')
             ->with('success', 'Materi berhasil diperbarui!');
     }
 
-    public function updateWithFiles(Request $request, LmsMaterial $lmsMaterial)
+    public function updateWithFiles(Request $request, LmsMaterial $lms_material)
     {
-        return $this->update($request, $lmsMaterial);
+        return $this->update($request, $lms_material);
     }
 
-    public function destroy(LmsMaterial $lmsMaterial)
+    public function destroy(LmsMaterial $lms_material)
     {
-        if ($lmsMaterial->file_path) {
-            Storage::disk('public')->delete($lmsMaterial->file_path);
+        if ($lms_material->file_path) {
+            Storage::disk('public')->delete($lms_material->file_path);
         }
 
-        $lmsMaterial->delete();
+        $lms_material->delete();
 
         return redirect()->route('admin.lms-materials.index')
             ->with('success', 'Materi berhasil dihapus!');
