@@ -170,17 +170,17 @@ const nextUrl = (paginator: any): string | null => {
 <template>
     <Head title="LMS" />
 
-    <div class="min-h-screen bg-background">
-        <div class="mx-auto min-h-screen max-w-[480px] bg-background">
-            <div class="sticky top-0 z-40 border-b bg-background/95 backdrop-blur-sm">
+    <div class="min-h-screen bg-white text-[#25282b]">
+        <div class="mx-auto min-h-screen max-w-[480px] bg-white">
+            <div class="sticky top-0 z-40 border-b border-black/10 bg-white">
                 <div class="px-4 py-4">
                     <div class="flex items-center gap-3">
-                        <Link href="/home" class="rounded-md bg-secondary p-2 text-secondary-foreground transition-colors hover:bg-secondary/80">
+                        <Link href="/home" class="rounded-[2px] border border-[#333333] bg-white p-2 text-[#25282b] transition-opacity hover:opacity-90">
                             <ArrowLeft class="h-4 w-4" />
                         </Link>
                         <div>
-                            <h1 class="text-lg font-semibold">LMS</h1>
-                            <p class="text-sm text-muted-foreground">Materi pembelajaran</p>
+                            <h1 class="text-sm font-extrabold tracking-[0.2em] text-[#25282b] uppercase">LMS</h1>
+                            <p class="text-xs text-[#7e7e7e]">Materi pembelajaran</p>
                         </div>
                     </div>
                 </div>
@@ -191,26 +191,26 @@ const nextUrl = (paginator: any): string | null => {
                     <button
                         type="button"
                         @click="openFromShortcut('materi')"
-                        class="rounded-lg border bg-card p-3 text-left transition-colors hover:bg-muted/50"
+                        class="rounded-[6px] border border-black/10 bg-white p-3 text-left transition-colors hover:bg-black/5"
                     >
-                        <div class="mb-2 flex h-10 w-10 items-center justify-center rounded-md bg-blue-100 dark:bg-blue-900/20">
-                            <BookOpen class="h-5 w-5 text-blue-600 dark:text-blue-400" />
+                        <div class="mb-2 flex h-10 w-10 items-center justify-center rounded-full border border-black/10 bg-white">
+                            <BookOpen class="h-5 w-5 text-[#25282b]" />
                         </div>
-                        <p class="text-xs font-medium text-muted-foreground">Materi</p>
-                        <p class="text-lg font-bold">{{ totals.materials }}</p>
+                        <p class="text-[11px] font-semibold tracking-wide text-[#7e7e7e] uppercase">Materi</p>
+                        <p class="text-lg font-extrabold tracking-[-0.03em] text-[#25282b]">{{ totals.materials }}</p>
                     </button>
 
                     <button
                         type="button"
                         @click="openFromShortcut('kuis')"
-                        class="rounded-lg border bg-card p-3 text-left transition-colors hover:bg-muted/50"
+                        class="rounded-[6px] border border-black/10 bg-white p-3 text-left transition-colors hover:bg-black/5"
                     >
-                        <div class="mb-2 flex h-10 w-10 items-center justify-center rounded-md bg-purple-100 dark:bg-purple-900/20">
-                            <HelpCircle class="h-5 w-5 text-purple-600 dark:text-purple-400" />
+                        <div class="mb-2 flex h-10 w-10 items-center justify-center rounded-full border border-black/10 bg-white">
+                            <HelpCircle class="h-5 w-5 text-[#25282b]" />
                         </div>
-                        <p class="text-xs font-medium text-muted-foreground">Kuis</p>
-                        <p class="text-lg font-bold">{{ totals.quizzes }}</p>
-                        <p class="mt-0.5 text-[10px] font-semibold text-muted-foreground">
+                        <p class="text-[11px] font-semibold tracking-wide text-[#7e7e7e] uppercase">Kuis</p>
+                        <p class="text-lg font-extrabold tracking-[-0.03em] text-[#25282b]">{{ totals.quizzes }}</p>
+                        <p class="mt-0.5 text-[10px] font-semibold text-[#7e7e7e]">
                             Ikut {{ progress.quizzes_taken }} • Rata2 {{ progress.quiz_avg_percent ?? '-' }}<span v-if="progress.quiz_avg_percent !== null">%</span>
                         </p>
                     </button>
@@ -218,17 +218,17 @@ const nextUrl = (paginator: any): string | null => {
                     <button
                         type="button"
                         @click="openFromShortcut('tugas')"
-                        class="rounded-lg border bg-card p-3 text-left transition-colors hover:bg-muted/50"
+                        class="rounded-[6px] border border-black/10 bg-white p-3 text-left transition-colors hover:bg-black/5"
                     >
-                        <div class="mb-2 flex h-10 w-10 items-center justify-center rounded-md bg-amber-100 dark:bg-amber-900/20">
-                            <ClipboardList class="h-5 w-5 text-amber-600 dark:text-amber-400" />
+                        <div class="mb-2 flex h-10 w-10 items-center justify-center rounded-full border border-black/10 bg-white">
+                            <ClipboardList class="h-5 w-5 text-[#25282b]" />
                         </div>
-                        <p class="text-xs font-medium text-muted-foreground">Tugas</p>
-                        <p class="text-lg font-bold">{{ totals.assignments }}</p>
+                        <p class="text-[11px] font-semibold tracking-wide text-[#7e7e7e] uppercase">Tugas</p>
+                        <p class="text-lg font-extrabold tracking-[-0.03em] text-[#25282b]">{{ totals.assignments }}</p>
                     </button>
                 </div>
 
-                <div id="lms-accordion" class="rounded-lg border bg-card">
+                <div id="lms-accordion" class="overflow-hidden rounded-[6px] border border-black/10 bg-white">
                     <div class="divide-y">
                         <div id="materi">
                             <button
@@ -237,17 +237,17 @@ const nextUrl = (paginator: any): string | null => {
                                 @click="togglePanel('materi')"
                             >
                                 <div class="flex items-center gap-2">
-                                    <BookOpen class="h-4 w-4" />
-                                    <span class="text-lg font-semibold">Materi</span>
+                                    <BookOpen class="h-4 w-4 text-[#25282b]" />
+                                    <span class="text-base font-bold text-[#25282b]">Materi</span>
                                 </div>
-                                <ChevronDown class="h-5 w-5 transition-transform" :class="openPanel === 'materi' ? 'rotate-180' : ''" />
+                                <ChevronDown class="h-5 w-5 text-[#25282b] transition-transform" :class="openPanel === 'materi' ? 'rotate-180' : ''" />
                             </button>
 
-                            <div v-show="openPanel === 'materi'" class="border-t">
+                            <div v-show="openPanel === 'materi'" class="border-t border-black/10">
                                 <div class="divide-y">
-                                    <div v-for="material in materials.data" :key="material.id" class="p-4 transition-colors hover:bg-muted/50">
+                                    <div v-for="material in materials.data" :key="material.id" class="p-4 transition-colors hover:bg-black/5">
                                         <div class="flex gap-3">
-                                            <div class="h-14 w-14 shrink-0 overflow-hidden rounded-md border bg-muted">
+                                            <div class="h-14 w-14 shrink-0 overflow-hidden rounded-[6px] border border-black/10 bg-[#f2f2f2]">
                                                 <img
                                                     v-if="thumbnailUrl(material)"
                                                     :src="thumbnailUrl(material)!"
@@ -255,39 +255,39 @@ const nextUrl = (paginator: any): string | null => {
                                                     class="h-full w-full object-cover"
                                                 />
                                                 <div v-else class="flex h-full w-full items-center justify-center">
-                                                    <FileText class="h-5 w-5 text-muted-foreground" />
+                                                    <FileText class="h-5 w-5 text-[#7e7e7e]" />
                                                 </div>
                                             </div>
 
                                             <div class="min-w-0 flex-1">
                                                 <div class="flex items-start justify-between gap-3">
                                                     <div class="min-w-0">
-                                                        <p class="truncate text-sm font-semibold text-foreground">{{ material.title }}</p>
-                                                        <p class="mt-0.5 text-xs text-muted-foreground">
+                                                        <p class="truncate text-sm font-semibold text-[#25282b]">{{ material.title }}</p>
+                                                        <p class="mt-0.5 text-xs text-[#7e7e7e]">
                                                             {{ categoryLabel(material) }} • {{ formatDate(material.created_at) }}
                                                         </p>
                                                     </div>
                                                     <div class="shrink-0 flex items-center gap-2">
                                                         <span
-                                                            class="rounded-full border px-2 py-1 text-[10px] font-semibold"
+                                                            class="px-2 py-1 text-[10px] font-semibold"
                                                             :class="
                                                                 material.is_read
-                                                                    ? 'border-emerald-200 bg-emerald-50 text-emerald-700 dark:border-emerald-900/30 dark:bg-emerald-950/30 dark:text-emerald-300'
-                                                                    : 'border-muted bg-background text-muted-foreground'
+                                                                    ? 'rounded-[2px] border border-[#e60000] bg-white/80 text-black/80 uppercase tracking-wide'
+                                                                    : 'rounded-[32px] bg-[#f2f2f2] text-[#25282b]'
                                                             "
                                                         >
                                                             {{ material.is_read ? 'Sudah dibaca' : 'Belum dibaca' }}
                                                         </span>
                                                         <Link
                                                             :href="`/lms/${material.id}`"
-                                                            class="rounded-md bg-primary px-3 py-2 text-xs font-semibold text-primary-foreground transition-colors hover:bg-primary/90"
+                                                            class="rounded-[2px] bg-[#e60000] px-3 py-2 text-xs font-bold tracking-[0.12px] text-white transition-opacity hover:opacity-90"
                                                         >
                                                             Buka
                                                         </Link>
                                                     </div>
                                                 </div>
 
-                                                <p v-if="material.description" class="mt-2 text-sm text-muted-foreground">
+                                                <p v-if="material.description" class="mt-2 text-sm text-[#7e7e7e]">
                                                     {{ truncate(stripHtml(material.description)) }}
                                                 </p>
                                             </div>
@@ -295,31 +295,31 @@ const nextUrl = (paginator: any): string | null => {
                                     </div>
 
                                     <div v-if="!materials.data.length" class="p-8 text-center">
-                                        <BookOpen class="mx-auto mb-4 h-12 w-12 text-muted-foreground" />
-                                        <p class="text-muted-foreground">Belum ada materi</p>
+                                        <BookOpen class="mx-auto mb-4 h-12 w-12 text-[#7e7e7e]" />
+                                        <p class="text-sm text-[#7e7e7e]">Belum ada materi</p>
                                     </div>
                                 </div>
 
-                                <div v-if="pageInfo(materials).last > 1" class="flex items-center justify-between gap-3 border-t p-4">
+                                <div v-if="pageInfo(materials).last > 1" class="flex items-center justify-between gap-3 border-t border-black/10 p-4">
                                     <Link
                                         v-if="prevUrl(materials)"
                                         :href="prevUrl(materials)!"
-                                        class="rounded-md border bg-background px-3 py-2 text-xs font-semibold transition-colors hover:bg-muted/50"
+                                        class="rounded-[2px] border border-[#333333] bg-white px-3 py-2 text-xs font-semibold text-[#25282b] transition-colors hover:bg-[#f2f2f2]"
                                     >
                                         Prev
                                     </Link>
-                                    <span v-else class="rounded-md border bg-background px-3 py-2 text-xs font-semibold opacity-50">Prev</span>
+                                    <span v-else class="rounded-[2px] border border-[#333333] bg-white px-3 py-2 text-xs font-semibold text-[#25282b] opacity-50">Prev</span>
 
-                                    <p class="text-xs font-semibold text-muted-foreground">Halaman {{ pageInfo(materials).current }} / {{ pageInfo(materials).last }}</p>
+                                    <p class="text-xs font-semibold text-[#7e7e7e]">Halaman {{ pageInfo(materials).current }} / {{ pageInfo(materials).last }}</p>
 
                                     <Link
                                         v-if="nextUrl(materials)"
                                         :href="nextUrl(materials)!"
-                                        class="rounded-md border bg-background px-3 py-2 text-xs font-semibold transition-colors hover:bg-muted/50"
+                                        class="rounded-[2px] border border-[#333333] bg-white px-3 py-2 text-xs font-semibold text-[#25282b] transition-colors hover:bg-[#f2f2f2]"
                                     >
                                         Next
                                     </Link>
-                                    <span v-else class="rounded-md border bg-background px-3 py-2 text-xs font-semibold opacity-50">Next</span>
+                                    <span v-else class="rounded-[2px] border border-[#333333] bg-white px-3 py-2 text-xs font-semibold text-[#25282b] opacity-50">Next</span>
                                 </div>
                             </div>
                         </div>
@@ -327,22 +327,22 @@ const nextUrl = (paginator: any): string | null => {
                         <div id="kuis">
                             <button type="button" class="flex w-full items-center justify-between gap-3 p-4 text-left" @click="togglePanel('kuis')">
                                 <div class="flex items-center gap-2">
-                                    <HelpCircle class="h-4 w-4" />
-                                    <span class="text-lg font-semibold">Kuis</span>
+                                    <HelpCircle class="h-4 w-4 text-[#25282b]" />
+                                    <span class="text-base font-bold text-[#25282b]">Kuis</span>
                                 </div>
-                                <ChevronDown class="h-5 w-5 transition-transform" :class="openPanel === 'kuis' ? 'rotate-180' : ''" />
+                                <ChevronDown class="h-5 w-5 text-[#25282b] transition-transform" :class="openPanel === 'kuis' ? 'rotate-180' : ''" />
                             </button>
 
-                            <div v-show="openPanel === 'kuis'" class="border-t">
+                            <div v-show="openPanel === 'kuis'" class="border-t border-black/10">
                                 <div class="divide-y">
                                     <div v-for="quiz in quizzes.data" :key="quiz.id" class="p-4">
                                         <div class="flex items-start justify-between gap-3">
                                             <div class="min-w-0">
-                                                <p class="truncate text-sm font-semibold text-foreground">{{ quiz.title }}</p>
-                                                <p class="mt-0.5 text-xs text-muted-foreground">
+                                                <p class="truncate text-sm font-semibold text-[#25282b]">{{ quiz.title }}</p>
+                                                <p class="mt-0.5 text-xs text-[#7e7e7e]">
                                                     {{ categoryLabel(quiz) }} • {{ formatDate(quiz.created_at) }} • {{ quiz.questions_count }} soal
                                                 </p>
-                                                <p v-if="quiz.is_done" class="mt-1 text-xs text-muted-foreground">
+                                                <p v-if="quiz.is_done" class="mt-1 text-xs text-[#7e7e7e]">
                                                     Skor terbaik {{ quiz.best_percent ?? '-' }}<span v-if="quiz.best_percent !== null">%</span>
                                                     <span v-if="quiz.best_is_passed"> • Lulus</span>
                                                     <span v-else-if="quiz.best_percent !== null"> • Belum lulus</span>
@@ -350,54 +350,54 @@ const nextUrl = (paginator: any): string | null => {
                                             </div>
                                             <div class="shrink-0 flex items-center gap-2">
                                                 <span
-                                                    class="rounded-full border px-2 py-1 text-[10px] font-semibold"
+                                                    class="px-2 py-1 text-[10px] font-semibold"
                                                     :class="
                                                         quiz.is_done
-                                                            ? 'border-emerald-200 bg-emerald-50 text-emerald-700 dark:border-emerald-900/30 dark:bg-emerald-950/30 dark:text-emerald-300'
-                                                            : 'border-muted bg-background text-muted-foreground'
+                                                            ? 'rounded-[2px] border border-[#e60000] bg-white/80 text-black/80 uppercase tracking-wide'
+                                                            : 'rounded-[32px] bg-[#f2f2f2] text-[#25282b]'
                                                     "
                                                 >
                                                     {{ quiz.is_done ? 'Sudah dikerjakan' : 'Belum dikerjakan' }}
                                                 </span>
                                                 <Link
                                                     :href="`/lms/quizzes/${quiz.id}`"
-                                                    class="rounded-md bg-primary px-3 py-2 text-xs font-semibold text-primary-foreground transition-colors hover:bg-primary/90"
+                                                    class="rounded-[2px] bg-[#e60000] px-3 py-2 text-xs font-bold tracking-[0.12px] text-white transition-opacity hover:opacity-90"
                                                 >
                                                     Buka
                                                 </Link>
                                             </div>
                                         </div>
-                                        <p v-if="quiz.description" class="mt-2 text-sm text-muted-foreground">
+                                        <p v-if="quiz.description" class="mt-2 text-sm text-[#7e7e7e]">
                                             {{ truncate(stripHtml(quiz.description)) }}
                                         </p>
                                     </div>
 
                                     <div v-if="!quizzes.data.length" class="p-8 text-center">
-                                        <HelpCircle class="mx-auto mb-4 h-12 w-12 text-muted-foreground" />
-                                        <p class="text-muted-foreground">Belum ada kuis</p>
+                                        <HelpCircle class="mx-auto mb-4 h-12 w-12 text-[#7e7e7e]" />
+                                        <p class="text-sm text-[#7e7e7e]">Belum ada kuis</p>
                                     </div>
                                 </div>
 
-                                <div v-if="pageInfo(quizzes).last > 1" class="flex items-center justify-between gap-3 border-t p-4">
+                                <div v-if="pageInfo(quizzes).last > 1" class="flex items-center justify-between gap-3 border-t border-black/10 p-4">
                                     <Link
                                         v-if="prevUrl(quizzes)"
                                         :href="prevUrl(quizzes)!"
-                                        class="rounded-md border bg-background px-3 py-2 text-xs font-semibold transition-colors hover:bg-muted/50"
+                                        class="rounded-[2px] border border-[#333333] bg-white px-3 py-2 text-xs font-semibold text-[#25282b] transition-colors hover:bg-[#f2f2f2]"
                                     >
                                         Prev
                                     </Link>
-                                    <span v-else class="rounded-md border bg-background px-3 py-2 text-xs font-semibold opacity-50">Prev</span>
+                                    <span v-else class="rounded-[2px] border border-[#333333] bg-white px-3 py-2 text-xs font-semibold text-[#25282b] opacity-50">Prev</span>
 
-                                    <p class="text-xs font-semibold text-muted-foreground">Halaman {{ pageInfo(quizzes).current }} / {{ pageInfo(quizzes).last }}</p>
+                                    <p class="text-xs font-semibold text-[#7e7e7e]">Halaman {{ pageInfo(quizzes).current }} / {{ pageInfo(quizzes).last }}</p>
 
                                     <Link
                                         v-if="nextUrl(quizzes)"
                                         :href="nextUrl(quizzes)!"
-                                        class="rounded-md border bg-background px-3 py-2 text-xs font-semibold transition-colors hover:bg-muted/50"
+                                        class="rounded-[2px] border border-[#333333] bg-white px-3 py-2 text-xs font-semibold text-[#25282b] transition-colors hover:bg-[#f2f2f2]"
                                     >
                                         Next
                                     </Link>
-                                    <span v-else class="rounded-md border bg-background px-3 py-2 text-xs font-semibold opacity-50">Next</span>
+                                    <span v-else class="rounded-[2px] border border-[#333333] bg-white px-3 py-2 text-xs font-semibold text-[#25282b] opacity-50">Next</span>
                                 </div>
                             </div>
                         </div>
@@ -405,23 +405,23 @@ const nextUrl = (paginator: any): string | null => {
                         <div id="tugas">
                             <button type="button" class="flex w-full items-center justify-between gap-3 p-4 text-left" @click="togglePanel('tugas')">
                                 <div class="flex items-center gap-2">
-                                    <ClipboardList class="h-4 w-4" />
-                                    <span class="text-lg font-semibold">Tugas</span>
+                                    <ClipboardList class="h-4 w-4 text-[#25282b]" />
+                                    <span class="text-base font-bold text-[#25282b]">Tugas</span>
                                 </div>
-                                <ChevronDown class="h-5 w-5 transition-transform" :class="openPanel === 'tugas' ? 'rotate-180' : ''" />
+                                <ChevronDown class="h-5 w-5 text-[#25282b] transition-transform" :class="openPanel === 'tugas' ? 'rotate-180' : ''" />
                             </button>
 
-                            <div v-show="openPanel === 'tugas'" class="border-t">
+                            <div v-show="openPanel === 'tugas'" class="border-t border-black/10">
                                 <div class="divide-y">
                                     <div v-for="assignment in assignments.data" :key="assignment.id" class="p-4">
                                         <div class="flex items-start justify-between gap-3">
                                             <div class="min-w-0">
-                                                <p class="truncate text-sm font-semibold text-foreground">{{ assignment.title }}</p>
-                                                <p class="mt-0.5 text-xs text-muted-foreground">
+                                                <p class="truncate text-sm font-semibold text-[#25282b]">{{ assignment.title }}</p>
+                                                <p class="mt-0.5 text-xs text-[#7e7e7e]">
                                                     {{ categoryLabel(assignment) }} • {{ formatDate(assignment.created_at) }}
                                                     <span v-if="assignment.due_at"> • Due {{ formatDateTime(assignment.due_at) }}</span>
                                                 </p>
-                                                <p v-if="assignment.is_done" class="mt-1 text-xs text-muted-foreground">
+                                                <p v-if="assignment.is_done" class="mt-1 text-xs text-[#7e7e7e]">
                                                     <span v-if="assignment.graded_at && assignment.score_percent !== null">
                                                         Nilai {{ assignment.score_percent }}%
                                                     </span>
@@ -430,59 +430,64 @@ const nextUrl = (paginator: any): string | null => {
                                             </div>
                                             <div class="shrink-0 flex items-center gap-2">
                                                 <span
-                                                    class="rounded-full border px-2 py-1 text-[10px] font-semibold"
+                                                    class="px-2 py-1 text-[10px] font-semibold"
                                                     :class="
                                                         assignment.is_done
-                                                            ? 'border-emerald-200 bg-emerald-50 text-emerald-700 dark:border-emerald-900/30 dark:bg-emerald-950/30 dark:text-emerald-300'
-                                                            : 'border-muted bg-background text-muted-foreground'
+                                                            ? 'rounded-[2px] border border-[#e60000] bg-white/80 text-black/80 uppercase tracking-wide'
+                                                            : 'rounded-[32px] bg-[#f2f2f2] text-[#25282b]'
                                                     "
                                                 >
                                                     {{ assignment.is_done ? 'Sudah dikerjakan' : 'Belum dikerjakan' }}
                                                 </span>
                                                 <Link
                                                     :href="`/lms/assignments/${assignment.id}`"
-                                                    class="rounded-md bg-primary px-3 py-2 text-xs font-semibold text-primary-foreground transition-colors hover:bg-primary/90"
+                                                    class="rounded-[2px] bg-[#e60000] px-3 py-2 text-xs font-bold tracking-[0.12px] text-white transition-opacity hover:opacity-90"
                                                 >
                                                     Buka
                                                 </Link>
                                             </div>
                                         </div>
-                                        <p v-if="assignment.description" class="mt-2 text-sm text-muted-foreground">
+                                        <p v-if="assignment.description" class="mt-2 text-sm text-[#7e7e7e]">
                                             {{ truncate(stripHtml(assignment.description)) }}
                                         </p>
                                     </div>
 
                                     <div v-if="!assignments.data.length" class="p-8 text-center">
-                                        <ClipboardList class="mx-auto mb-4 h-12 w-12 text-muted-foreground" />
-                                        <p class="text-muted-foreground">Belum ada tugas</p>
+                                        <ClipboardList class="mx-auto mb-4 h-12 w-12 text-[#7e7e7e]" />
+                                        <p class="text-sm text-[#7e7e7e]">Belum ada tugas</p>
                                     </div>
                                 </div>
 
-                                <div class="flex items-center justify-between gap-3 border-t p-4">
-                                    <Link href="/lms/assignments" class="text-xs font-semibold text-primary hover:underline">Semua</Link>
+                                <div class="flex items-center justify-between gap-3 border-t border-black/10 p-4">
+                                    <Link
+                                        href="/lms/assignments"
+                                        class="text-xs font-semibold text-[#3860be] underline decoration-[#3860be] underline-offset-4"
+                                    >
+                                        Semua
+                                    </Link>
 
                                     <div v-if="pageInfo(assignments).last > 1" class="flex flex-1 items-center justify-end gap-3">
                                         <Link
                                             v-if="prevUrl(assignments)"
                                             :href="prevUrl(assignments)!"
-                                            class="rounded-md border bg-background px-3 py-2 text-xs font-semibold transition-colors hover:bg-muted/50"
+                                            class="rounded-[2px] border border-[#333333] bg-white px-3 py-2 text-xs font-semibold text-[#25282b] transition-colors hover:bg-[#f2f2f2]"
                                         >
                                             Prev
                                         </Link>
-                                        <span v-else class="rounded-md border bg-background px-3 py-2 text-xs font-semibold opacity-50">Prev</span>
+                                        <span v-else class="rounded-[2px] border border-[#333333] bg-white px-3 py-2 text-xs font-semibold text-[#25282b] opacity-50">Prev</span>
 
-                                        <p class="text-xs font-semibold text-muted-foreground">
+                                        <p class="text-xs font-semibold text-[#7e7e7e]">
                                             Halaman {{ pageInfo(assignments).current }} / {{ pageInfo(assignments).last }}
                                         </p>
 
                                         <Link
                                             v-if="nextUrl(assignments)"
                                             :href="nextUrl(assignments)!"
-                                            class="rounded-md border bg-background px-3 py-2 text-xs font-semibold transition-colors hover:bg-muted/50"
+                                            class="rounded-[2px] border border-[#333333] bg-white px-3 py-2 text-xs font-semibold text-[#25282b] transition-colors hover:bg-[#f2f2f2]"
                                         >
                                             Next
                                         </Link>
-                                        <span v-else class="rounded-md border bg-background px-3 py-2 text-xs font-semibold opacity-50">Next</span>
+                                        <span v-else class="rounded-[2px] border border-[#333333] bg-white px-3 py-2 text-xs font-semibold text-[#25282b] opacity-50">Next</span>
                                     </div>
                                 </div>
                             </div>
