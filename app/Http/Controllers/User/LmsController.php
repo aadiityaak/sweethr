@@ -22,4 +22,17 @@ class LmsController extends Controller
             'materials' => $materials,
         ]);
     }
+
+    public function show(LmsMaterial $lms_material): Response
+    {
+        if (! $lms_material->is_active) {
+            abort(404);
+        }
+
+        $lms_material->load(['category.parent']);
+
+        return Inertia::render('user/Lms/Show', [
+            'material' => $lms_material,
+        ]);
+    }
 }

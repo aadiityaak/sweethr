@@ -92,6 +92,8 @@ Route::middleware(['auth', 'verified'])->group(function () {
 
     Route::get('lms', [App\Http\Controllers\User\LmsController::class, 'index'])
         ->name('user.lms.index');
+    Route::get('lms/{lms_material}', [App\Http\Controllers\User\LmsController::class, 'show'])
+        ->name('user.lms.show');
 });
 
 // Admin-only routes

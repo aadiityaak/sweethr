@@ -52,7 +52,6 @@ const truncate = (text: string, maxLength = 140) => {
     return `${text.slice(0, maxLength).trimEnd()}…`;
 };
 
-const fileUrl = (material: LmsMaterial) => (material.file_path ? `/storage/${material.file_path}` : null);
 const thumbnailUrl = (material: LmsMaterial) => (material.thumbnail_path ? `/storage/${material.thumbnail_path}` : null);
 
 const formatDate = (dateString: string) => {
@@ -113,14 +112,12 @@ const formatDate = (dateString: string) => {
                                             <p class="truncate text-sm font-semibold text-foreground">{{ material.title }}</p>
                                             <p class="mt-0.5 text-xs text-muted-foreground">{{ categoryLabel(material) }} • {{ formatDate(material.created_at) }}</p>
                                         </div>
-                                        <a
-                                            v-if="fileUrl(material)"
-                                            :href="fileUrl(material)!"
-                                            target="_blank"
+                                        <Link
+                                            :href="`/lms/${material.id}`"
                                             class="shrink-0 rounded-md bg-primary px-3 py-2 text-xs font-semibold text-primary-foreground transition-colors hover:bg-primary/90"
                                         >
                                             Buka
-                                        </a>
+                                        </Link>
                                     </div>
 
                                     <p v-if="material.description" class="mt-2 text-sm text-muted-foreground">
