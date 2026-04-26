@@ -230,6 +230,42 @@ Route::middleware(['auth', 'verified', 'admin'])->group(function () {
         ],
     ]);
 
+    // Admin LMS Quiz Management
+    Route::resource('admin/lms-quizzes', App\Http\Controllers\Admin\LmsQuizController::class, [
+        'names' => [
+            'index' => 'admin.lms-quizzes.index',
+            'create' => 'admin.lms-quizzes.create',
+            'store' => 'admin.lms-quizzes.store',
+            'show' => 'admin.lms-quizzes.show',
+            'edit' => 'admin.lms-quizzes.edit',
+            'update' => 'admin.lms-quizzes.update',
+            'destroy' => 'admin.lms-quizzes.destroy',
+        ],
+    ]);
+    Route::post('admin/lms-quizzes/{lms_quiz}/questions', [App\Http\Controllers\Admin\LmsQuizController::class, 'storeQuestion'])
+        ->name('admin.lms-quizzes.questions.store');
+    Route::put('admin/lms-quizzes/{lms_quiz}/questions/{question}', [App\Http\Controllers\Admin\LmsQuizController::class, 'updateQuestion'])
+        ->name('admin.lms-quizzes.questions.update');
+    Route::delete('admin/lms-quizzes/{lms_quiz}/questions/{question}', [App\Http\Controllers\Admin\LmsQuizController::class, 'destroyQuestion'])
+        ->name('admin.lms-quizzes.questions.destroy');
+    Route::get('admin/lms-quizzes/{lms_quiz}/attempts', [App\Http\Controllers\Admin\LmsQuizController::class, 'attempts'])
+        ->name('admin.lms-quizzes.attempts.index');
+
+    // Admin LMS Assignment Management
+    Route::resource('admin/lms-assignments', App\Http\Controllers\Admin\LmsAssignmentController::class, [
+        'names' => [
+            'index' => 'admin.lms-assignments.index',
+            'create' => 'admin.lms-assignments.create',
+            'store' => 'admin.lms-assignments.store',
+            'show' => 'admin.lms-assignments.show',
+            'edit' => 'admin.lms-assignments.edit',
+            'update' => 'admin.lms-assignments.update',
+            'destroy' => 'admin.lms-assignments.destroy',
+        ],
+    ]);
+    Route::get('admin/lms-assignments/{lms_assignment}/submissions', [App\Http\Controllers\Admin\LmsAssignmentController::class, 'submissions'])
+        ->name('admin.lms-assignments.submissions.index');
+
     // Admin Payroll Management
     Route::get('admin/salary-settings', [App\Http\Controllers\Admin\SalarySettingController::class, 'index'])
         ->name('admin.salary-settings.index');

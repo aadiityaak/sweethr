@@ -80,6 +80,16 @@ class LmsCategoryController extends Controller
                 ->with('error', 'Kategori masih digunakan oleh materi. Pindahkan materi terlebih dahulu.');
         }
 
+        if ($lms_category->quizzes()->exists()) {
+            return redirect()->route('admin.lms-categories.index')
+                ->with('error', 'Kategori masih digunakan oleh kuis. Pindahkan kuis terlebih dahulu.');
+        }
+
+        if ($lms_category->assignments()->exists()) {
+            return redirect()->route('admin.lms-categories.index')
+                ->with('error', 'Kategori masih digunakan oleh tugas. Pindahkan tugas terlebih dahulu.');
+        }
+
         $lms_category->delete();
 
         return redirect()->route('admin.lms-categories.index')

@@ -148,6 +148,16 @@ const adminNavItems: NavItem[] = [
                 href: '/admin/lms-materials',
                 icon: FileText,
             },
+            {
+                title: 'Kuis',
+                href: '/admin/lms-quizzes',
+                icon: BookOpen,
+            },
+            {
+                title: 'Tugas',
+                href: '/admin/lms-assignments',
+                icon: FileText,
+            },
         ],
     },
     {

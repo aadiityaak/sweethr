@@ -32,4 +32,14 @@ class LmsCategory extends Model
     {
         return $this->hasMany(LmsMaterial::class, 'lms_category_id');
     }
+
+    public function quizzes(): HasMany
+    {
+        return $this->hasMany(LmsQuiz::class, 'lms_category_id');
+    }
+
+    public function assignments(): HasMany
+    {
+        return $this->hasMany(LmsAssignment::class, 'lms_category_id');
+    }
 }
