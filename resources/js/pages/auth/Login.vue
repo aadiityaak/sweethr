@@ -1,15 +1,15 @@
 <script setup lang="ts">
 import AuthenticatedSessionController from '@/actions/App/Http/Controllers/Auth/AuthenticatedSessionController';
+import AppLogoIcon from '@/components/AppLogoIcon.vue';
 import InputError from '@/components/InputError.vue';
-import TextLink from '@/components/TextLink.vue';
-import { Button } from '@/components/ui/button';
+import { useCompanySettings } from '@/composables/useCompanySettings';
+import { home } from '@/routes';
 import { Checkbox } from '@/components/ui/checkbox';
 import { Input } from '@/components/ui/input';
 import { Label } from '@/components/ui/label';
-import AuthBase from '@/layouts/AuthLayout.vue';
 import { register } from '@/routes';
 import { request } from '@/routes/password';
-import { Form, Head } from '@inertiajs/vue3';
+import { Form, Head, Link } from '@inertiajs/vue3';
 import { Eye, EyeOff, LoaderCircle } from 'lucide-vue-next';
 import { ref } from 'vue';
 
@@ -19,15 +19,53 @@ defineProps<{
 }>();
 
 const showPassword = ref(false);
+
+const { companyName, companyTagline, companyLogo } = useCompanySettings();
 </script>
 
 <template>
-    <AuthBase title="Masuk ke Akun Anda" description="Silakan masukkan email dan password untuk melanjutkan">
-        <Head title="Log in" />
+    <Head title="Login" />
+
+    <div class="min-h-screen bg-[#25282b]">
+        <div class="grid min-h-screen lg:grid-cols-2">
+            <div class="flex flex-col justify-between px-6 py-10 text-white sm:px-10 lg:px-14">
+                <div class="flex items-center justify-between">
+                    <Link :href="home()" class="inline-flex items-center gap-3">
+                        <img v-if="companyLogo" :src="companyLogo" :alt="companyName" class="h-10 w-10 object-contain" />
+                        <AppLogoIcon v-else class="h-10 w-10 fill-white" />
+                        <div class="text-sm font-semibold tracking-wide uppercase">{{ companyName }}</div>
+                    </Link>
+
+                    <div class="hidden text-xs text-white/70 lg:block">
+                        {{ companyTagline }}
+                    </div>
+                </div>
+
+                <div class="mt-14 max-w-xl lg:mt-0">
+                    <div class="text-xs font-semibold tracking-[0.16em] uppercase text-white/70">Portal Karyawan</div>
+                    <h1 class="mt-5 text-[clamp(2.4rem,5vw,4.6rem)] font-extrabold leading-[0.92] tracking-[-0.05em] uppercase">
+                        Everyone.<br />
+                        Connected.
+                    </h1>
+                    <p class="mt-6 max-w-lg text-base leading-relaxed text-white/70">
+                        Masuk untuk mengakses absensi, LMS, pengajuan cuti, dan fitur HR lainnya.
+                    </p>
+                </div>
+                <div class="mt-12 w-full lg:mt-0 hidden lg:block">
+                    <div class="h-12 w-full bg-[#e60000]" />
+                </div>
+            </div>
+
+            <div class="bg-white px-6 py-10 sm:px-10 lg:px-14">
+                <div class="mx-auto flex min-h-full w-full max-w-md flex-col justify-center">
+                    <div class="mb-10">
+                        <h2 class="text-3xl font-semibold leading-tight text-[#25282b]">Masuk</h2>
+                        <p class="mt-2 text-sm leading-relaxed text-[#7e7e7e]">Silakan masukkan email dan password untuk melanjutkan.</p>
+                    </div>
 
         <div
             v-if="status"
-            class="mb-6 rounded-lg border border-green-200 bg-green-50 p-4 text-center text-sm font-medium text-green-800 dark:border-green-800 dark:bg-green-900/20 dark:text-green-300"
+                            class="mb-6 rounded-[2px] border border-[#333333] bg-[#f2f2f2] px-4 py-3 text-sm text-[#25282b]"
         >
             {{ status }}
         </div>
@@ -36,12 +74,12 @@ const showPassword = ref(false);
             v-bind="AuthenticatedSessionController.store.form()"
             :reset-on-success="['password']"
             v-slot="{ errors, processing }"
-            class="flex flex-col gap-6"
+                            class="flex flex-col gap-8"
         >
-            <div class="space-y-6">
+                            <div class="space-y-6">
                 <!-- Email Field -->
                 <div class="space-y-3">
-                    <Label for="email" class="text-sm font-medium text-foreground">Email Address</Label>
+                                    <Label for="email" class="text-sm font-semibold text-[#25282b]">Email</Label>
                     <div class="relative">
                         <Input
                             id="email"
@@ -55,24 +93,24 @@ const showPassword = ref(false);
                             autofocus
                             :tabindex="1"
                             placeholder="Masukkan email Anda"
-                            class="h-12 min-h-[48px] touch-manipulation rounded-lg border bg-background transition-all duration-200 placeholder:text-muted-foreground/70 focus:border-primary focus:ring-2 focus:ring-primary/20"
+                                            class="h-12 min-h-[48px] touch-manipulation rounded-[2px] border border-[#333333] bg-white text-[#25282b] placeholder:text-[#7e7e7e] focus-visible:ring-0"
                         />
                     </div>
-                    <InputError :message="errors.email" class="text-xs" />
+                                    <InputError :message="errors.email" class="text-xs text-[#e60000]" />
                 </div>
 
                 <!-- Password Field -->
                 <div class="space-y-3">
                     <div class="flex items-center justify-between">
-                        <Label for="password" class="text-sm font-medium text-foreground">Password</Label>
-                        <TextLink
+                                        <Label for="password" class="text-sm font-semibold text-[#25282b]">Password</Label>
+                                        <Link
                             v-if="canResetPassword"
                             :href="request()"
-                            class="text-xs text-primary transition-colors duration-200 hover:text-primary/80"
+                                            class="text-xs font-semibold text-[#3860be] underline decoration-[#3860be] underline-offset-4"
                             :tabindex="5"
                         >
                             Lupa password?
-                        </TextLink>
+                                        </Link>
                     </div>
                     <div class="relative">
                         <Input
@@ -86,11 +124,11 @@ const showPassword = ref(false);
                             required
                             :tabindex="2"
                             placeholder="Masukkan password Anda"
-                            class="h-12 min-h-[48px] touch-manipulation rounded-lg border bg-background transition-all duration-200 placeholder:text-muted-foreground/70 focus:border-primary focus:ring-2 focus:ring-primary/20"
+                                            class="h-12 min-h-[48px] touch-manipulation rounded-[2px] border border-[#333333] bg-white pr-12 text-[#25282b] placeholder:text-[#7e7e7e] focus-visible:ring-0"
                         />
                         <button
                             type="button"
-                            class="absolute inset-y-0 right-3 flex items-center text-muted-foreground hover:text-foreground"
+                                            class="absolute inset-y-0 right-0 flex w-12 items-center justify-center text-[#7e7e7e] hover:text-[#25282b]"
                             @click="showPassword = !showPassword"
                             aria-label="Toggle password visibility"
                             tabindex="-1"
@@ -99,26 +137,26 @@ const showPassword = ref(false);
                             <EyeOff v-else class="h-4 w-4" />
                         </button>
                     </div>
-                    <InputError :message="errors.password" class="text-xs" />
+                                    <InputError :message="errors.password" class="text-xs text-[#e60000]" />
                 </div>
 
                 <!-- Remember Me -->
-                <div class="flex items-center justify-between py-2">
+                                <div class="flex items-center justify-between py-2">
                     <Label for="remember" class="flex cursor-pointer items-center space-x-3">
                         <Checkbox
                             id="remember"
                             name="remember"
                             :tabindex="3"
-                            class="rounded border transition-all duration-200 focus:ring-2 focus:ring-primary/20"
+                                            class="rounded-[2px] border border-[#333333] data-[state=checked]:bg-[#e60000] data-[state=checked]:text-white"
                         />
-                        <span class="text-sm text-muted-foreground">Ingat saya</span>
+                                        <span class="text-sm text-[#7e7e7e]">Ingat saya</span>
                     </Label>
                 </div>
 
                 <!-- Login Button -->
-                <Button
+                                <button
                     type="submit"
-                    class="h-12 min-h-[48px] w-full touch-manipulation rounded-lg bg-primary font-semibold text-primary-foreground transition-colors duration-200 hover:bg-primary/90 disabled:opacity-70"
+                                    class="inline-flex h-12 min-h-[48px] w-full touch-manipulation items-center justify-center rounded-[2px] bg-[#e60000] px-[10px] py-3 text-[14.4px] font-bold leading-none tracking-[0.144px] text-white hover:opacity-90 disabled:opacity-60"
                     :tabindex="4"
                     :disabled="processing"
                     data-test="login-button"
@@ -126,22 +164,25 @@ const showPassword = ref(false);
                     <LoaderCircle v-if="processing" class="mr-2 h-4 w-4 animate-spin" />
                     <span v-if="processing">Memproses...</span>
                     <span v-else>Masuk ke Akun</span>
-                </Button>
+                                </button>
             </div>
 
             <!-- Signup Link -->
-            <div class="text-center">
-                <p class="text-sm text-muted-foreground">
+                            <div class="text-center">
+                                <p class="text-sm text-[#7e7e7e]">
                     Belum punya akun?
-                    <TextLink
+                                    <Link
                         :href="register()"
                         :tabindex="5"
-                        class="font-medium text-primary transition-colors duration-200 hover:text-primary/80 hover:underline"
+                                        class="ml-1 font-semibold text-[#3860be] underline decoration-[#3860be] underline-offset-4"
                     >
                         Daftar sekarang
-                    </TextLink>
+                                    </Link>
                 </p>
             </div>
         </Form>
-    </AuthBase>
+                </div>
+            </div>
+        </div>
+    </div>
 </template>

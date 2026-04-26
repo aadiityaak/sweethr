@@ -1486,6 +1486,14 @@ onUnmounted(() => {
                     :auto-play-interval="6000"
                     @announcement-click="handleAnnouncementClick"
                 />
+                <div class="mt-4">
+                    <Link
+                        href="/lms"
+                        class="inline-flex w-full items-center justify-center rounded-lg bg-primary px-4 py-3 text-sm font-semibold text-primary-foreground shadow-sm transition-colors hover:bg-primary/90"
+                    >
+                        LMS
+                    </Link>
+                </div>
             </div>
 
             <!-- Monthly Stats -->

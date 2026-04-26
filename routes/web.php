@@ -89,6 +89,9 @@ Route::middleware(['auth', 'verified'])->group(function () {
         ->name('employee.payrolls.index');
     Route::get('payrolls/{payroll}', [App\Http\Controllers\Employee\PayrollController::class, 'show'])
         ->name('employee.payrolls.show');
+
+    Route::get('lms', [App\Http\Controllers\User\LmsController::class, 'index'])
+        ->name('user.lms.index');
 });
 
 // Admin-only routes

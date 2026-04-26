@@ -238,6 +238,33 @@
 
             function showInstallBanner() {
                 if (document.getElementById('pwa-install-banner')) return;
+                if (!document.getElementById('pwa-install-banner-style')) {
+                    const style = document.createElement('style');
+                    style.id = 'pwa-install-banner-style';
+                    style.textContent = `
+                        #pwa-install-banner button { font: inherit; }
+                        #pwa-install-banner-actions { display: flex; gap: 10px; align-items: center; }
+                        @media (max-width: 640px) {
+                            #pwa-install-banner {
+                                left: 12px !important;
+                                right: 12px !important;
+                                transform: none !important;
+                                width: auto !important;
+                                flex-direction: column !important;
+                                align-items: stretch !important;
+                            }
+                            #pwa-install-banner > div:first-child {
+                                text-align: center !important;
+                                width: 100% !important;
+                            }
+                            #pwa-install-banner-actions {
+                                width: 100% !important;
+                                justify-content: center !important;
+                            }
+                        }
+                    `;
+                    document.head.appendChild(style);
+                }
                 const container = document.createElement('div');
                 container.id = 'pwa-install-banner';
                 container.style.position = 'fixed';
@@ -284,8 +311,11 @@
                 close.style.cursor = 'pointer';
                 close.addEventListener('click', hideInstallBanner);
                 container.appendChild(text);
-                container.appendChild(btn);
-                container.appendChild(close);
+                const actions = document.createElement('div');
+                actions.id = 'pwa-install-banner-actions';
+                actions.appendChild(btn);
+                actions.appendChild(close);
+                container.appendChild(actions);
                 document.body.appendChild(container);
             }
 
