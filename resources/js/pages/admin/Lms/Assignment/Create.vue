@@ -62,7 +62,7 @@ const submit = () => {
     <Head title="Tambah Tugas LMS" />
 
     <AppLayout :breadcrumbs="breadcrumbs">
-        <div class="px-6">
+        <div class="px-6 pt-6">
             <div class="mb-8">
                 <div class="flex items-center gap-4">
                     <a

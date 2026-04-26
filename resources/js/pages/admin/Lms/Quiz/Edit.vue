@@ -109,6 +109,49 @@ const quizForm = useForm({
     is_active: quiz.is_active,
 });
 
+const descriptionEditor = useEditor({
+    content: quizForm.description || '',
+    extensions: [
+        StarterKit,
+        Underline,
+        LinkExtension.configure({
+            openOnClick: false,
+            autolink: true,
+            linkOnPaste: true,
+            HTMLAttributes: {
+                target: '_blank',
+                rel: 'noopener noreferrer',
+            },
+        }),
+        TextAlign.configure({
+            types: ['heading', 'paragraph'],
+        }),
+        Placeholder.configure({
+            placeholder: 'Tulis deskripsi kuis di sini...',
+        }),
+    ],
+    editorProps: {
+        attributes: {
+            class: 'prose prose-sm max-w-none min-h-[200px] max-h-[50vh] overflow-y-auto p-3 text-sm text-gray-700 focus:outline-none dark:prose-invert dark:text-gray-200',
+        },
+    },
+    onUpdate: ({ editor }) => {
+        quizForm.description = editor.getHTML();
+    },
+});
+
+const setDescriptionLink = () => {
+    if (!descriptionEditor.value) return;
+    const previousUrl = descriptionEditor.value.getAttributes('link').href as string | undefined;
+    const url = window.prompt('Masukkan URL', previousUrl || '');
+    if (url === null) return;
+    if (url === '') {
+        descriptionEditor.value.chain().focus().unsetLink().run();
+        return;
+    }
+    descriptionEditor.value.chain().focus().extendMarkRange('link').setLink({ href: url }).run();
+};
+
 const submitQuiz = () => {
     quizForm.put(`/admin/lms-quizzes/${quiz.id}`);
 };
@@ -266,7 +309,7 @@ const deleteQuestion = (q: LmsQuizQuestion) => {
     <Head :title="`Edit Kuis: ${quiz.title}`" />
 
     <AppLayout :breadcrumbs="breadcrumbs">
-        <div class="px-6">
+        <div class="px-6 pt-6">
             <div class="mb-8">
                 <div class="flex flex-wrap items-center justify-between gap-3">
                     <div class="flex items-center gap-4">
@@ -274,8 +317,7 @@ const deleteQuestion = (q: LmsQuizQuestion) => {
                             href="/admin/lms-quizzes"
                             class="inline-flex items-center rounded-lg border border-gray-300 bg-white px-3 py-2 text-sm font-medium text-gray-700 shadow-sm transition-colors hover:bg-gray-50 dark:border-gray-600 dark:bg-gray-800 dark:text-gray-300 dark:hover:bg-gray-700"
                         >
-                            <ArrowLeft class="mr-2 h-4 w-4" />
-                            Kembali
+                            <ArrowLeft class="h-4 w-4" />
                         </a>
                         <div>
                             <h1 class="text-3xl font-bold text-gray-900 dark:text-white">Edit Kuis</h1>
@@ -321,12 +363,144 @@ const deleteQuestion = (q: LmsQuizQuestion) => {
 
                         <div>
                             <label class="block text-sm font-medium text-gray-700 dark:text-gray-300">Deskripsi (Opsional)</label>
-                            <textarea
-                                v-model="quizForm.description"
-                                rows="4"
-                                class="mt-1 block w-full rounded-lg border border-gray-300 bg-white px-3 py-2 text-sm focus:border-blue-500 focus:ring-1 focus:ring-blue-500 focus:outline-none dark:border-gray-600 dark:bg-gray-800 dark:text-gray-300"
+                            <div
+                                class="mt-1 overflow-hidden rounded-lg border border-gray-300 bg-white dark:border-gray-600 dark:bg-gray-800"
                                 :class="{ 'border-red-500': quizForm.errors.description }"
-                            />
+                            >
+                                <div class="flex flex-wrap items-center gap-1 border-b border-gray-200 bg-gray-50 px-2 py-2 dark:border-gray-700 dark:bg-gray-900">
+                                    <button
+                                        type="button"
+                                        class="rounded-md p-2 text-gray-700 hover:bg-gray-200 disabled:opacity-50 dark:text-gray-200 dark:hover:bg-gray-800"
+                                        :class="{ 'bg-gray-200 dark:bg-gray-800': descriptionEditor?.isActive('bold') }"
+                                        @click="descriptionEditor?.chain().focus().toggleBold().run()"
+                                    >
+                                        <Bold class="h-4 w-4" />
+                                    </button>
+                                    <button
+                                        type="button"
+                                        class="rounded-md p-2 text-gray-700 hover:bg-gray-200 disabled:opacity-50 dark:text-gray-200 dark:hover:bg-gray-800"
+                                        :class="{ 'bg-gray-200 dark:bg-gray-800': descriptionEditor?.isActive('underline') }"
+                                        @click="descriptionEditor?.chain().focus().toggleUnderline().run()"
+                                    >
+                                        <UnderlineIcon class="h-4 w-4" />
+                                    </button>
+                                    <button
+                                        type="button"
+                                        class="rounded-md p-2 text-gray-700 hover:bg-gray-200 disabled:opacity-50 dark:text-gray-200 dark:hover:bg-gray-800"
+                                        :class="{ 'bg-gray-200 dark:bg-gray-800': descriptionEditor?.isActive('strike') }"
+                                        @click="descriptionEditor?.chain().focus().toggleStrike().run()"
+                                    >
+                                        <Strikethrough class="h-4 w-4" />
+                                    </button>
+                                    <button
+                                        type="button"
+                                        class="rounded-md p-2 text-gray-700 hover:bg-gray-200 disabled:opacity-50 dark:text-gray-200 dark:hover:bg-gray-800"
+                                        :class="{ 'bg-gray-200 dark:bg-gray-800': descriptionEditor?.isActive('code') }"
+                                        @click="descriptionEditor?.chain().focus().toggleCode().run()"
+                                    >
+                                        <Code class="h-4 w-4" />
+                                    </button>
+                                    <div class="mx-1 h-6 w-px bg-gray-200 dark:bg-gray-700" />
+                                    <button
+                                        type="button"
+                                        class="rounded-md p-2 text-gray-700 hover:bg-gray-200 disabled:opacity-50 dark:text-gray-200 dark:hover:bg-gray-800"
+                                        :class="{ 'bg-gray-200 dark:bg-gray-800': descriptionEditor?.isActive('heading', { level: 1 }) }"
+                                        @click="descriptionEditor?.chain().focus().toggleHeading({ level: 1 }).run()"
+                                    >
+                                        <Heading1 class="h-4 w-4" />
+                                    </button>
+                                    <button
+                                        type="button"
+                                        class="rounded-md p-2 text-gray-700 hover:bg-gray-200 disabled:opacity-50 dark:text-gray-200 dark:hover:bg-gray-800"
+                                        :class="{ 'bg-gray-200 dark:bg-gray-800': descriptionEditor?.isActive('heading', { level: 2 }) }"
+                                        @click="descriptionEditor?.chain().focus().toggleHeading({ level: 2 }).run()"
+                                    >
+                                        <Heading2 class="h-4 w-4" />
+                                    </button>
+                                    <div class="mx-1 h-6 w-px bg-gray-200 dark:bg-gray-700" />
+                                    <button
+                                        type="button"
+                                        class="rounded-md p-2 text-gray-700 hover:bg-gray-200 disabled:opacity-50 dark:text-gray-200 dark:hover:bg-gray-800"
+                                        :class="{ 'bg-gray-200 dark:bg-gray-800': descriptionEditor?.isActive('bulletList') }"
+                                        @click="descriptionEditor?.chain().focus().toggleBulletList().run()"
+                                    >
+                                        <List class="h-4 w-4" />
+                                    </button>
+                                    <button
+                                        type="button"
+                                        class="rounded-md p-2 text-gray-700 hover:bg-gray-200 disabled:opacity-50 dark:text-gray-200 dark:hover:bg-gray-800"
+                                        :class="{ 'bg-gray-200 dark:bg-gray-800': descriptionEditor?.isActive('orderedList') }"
+                                        @click="descriptionEditor?.chain().focus().toggleOrderedList().run()"
+                                    >
+                                        <ListOrdered class="h-4 w-4" />
+                                    </button>
+                                    <button
+                                        type="button"
+                                        class="rounded-md p-2 text-gray-700 hover:bg-gray-200 disabled:opacity-50 dark:text-gray-200 dark:hover:bg-gray-800"
+                                        :class="{ 'bg-gray-200 dark:bg-gray-800': descriptionEditor?.isActive('blockquote') }"
+                                        @click="descriptionEditor?.chain().focus().toggleBlockquote().run()"
+                                    >
+                                        <Quote class="h-4 w-4" />
+                                    </button>
+                                    <div class="mx-1 h-6 w-px bg-gray-200 dark:bg-gray-700" />
+                                    <button
+                                        type="button"
+                                        class="rounded-md p-2 text-gray-700 hover:bg-gray-200 disabled:opacity-50 dark:text-gray-200 dark:hover:bg-gray-800"
+                                        @click="descriptionEditor?.chain().focus().setTextAlign('left').run()"
+                                    >
+                                        <AlignLeft class="h-4 w-4" />
+                                    </button>
+                                    <button
+                                        type="button"
+                                        class="rounded-md p-2 text-gray-700 hover:bg-gray-200 disabled:opacity-50 dark:text-gray-200 dark:hover:bg-gray-800"
+                                        @click="descriptionEditor?.chain().focus().setTextAlign('center').run()"
+                                    >
+                                        <AlignCenter class="h-4 w-4" />
+                                    </button>
+                                    <button
+                                        type="button"
+                                        class="rounded-md p-2 text-gray-700 hover:bg-gray-200 disabled:opacity-50 dark:text-gray-200 dark:hover:bg-gray-800"
+                                        @click="descriptionEditor?.chain().focus().setTextAlign('right').run()"
+                                    >
+                                        <AlignRight class="h-4 w-4" />
+                                    </button>
+                                    <div class="mx-1 h-6 w-px bg-gray-200 dark:bg-gray-700" />
+                                    <button
+                                        type="button"
+                                        class="rounded-md p-2 text-gray-700 hover:bg-gray-200 disabled:opacity-50 dark:text-gray-200 dark:hover:bg-gray-800"
+                                        :class="{ 'bg-gray-200 dark:bg-gray-800': descriptionEditor?.isActive('link') }"
+                                        @click="setDescriptionLink"
+                                    >
+                                        <Link2 class="h-4 w-4" />
+                                    </button>
+                                    <button
+                                        type="button"
+                                        class="rounded-md p-2 text-gray-700 hover:bg-gray-200 disabled:opacity-50 dark:text-gray-200 dark:hover:bg-gray-800"
+                                        :disabled="!descriptionEditor?.isActive('link')"
+                                        @click="descriptionEditor?.chain().focus().unsetLink().run()"
+                                    >
+                                        <Unlink class="h-4 w-4" />
+                                    </button>
+                                    <div class="mx-1 h-6 w-px bg-gray-200 dark:bg-gray-700" />
+                                    <button
+                                        type="button"
+                                        class="rounded-md p-2 text-gray-700 hover:bg-gray-200 disabled:opacity-50 dark:text-gray-200 dark:hover:bg-gray-800"
+                                        :disabled="!descriptionEditor?.can().chain().focus().undo().run()"
+                                        @click="descriptionEditor?.chain().focus().undo().run()"
+                                    >
+                                        <Undo2 class="h-4 w-4" />
+                                    </button>
+                                    <button
+                                        type="button"
+                                        class="rounded-md p-2 text-gray-700 hover:bg-gray-200 disabled:opacity-50 dark:text-gray-200 dark:hover:bg-gray-800"
+                                        :disabled="!descriptionEditor?.can().chain().focus().redo().run()"
+                                        @click="descriptionEditor?.chain().focus().redo().run()"
+                                    >
+                                        <Redo2 class="h-4 w-4" />
+                                    </button>
+                                </div>
+                                <EditorContent v-if="descriptionEditor" :editor="descriptionEditor" />
+                            </div>
                             <p v-if="quizForm.errors.description" class="mt-1 text-xs text-red-600">{{ quizForm.errors.description }}</p>
                         </div>
 

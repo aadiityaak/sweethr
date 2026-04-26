@@ -70,7 +70,7 @@ const categoryLabel = computed(() => {
     <Head :title="`Materi LMS: ${material.title}`" />
 
     <AppLayout :breadcrumbs="breadcrumbs">
-        <div class="px-6">
+        <div class="px-6 pt-6">
             <div class="mb-8">
                 <div class="flex flex-wrap items-center justify-between gap-3">
                     <div class="flex items-center gap-4">
@@ -78,8 +78,7 @@ const categoryLabel = computed(() => {
                             href="/admin/lms-materials"
                             class="inline-flex items-center rounded-lg border border-gray-300 bg-white px-3 py-2 text-sm font-medium text-gray-700 shadow-sm transition-colors hover:bg-gray-50 dark:border-gray-600 dark:bg-gray-800 dark:text-gray-300 dark:hover:bg-gray-700"
                         >
-                            <ArrowLeft class="mr-2 h-4 w-4" />
-                            Kembali
+                            <ArrowLeft class="h-4 w-4" />
                         </a>
                         <div>
                             <h1 class="text-3xl font-bold text-gray-900 dark:text-white">{{ material.title }}</h1>

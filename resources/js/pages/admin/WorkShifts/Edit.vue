@@ -154,7 +154,7 @@
 
                                 <!-- Action Buttons -->
                                 <div class="flex gap-3 border-t border-gray-200 pt-6 dark:border-gray-700">
-                                    <Button type="submit" :disabled="form.processing" class="px-6">
+                                    <Button type="submit" :disabled="form.processing" class="px-6 pt-6">
                                         {{ form.processing ? 'Menyimpan...' : 'Update Shift' }}
                                     </Button>
                                     <Button

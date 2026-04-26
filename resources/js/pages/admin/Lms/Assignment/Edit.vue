@@ -89,7 +89,7 @@ const submit = () => {
     <Head :title="`Edit Tugas: ${assignment.title}`" />
 
     <AppLayout :breadcrumbs="breadcrumbs">
-        <div class="px-6">
+        <div class="px-6 pt-6">
             <div class="mb-8">
                 <div class="flex flex-wrap items-center justify-between gap-3">
                     <div class="flex items-center gap-4">

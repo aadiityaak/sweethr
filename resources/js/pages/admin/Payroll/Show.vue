@@ -1,6 +1,6 @@
 <template>
     <AppLayout :breadcrumbs="breadcrumbs">
-        <div class="px-6">
+        <div class="px-6 pt-6">
             <!-- Header -->
             <div class="mb-8">
                 <div class="flex items-center justify-between">
