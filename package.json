@@ -36,6 +36,12 @@
     "dependencies": {
         "@heroicons/vue": "^2.2.0",
         "@inertiajs/vue3": "^2.1.0",
+        "@tiptap/extension-link": "^2.26.1",
+        "@tiptap/extension-placeholder": "^2.26.1",
+        "@tiptap/extension-text-align": "^2.26.1",
+        "@tiptap/extension-underline": "^2.26.1",
+        "@tiptap/starter-kit": "^2.26.1",
+        "@tiptap/vue-3": "^2.26.1",
         "@types/leaflet": "^1.9.20",
         "@vueuse/core": "^12.8.2",
         "chart.js": "^4.5.0",

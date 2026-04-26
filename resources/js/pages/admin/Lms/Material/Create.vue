@@ -2,8 +2,35 @@
 import AppLayout from '@/layouts/AppLayout.vue';
 import { type BreadcrumbItem } from '@/types';
 import { Head, useForm } from '@inertiajs/vue3';
-import { ArrowLeft, Bold, Italic, Link2, List, ListOrdered, Save, Underline, Upload } from 'lucide-vue-next';
-import { computed, onMounted, ref, watch } from 'vue';
+import { EditorContent, useEditor } from '@tiptap/vue-3';
+import Link from '@tiptap/extension-link';
+import Placeholder from '@tiptap/extension-placeholder';
+import TextAlign from '@tiptap/extension-text-align';
+import Underline from '@tiptap/extension-underline';
+import StarterKit from '@tiptap/starter-kit';
+import {
+    AlignCenter,
+    AlignLeft,
+    AlignRight,
+    ArrowLeft,
+    Bold,
+    Code,
+    Heading1,
+    Heading2,
+    Link2,
+    List,
+    ListOrdered,
+    Minus,
+    Quote,
+    Redo2,
+    Save,
+    Strikethrough,
+    Underline as UnderlineIcon,
+    Undo2,
+    Unlink,
+    Upload,
+} from 'lucide-vue-next';
+import { computed } from 'vue';
 
 type MaterialType = 'video' | 'pdf' | 'module';
 
@@ -22,23 +49,47 @@ const form = useForm({
     is_active: true,
 });
 
-const descriptionEditor = ref<HTMLDivElement | null>(null);
+const editor = useEditor({
+    content: form.description || '',
+    extensions: [
+        StarterKit,
+        Underline,
+        Link.configure({
+            openOnClick: false,
+            autolink: true,
+            linkOnPaste: true,
+            HTMLAttributes: {
+                target: '_blank',
+                rel: 'noopener noreferrer',
+            },
+        }),
+        TextAlign.configure({
+            types: ['heading', 'paragraph'],
+        }),
+        Placeholder.configure({
+            placeholder: 'Tulis deskripsi materi di sini...',
+        }),
+    ],
+    editorProps: {
+        attributes: {
+            class: 'prose prose-sm max-w-none min-h-[320px] max-h-[60vh] overflow-y-auto p-3 text-sm text-gray-700 focus:outline-none dark:prose-invert dark:text-gray-200',
+        },
+    },
+    onUpdate: ({ editor }) => {
+        form.description = editor.getHTML();
+    },
+});
 
-const syncDescriptionFromEditor = () => {
-    if (!descriptionEditor.value) return;
-    form.description = descriptionEditor.value.innerHTML;
-};
-
-const applyEditorCommand = (command: string, value?: string) => {
-    descriptionEditor.value?.focus();
-    document.execCommand(command, false, value);
-    syncDescriptionFromEditor();
-};
-
-const addLink = () => {
-    const url = window.prompt('Masukkan URL');
-    if (!url) return;
-    applyEditorCommand('createLink', url);
+const setLink = () => {
+    if (!editor.value) return;
+    const previousUrl = editor.value.getAttributes('link').href as string | undefined;
+    const url = window.prompt('Masukkan URL', previousUrl || '');
+    if (url === null) return;
+    if (url === '') {
+        editor.value.chain().focus().unsetLink().run();
+        return;
+    }
+    editor.value.chain().focus().extendMarkRange('link').setLink({ href: url }).run();
 };
 
 const accept = computed(() => {
@@ -46,22 +97,6 @@ const accept = computed(() => {
     if (form.type === 'video') return 'video/*';
     return '';
 });
-
-onMounted(() => {
-    if (!descriptionEditor.value) return;
-    descriptionEditor.value.innerHTML = form.description || '';
-});
-
-watch(
-    () => form.description,
-    (value) => {
-        if (!descriptionEditor.value) return;
-        const nextValue = value || '';
-        if (descriptionEditor.value.innerHTML !== nextValue) {
-            descriptionEditor.value.innerHTML = nextValue;
-        }
-    },
-);
 
 const handleFileChange = (event: Event) => {
     const target = event.target as HTMLInputElement;
@@ -121,55 +156,156 @@ const submit = () => {
                             <div class="flex flex-wrap items-center gap-1 border-b border-gray-200 bg-gray-50 p-2 dark:border-gray-700 dark:bg-gray-900/40">
                                 <button
                                     type="button"
-                                    class="inline-flex items-center rounded-md px-2 py-1 text-sm text-gray-700 hover:bg-gray-200 dark:text-gray-200 dark:hover:bg-gray-700"
-                                    @click="applyEditorCommand('bold')"
+                                    class="inline-flex items-center rounded-md px-2 py-1 text-sm text-gray-700 hover:bg-gray-200 disabled:opacity-50 dark:text-gray-200 dark:hover:bg-gray-700"
+                                    :disabled="!editor"
+                                    @click="editor?.chain().focus().toggleHeading({ level: 1 }).run()"
+                                >
+                                    <Heading1 class="h-4 w-4" />
+                                </button>
+                                <button
+                                    type="button"
+                                    class="inline-flex items-center rounded-md px-2 py-1 text-sm text-gray-700 hover:bg-gray-200 disabled:opacity-50 dark:text-gray-200 dark:hover:bg-gray-700"
+                                    :disabled="!editor"
+                                    @click="editor?.chain().focus().toggleHeading({ level: 2 }).run()"
+                                >
+                                    <Heading2 class="h-4 w-4" />
+                                </button>
+                                <div class="mx-1 h-5 w-px bg-gray-200 dark:bg-gray-700"></div>
+                                <button
+                                    type="button"
+                                    class="inline-flex items-center rounded-md px-2 py-1 text-sm text-gray-700 hover:bg-gray-200 disabled:opacity-50 dark:text-gray-200 dark:hover:bg-gray-700"
+                                    :disabled="!editor"
+                                    @click="editor?.chain().focus().toggleBold().run()"
                                 >
                                     <Bold class="h-4 w-4" />
                                 </button>
                                 <button
                                     type="button"
-                                    class="inline-flex items-center rounded-md px-2 py-1 text-sm text-gray-700 hover:bg-gray-200 dark:text-gray-200 dark:hover:bg-gray-700"
-                                    @click="applyEditorCommand('italic')"
+                                    class="inline-flex items-center rounded-md px-2 py-1 text-sm text-gray-700 hover:bg-gray-200 disabled:opacity-50 dark:text-gray-200 dark:hover:bg-gray-700"
+                                    :disabled="!editor"
+                                    @click="editor?.chain().focus().toggleItalic().run()"
                                 >
-                                    <Italic class="h-4 w-4" />
+                                    <span class="font-serif italic">I</span>
                                 </button>
                                 <button
                                     type="button"
-                                    class="inline-flex items-center rounded-md px-2 py-1 text-sm text-gray-700 hover:bg-gray-200 dark:text-gray-200 dark:hover:bg-gray-700"
-                                    @click="applyEditorCommand('underline')"
+                                    class="inline-flex items-center rounded-md px-2 py-1 text-sm text-gray-700 hover:bg-gray-200 disabled:opacity-50 dark:text-gray-200 dark:hover:bg-gray-700"
+                                    :disabled="!editor"
+                                    @click="editor?.chain().focus().toggleUnderline().run()"
                                 >
-                                    <Underline class="h-4 w-4" />
+                                    <UnderlineIcon class="h-4 w-4" />
+                                </button>
+                                <button
+                                    type="button"
+                                    class="inline-flex items-center rounded-md px-2 py-1 text-sm text-gray-700 hover:bg-gray-200 disabled:opacity-50 dark:text-gray-200 dark:hover:bg-gray-700"
+                                    :disabled="!editor"
+                                    @click="editor?.chain().focus().toggleStrike().run()"
+                                >
+                                    <Strikethrough class="h-4 w-4" />
                                 </button>
                                 <div class="mx-1 h-5 w-px bg-gray-200 dark:bg-gray-700"></div>
                                 <button
                                     type="button"
-                                    class="inline-flex items-center rounded-md px-2 py-1 text-sm text-gray-700 hover:bg-gray-200 dark:text-gray-200 dark:hover:bg-gray-700"
-                                    @click="applyEditorCommand('insertUnorderedList')"
+                                    class="inline-flex items-center rounded-md px-2 py-1 text-sm text-gray-700 hover:bg-gray-200 disabled:opacity-50 dark:text-gray-200 dark:hover:bg-gray-700"
+                                    :disabled="!editor"
+                                    @click="editor?.chain().focus().toggleBulletList().run()"
                                 >
                                     <List class="h-4 w-4" />
                                 </button>
                                 <button
                                     type="button"
-                                    class="inline-flex items-center rounded-md px-2 py-1 text-sm text-gray-700 hover:bg-gray-200 dark:text-gray-200 dark:hover:bg-gray-700"
-                                    @click="applyEditorCommand('insertOrderedList')"
+                                    class="inline-flex items-center rounded-md px-2 py-1 text-sm text-gray-700 hover:bg-gray-200 disabled:opacity-50 dark:text-gray-200 dark:hover:bg-gray-700"
+                                    :disabled="!editor"
+                                    @click="editor?.chain().focus().toggleOrderedList().run()"
                                 >
                                     <ListOrdered class="h-4 w-4" />
+                                </button>
+                                <button
+                                    type="button"
+                                    class="inline-flex items-center rounded-md px-2 py-1 text-sm text-gray-700 hover:bg-gray-200 disabled:opacity-50 dark:text-gray-200 dark:hover:bg-gray-700"
+                                    :disabled="!editor"
+                                    @click="editor?.chain().focus().toggleBlockquote().run()"
+                                >
+                                    <Quote class="h-4 w-4" />
+                                </button>
+                                <button
+                                    type="button"
+                                    class="inline-flex items-center rounded-md px-2 py-1 text-sm text-gray-700 hover:bg-gray-200 disabled:opacity-50 dark:text-gray-200 dark:hover:bg-gray-700"
+                                    :disabled="!editor"
+                                    @click="editor?.chain().focus().toggleCode().run()"
+                                >
+                                    <Code class="h-4 w-4" />
                                 </button>
                                 <div class="mx-1 h-5 w-px bg-gray-200 dark:bg-gray-700"></div>
                                 <button
                                     type="button"
-                                    class="inline-flex items-center rounded-md px-2 py-1 text-sm text-gray-700 hover:bg-gray-200 dark:text-gray-200 dark:hover:bg-gray-700"
-                                    @click="addLink"
+                                    class="inline-flex items-center rounded-md px-2 py-1 text-sm text-gray-700 hover:bg-gray-200 disabled:opacity-50 dark:text-gray-200 dark:hover:bg-gray-700"
+                                    :disabled="!editor"
+                                    @click="setLink"
                                 >
                                     <Link2 class="h-4 w-4" />
                                 </button>
+                                <button
+                                    type="button"
+                                    class="inline-flex items-center rounded-md px-2 py-1 text-sm text-gray-700 hover:bg-gray-200 disabled:opacity-50 dark:text-gray-200 dark:hover:bg-gray-700"
+                                    :disabled="!editor"
+                                    @click="editor?.chain().focus().unsetLink().run()"
+                                >
+                                    <Unlink class="h-4 w-4" />
+                                </button>
+                                <div class="mx-1 h-5 w-px bg-gray-200 dark:bg-gray-700"></div>
+                                <button
+                                    type="button"
+                                    class="inline-flex items-center rounded-md px-2 py-1 text-sm text-gray-700 hover:bg-gray-200 disabled:opacity-50 dark:text-gray-200 dark:hover:bg-gray-700"
+                                    :disabled="!editor"
+                                    @click="editor?.chain().focus().setTextAlign('left').run()"
+                                >
+                                    <AlignLeft class="h-4 w-4" />
+                                </button>
+                                <button
+                                    type="button"
+                                    class="inline-flex items-center rounded-md px-2 py-1 text-sm text-gray-700 hover:bg-gray-200 disabled:opacity-50 dark:text-gray-200 dark:hover:bg-gray-700"
+                                    :disabled="!editor"
+                                    @click="editor?.chain().focus().setTextAlign('center').run()"
+                                >
+                                    <AlignCenter class="h-4 w-4" />
+                                </button>
+                                <button
+                                    type="button"
+                                    class="inline-flex items-center rounded-md px-2 py-1 text-sm text-gray-700 hover:bg-gray-200 disabled:opacity-50 dark:text-gray-200 dark:hover:bg-gray-700"
+                                    :disabled="!editor"
+                                    @click="editor?.chain().focus().setTextAlign('right').run()"
+                                >
+                                    <AlignRight class="h-4 w-4" />
+                                </button>
+                                <div class="mx-1 h-5 w-px bg-gray-200 dark:bg-gray-700"></div>
+                                <button
+                                    type="button"
+                                    class="inline-flex items-center rounded-md px-2 py-1 text-sm text-gray-700 hover:bg-gray-200 disabled:opacity-50 dark:text-gray-200 dark:hover:bg-gray-700"
+                                    :disabled="!editor"
+                                    @click="editor?.chain().focus().setHorizontalRule().run()"
+                                >
+                                    <Minus class="h-4 w-4" />
+                                </button>
+                                <div class="mx-1 h-5 w-px bg-gray-200 dark:bg-gray-700"></div>
+                                <button
+                                    type="button"
+                                    class="inline-flex items-center rounded-md px-2 py-1 text-sm text-gray-700 hover:bg-gray-200 disabled:opacity-50 dark:text-gray-200 dark:hover:bg-gray-700"
+                                    :disabled="!editor"
+                                    @click="editor?.chain().focus().undo().run()"
+                                >
+                                    <Undo2 class="h-4 w-4" />
+                                </button>
+                                <button
+                                    type="button"
+                                    class="inline-flex items-center rounded-md px-2 py-1 text-sm text-gray-700 hover:bg-gray-200 disabled:opacity-50 dark:text-gray-200 dark:hover:bg-gray-700"
+                                    :disabled="!editor"
+                                    @click="editor?.chain().focus().redo().run()"
+                                >
+                                    <Redo2 class="h-4 w-4" />
+                                </button>
                             </div>
-                            <div
-                                ref="descriptionEditor"
-                                contenteditable="true"
-                                class="prose prose-sm max-w-none p-3 text-sm text-gray-700 focus:outline-none dark:prose-invert dark:text-gray-200"
-                                @input="syncDescriptionFromEditor"
-                            ></div>
+                            <EditorContent v-if="editor" :editor="editor" />
                         </div>
                         <p v-if="form.errors.description" class="mt-1 text-xs text-red-600">{{ form.errors.description }}</p>
                     </div>
