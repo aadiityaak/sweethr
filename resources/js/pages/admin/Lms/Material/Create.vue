@@ -2,8 +2,8 @@
 import AppLayout from '@/layouts/AppLayout.vue';
 import { type BreadcrumbItem } from '@/types';
 import { Head, useForm } from '@inertiajs/vue3';
-import { ArrowLeft, Save, Upload } from 'lucide-vue-next';
-import { computed } from 'vue';
+import { ArrowLeft, Bold, Italic, Link2, List, ListOrdered, Save, Underline, Upload } from 'lucide-vue-next';
+import { computed, onMounted, ref, watch } from 'vue';
 
 type MaterialType = 'video' | 'pdf' | 'module';
 
@@ -22,11 +22,46 @@ const form = useForm({
     is_active: true,
 });
 
+const descriptionEditor = ref<HTMLDivElement | null>(null);
+
+const syncDescriptionFromEditor = () => {
+    if (!descriptionEditor.value) return;
+    form.description = descriptionEditor.value.innerHTML;
+};
+
+const applyEditorCommand = (command: string, value?: string) => {
+    descriptionEditor.value?.focus();
+    document.execCommand(command, false, value);
+    syncDescriptionFromEditor();
+};
+
+const addLink = () => {
+    const url = window.prompt('Masukkan URL');
+    if (!url) return;
+    applyEditorCommand('createLink', url);
+};
+
 const accept = computed(() => {
     if (form.type === 'pdf') return 'application/pdf';
     if (form.type === 'video') return 'video/*';
     return '';
 });
+
+onMounted(() => {
+    if (!descriptionEditor.value) return;
+    descriptionEditor.value.innerHTML = form.description || '';
+});
+
+watch(
+    () => form.description,
+    (value) => {
+        if (!descriptionEditor.value) return;
+        const nextValue = value || '';
+        if (descriptionEditor.value.innerHTML !== nextValue) {
+            descriptionEditor.value.innerHTML = nextValue;
+        }
+    },
+);
 
 const handleFileChange = (event: Event) => {
     const target = event.target as HTMLInputElement;
@@ -45,7 +80,7 @@ const submit = () => {
     <Head title="Tambah Materi LMS" />
 
     <AppLayout :breadcrumbs="breadcrumbs">
-        <div class="mx-auto max-w-3xl px-4 py-6 sm:px-6 lg:px-8">
+        <div class="px-6">
             <div class="mb-8">
                 <div class="flex items-center gap-4">
                     <a
@@ -79,13 +114,63 @@ const submit = () => {
 
                     <div>
                         <label class="block text-sm font-medium text-gray-700 dark:text-gray-300">Deskripsi (Opsional)</label>
-                        <textarea
-                            v-model="form.description"
-                            rows="4"
-                            class="mt-1 block w-full rounded-lg border border-gray-300 bg-white px-3 py-2 text-sm focus:border-blue-500 focus:ring-1 focus:ring-blue-500 focus:outline-none dark:border-gray-600 dark:bg-gray-800 dark:text-gray-300"
+                        <div
+                            class="mt-1 overflow-hidden rounded-lg border border-gray-300 bg-white dark:border-gray-600 dark:bg-gray-800"
                             :class="{ 'border-red-500': form.errors.description }"
-                            placeholder="Tulis ringkasan materi..."
-                        />
+                        >
+                            <div class="flex flex-wrap items-center gap-1 border-b border-gray-200 bg-gray-50 p-2 dark:border-gray-700 dark:bg-gray-900/40">
+                                <button
+                                    type="button"
+                                    class="inline-flex items-center rounded-md px-2 py-1 text-sm text-gray-700 hover:bg-gray-200 dark:text-gray-200 dark:hover:bg-gray-700"
+                                    @click="applyEditorCommand('bold')"
+                                >
+                                    <Bold class="h-4 w-4" />
+                                </button>
+                                <button
+                                    type="button"
+                                    class="inline-flex items-center rounded-md px-2 py-1 text-sm text-gray-700 hover:bg-gray-200 dark:text-gray-200 dark:hover:bg-gray-700"
+                                    @click="applyEditorCommand('italic')"
+                                >
+                                    <Italic class="h-4 w-4" />
+                                </button>
+                                <button
+                                    type="button"
+                                    class="inline-flex items-center rounded-md px-2 py-1 text-sm text-gray-700 hover:bg-gray-200 dark:text-gray-200 dark:hover:bg-gray-700"
+                                    @click="applyEditorCommand('underline')"
+                                >
+                                    <Underline class="h-4 w-4" />
+                                </button>
+                                <div class="mx-1 h-5 w-px bg-gray-200 dark:bg-gray-700"></div>
+                                <button
+                                    type="button"
+                                    class="inline-flex items-center rounded-md px-2 py-1 text-sm text-gray-700 hover:bg-gray-200 dark:text-gray-200 dark:hover:bg-gray-700"
+                                    @click="applyEditorCommand('insertUnorderedList')"
+                                >
+                                    <List class="h-4 w-4" />
+                                </button>
+                                <button
+                                    type="button"
+                                    class="inline-flex items-center rounded-md px-2 py-1 text-sm text-gray-700 hover:bg-gray-200 dark:text-gray-200 dark:hover:bg-gray-700"
+                                    @click="applyEditorCommand('insertOrderedList')"
+                                >
+                                    <ListOrdered class="h-4 w-4" />
+                                </button>
+                                <div class="mx-1 h-5 w-px bg-gray-200 dark:bg-gray-700"></div>
+                                <button
+                                    type="button"
+                                    class="inline-flex items-center rounded-md px-2 py-1 text-sm text-gray-700 hover:bg-gray-200 dark:text-gray-200 dark:hover:bg-gray-700"
+                                    @click="addLink"
+                                >
+                                    <Link2 class="h-4 w-4" />
+                                </button>
+                            </div>
+                            <div
+                                ref="descriptionEditor"
+                                contenteditable="true"
+                                class="prose prose-sm max-w-none p-3 text-sm text-gray-700 focus:outline-none dark:prose-invert dark:text-gray-200"
+                                @input="syncDescriptionFromEditor"
+                            ></div>
+                        </div>
                         <p v-if="form.errors.description" class="mt-1 text-xs text-red-600">{{ form.errors.description }}</p>
                     </div>
 

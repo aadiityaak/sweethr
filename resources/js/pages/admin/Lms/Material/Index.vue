@@ -57,6 +57,13 @@ const typeLabel = (type: MaterialType) => {
 
 const fileUrl = (material: LmsMaterial) => `/storage/${material.file_path}`;
 
+const stripHtml = (html: string) => {
+    return html
+        .replace(/<[^>]+>/g, ' ')
+        .replace(/\s+/g, ' ')
+        .trim();
+};
+
 const deleteMaterial = (material: LmsMaterial) => {
     if (!confirm(`Yakin ingin menghapus materi "${material.title}"?`)) return;
     const form = useForm({});
@@ -121,7 +128,7 @@ const deleteMaterial = (material: LmsMaterial) => {
                                                 {{ material.title }}
                                             </div>
                                             <div v-if="material.description" class="mt-1 line-clamp-2 text-sm text-gray-500 dark:text-gray-400">
-                                                {{ material.description }}
+                                                {{ stripHtml(material.description) }}
                                             </div>
                                             <div class="mt-2 text-xs text-gray-500 dark:text-gray-400">
                                                 <a :href="fileUrl(material)" target="_blank" class="hover:underline">Lihat file</a>
