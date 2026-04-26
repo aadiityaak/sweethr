@@ -30,9 +30,21 @@ import {
     Unlink,
     Upload,
 } from 'lucide-vue-next';
-import { computed } from 'vue';
+import { computed, onBeforeUnmount, ref } from 'vue';
 
-type MaterialType = 'video' | 'pdf' | 'module';
+interface LmsCategory {
+    id: number;
+    parent_id: number | null;
+    name: string;
+    is_active: boolean;
+    children?: LmsCategory[];
+}
+
+interface Props {
+    categories: LmsCategory[];
+}
+
+const { categories } = defineProps<Props>();
 
 const breadcrumbs: BreadcrumbItem[] = [
     { title: 'Dashboard', href: '/admin/dashboard' },
@@ -44,10 +56,25 @@ const breadcrumbs: BreadcrumbItem[] = [
 const form = useForm({
     title: '',
     description: '',
-    type: 'video' as MaterialType,
+    lms_category_id: null as number | null,
     file: null as File | null,
+    thumbnail: null as File | null,
     is_active: true,
 });
+
+const flattenCategories = (items: LmsCategory[], depth = 0): Array<{ id: number; label: string }> => {
+    const result: Array<{ id: number; label: string }> = [];
+    for (const item of items) {
+        const prefix = depth > 0 ? `${'—'.repeat(depth)} ` : '';
+        result.push({ id: item.id, label: `${prefix}${item.name}` });
+        if (item.children?.length) {
+            result.push(...flattenCategories(item.children, depth + 1));
+        }
+    }
+    return result;
+};
+
+const categoryOptions = computed(() => flattenCategories(categories));
 
 const editor = useEditor({
     content: form.description || '',
@@ -92,16 +119,32 @@ const setLink = () => {
     editor.value.chain().focus().extendMarkRange('link').setLink({ href: url }).run();
 };
 
-const accept = computed(() => {
-    if (form.type === 'pdf') return 'application/pdf';
-    if (form.type === 'video') return 'video/*';
-    return '';
+const thumbnailPreviewUrl = ref<string | null>(null);
+
+const revokeThumbnailPreviewUrl = () => {
+    if (!thumbnailPreviewUrl.value) return;
+    URL.revokeObjectURL(thumbnailPreviewUrl.value);
+    thumbnailPreviewUrl.value = null;
+};
+
+onBeforeUnmount(() => {
+    revokeThumbnailPreviewUrl();
 });
 
 const handleFileChange = (event: Event) => {
     const target = event.target as HTMLInputElement;
     const file = target.files?.[0] ?? null;
     form.file = file;
+};
+
+const handleThumbnailChange = (event: Event) => {
+    const target = event.target as HTMLInputElement;
+    const file = target.files?.[0] ?? null;
+    form.thumbnail = file;
+    revokeThumbnailPreviewUrl();
+    if (file) {
+        thumbnailPreviewUrl.value = URL.createObjectURL(file);
+    }
 };
 
 const submit = () => {
@@ -127,7 +170,7 @@ const submit = () => {
                     </a>
                     <div>
                         <h1 class="text-3xl font-bold text-gray-900 dark:text-white">Tambah Materi LMS</h1>
-                        <p class="mt-1 text-gray-600 dark:text-gray-400">Unggah video, PDF, atau modul pelatihan</p>
+                        <p class="mt-1 text-gray-600 dark:text-gray-400">Unggah file (PDF, gambar, video, dokumen, excel, dll)</p>
                     </div>
                 </div>
             </div>
@@ -312,22 +355,42 @@ const submit = () => {
 
                     <div class="grid gap-6 md:grid-cols-2">
                         <div>
-                            <label class="block text-sm font-medium text-gray-700 dark:text-gray-300">Tipe</label>
+                            <label class="block text-sm font-medium text-gray-700 dark:text-gray-300">Kategori</label>
                             <select
-                                v-model="form.type"
+                                v-model="form.lms_category_id"
                                 class="mt-1 block w-full rounded-lg border border-gray-300 bg-white px-3 py-2 text-sm focus:border-blue-500 focus:ring-1 focus:ring-blue-500 focus:outline-none dark:border-gray-600 dark:bg-gray-800 dark:text-gray-300"
-                                :class="{ 'border-red-500': form.errors.type }"
+                                :class="{ 'border-red-500': form.errors.lms_category_id }"
+                                required
                             >
-                                <option value="video">Video</option>
-                                <option value="pdf">PDF</option>
-                                <option value="module">Modul</option>
+                                <option :value="null" disabled>Pilih kategori...</option>
+                                <option v-for="opt in categoryOptions" :key="opt.id" :value="opt.id">{{ opt.label }}</option>
                             </select>
-                            <p v-if="form.errors.type" class="mt-1 text-xs text-red-600">{{ form.errors.type }}</p>
+                            <p v-if="form.errors.lms_category_id" class="mt-1 text-xs text-red-600">{{ form.errors.lms_category_id }}</p>
                         </div>
 
                         <div class="flex items-center gap-2 pt-7">
                             <input v-model="form.is_active" type="checkbox" class="h-4 w-4 rounded border-gray-300 text-blue-600 focus:ring-blue-500" />
                             <label class="text-sm text-gray-700 dark:text-gray-300">Aktif</label>
+                        </div>
+                    </div>
+
+                    <div>
+                        <label class="block text-sm font-medium text-gray-700 dark:text-gray-300">Thumbnail (Opsional)</label>
+                        <div class="mt-2 flex items-start gap-4">
+                            <div class="h-20 w-32 overflow-hidden rounded-lg border border-gray-200 bg-gray-50 dark:border-gray-800 dark:bg-gray-900">
+                                <img v-if="thumbnailPreviewUrl" :src="thumbnailPreviewUrl" class="h-full w-full object-cover" alt="Thumbnail preview" />
+                                <div v-else class="flex h-full w-full items-center justify-center text-xs text-gray-500 dark:text-gray-400">Tidak ada</div>
+                            </div>
+                            <div class="flex-1">
+                                <input
+                                    type="file"
+                                    accept="image/*"
+                                    class="block w-full text-sm text-gray-700 file:mr-4 file:rounded-md file:border-0 file:bg-gray-100 file:px-3 file:py-2 file:text-sm file:font-medium file:text-gray-700 hover:file:bg-gray-200 dark:text-gray-200 dark:file:bg-gray-800 dark:file:text-gray-200 dark:hover:file:bg-gray-700"
+                                    @change="handleThumbnailChange"
+                                />
+                                <p class="mt-1 text-xs text-gray-500 dark:text-gray-400">PNG/JPG/WebP, maks 5MB</p>
+                                <p v-if="form.errors.thumbnail" class="mt-1 text-xs text-red-600">{{ form.errors.thumbnail }}</p>
+                            </div>
                         </div>
                     </div>
 
@@ -339,7 +402,7 @@ const submit = () => {
                                 <div class="mt-4">
                                     <label class="cursor-pointer">
                                         <span class="mt-2 block text-sm font-medium text-gray-900 dark:text-white">Pilih file</span>
-                                        <input type="file" class="sr-only" :accept="accept" required @change="handleFileChange" />
+                                        <input type="file" class="sr-only" required @change="handleFileChange" />
                                     </label>
                                     <p class="mt-1 text-xs text-gray-500 dark:text-gray-400">Maks 50MB</p>
                                 </div>

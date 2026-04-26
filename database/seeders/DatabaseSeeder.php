@@ -43,6 +43,9 @@ class DatabaseSeeder extends Seeder
             AnnouncementCategorySeeder::class,
             AnnouncementSeeder::class,
 
+            // LMS
+            LmsCategorySeeder::class,
+
             // Sample Data (optional for testing)
             LeaveRequestSeeder::class,
             LeaveExchangeSeeder::class,

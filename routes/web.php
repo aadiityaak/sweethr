@@ -217,6 +217,19 @@ Route::middleware(['auth', 'verified', 'admin'])->group(function () {
     Route::post('admin/lms-materials/{lms_material}/update', [App\Http\Controllers\Admin\LmsMaterialController::class, 'updateWithFiles'])
         ->name('admin.lms-materials.update-with-files');
 
+    // Admin LMS Categories Management
+    Route::resource('admin/lms-categories', App\Http\Controllers\Admin\LmsCategoryController::class, [
+        'except' => ['show'],
+        'names' => [
+            'index' => 'admin.lms-categories.index',
+            'create' => 'admin.lms-categories.create',
+            'store' => 'admin.lms-categories.store',
+            'edit' => 'admin.lms-categories.edit',
+            'update' => 'admin.lms-categories.update',
+            'destroy' => 'admin.lms-categories.destroy',
+        ],
+    ]);
+
     // Admin Payroll Management
     Route::get('admin/salary-settings', [App\Http\Controllers\Admin\SalarySettingController::class, 'index'])
         ->name('admin.salary-settings.index');

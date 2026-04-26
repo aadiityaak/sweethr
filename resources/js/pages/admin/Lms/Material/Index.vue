@@ -4,14 +4,14 @@ import { type BreadcrumbItem } from '@/types';
 import { Head, Link, useForm } from '@inertiajs/vue3';
 import { Eye, FileText, Pencil, Plus, Trash2 } from 'lucide-vue-next';
 
-type MaterialType = 'video' | 'pdf' | 'module';
-
 interface LmsMaterial {
     id: number;
     title: string;
     description: string | null;
-    type: MaterialType;
+    lms_category_id: number | null;
+    category: { id: number; name: string; parent?: { id: number; name: string } | null } | null;
     file_path: string;
+    thumbnail_path: string | null;
     is_active: boolean;
     created_at: string;
 }
@@ -49,13 +49,16 @@ const formatDate = (dateString: string) => {
     });
 };
 
-const typeLabel = (type: MaterialType) => {
-    if (type === 'video') return 'Video';
-    if (type === 'pdf') return 'PDF';
-    return 'Modul';
+const categoryLabel = (material: LmsMaterial) => {
+    if (!material.category) return '-';
+    if (material.category.parent?.name) {
+        return `${material.category.parent.name} / ${material.category.name}`;
+    }
+    return material.category.name;
 };
 
 const fileUrl = (material: LmsMaterial) => `/storage/${material.file_path}`;
+const thumbnailUrl = (material: LmsMaterial) => (material.thumbnail_path ? `/storage/${material.thumbnail_path}` : null);
 
 const stripHtml = (html: string) => {
     return html
@@ -82,15 +85,23 @@ const deleteMaterial = (material: LmsMaterial) => {
                 <div class="flex items-center justify-between">
                     <div>
                         <h1 class="text-3xl font-bold text-gray-900 dark:text-white">Pengelolaan Konten LMS</h1>
-                        <p class="mt-1 text-gray-600 dark:text-gray-400">Kelola materi video, PDF, dan modul pelatihan</p>
+                        <p class="mt-1 text-gray-600 dark:text-gray-400">Kelola materi pembelajaran dengan lampiran file</p>
                     </div>
-                    <Link
-                        href="/admin/lms-materials/create"
-                        class="inline-flex items-center rounded-lg bg-blue-600 px-4 py-2 text-sm font-medium text-white shadow-sm transition-colors hover:bg-blue-700 focus:ring-2 focus:ring-blue-500 focus:ring-offset-2 focus:outline-none"
-                    >
-                        <Plus class="mr-2 h-4 w-4" />
-                        Tambah Materi
-                    </Link>
+                    <div class="flex items-center gap-2">
+                        <Link
+                            href="/admin/lms-categories"
+                            class="inline-flex items-center rounded-lg border border-gray-300 bg-white px-4 py-2 text-sm font-medium text-gray-700 shadow-sm transition-colors hover:bg-gray-50 dark:border-gray-700 dark:bg-gray-900 dark:text-gray-200 dark:hover:bg-gray-800"
+                        >
+                            Kelola Kategori
+                        </Link>
+                        <Link
+                            href="/admin/lms-materials/create"
+                            class="inline-flex items-center rounded-lg bg-blue-600 px-4 py-2 text-sm font-medium text-white shadow-sm transition-colors hover:bg-blue-700 focus:ring-2 focus:ring-blue-500 focus:ring-offset-2 focus:outline-none"
+                        >
+                            <Plus class="mr-2 h-4 w-4" />
+                            Tambah Materi
+                        </Link>
+                    </div>
                 </div>
             </div>
 
@@ -103,7 +114,7 @@ const deleteMaterial = (material: LmsMaterial) => {
                                     Materi
                                 </th>
                                 <th class="px-6 py-3 text-left text-xs font-medium tracking-wider text-gray-500 uppercase dark:text-gray-400">
-                                    Tipe
+                                    Kategori
                                 </th>
                                 <th class="px-6 py-3 text-left text-xs font-medium tracking-wider text-gray-500 uppercase dark:text-gray-400">
                                     Status
@@ -120,8 +131,9 @@ const deleteMaterial = (material: LmsMaterial) => {
                             <tr v-for="material in materials.data" :key="material.id" class="hover:bg-gray-50 dark:hover:bg-gray-900">
                                 <td class="px-6 py-4">
                                     <div class="flex items-start gap-3">
-                                        <div class="mt-0.5 flex h-9 w-9 items-center justify-center rounded-lg bg-gray-100 dark:bg-gray-800">
-                                            <FileText class="h-5 w-5 text-gray-500 dark:text-gray-400" />
+                                        <div class="mt-0.5 flex h-9 w-9 items-center justify-center overflow-hidden rounded-lg bg-gray-100 dark:bg-gray-800">
+                                            <img v-if="thumbnailUrl(material)" :src="thumbnailUrl(material)!" class="h-full w-full object-cover" alt="Thumbnail" />
+                                            <FileText v-else class="h-5 w-5 text-gray-500 dark:text-gray-400" />
                                         </div>
                                         <div class="min-w-0">
                                             <div class="font-medium text-gray-900 dark:text-white">
@@ -137,7 +149,7 @@ const deleteMaterial = (material: LmsMaterial) => {
                                     </div>
                                 </td>
                                 <td class="px-6 py-4 text-sm text-gray-700 dark:text-gray-300">
-                                    {{ typeLabel(material.type) }}
+                                    {{ categoryLabel(material) }}
                                 </td>
                                 <td class="px-6 py-4">
                                     <span

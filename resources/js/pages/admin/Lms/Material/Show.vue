@@ -5,14 +5,14 @@ import { Head, Link } from '@inertiajs/vue3';
 import { ArrowLeft, Download, Pencil } from 'lucide-vue-next';
 import { computed } from 'vue';
 
-type MaterialType = 'video' | 'pdf' | 'module';
-
 interface LmsMaterial {
     id: number;
     title: string;
     description: string | null;
-    type: MaterialType;
+    lms_category_id: number | null;
+    category: { id: number; name: string; parent?: { id: number; name: string } | null } | null;
     file_path: string;
+    thumbnail_path: string | null;
     is_active: boolean;
     created_at: string;
 }
@@ -31,6 +31,21 @@ const breadcrumbs: BreadcrumbItem[] = [
 ];
 
 const fileUrl = computed(() => `/storage/${material.file_path}`);
+const thumbnailUrl = computed(() => (material.thumbnail_path ? `/storage/${material.thumbnail_path}` : null));
+
+const fileExtension = computed(() => {
+    const parts = material.file_path.split('.');
+    if (parts.length < 2) return '';
+    return (parts.at(-1) || '').toLowerCase();
+});
+
+const isPdf = computed(() => fileExtension.value === 'pdf');
+const isImage = computed(() =>
+    ['png', 'jpg', 'jpeg', 'gif', 'webp', 'bmp', 'svg'].includes(fileExtension.value),
+);
+const isVideo = computed(() =>
+    ['mp4', 'webm', 'ogg', 'mov', 'm4v'].includes(fileExtension.value),
+);
 
 const formatDate = (dateString: string) => {
     return new Date(dateString).toLocaleDateString('id-ID', {
@@ -42,18 +57,20 @@ const formatDate = (dateString: string) => {
     });
 };
 
-const typeLabel = (type: MaterialType) => {
-    if (type === 'video') return 'Video';
-    if (type === 'pdf') return 'PDF';
-    return 'Modul';
-};
+const categoryLabel = computed(() => {
+    if (!material.category) return '-';
+    if (material.category.parent?.name) {
+        return `${material.category.parent.name} / ${material.category.name}`;
+    }
+    return material.category.name;
+});
 </script>
 
 <template>
     <Head :title="`Materi LMS: ${material.title}`" />
 
     <AppLayout :breadcrumbs="breadcrumbs">
-        <div class="mx-auto max-w-5xl px-4 py-6 sm:px-6 lg:px-8">
+        <div class="px-6">
             <div class="mb-8">
                 <div class="flex flex-wrap items-center justify-between gap-3">
                     <div class="flex items-center gap-4">
@@ -67,7 +84,7 @@ const typeLabel = (type: MaterialType) => {
                         <div>
                             <h1 class="text-3xl font-bold text-gray-900 dark:text-white">{{ material.title }}</h1>
                             <div class="mt-1 text-sm text-gray-600 dark:text-gray-400">
-                                <span class="font-medium">{{ typeLabel(material.type) }}</span>
+                                <span class="font-medium">{{ categoryLabel }}</span>
                                 <span class="mx-2">•</span>
                                 <span>{{ formatDate(material.created_at) }}</span>
                                 <span class="mx-2">•</span>
@@ -98,6 +115,9 @@ const typeLabel = (type: MaterialType) => {
             <div class="grid gap-6 lg:grid-cols-5">
                 <div class="lg:col-span-2">
                     <div class="rounded-xl border border-gray-200/50 bg-white p-6 shadow-sm dark:border-gray-800/50 dark:bg-gray-950">
+                        <div v-if="thumbnailUrl" class="mb-6 overflow-hidden rounded-lg border border-gray-200 dark:border-gray-800">
+                            <img :src="thumbnailUrl" class="w-full object-cover" alt="Thumbnail" />
+                        </div>
                         <h2 class="text-lg font-semibold text-gray-900 dark:text-white">Deskripsi</h2>
                         <div
                             v-if="material.description"
@@ -116,17 +136,21 @@ const typeLabel = (type: MaterialType) => {
                     <div class="rounded-xl border border-gray-200/50 bg-white p-6 shadow-sm dark:border-gray-800/50 dark:bg-gray-950">
                         <h2 class="text-lg font-semibold text-gray-900 dark:text-white">Preview</h2>
 
-                        <div v-if="material.type === 'video'" class="mt-4">
+                        <div v-if="isVideo" class="mt-4">
                             <video :src="fileUrl" controls class="w-full rounded-lg"></video>
                         </div>
 
-                        <div v-else-if="material.type === 'pdf'" class="mt-4">
+                        <div v-else-if="isPdf" class="mt-4">
                             <iframe :src="fileUrl" class="h-[70vh] w-full rounded-lg border border-gray-200 dark:border-gray-800"></iframe>
+                        </div>
+
+                        <div v-else-if="isImage" class="mt-4">
+                            <img :src="fileUrl" class="w-full rounded-lg border border-gray-200 dark:border-gray-800" alt="Preview" />
                         </div>
 
                         <div v-else class="mt-4">
                             <div class="rounded-lg border border-gray-200 p-4 text-sm text-gray-700 dark:border-gray-800 dark:text-gray-300">
-                                Preview modul tidak tersedia. Gunakan tombol Unduh untuk membuka file.
+                                Preview tidak tersedia untuk tipe file ini. Gunakan tombol Unduh untuk membuka file.
                             </div>
                         </div>
                     </div>

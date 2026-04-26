@@ -139,6 +139,11 @@ const adminNavItems: NavItem[] = [
         icon: BookOpen,
         items: [
             {
+                title: 'Kategori',
+                href: '/admin/lms-categories',
+                icon: FolderOpen,
+            },
+            {
                 title: 'Pengelolaan Konten',
                 href: '/admin/lms-materials',
                 icon: FileText,

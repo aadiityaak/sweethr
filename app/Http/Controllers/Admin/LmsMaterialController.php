@@ -3,6 +3,7 @@
 namespace App\Http\Controllers\Admin;
 
 use App\Http\Controllers\Controller;
+use App\Models\LmsCategory;
 use App\Models\LmsMaterial;
 use Illuminate\Http\Request;
 use Illuminate\Support\Facades\Storage;
@@ -12,7 +13,7 @@ class LmsMaterialController extends Controller
 {
     public function index()
     {
-        $materials = LmsMaterial::latest()->paginate(15);
+        $materials = LmsMaterial::with(['category.parent'])->latest()->paginate(15);
 
         return Inertia::render('admin/Lms/Material/Index', [
             'materials' => $materials,
@@ -21,7 +22,11 @@ class LmsMaterialController extends Controller
 
     public function create()
     {
-        return Inertia::render('admin/Lms/Material/Create');
+        $categories = LmsCategory::with('children')->whereNull('parent_id')->orderBy('name')->get();
+
+        return Inertia::render('admin/Lms/Material/Create', [
+            'categories' => $categories,
+        ]);
     }
 
     public function store(Request $request)
@@ -29,8 +34,9 @@ class LmsMaterialController extends Controller
         $validated = $request->validate([
             'title' => 'required|string|max:255',
             'description' => 'nullable|string',
-            'type' => 'required|in:video,pdf,module',
+            'lms_category_id' => 'required|exists:lms_categories,id',
             'file' => 'required|file|max:51200', // 50MB max
+            'thumbnail' => 'nullable|image|max:5120',
             'is_active' => 'boolean',
         ]);
 
@@ -39,7 +45,12 @@ class LmsMaterialController extends Controller
             $validated['file_path'] = $path;
         }
 
-        unset($validated['file']);
+        if ($request->hasFile('thumbnail')) {
+            $path = $request->file('thumbnail')->store('lms/materials/thumbnails', 'public');
+            $validated['thumbnail_path'] = $path;
+        }
+
+        unset($validated['file'], $validated['thumbnail']);
         LmsMaterial::create($validated);
 
         return redirect()->route('admin.lms-materials.index')
@@ -48,6 +59,8 @@ class LmsMaterialController extends Controller
 
     public function show(LmsMaterial $lms_material)
     {
+        $lms_material->load(['category.parent']);
+
         return Inertia::render('admin/Lms/Material/Show', [
             'material' => $lms_material,
         ]);
@@ -55,8 +68,12 @@ class LmsMaterialController extends Controller
 
     public function edit(LmsMaterial $lms_material)
     {
+        $categories = LmsCategory::with('children')->whereNull('parent_id')->orderBy('name')->get();
+        $lms_material->load(['category.parent']);
+
         return Inertia::render('admin/Lms/Material/Edit', [
             'material' => $lms_material,
+            'categories' => $categories,
         ]);
     }
 
@@ -65,13 +82,13 @@ class LmsMaterialController extends Controller
         $validated = $request->validate([
             'title' => 'required|string|max:255',
             'description' => 'nullable|string',
-            'type' => 'required|in:video,pdf,module',
+            'lms_category_id' => 'required|exists:lms_categories,id',
             'file' => 'nullable|file|max:51200',
+            'thumbnail' => 'nullable|image|max:5120',
             'is_active' => 'boolean',
         ]);
 
         if ($request->hasFile('file')) {
-            // Delete old file
             if ($lms_material->file_path) {
                 Storage::disk('public')->delete($lms_material->file_path);
             }
@@ -80,7 +97,16 @@ class LmsMaterialController extends Controller
             $validated['file_path'] = $path;
         }
 
-        unset($validated['file']);
+        if ($request->hasFile('thumbnail')) {
+            if ($lms_material->thumbnail_path) {
+                Storage::disk('public')->delete($lms_material->thumbnail_path);
+            }
+
+            $path = $request->file('thumbnail')->store('lms/materials/thumbnails', 'public');
+            $validated['thumbnail_path'] = $path;
+        }
+
+        unset($validated['file'], $validated['thumbnail']);
         $lms_material->update($validated);
 
         return redirect()->route('admin.lms-materials.index')
@@ -96,6 +122,10 @@ class LmsMaterialController extends Controller
     {
         if ($lms_material->file_path) {
             Storage::disk('public')->delete($lms_material->file_path);
+        }
+
+        if ($lms_material->thumbnail_path) {
+            Storage::disk('public')->delete($lms_material->thumbnail_path);
         }
 
         $lms_material->delete();
