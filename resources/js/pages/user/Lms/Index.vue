@@ -222,7 +222,12 @@ const formatDateTime = (dateString: string) => {
                                         {{ categoryLabel(quiz) }} • {{ formatDate(quiz.created_at) }} • {{ quiz.questions_count }} soal
                                     </p>
                                 </div>
-                                <span class="shrink-0 rounded-full border px-2 py-1 text-[10px] font-semibold text-muted-foreground">Segera</span>
+                                <Link
+                                    :href="`/lms/quizzes/${quiz.id}`"
+                                    class="shrink-0 rounded-md bg-primary px-3 py-2 text-xs font-semibold text-primary-foreground transition-colors hover:bg-primary/90"
+                                >
+                                    Buka
+                                </Link>
                             </div>
                             <p v-if="quiz.description" class="mt-2 text-sm text-muted-foreground">
                                 {{ truncate(stripHtml(quiz.description)) }}
@@ -254,9 +259,12 @@ const formatDateTime = (dateString: string) => {
                                         <span v-if="assignment.due_at"> • Due {{ formatDateTime(assignment.due_at) }}</span>
                                     </p>
                                 </div>
-                                <span class="shrink-0 rounded-full border px-2 py-1 text-[10px] font-semibold text-muted-foreground">
-                                    Maks {{ assignment.max_score }}
-                                </span>
+                                <Link
+                                    :href="`/lms/assignments/${assignment.id}`"
+                                    class="shrink-0 rounded-md bg-primary px-3 py-2 text-xs font-semibold text-primary-foreground transition-colors hover:bg-primary/90"
+                                >
+                                    Buka
+                                </Link>
                             </div>
                             <p v-if="assignment.description" class="mt-2 text-sm text-muted-foreground">
                                 {{ truncate(stripHtml(assignment.description)) }}

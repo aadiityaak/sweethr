@@ -92,6 +92,27 @@ Route::middleware(['auth', 'verified'])->group(function () {
 
     Route::get('lms', [App\Http\Controllers\User\LmsController::class, 'index'])
         ->name('user.lms.index');
+
+    Route::get('lms/quizzes', [App\Http\Controllers\User\LmsQuizController::class, 'index'])
+        ->name('user.lms-quizzes.index');
+    Route::get('lms/quizzes/{lms_quiz}', [App\Http\Controllers\User\LmsQuizController::class, 'show'])
+        ->name('user.lms-quizzes.show');
+    Route::post('lms/quizzes/{lms_quiz}/start', [App\Http\Controllers\User\LmsQuizController::class, 'start'])
+        ->name('user.lms-quizzes.start');
+    Route::get('lms/quizzes/{lms_quiz}/attempts/{attempt}/take', [App\Http\Controllers\User\LmsQuizController::class, 'take'])
+        ->name('user.lms-quizzes.attempts.take');
+    Route::post('lms/quizzes/{lms_quiz}/attempts/{attempt}/submit', [App\Http\Controllers\User\LmsQuizController::class, 'submit'])
+        ->name('user.lms-quizzes.attempts.submit');
+    Route::get('lms/quizzes/{lms_quiz}/attempts/{attempt}', [App\Http\Controllers\User\LmsQuizController::class, 'result'])
+        ->name('user.lms-quizzes.attempts.show');
+
+    Route::get('lms/assignments', [App\Http\Controllers\User\LmsAssignmentController::class, 'index'])
+        ->name('user.lms-assignments.index');
+    Route::get('lms/assignments/{lms_assignment}', [App\Http\Controllers\User\LmsAssignmentController::class, 'show'])
+        ->name('user.lms-assignments.show');
+    Route::post('lms/assignments/{lms_assignment}/submit', [App\Http\Controllers\User\LmsAssignmentController::class, 'submit'])
+        ->name('user.lms-assignments.submit');
+
     Route::get('lms/{lms_material}', [App\Http\Controllers\User\LmsController::class, 'show'])
         ->name('user.lms.show');
 });
