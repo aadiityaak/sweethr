@@ -45,6 +45,7 @@ interface LmsMaterial {
     title: string;
     description: string | null;
     lms_category_id: number | null;
+    youtube_url: string | null;
     category: { id: number; name: string; parent?: { id: number; name: string } | null } | null;
     file_path: string;
     thumbnail_path: string | null;
@@ -70,6 +71,7 @@ const form = useForm({
     title: material.title,
     description: material.description ?? '',
     lms_category_id: material.lms_category_id,
+    youtube_url: material.youtube_url ?? '',
     file: null as File | null,
     thumbnail: null as File | null,
     is_active: material.is_active,
@@ -386,6 +388,18 @@ const categoryOptions = computed(() => flattenCategories(categories));
                                 <option v-for="opt in categoryOptions" :key="opt.id" :value="opt.id">{{ opt.label }}</option>
                             </select>
                             <p v-if="form.errors.lms_category_id" class="mt-1 text-xs text-red-600">{{ form.errors.lms_category_id }}</p>
+
+                            <div class="mt-4">
+                                <label class="block text-sm font-medium text-gray-700 dark:text-gray-300">URL YouTube (Opsional)</label>
+                                <input
+                                    v-model="form.youtube_url"
+                                    type="url"
+                                    placeholder="https://www.youtube.com/watch?v=..."
+                                    class="mt-1 block w-full rounded-lg border border-gray-300 bg-white px-3 py-2 text-sm focus:border-blue-500 focus:ring-1 focus:ring-blue-500 focus:outline-none dark:border-gray-600 dark:bg-gray-800 dark:text-gray-300"
+                                    :class="{ 'border-red-500': form.errors.youtube_url }"
+                                />
+                                <p v-if="form.errors.youtube_url" class="mt-1 text-xs text-red-600">{{ form.errors.youtube_url }}</p>
+                            </div>
                         </div>
 
                         <div class="flex items-center gap-2 pt-7">

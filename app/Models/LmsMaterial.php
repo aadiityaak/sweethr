@@ -12,6 +12,7 @@ class LmsMaterial extends Model
         'title',
         'description',
         'lms_category_id',
+        'youtube_url',
         'file_path',
         'thumbnail_path',
         'is_active',

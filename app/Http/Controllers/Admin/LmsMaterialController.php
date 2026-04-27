@@ -31,10 +31,15 @@ class LmsMaterialController extends Controller
 
     public function store(Request $request)
     {
+        $request->merge([
+            'youtube_url' => $request->input('youtube_url') ?: null,
+        ]);
+
         $validated = $request->validate([
             'title' => 'required|string|max:255',
             'description' => 'nullable|string',
             'lms_category_id' => 'required|exists:lms_categories,id',
+            'youtube_url' => 'nullable|url|max:2048',
             'file' => 'required|file|max:51200', // 50MB max
             'thumbnail' => 'nullable|image|max:5120',
             'is_active' => 'boolean',
@@ -79,10 +84,15 @@ class LmsMaterialController extends Controller
 
     public function update(Request $request, LmsMaterial $lms_material)
     {
+        $request->merge([
+            'youtube_url' => $request->input('youtube_url') ?: null,
+        ]);
+
         $validated = $request->validate([
             'title' => 'required|string|max:255',
             'description' => 'nullable|string',
             'lms_category_id' => 'required|exists:lms_categories,id',
+            'youtube_url' => 'nullable|url|max:2048',
             'file' => 'nullable|file|max:51200',
             'thumbnail' => 'nullable|image|max:5120',
             'is_active' => 'boolean',

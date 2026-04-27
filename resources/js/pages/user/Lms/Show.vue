@@ -15,6 +15,7 @@ interface LmsMaterial {
     title: string;
     description: string | null;
     category: CategoryRef | null;
+    youtube_url: string | null;
     file_path: string | null;
     thumbnail_path: string | null;
     created_at: string;
@@ -33,6 +34,42 @@ const categoryLabel = computed(() => {
 });
 
 const fileUrl = computed(() => (material.file_path ? `/storage/${material.file_path}` : null));
+
+const youtubeEmbedUrl = computed(() => {
+    const raw = String(material.youtube_url ?? '').trim();
+    if (!raw) return null;
+
+    const normalized = raw.startsWith('http://') || raw.startsWith('https://') ? raw : `https://${raw}`;
+
+    try {
+        const url = new URL(normalized);
+        const host = url.hostname.toLowerCase();
+        const path = url.pathname;
+
+        let id: string | null = null;
+
+        if (host === 'youtu.be') {
+            id = path.split('/').filter(Boolean)[0] ?? null;
+        } else if (host.endsWith('youtube.com') || host.endsWith('youtube-nocookie.com')) {
+            if (path === '/watch') {
+                id = url.searchParams.get('v');
+            } else {
+                const parts = path.split('/').filter(Boolean);
+                const embedIndex = parts.indexOf('embed');
+                const shortsIndex = parts.indexOf('shorts');
+                if (embedIndex >= 0) id = parts[embedIndex + 1] ?? null;
+                else if (shortsIndex >= 0) id = parts[shortsIndex + 1] ?? null;
+                else if (parts[0] === 'watch') id = url.searchParams.get('v');
+            }
+        }
+
+        if (!id) return null;
+
+        return `https://www.youtube-nocookie.com/embed/${encodeURIComponent(id)}?rel=0`;
+    } catch {
+        return null;
+    }
+});
 
 const fileExt = computed(() => {
     const path = material.file_path ?? '';
@@ -112,8 +149,30 @@ const formatDate = (dateString: string) => {
                     </div>
 
                     <div class="p-4">
+                        <div v-if="youtubeEmbedUrl" class="mb-4">
+                            <iframe
+                                :src="youtubeEmbedUrl"
+                                class="aspect-video w-full rounded-md border bg-background"
+                                allow="accelerometer; autoplay; clipboard-write; encrypted-media; gyroscope; picture-in-picture; web-share"
+                                allowfullscreen
+                            />
+                        </div>
                         <iframe v-if="isPdf" :src="fileUrl" class="h-[70vh] w-full rounded-md border bg-background" />
                         <img v-else-if="isImage" :src="fileUrl" :alt="material.title" class="h-auto w-full rounded-md border" />
+                    </div>
+                </div>
+
+                <div v-else-if="youtubeEmbedUrl" class="mt-6 rounded-lg border bg-card">
+                    <div class="border-b p-4">
+                        <h2 class="text-sm font-semibold">Video</h2>
+                    </div>
+                    <div class="p-4">
+                        <iframe
+                            :src="youtubeEmbedUrl"
+                            class="aspect-video w-full rounded-md border bg-background"
+                            allow="accelerometer; autoplay; clipboard-write; encrypted-media; gyroscope; picture-in-picture; web-share"
+                            allowfullscreen
+                        />
                     </div>
                 </div>
             </div>
