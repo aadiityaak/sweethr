@@ -65,7 +65,7 @@ const youtubeEmbedUrl = computed(() => {
 
         if (!id) return null;
 
-        return `https://www.youtube-nocookie.com/embed/${encodeURIComponent(id)}?rel=0`;
+        return `https://www.youtube-nocookie.com/embed/${encodeURIComponent(id)}?rel=0&controls=0&disablekb=1&fs=0&iv_load_policy=3&modestbranding=1&playsinline=1`;
     } catch {
         return null;
     }
