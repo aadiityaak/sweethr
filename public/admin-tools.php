@@ -16,34 +16,12 @@ session_start();
 // Dynamically get password from Laravel .env file
 function getAdminPasswordFromEnv()
 {
-    // Get the Laravel root directory
-    // admin-tools.php is in public_html, laravel is at /../laravel (one level up)
-    $currentDir = __DIR__;
-    $possiblePaths = [
-        // Priority 1: Standard structure - laravel one level up from public_html
-        dirname($currentDir).'/laravel',
-        // Priority 2: Alternative hosting structures
-        dirname(dirname($currentDir)).'/laravel',
-        dirname(dirname(dirname($currentDir))).'/laravel',
-        // Priority 3: Development structure
-        dirname(__DIR__),
-        // Priority 4: Same level (unlikely but possible)
-        $currentDir.'/laravel',
-    ];
-
-    $laravelRoot = null;
-    foreach ($possiblePaths as $path) {
-        if (is_dir($path) && file_exists($path.'/artisan')) {
-            $laravelRoot = $path;
-            break;
-        }
-    }
-
-    if (! $laravelRoot) {
+    $laravelRoot = getLaravelRoot();
+    if (! is_dir($laravelRoot) || ! file_exists($laravelRoot . '/artisan')) {
         return 'admin123'; // Fallback if Laravel not found
     }
 
-    $envPath = $laravelRoot.'/.env';
+    $envPath = $laravelRoot . '/.env';
     if (! file_exists($envPath)) {
         return 'admin123'; // Fallback if .env not found
     }
@@ -82,22 +60,22 @@ function getLaravelRoot()
 
     $currentDir = __DIR__;
     $possiblePaths = [
-        dirname($currentDir).'/laravel',
-        dirname(dirname($currentDir)).'/laravel',
-        dirname(dirname(dirname($currentDir))).'/laravel',
+        dirname($currentDir) . '/laravel',
+        dirname(dirname($currentDir)) . '/laravel',
+        dirname(dirname(dirname($currentDir))) . '/laravel',
         dirname(__DIR__),
-        $currentDir.'/laravel',
+        $currentDir . '/laravel',
     ];
 
     foreach ($possiblePaths as $path) {
-        if (is_dir($path) && file_exists($path.'/artisan')) {
+        if (is_dir($path) && file_exists($path . '/artisan')) {
             $laravelRoot = $path;
 
             return $laravelRoot;
         }
     }
 
-    $laravelRoot = dirname($currentDir).'/laravel'; // Default assumption
+    $laravelRoot = dirname($currentDir) . '/laravel'; // Default assumption
 
     return $laravelRoot;
 }
@@ -160,8 +138,8 @@ function executeCommand($command)
                 '/usr/local/lsws/lsphp84/bin/php',  // LiteSpeed PHP 8.4
                 '/usr/local/lsws/lsphp82/bin/php',
                 '/usr/local/lsws/lsphp81/bin/php',
-                '/home/'.get_current_user().'/public_html/cgi-bin/php83',
-                '/home/'.get_current_user().'/public_html/cgi-bin/php',
+                '/home/' . get_current_user() . '/public_html/cgi-bin/php83',
+                '/home/' . get_current_user() . '/public_html/cgi-bin/php',
                 '/usr/local/bin/php83',
                 '/usr/bin/php83',
             ];
@@ -177,25 +155,25 @@ function executeCommand($command)
         if ($phpPath) {
             // Only escape if it's a full path (contains /)
             if (strpos($phpPath, '/') !== false) {
-                $command = str_replace('php ', escapeshellarg($phpPath).' ', $command);
+                $command = str_replace('php ', escapeshellarg($phpPath) . ' ', $command);
             } else {
-                $command = str_replace('php ', $phpPath.' ', $command);
+                $command = str_replace('php ', $phpPath . ' ', $command);
             }
         } else {
             // Last resort: try without path (some hosting allows this)
             $debugInfo = "PHP Detection Debug:\n";
-            $debugInfo .= 'PHP_BINARY: '.(defined('PHP_BINARY') ? PHP_BINARY : 'Not defined')."\n";
-            $debugInfo .= 'PHP_BINARY executable: '.(defined('PHP_BINARY') && is_executable(PHP_BINARY) ? 'Yes' : 'No')."\n";
-            $debugInfo .= 'Current user: '.get_current_user()."\n";
-            $debugInfo .= 'Server software: '.($_SERVER['SERVER_SOFTWARE'] ?? 'Unknown')."\n";
-            $debugInfo .= 'PHP SAPI: '.php_sapi_name()."\n";
+            $debugInfo .= 'PHP_BINARY: ' . (defined('PHP_BINARY') ? PHP_BINARY : 'Not defined') . "\n";
+            $debugInfo .= 'PHP_BINARY executable: ' . (defined('PHP_BINARY') && is_executable(PHP_BINARY) ? 'Yes' : 'No') . "\n";
+            $debugInfo .= 'Current user: ' . get_current_user() . "\n";
+            $debugInfo .= 'Server software: ' . ($_SERVER['SERVER_SOFTWARE'] ?? 'Unknown') . "\n";
+            $debugInfo .= 'PHP SAPI: ' . php_sapi_name() . "\n";
 
-            return 'Error: Could not find PHP executable. '.$debugInfo.
+            return 'Error: Could not find PHP executable. ' . $debugInfo .
                 'Contact your hosting provider for the correct PHP path.';
         }
     }
 
-    $output = shell_exec($command.' 2>&1');
+    $output = shell_exec($command . ' 2>&1');
 
     return $output ?: 'Command executed (no output)';
 }
@@ -209,7 +187,7 @@ function formatBytes($bytes, $precision = 2)
         $bytes /= 1024;
     }
 
-    return round($bytes, $precision).' '.$units[$i];
+    return round($bytes, $precision) . ' ' . $units[$i];
 }
 
 // Get directory size
@@ -229,42 +207,12 @@ function getDirSize($dir)
 }
 
 // Remove directory recursively
-function removeDirectory($dir)
-{
-    if (! is_dir($dir)) {
-        return false;
-    }
-
-    $files = array_diff(scandir($dir), ['.', '..']);
-    foreach ($files as $file) {
-        $path = $dir.'/'.$file;
-        if (is_dir($path)) {
-            removeDirectory($path);
-        } else {
-            unlink($path);
-        }
-    }
-
-    return rmdir($dir);
-}
-
 // Define admin tool actions with grouping
 $toolGroups = [
     'cache' => [
         'title' => 'Cache Management',
         'description' => 'Clear and manage application cache',
         'actions' => [
-            'clear_cache' => [
-                'label' => 'Clear All Cache',
-                'description' => 'Clear cache, config, routes, and views',
-                'variant' => 'primary',
-                'commands' => [
-                    'php artisan cache:clear',
-                    'php artisan config:clear',
-                    'php artisan route:clear',
-                    'php artisan view:clear',
-                ],
-            ],
             'optimize_clear' => [
                 'label' => 'Clear Optimization',
                 'description' => 'Clear all optimized files',
@@ -282,18 +230,6 @@ $toolGroups = [
                 'description' => 'Optimize routes, config, and views',
                 'variant' => 'success',
                 'commands' => ['php artisan optimize'],
-            ],
-            'config_cache' => [
-                'label' => 'Cache Config',
-                'description' => 'Cache configuration files',
-                'variant' => 'secondary',
-                'commands' => ['php artisan config:cache'],
-            ],
-            'route_cache' => [
-                'label' => 'Cache Routes',
-                'description' => 'Cache route definitions',
-                'variant' => 'secondary',
-                'commands' => ['php artisan route:cache'],
             ],
         ],
     ],
@@ -442,15 +378,15 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST' && isset($_POST['action'])) {
 
     if ($action === 'logout') {
         session_destroy();
-        header('Location: '.$_SERVER['PHP_SELF']);
+        header('Location: ' . $_SERVER['PHP_SELF']);
         exit;
     }
 
     try {
         $laravelRoot = getLaravelRoot();
 
-        if (! is_dir($laravelRoot) || ! file_exists($laravelRoot.'/artisan')) {
-            throw new Exception('Laravel directory not found at: '.$laravelRoot);
+        if (! is_dir($laravelRoot) || ! file_exists($laravelRoot . '/artisan')) {
+            throw new Exception('Laravel directory not found at: ' . $laravelRoot);
         }
 
         chdir($laravelRoot);
@@ -486,7 +422,7 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST' && isset($_POST['action'])) {
             throw new Exception("Unknown action: {$action}");
         }
     } catch (Exception $e) {
-        $error = 'Error: '.$e->getMessage();
+        $error = 'Error: ' . $e->getMessage();
     }
 }
 
@@ -495,17 +431,17 @@ function handleStorageLink()
 {
     $laravelRoot = getLaravelRoot();
     $currentDir = dirname($laravelRoot); // Parent of laravel
-    $publicDir = $currentDir.'/public_html'; // Assuming standard structure
+    $publicDir = $currentDir . '/public_html'; // Assuming standard structure
 
-    $storagePath = $publicDir.'/storage';
-    $storageTarget = $laravelRoot.'/storage/app/public';
+    $storagePath = $publicDir . '/storage';
+    $storageTarget = $laravelRoot . '/storage/app/public';
 
     $output = "Storage Link Management:\n";
     $output .= "Public Directory: {$publicDir}\n";
     $output .= "Storage Link Path: {$storagePath}\n";
     $output .= "Storage Target: {$storageTarget}\n";
-    $output .= 'Target exists: '.(is_dir($storageTarget) ? 'Yes' : 'No')."\n";
-    $output .= 'Link exists: '.(file_exists($storagePath) ? 'Yes' : 'No')."\n\n";
+    $output .= 'Target exists: ' . (is_dir($storageTarget) ? 'Yes' : 'No') . "\n";
+    $output .= 'Link exists: ' . (file_exists($storagePath) ? 'Yes' : 'No') . "\n\n";
 
     if (file_exists($storagePath)) {
         if (is_link($storagePath)) {
@@ -544,7 +480,7 @@ function handleStorageLink()
 function handleStoragePermissions()
 {
     $laravelRoot = getLaravelRoot();
-    $storageDir = $laravelRoot.'/storage';
+    $storageDir = $laravelRoot . '/storage';
 
     $output = "Fixing Storage Permissions:\n";
 
@@ -556,7 +492,7 @@ function handleStoragePermissions()
     $fixed = 0;
 
     foreach ($dirs as $dir) {
-        $path = $laravelRoot.'/'.$dir;
+        $path = $laravelRoot . '/' . $dir;
         if (is_dir($path)) {
             if (chmod($path, 0755)) {
                 $output .= "✅ Fixed permissions for {$dir}\n";
@@ -575,13 +511,13 @@ function handleStoragePermissions()
 function handleClearLogs()
 {
     $laravelRoot = getLaravelRoot();
-    $logPath = $laravelRoot.'/storage/logs';
+    $logPath = $laravelRoot . '/storage/logs';
 
     if (! is_dir($logPath)) {
         return 'Log directory not found';
     }
 
-    $files = glob($logPath.'/*.log');
+    $files = glob($logPath . '/*.log');
     $count = 0;
     foreach ($files as $file) {
         if (unlink($file)) {
@@ -595,23 +531,23 @@ function handleClearLogs()
 function handleCheckEnv()
 {
     $laravelRoot = getLaravelRoot();
-    $envPath = $laravelRoot.'/.env';
-    $envExamplePath = $laravelRoot.'/.env.example';
+    $envPath = $laravelRoot . '/.env';
+    $envExamplePath = $laravelRoot . '/.env.example';
 
     $output = "Environment File Check:\n";
-    $output .= '.env exists: '.(file_exists($envPath) ? 'Yes' : 'No')."\n";
-    $output .= '.env.example exists: '.(file_exists($envExamplePath) ? 'Yes' : 'No')."\n";
+    $output .= '.env exists: ' . (file_exists($envPath) ? 'Yes' : 'No') . "\n";
+    $output .= '.env.example exists: ' . (file_exists($envExamplePath) ? 'Yes' : 'No') . "\n";
 
     if (file_exists($envPath)) {
         $envSize = filesize($envPath);
-        $output .= '.env size: '.$envSize." bytes\n";
-        $output .= '.env modified: '.date('Y-m-d H:i:s', filemtime($envPath))."\n";
+        $output .= '.env size: ' . $envSize . " bytes\n";
+        $output .= '.env modified: ' . date('Y-m-d H:i:s', filemtime($envPath)) . "\n";
 
         $envContent = file_get_contents($envPath);
         $requiredVars = ['APP_KEY', 'DB_CONNECTION', 'DB_DATABASE'];
         foreach ($requiredVars as $var) {
-            $exists = strpos($envContent, $var.'=') !== false;
-            $output .= "{$var}: ".($exists ? 'Set' : 'Missing')."\n";
+            $exists = strpos($envContent, $var . '=') !== false;
+            $output .= "{$var}: " . ($exists ? 'Set' : 'Missing') . "\n";
         }
     }
 
@@ -621,7 +557,7 @@ function handleCheckEnv()
 function handleShowEnv()
 {
     $laravelRoot = getLaravelRoot();
-    $envPath = $laravelRoot.'/.env';
+    $envPath = $laravelRoot . '/.env';
 
     if (! file_exists($envPath)) {
         return '❌ Environment file not found';
@@ -631,21 +567,21 @@ function handleShowEnv()
     // Mask sensitive values
     $maskedContent = preg_replace('/(APP_KEY|DB_PASSWORD|.*_SECRET|.*_TOKEN|.*_KEY)=(.+)/i', '$1=***MASKED***', $envContent);
 
-    return "Environment File Content (sensitive values masked):\n\n".$maskedContent;
+    return "Environment File Content (sensitive values masked):\n\n" . $maskedContent;
 }
 
 function handleBackupEnv()
 {
     $laravelRoot = getLaravelRoot();
-    $envPath = $laravelRoot.'/.env';
-    $backupPath = $laravelRoot.'/.env.backup.'.date('Y-m-d_H-i-s');
+    $envPath = $laravelRoot . '/.env';
+    $backupPath = $laravelRoot . '/.env.backup.' . date('Y-m-d_H-i-s');
 
     if (! file_exists($envPath)) {
         return '❌ Environment file not found';
     }
 
     if (copy($envPath, $backupPath)) {
-        return '✅ Environment file backed up to: '.basename($backupPath);
+        return '✅ Environment file backed up to: ' . basename($backupPath);
     } else {
         return '❌ Failed to backup environment file';
     }
@@ -659,36 +595,36 @@ function handleHealthCheck()
 
     // PHP Info
     $output .= "🔧 PHP Information:\n";
-    $output .= 'PHP Version: '.PHP_VERSION."\n";
-    $output .= 'Memory Limit: '.ini_get('memory_limit')."\n";
-    $output .= 'Max Execution Time: '.ini_get('max_execution_time')."s\n";
-    $output .= 'Upload Max Size: '.ini_get('upload_max_filesize')."\n";
+    $output .= 'PHP Version: ' . PHP_VERSION . "\n";
+    $output .= 'Memory Limit: ' . ini_get('memory_limit') . "\n";
+    $output .= 'Max Execution Time: ' . ini_get('max_execution_time') . "s\n";
+    $output .= 'Upload Max Size: ' . ini_get('upload_max_filesize') . "\n";
 
     // Extensions
     $output .= "\n🔌 Extensions:\n";
     $requiredExtensions = ['pdo', 'mbstring', 'tokenizer', 'json', 'openssl', 'curl'];
     foreach ($requiredExtensions as $ext) {
         $loaded = extension_loaded($ext);
-        $output .= "{$ext}: ".($loaded ? '✅ Loaded' : '❌ Missing')."\n";
+        $output .= "{$ext}: " . ($loaded ? '✅ Loaded' : '❌ Missing') . "\n";
     }
 
     // Laravel Files
     $output .= "\n📁 Laravel Files:\n";
     $files = ['artisan', 'composer.json', '.env', 'bootstrap/app.php'];
     foreach ($files as $file) {
-        $exists = file_exists($laravelRoot.'/'.$file);
-        $output .= "{$file}: ".($exists ? '✅ Exists' : '❌ Missing')."\n";
+        $exists = file_exists($laravelRoot . '/' . $file);
+        $output .= "{$file}: " . ($exists ? '✅ Exists' : '❌ Missing') . "\n";
     }
 
     // Directories
     $output .= "\n📂 Directories:\n";
     $dirs = ['storage', 'storage/app', 'storage/logs', 'storage/framework', 'bootstrap/cache'];
     foreach ($dirs as $dir) {
-        $path = $laravelRoot.'/'.$dir;
+        $path = $laravelRoot . '/' . $dir;
         $exists = is_dir($path);
         $writable = $exists ? is_writable($path) : false;
-        $output .= "{$dir}: ".($exists ? '✅ Exists' : '❌ Missing').
-            ($writable ? ' (Writable)' : ($exists ? ' (Not Writable)' : ''))."\n";
+        $output .= "{$dir}: " . ($exists ? '✅ Exists' : '❌ Missing') .
+            ($writable ? ' (Writable)' : ($exists ? ' (Not Writable)' : '')) . "\n";
     }
 
     return $output;
@@ -702,29 +638,29 @@ function handleDebug500()
 
     // Check PHP version and extensions
     $output .= "1. PHP Environment:\n";
-    $output .= '   Version: '.phpversion()."\n";
-    $output .= '   SAPI: '.php_sapi_name()."\n";
+    $output .= '   Version: ' . phpversion() . "\n";
+    $output .= '   SAPI: ' . php_sapi_name() . "\n";
 
     $requiredExtensions = ['openssl', 'pdo', 'mbstring', 'tokenizer', 'xml', 'ctype', 'json', 'curl'];
     $output .= "   Required Extensions:\n";
     foreach ($requiredExtensions as $ext) {
         $loaded = extension_loaded($ext);
-        $output .= "   - $ext: ".($loaded ? '✅ Loaded' : '❌ Missing')."\n";
+        $output .= "   - $ext: " . ($loaded ? '✅ Loaded' : '❌ Missing') . "\n";
     }
 
     // Check critical files
     $output .= "\n2. Critical Files Check:\n";
     $criticalFiles = [
-        '.env' => $laravelRoot.'/.env',
-        'artisan' => $laravelRoot.'/artisan',
-        'index.php' => dirname($laravelRoot).'/public_html/index.php',
-        'composer.json' => $laravelRoot.'/composer.json',
+        '.env' => $laravelRoot . '/.env',
+        'artisan' => $laravelRoot . '/artisan',
+        'index.php' => dirname($laravelRoot) . '/public_html/index.php',
+        'composer.json' => $laravelRoot . '/composer.json',
     ];
 
     foreach ($criticalFiles as $name => $path) {
         $exists = file_exists($path);
         $readable = $exists && is_readable($path);
-        $output .= "   - $name: ".($readable ? '✅ OK' : ($exists ? '⚠️ Not readable' : '❌ Missing'))."\n";
+        $output .= "   - $name: " . ($readable ? '✅ OK' : ($exists ? '⚠️ Not readable' : '❌ Missing')) . "\n";
     }
 
     // Quick fixes
@@ -745,14 +681,14 @@ function handleDebugHosting()
 
     // Current location info
     $output .= "1. Current Location:\n";
-    $output .= '   Current Dir: '.__DIR__."\n";
-    $output .= '   Document Root: '.($_SERVER['DOCUMENT_ROOT'] ?? 'Unknown')."\n";
+    $output .= '   Current Dir: ' . __DIR__ . "\n";
+    $output .= '   Document Root: ' . ($_SERVER['DOCUMENT_ROOT'] ?? 'Unknown') . "\n";
 
     // Path analysis
     $output .= "\n2. Laravel Root Detection:\n";
     $output .= "   Selected Laravel Root: {$laravelRoot}\n";
-    $output .= '   Directory exists: '.(is_dir($laravelRoot) ? 'Yes' : 'No')."\n";
-    $output .= '   Artisan exists: '.(file_exists($laravelRoot.'/artisan') ? 'Yes' : 'No')."\n";
+    $output .= '   Directory exists: ' . (is_dir($laravelRoot) ? 'Yes' : 'No') . "\n";
+    $output .= '   Artisan exists: ' . (file_exists($laravelRoot . '/artisan') ? 'Yes' : 'No') . "\n";
 
     return $output;
 }
@@ -765,11 +701,11 @@ function handleDiskSpace()
 
     // Laravel directory size
     $laravelSize = getDirSize($laravelRoot);
-    $output .= 'Laravel directory: '.formatBytes($laravelSize)."\n";
+    $output .= 'Laravel directory: ' . formatBytes($laravelSize) . "\n";
 
     // Storage directory size
-    $storageSize = getDirSize($laravelRoot.'/storage');
-    $output .= 'Storage directory: '.formatBytes($storageSize)."\n";
+    $storageSize = getDirSize($laravelRoot . '/storage');
+    $output .= 'Storage directory: ' . formatBytes($storageSize) . "\n";
 
     // Available disk space
     $freeSpace = disk_free_space($laravelRoot);
@@ -777,17 +713,17 @@ function handleDiskSpace()
     $usedSpace = $totalSpace - $freeSpace;
 
     $output .= "\nDisk Usage:\n";
-    $output .= 'Used: '.formatBytes($usedSpace)."\n";
-    $output .= 'Free: '.formatBytes($freeSpace)."\n";
-    $output .= 'Total: '.formatBytes($totalSpace)."\n";
-    $output .= 'Usage: '.round(($usedSpace / $totalSpace) * 100, 2)."%\n";
+    $output .= 'Used: ' . formatBytes($usedSpace) . "\n";
+    $output .= 'Free: ' . formatBytes($freeSpace) . "\n";
+    $output .= 'Total: ' . formatBytes($totalSpace) . "\n";
+    $output .= 'Usage: ' . round(($usedSpace / $totalSpace) * 100, 2) . "%\n";
 
     return $output;
 }
 
 function showLoginForm()
 {
-    ?>
+?>
     <!DOCTYPE html>
     <html lang="en" class="light">
 
@@ -1319,11 +1255,11 @@ $laravelRoot = getLaravelRoot();
             </div>
             <div class="info-item">
                 <span class="info-label">Environment</span>
-                <span class="info-value"><?php echo file_exists($laravelRoot.'/.env') ? 'File exists' : 'Missing'; ?></span>
+                <span class="info-value"><?php echo file_exists($laravelRoot . '/.env') ? 'File exists' : 'Missing'; ?></span>
             </div>
             <div class="info-item">
                 <span class="info-label">Storage Link</span>
-                <span class="info-value"><?php echo file_exists(dirname($laravelRoot).'/public_html/storage') ? 'Exists' : 'Missing'; ?></span>
+                <span class="info-value"><?php echo file_exists(dirname($laravelRoot) . '/public_html/storage') ? 'Exists' : 'Missing'; ?></span>
             </div>
         </div>
 

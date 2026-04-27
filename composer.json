@@ -70,11 +70,12 @@
             "@php artisan test"
         ],
         "build:production": [
-            "powershell -Command \"if (Test-Path 'dist') { Remove-Item -Recurse -Force 'dist' }\"",
+            "Composer\\Config::disableProcessTimeout",
             "npm run build",
             "@php artisan config:cache",
             "@php artisan view:cache",
             "@php artisan event:cache",
+            "npx rimraf public/storage --impl=windows --max-retries=5",
             "@php artisan storage:link",
             "@php artisan build:production-structure"
         ],
