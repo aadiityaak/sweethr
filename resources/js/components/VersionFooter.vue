@@ -65,10 +65,10 @@ interface VersionInfo {
 const { companyName } = useCompanySettings();
 const showDetails = ref(false);
 const versionInfo = ref<VersionInfo>({
-    version: '1.0.0',
-    fullVersion: 'v1.0.0.20250926.2303',
+    version: '1.0.1',
+    fullVersion: 'v1.0.1',
     buildDate: new Date().toISOString(),
-    timestamp: '20250926.2303',
+    timestamp: '',
     environment: 'development',
 });
 

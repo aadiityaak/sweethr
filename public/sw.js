@@ -1,5 +1,5 @@
 // Try to get version from version.json, fallback to static version
-let APP_VERSION = '1.0.0';
+let APP_VERSION = '1.0.1';
 let BUILD_TIMESTAMP = Date.now();
 
 // Helper to compute current cache name from app version

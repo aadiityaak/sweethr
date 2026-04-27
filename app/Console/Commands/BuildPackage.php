@@ -177,7 +177,7 @@ if (!defined('INSTALLER_ACCESS')) {
 
 // Application configuration
 define('APP_NAME', 'Sistem HR');
-define('APP_VERSION', '1.0.0');
+define('APP_VERSION', '1.0.1');
 define('MIN_PHP_VERSION', '8.1.0');
 
 // Required PHP extensions
