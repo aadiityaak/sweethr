@@ -72,6 +72,7 @@ const form = useForm({
     description: material.description ?? '',
     lms_category_id: material.lms_category_id,
     youtube_url: material.youtube_url ?? '',
+    remove_file: false,
     file: null as File | null,
     thumbnail: null as File | null,
     is_active: material.is_active,
@@ -120,7 +121,7 @@ const setLink = () => {
     editor.value.chain().focus().extendMarkRange('link').setLink({ href: url }).run();
 };
 
-const currentFileUrl = computed(() => `/storage/${material.file_path}`);
+const currentFileUrl = computed(() => (material.file_path ? `/storage/${material.file_path}` : null));
 const currentThumbnailUrl = computed(() => (material.thumbnail_path ? `/storage/${material.thumbnail_path}` : null));
 
 const thumbnailPreviewUrl = ref<string | null>(null);
@@ -140,12 +141,30 @@ const handleFileChange = (event: Event) => {
     const target = event.target as HTMLInputElement;
     const file = target.files?.[0] ?? null;
     form.file = file;
+    if (file) {
+        form.remove_file = false;
+        isCurrentFileRemoved.value = false;
+    }
 };
 
 const fileInputRef = ref<HTMLInputElement | null>(null);
 
 const openFilePicker = () => {
     fileInputRef.value?.click();
+};
+
+const isCurrentFileRemoved = ref(false);
+const effectiveCurrentFileUrl = computed(() => (isCurrentFileRemoved.value ? null : currentFileUrl.value));
+
+const removeCurrentFile = () => {
+    if (!effectiveCurrentFileUrl.value) return;
+    if (!confirm('Yakin ingin menghapus file saat ini?')) return;
+    isCurrentFileRemoved.value = true;
+    form.remove_file = true;
+    form.file = null;
+    if (fileInputRef.value) {
+        fileInputRef.value.value = '';
+    }
 };
 
 const handleThumbnailChange = (event: Event) => {
@@ -177,6 +196,41 @@ const flattenCategories = (items: LmsCategory[], depth = 0): Array<{ id: number;
 };
 
 const categoryOptions = computed(() => flattenCategories(categories));
+
+const youtubeEmbedUrl = computed(() => {
+    const raw = String(form.youtube_url ?? '').trim();
+    if (!raw) return null;
+
+    const normalized = raw.startsWith('http://') || raw.startsWith('https://') ? raw : `https://${raw}`;
+
+    try {
+        const url = new URL(normalized);
+        const host = url.hostname.toLowerCase();
+        const path = url.pathname;
+
+        let id: string | null = null;
+
+        if (host === 'youtu.be') {
+            id = path.split('/').filter(Boolean)[0] ?? null;
+        } else if (host.endsWith('youtube.com') || host.endsWith('youtube-nocookie.com')) {
+            if (path === '/watch') {
+                id = url.searchParams.get('v');
+            } else {
+                const parts = path.split('/').filter(Boolean);
+                const embedIndex = parts.indexOf('embed');
+                const shortsIndex = parts.indexOf('shorts');
+                if (embedIndex >= 0) id = parts[embedIndex + 1] ?? null;
+                else if (shortsIndex >= 0) id = parts[shortsIndex + 1] ?? null;
+            }
+        }
+
+        if (!id) return null;
+
+        return `https://www.youtube-nocookie.com/embed/${encodeURIComponent(id)}?rel=0`;
+    } catch {
+        return null;
+    }
+});
 </script>
 
 <template>
@@ -399,6 +453,15 @@ const categoryOptions = computed(() => flattenCategories(categories));
                                     :class="{ 'border-red-500': form.errors.youtube_url }"
                                 />
                                 <p v-if="form.errors.youtube_url" class="mt-1 text-xs text-red-600">{{ form.errors.youtube_url }}</p>
+
+                                <div v-if="youtubeEmbedUrl" class="mt-3 overflow-hidden rounded-lg border border-gray-200 bg-gray-50 dark:border-gray-800 dark:bg-gray-900">
+                                    <iframe
+                                        :src="youtubeEmbedUrl"
+                                        class="aspect-video w-full"
+                                        allow="accelerometer; autoplay; clipboard-write; encrypted-media; gyroscope; picture-in-picture; web-share"
+                                        allowfullscreen
+                                    />
+                                </div>
                             </div>
                         </div>
 
@@ -429,12 +492,22 @@ const categoryOptions = computed(() => flattenCategories(categories));
                     </div>
 
                     <div>
-                        <div class="text-sm text-gray-700 dark:text-gray-300">
-                            File saat ini:
-                            <a :href="currentFileUrl" target="_blank" class="font-medium text-blue-600 hover:underline dark:text-blue-400">
-                                Buka
-                            </a>
+                        <div v-if="effectiveCurrentFileUrl" class="flex flex-wrap items-center justify-between gap-3 text-sm text-gray-700 dark:text-gray-300">
+                            <div>
+                                File saat ini:
+                                <a :href="effectiveCurrentFileUrl" target="_blank" class="font-medium text-blue-600 hover:underline dark:text-blue-400">
+                                    Buka
+                                </a>
+                            </div>
+                            <button
+                                type="button"
+                                class="inline-flex items-center rounded-lg border border-red-300 bg-white px-3 py-2 text-xs font-medium text-red-700 hover:bg-red-50 dark:border-red-800 dark:bg-gray-900 dark:text-red-300 dark:hover:bg-red-950/40"
+                                @click="removeCurrentFile"
+                            >
+                                Hapus File Saat Ini
+                            </button>
                         </div>
+                        <div v-else class="text-sm text-gray-500 dark:text-gray-400">Tidak ada file saat ini.</div>
                         <label class="mt-4 block text-sm font-medium text-gray-700 dark:text-gray-300">Ganti File (Opsional)</label>
                         <div
                             class="mt-1 flex cursor-pointer justify-center rounded-lg border-2 border-dashed border-gray-300 px-6 py-10 dark:border-gray-600"

@@ -77,6 +77,41 @@ const flattenCategories = (items: LmsCategory[], depth = 0): Array<{ id: number;
 
 const categoryOptions = computed(() => flattenCategories(categories));
 
+const youtubeEmbedUrl = computed(() => {
+    const raw = String(form.youtube_url ?? '').trim();
+    if (!raw) return null;
+
+    const normalized = raw.startsWith('http://') || raw.startsWith('https://') ? raw : `https://${raw}`;
+
+    try {
+        const url = new URL(normalized);
+        const host = url.hostname.toLowerCase();
+        const path = url.pathname;
+
+        let id: string | null = null;
+
+        if (host === 'youtu.be') {
+            id = path.split('/').filter(Boolean)[0] ?? null;
+        } else if (host.endsWith('youtube.com') || host.endsWith('youtube-nocookie.com')) {
+            if (path === '/watch') {
+                id = url.searchParams.get('v');
+            } else {
+                const parts = path.split('/').filter(Boolean);
+                const embedIndex = parts.indexOf('embed');
+                const shortsIndex = parts.indexOf('shorts');
+                if (embedIndex >= 0) id = parts[embedIndex + 1] ?? null;
+                else if (shortsIndex >= 0) id = parts[shortsIndex + 1] ?? null;
+            }
+        }
+
+        if (!id) return null;
+
+        return `https://www.youtube-nocookie.com/embed/${encodeURIComponent(id)}?rel=0`;
+    } catch {
+        return null;
+    }
+});
+
 const editor = useEditor({
     content: form.description || '',
     extensions: [
@@ -377,6 +412,15 @@ const submit = () => {
                                     :class="{ 'border-red-500': form.errors.youtube_url }"
                                 />
                                 <p v-if="form.errors.youtube_url" class="mt-1 text-xs text-red-600">{{ form.errors.youtube_url }}</p>
+
+                                <div v-if="youtubeEmbedUrl" class="mt-3 overflow-hidden rounded-lg border border-gray-200 bg-gray-50 dark:border-gray-800 dark:bg-gray-900">
+                                    <iframe
+                                        :src="youtubeEmbedUrl"
+                                        class="aspect-video w-full"
+                                        allow="accelerometer; autoplay; clipboard-write; encrypted-media; gyroscope; picture-in-picture; web-share"
+                                        allowfullscreen
+                                    />
+                                </div>
                             </div>
                         </div>
 

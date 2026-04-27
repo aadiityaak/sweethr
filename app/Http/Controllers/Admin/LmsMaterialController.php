@@ -93,6 +93,7 @@ class LmsMaterialController extends Controller
             'description' => 'nullable|string',
             'lms_category_id' => 'required|exists:lms_categories,id',
             'youtube_url' => 'nullable|url|max:2048',
+            'remove_file' => 'boolean',
             'file' => 'nullable|file|max:51200',
             'thumbnail' => 'nullable|image|max:5120',
             'is_active' => 'boolean',
@@ -116,7 +117,14 @@ class LmsMaterialController extends Controller
             $validated['thumbnail_path'] = $path;
         }
 
-        unset($validated['file'], $validated['thumbnail']);
+        if ($request->boolean('remove_file') && ! $request->hasFile('file')) {
+            if ($lms_material->file_path) {
+                Storage::disk('public')->delete($lms_material->file_path);
+            }
+            $validated['file_path'] = '';
+        }
+
+        unset($validated['file'], $validated['thumbnail'], $validated['remove_file']);
         $lms_material->update($validated);
 
         return redirect()->route('admin.lms-materials.index')
