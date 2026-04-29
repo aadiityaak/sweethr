@@ -206,7 +206,37 @@ function getDirSize($dir)
     return $size;
 }
 
-// Remove directory recursively
+function removePathRecursive($path)
+{
+    if (is_link($path) || is_file($path)) {
+        return @unlink($path);
+    }
+
+    if (! is_dir($path)) {
+        return true;
+    }
+
+    $iterator = new RecursiveIteratorIterator(
+        new RecursiveDirectoryIterator($path, RecursiveDirectoryIterator::SKIP_DOTS),
+        RecursiveIteratorIterator::CHILD_FIRST
+    );
+
+    foreach ($iterator as $item) {
+        $itemPath = $item->getPathname();
+        if ($item->isDir() && ! $item->isLink()) {
+            if (! @rmdir($itemPath)) {
+                return false;
+            }
+        } else {
+            if (! @unlink($itemPath)) {
+                return false;
+            }
+        }
+    }
+
+    return @rmdir($path);
+}
+
 // Define admin tool actions with grouping
 $toolGroups = [
     'cache' => [
@@ -441,9 +471,14 @@ function handleStorageLink()
     $output .= "Storage Link Path: {$storagePath}\n";
     $output .= "Storage Target: {$storageTarget}\n";
     $output .= 'Target exists: ' . (is_dir($storageTarget) ? 'Yes' : 'No') . "\n";
-    $output .= 'Link exists: ' . (file_exists($storagePath) ? 'Yes' : 'No') . "\n\n";
+    $output .= 'Link exists: ' . ((file_exists($storagePath) || is_link($storagePath)) ? 'Yes' : 'No') . "\n\n";
 
-    if (file_exists($storagePath)) {
+    if (! is_dir($storageTarget)) {
+        $output .= "❌ Target directory does not exist\n";
+        return $output;
+    }
+
+    if (file_exists($storagePath) || is_link($storagePath)) {
         if (is_link($storagePath)) {
             $target = readlink($storagePath);
             $output .= "Current link target: {$target}\n";
@@ -460,17 +495,27 @@ function handleStorageLink()
             }
         } else {
             $output .= "⚠️ Storage exists but is not a symlink\n";
-        }
-    } else {
-        if (is_dir($storageTarget)) {
-            $output .= "Creating new storage link...\n";
+            $output .= "Recreating storage link...\n";
+
+            $type = is_dir($storagePath) ? 'directory' : (is_file($storagePath) ? 'file' : 'path');
+            if (! removePathRecursive($storagePath)) {
+                $output .= "❌ Failed to remove existing storage {$type}\n";
+                return $output;
+            }
+
+            $output .= "✅ Removed existing storage {$type}\n";
             if (symlink($storageTarget, $storagePath)) {
                 $output .= "✅ Storage link created successfully!\n";
             } else {
                 $output .= "❌ Failed to create storage link\n";
             }
+        }
+    } else {
+        $output .= "Creating new storage link...\n";
+        if (symlink($storageTarget, $storagePath)) {
+            $output .= "✅ Storage link created successfully!\n";
         } else {
-            $output .= "❌ Target directory does not exist\n";
+            $output .= "❌ Failed to create storage link\n";
         }
     }
 
