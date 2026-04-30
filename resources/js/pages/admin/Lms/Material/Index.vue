@@ -29,9 +29,13 @@ interface Props {
             per_page?: number;
         };
     };
+    selectedCategory?: { id: number; name: string; parent?: { id: number; name: string } | null } | null;
+    filters?: {
+        category?: number | null;
+    };
 }
 
-const { materials } = defineProps<Props>();
+const { materials, selectedCategory } = defineProps<Props>();
 
 const breadcrumbs: BreadcrumbItem[] = [
     { title: 'Dashboard', href: '/admin/dashboard' },
@@ -55,6 +59,14 @@ const categoryLabel = (material: LmsMaterial) => {
         return `${material.category.parent.name} / ${material.category.name}`;
     }
     return material.category.name;
+};
+
+const selectedCategoryLabel = () => {
+    if (!selectedCategory) return null;
+    if (selectedCategory.parent?.name) {
+        return `${selectedCategory.parent.name} / ${selectedCategory.name}`;
+    }
+    return selectedCategory.name;
 };
 
 const fileUrl = (material: LmsMaterial) => `/storage/${material.file_path}`;
@@ -86,6 +98,14 @@ const deleteMaterial = (material: LmsMaterial) => {
                     <div>
                         <h1 class="text-3xl font-bold text-gray-900 dark:text-white">Pengelolaan Konten LMS</h1>
                         <p class="mt-1 text-gray-600 dark:text-gray-400">Kelola materi pembelajaran dengan lampiran file</p>
+                        <div
+                            v-if="selectedCategory"
+                            class="mt-3 inline-flex items-center gap-2 rounded-lg bg-blue-50 px-3 py-2 text-sm text-blue-700 ring-1 ring-blue-600/10 dark:bg-blue-950/40 dark:text-blue-300 dark:ring-blue-400/20"
+                        >
+                            <span>Filter kategori:</span>
+                            <span class="font-medium">{{ selectedCategoryLabel() }}</span>
+                            <Link href="/admin/lms-materials" class="ml-1 text-xs underline underline-offset-2">Reset</Link>
+                        </div>
                     </div>
                     <div class="flex items-center gap-2">
                         <Link

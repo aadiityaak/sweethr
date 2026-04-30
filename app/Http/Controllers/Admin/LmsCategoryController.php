@@ -11,7 +11,20 @@ class LmsCategoryController extends Controller
 {
     public function index()
     {
-        $categories = LmsCategory::with('children')->whereNull('parent_id')->orderBy('name')->get();
+        $categories = LmsCategory::query()
+            ->whereNull('parent_id')
+            ->withCount('materials')
+            ->with([
+                'children' => function ($q) {
+                    $q->withCount('materials')->with([
+                        'children' => function ($qq) {
+                            $qq->withCount('materials');
+                        },
+                    ]);
+                },
+            ])
+            ->orderBy('name')
+            ->get();
 
         return Inertia::render('admin/Lms/Category/Index', [
             'categories' => $categories,
