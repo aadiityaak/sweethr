@@ -69,7 +69,7 @@
         <script>
             if ('serviceWorker' in navigator) {
                 window.addEventListener('load', function() {
-                    const swUrl = '/sw.js?v={{ @filemtime(public_path('sw.js')) }}';
+                    const swUrl = '/sw.js';
                     navigator.serviceWorker.register(swUrl)
                         .then(function(registration) {
                             console.log('SW registered: ', registration);
@@ -96,6 +96,9 @@
                         })
                         .catch(function(registrationError) {
                             console.log('SW registration failed: ', registrationError);
+                            if (window.location.hostname === 'localhost' || window.location.hostname === '127.0.0.1') {
+                                navigator.serviceWorker.getRegistration().then((reg) => reg?.unregister()).catch(() => {});
+                            }
                         });
 
                     // Listen for messages from service worker

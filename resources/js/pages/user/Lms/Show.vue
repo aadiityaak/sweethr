@@ -61,6 +61,16 @@ const youtubeEmbedUrl = computed(() => {
                 else if (shortsIndex >= 0) id = parts[shortsIndex + 1] ?? null;
                 else if (parts[0] === 'watch') id = url.searchParams.get('v');
             }
+        } else if (host === 'drive.google.com') {
+            const parts = path.split('/').filter(Boolean);
+            if (parts[0] === 'file' && parts[1] === 'd') {
+                id = parts[2] ?? null;
+            } else {
+                id = url.searchParams.get('id');
+            }
+
+            if (!id) return null;
+            return `https://drive.google.com/file/d/${encodeURIComponent(id)}/preview`;
         }
 
         if (!id) return null;

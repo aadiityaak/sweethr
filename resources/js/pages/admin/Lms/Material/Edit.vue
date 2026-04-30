@@ -222,6 +222,16 @@ const youtubeEmbedUrl = computed(() => {
                 if (embedIndex >= 0) id = parts[embedIndex + 1] ?? null;
                 else if (shortsIndex >= 0) id = parts[shortsIndex + 1] ?? null;
             }
+        } else if (host === 'drive.google.com') {
+            const parts = path.split('/').filter(Boolean);
+            if (parts[0] === 'file' && parts[1] === 'd') {
+                id = parts[2] ?? null;
+            } else {
+                id = url.searchParams.get('id');
+            }
+
+            if (!id) return null;
+            return `https://drive.google.com/file/d/${encodeURIComponent(id)}/preview`;
         }
 
         if (!id) return null;
@@ -444,11 +454,11 @@ const youtubeEmbedUrl = computed(() => {
                             <p v-if="form.errors.lms_category_id" class="mt-1 text-xs text-red-600">{{ form.errors.lms_category_id }}</p>
 
                             <div class="mt-4">
-                                <label class="block text-sm font-medium text-gray-700 dark:text-gray-300">URL YouTube (Opsional)</label>
+                                <label class="block text-sm font-medium text-gray-700 dark:text-gray-300">URL Video (YouTube/Google Drive) (Opsional)</label>
                                 <input
                                     v-model="form.youtube_url"
                                     type="url"
-                                    placeholder="https://www.youtube.com/watch?v=..."
+                                    placeholder="https://www.youtube.com/watch?v=... atau https://drive.google.com/file/d/.../view"
                                     class="mt-1 block w-full rounded-lg border border-gray-300 bg-white px-3 py-2 text-sm focus:border-blue-500 focus:ring-1 focus:ring-blue-500 focus:outline-none dark:border-gray-600 dark:bg-gray-800 dark:text-gray-300"
                                     :class="{ 'border-red-500': form.errors.youtube_url }"
                                 />
