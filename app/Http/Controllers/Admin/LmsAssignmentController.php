@@ -11,14 +11,59 @@ use Inertia\Inertia;
 
 class LmsAssignmentController extends Controller
 {
-    public function index()
+    public function index(Request $request)
     {
-        $assignments = LmsAssignment::with(['category.parent'])
-            ->latest()
-            ->paginate(15);
+        $categoryId = (int) $request->get('category', 0);
+        $search = trim((string) $request->get('search', ''));
+
+        $query = LmsAssignment::with(['category.parent'])->latest();
+
+        if ($search !== '') {
+            $query->where(function ($q) use ($search) {
+                $q->where('title', 'like', '%'.$search.'%')
+                    ->orWhere('description', 'like', '%'.$search.'%')
+                    ->orWhere('instructions', 'like', '%'.$search.'%');
+            });
+        }
+
+        if ($categoryId > 0) {
+            $categoryIds = [$categoryId];
+            $all = LmsCategory::query()->get(['id', 'parent_id']);
+            $childrenByParent = [];
+
+            foreach ($all as $cat) {
+                if ($cat->parent_id === null) {
+                    continue;
+                }
+                $childrenByParent[$cat->parent_id][] = (int) $cat->id;
+            }
+
+            $stack = [$categoryId];
+            while (count($stack)) {
+                $current = array_pop($stack);
+                $children = $childrenByParent[$current] ?? [];
+                foreach ($children as $childId) {
+                    if (in_array($childId, $categoryIds, true)) {
+                        continue;
+                    }
+                    $categoryIds[] = $childId;
+                    $stack[] = $childId;
+                }
+            }
+
+            $query->whereIn('lms_category_id', $categoryIds);
+        }
+
+        $assignments = $query->paginate(15)->withQueryString();
+        $categories = LmsCategory::with('children')->whereNull('parent_id')->orderBy('name')->get(['id', 'name', 'parent_id']);
 
         return Inertia::render('admin/Lms/Assignment/Index', [
             'assignments' => $assignments,
+            'categories' => $categories,
+            'filters' => [
+                'category' => $categoryId > 0 ? $categoryId : null,
+                'search' => $search !== '' ? $search : null,
+            ],
         ]);
     }
 

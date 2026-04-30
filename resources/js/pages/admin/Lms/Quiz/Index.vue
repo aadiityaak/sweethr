@@ -1,8 +1,9 @@
 <script setup lang="ts">
 import AppLayout from '@/layouts/AppLayout.vue';
 import { type BreadcrumbItem } from '@/types';
-import { Head, Link, useForm } from '@inertiajs/vue3';
+import { Head, Link, router, useForm } from '@inertiajs/vue3';
 import { Eye, Pencil, Plus, Trash2 } from 'lucide-vue-next';
+import { ref, watch } from 'vue';
 
 interface CategoryRef {
     id: number;
@@ -29,9 +30,14 @@ interface Props {
         links: any[];
         meta?: any;
     };
+    categories: Array<{ id: number; name: string; parent_id: number | null; children?: Array<{ id: number; name: string; parent_id: number | null }> }>;
+    filters?: {
+        category?: number | null;
+        search?: string | null;
+    };
 }
 
-const { quizzes } = defineProps<Props>();
+const { quizzes, categories, filters } = defineProps<Props>();
 
 const breadcrumbs: BreadcrumbItem[] = [
     { title: 'Dashboard', href: '/admin/dashboard' },
@@ -54,6 +60,66 @@ const formatDate = (dateString: string) => {
         minute: '2-digit',
     });
 };
+
+const flattenCategoryOptions = (
+    items: Array<{ id: number; name: string; parent_id: number | null; children?: any[] }>,
+    depth = 0,
+): Array<{ id: number; label: string }> => {
+    const result: Array<{ id: number; label: string }> = [];
+    for (const item of items) {
+        const prefix = depth > 0 ? `${'—'.repeat(depth)} ` : '';
+        result.push({ id: item.id, label: `${prefix}${item.name}` });
+        if (item.children?.length) {
+            result.push(...flattenCategoryOptions(item.children, depth + 1));
+        }
+    }
+    return result;
+};
+
+const categoryOptions = flattenCategoryOptions(categories);
+
+const searchQuery = ref(filters?.search ?? '');
+const selectedCategoryFilter = ref(filters?.category ? String(filters.category) : '');
+let searchTimer: number | undefined;
+
+const applyFilters = () => {
+    const category = selectedCategoryFilter.value ? Number(selectedCategoryFilter.value) : undefined;
+    const search = searchQuery.value.trim() || undefined;
+
+    router.get(
+        '/admin/lms-quizzes',
+        {
+            category,
+            search,
+        },
+        {
+            preserveState: true,
+            preserveScroll: true,
+            replace: true,
+        },
+    );
+};
+
+const clearFilters = () => {
+    searchQuery.value = '';
+    selectedCategoryFilter.value = '';
+    router.get('/admin/lms-quizzes');
+};
+
+watch(
+    searchQuery,
+    () => {
+        if (searchTimer) window.clearTimeout(searchTimer);
+        searchTimer = window.setTimeout(() => {
+            applyFilters();
+        }, 400);
+    },
+    { flush: 'post' },
+);
+
+watch(selectedCategoryFilter, () => {
+    applyFilters();
+});
 
 const deleteQuiz = (quiz: LmsQuiz) => {
     if (!confirm(`Yakin ingin menghapus kuis "${quiz.title}"?`)) return;
@@ -82,6 +148,41 @@ const deleteQuiz = (quiz: LmsQuiz) => {
                         <Plus class="mr-2 h-4 w-4" />
                         Tambah Kuis
                     </Link>
+                </div>
+            </div>
+
+            <div class="mb-6 rounded-xl border border-gray-200/50 bg-white p-5 shadow-sm dark:border-gray-800/50 dark:bg-gray-950">
+                <div class="grid gap-4 md:grid-cols-2">
+                    <div>
+                        <label class="mb-1 block text-xs font-medium tracking-wide text-gray-500 uppercase dark:text-gray-400">Cari</label>
+                        <input
+                            v-model="searchQuery"
+                            type="text"
+                            placeholder="Cari judul / deskripsi..."
+                            class="w-full rounded-lg border border-gray-300 bg-white px-3 py-2 text-sm text-gray-900 shadow-sm outline-none transition-colors focus:border-blue-500 focus:ring-2 focus:ring-blue-500/20 dark:border-gray-700 dark:bg-gray-900 dark:text-gray-100 dark:focus:border-blue-400 dark:focus:ring-blue-400/20"
+                        />
+                    </div>
+                    <div>
+                        <label class="mb-1 block text-xs font-medium tracking-wide text-gray-500 uppercase dark:text-gray-400">Kategori</label>
+                        <select
+                            v-model="selectedCategoryFilter"
+                            class="w-full rounded-lg border border-gray-300 bg-white px-3 py-2 text-sm text-gray-900 shadow-sm outline-none transition-colors focus:border-blue-500 focus:ring-2 focus:ring-blue-500/20 dark:border-gray-700 dark:bg-gray-900 dark:text-gray-100 dark:focus:border-blue-400 dark:focus:ring-blue-400/20"
+                        >
+                            <option value="">Semua kategori</option>
+                            <option v-for="opt in categoryOptions" :key="opt.id" :value="String(opt.id)">
+                                {{ opt.label }}
+                            </option>
+                        </select>
+                    </div>
+                </div>
+                <div class="mt-4 flex items-center justify-end">
+                    <button
+                        type="button"
+                        class="rounded-lg border border-gray-300 bg-white px-3 py-2 text-sm font-medium text-gray-700 shadow-sm transition-colors hover:bg-gray-50 dark:border-gray-700 dark:bg-gray-900 dark:text-gray-200 dark:hover:bg-gray-800"
+                        @click="clearFilters"
+                    >
+                        Reset Filter
+                    </button>
                 </div>
             </div>
 
@@ -160,4 +261,3 @@ const deleteQuiz = (quiz: LmsQuiz) => {
         </div>
     </AppLayout>
 </template>
-

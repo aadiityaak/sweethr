@@ -1,8 +1,9 @@
 <script setup lang="ts">
 import AppLayout from '@/layouts/AppLayout.vue';
 import { type BreadcrumbItem } from '@/types';
-import { Head, Link, useForm } from '@inertiajs/vue3';
+import { Head, Link, router, useForm } from '@inertiajs/vue3';
 import { Eye, FileText, Pencil, Plus, Trash2 } from 'lucide-vue-next';
+import { ref, watch } from 'vue';
 
 interface LmsMaterial {
     id: number;
@@ -14,6 +15,13 @@ interface LmsMaterial {
     thumbnail_path: string | null;
     is_active: boolean;
     created_at: string;
+}
+
+interface LmsCategory {
+    id: number;
+    name: string;
+    parent_id: number | null;
+    children?: LmsCategory[];
 }
 
 interface Props {
@@ -30,12 +38,14 @@ interface Props {
         };
     };
     selectedCategory?: { id: number; name: string; parent?: { id: number; name: string } | null } | null;
+    categories: LmsCategory[];
     filters?: {
         category?: number | null;
+        search?: string | null;
     };
 }
 
-const { materials, selectedCategory } = defineProps<Props>();
+const { materials, selectedCategory, categories, filters } = defineProps<Props>();
 
 const breadcrumbs: BreadcrumbItem[] = [
     { title: 'Dashboard', href: '/admin/dashboard' },
@@ -68,6 +78,63 @@ const selectedCategoryLabel = () => {
     }
     return selectedCategory.name;
 };
+
+const flattenCategoryOptions = (items: LmsCategory[], depth = 0): Array<{ id: number; label: string }> => {
+    const result: Array<{ id: number; label: string }> = [];
+    for (const item of items) {
+        const prefix = depth > 0 ? `${'—'.repeat(depth)} ` : '';
+        result.push({ id: item.id, label: `${prefix}${item.name}` });
+        if (item.children?.length) {
+            result.push(...flattenCategoryOptions(item.children, depth + 1));
+        }
+    }
+    return result;
+};
+
+const categoryOptions = flattenCategoryOptions(categories);
+
+const searchQuery = ref(filters?.search ?? '');
+const selectedCategoryFilter = ref(filters?.category ? String(filters.category) : '');
+let searchTimer: number | undefined;
+
+const applyFilters = () => {
+    const category = selectedCategoryFilter.value ? Number(selectedCategoryFilter.value) : undefined;
+    const search = searchQuery.value.trim() || undefined;
+
+    router.get(
+        '/admin/lms-materials',
+        {
+            category,
+            search,
+        },
+        {
+            preserveState: true,
+            preserveScroll: true,
+            replace: true,
+        },
+    );
+};
+
+const clearFilters = () => {
+    searchQuery.value = '';
+    selectedCategoryFilter.value = '';
+    router.get('/admin/lms-materials');
+};
+
+watch(
+    searchQuery,
+    () => {
+        if (searchTimer) window.clearTimeout(searchTimer);
+        searchTimer = window.setTimeout(() => {
+            applyFilters();
+        }, 400);
+    },
+    { flush: 'post' },
+);
+
+watch(selectedCategoryFilter, () => {
+    applyFilters();
+});
 
 const fileUrl = (material: LmsMaterial) => `/storage/${material.file_path}`;
 const thumbnailUrl = (material: LmsMaterial) => (material.thumbnail_path ? `/storage/${material.thumbnail_path}` : null);
@@ -125,6 +192,43 @@ const deleteMaterial = (material: LmsMaterial) => {
                 </div>
             </div>
 
+            <div
+                class="mb-6 rounded-xl border border-gray-200/50 bg-white p-5 shadow-sm dark:border-gray-800/50 dark:bg-gray-950"
+            >
+                <div class="grid gap-4 md:grid-cols-2">
+                    <div>
+                        <label class="mb-1 block text-xs font-medium tracking-wide text-gray-500 uppercase dark:text-gray-400">Cari</label>
+                        <input
+                            v-model="searchQuery"
+                            type="text"
+                            placeholder="Cari judul / deskripsi..."
+                            class="w-full rounded-lg border border-gray-300 bg-white px-3 py-2 text-sm text-gray-900 shadow-sm outline-none transition-colors focus:border-blue-500 focus:ring-2 focus:ring-blue-500/20 dark:border-gray-700 dark:bg-gray-900 dark:text-gray-100 dark:focus:border-blue-400 dark:focus:ring-blue-400/20"
+                        />
+                    </div>
+                    <div>
+                        <label class="mb-1 block text-xs font-medium tracking-wide text-gray-500 uppercase dark:text-gray-400">Kategori</label>
+                        <select
+                            v-model="selectedCategoryFilter"
+                            class="w-full rounded-lg border border-gray-300 bg-white px-3 py-2 text-sm text-gray-900 shadow-sm outline-none transition-colors focus:border-blue-500 focus:ring-2 focus:ring-blue-500/20 dark:border-gray-700 dark:bg-gray-900 dark:text-gray-100 dark:focus:border-blue-400 dark:focus:ring-blue-400/20"
+                        >
+                            <option value="">Semua kategori</option>
+                            <option v-for="opt in categoryOptions" :key="opt.id" :value="String(opt.id)">
+                                {{ opt.label }}
+                            </option>
+                        </select>
+                    </div>
+                </div>
+                <div class="mt-4 flex items-center justify-end">
+                    <button
+                        type="button"
+                        class="rounded-lg border border-gray-300 bg-white px-3 py-2 text-sm font-medium text-gray-700 shadow-sm transition-colors hover:bg-gray-50 dark:border-gray-700 dark:bg-gray-900 dark:text-gray-200 dark:hover:bg-gray-800"
+                        @click="clearFilters"
+                    >
+                        Reset Filter
+                    </button>
+                </div>
+            </div>
+
             <div class="overflow-hidden rounded-xl border border-gray-200/50 bg-white shadow-sm dark:border-gray-800/50 dark:bg-gray-950">
                 <div class="overflow-x-auto">
                     <table class="min-w-full divide-y divide-gray-200 dark:divide-gray-800">
@@ -151,10 +255,6 @@ const deleteMaterial = (material: LmsMaterial) => {
                             <tr v-for="material in materials.data" :key="material.id" class="hover:bg-gray-50 dark:hover:bg-gray-900">
                                 <td class="px-6 py-4">
                                     <div class="flex items-start gap-3">
-                                        <div class="mt-0.5 flex h-9 w-9 items-center justify-center overflow-hidden rounded-lg bg-gray-100 dark:bg-gray-800">
-                                            <img v-if="thumbnailUrl(material)" :src="thumbnailUrl(material)!" class="h-full w-full object-cover" alt="Thumbnail" />
-                                            <FileText v-else class="h-5 w-5 text-gray-500 dark:text-gray-400" />
-                                        </div>
                                         <div class="min-w-0">
                                             <div class="font-medium text-gray-900 dark:text-white">
                                                 {{ material.title }}
@@ -193,14 +293,12 @@ const deleteMaterial = (material: LmsMaterial) => {
                                             class="inline-flex items-center rounded-md bg-blue-50 px-3 py-1.5 text-xs font-medium text-blue-700 ring-1 ring-blue-600/20 transition-colors hover:bg-blue-100 dark:bg-blue-950/50 dark:text-blue-400 dark:ring-blue-400/30 dark:hover:bg-blue-950"
                                         >
                                             <Eye class="mr-1 h-3 w-3" />
-                                            Lihat
                                         </Link>
                                         <Link
                                             :href="`/admin/lms-materials/${material.id}/edit`"
                                             class="inline-flex items-center rounded-md bg-amber-50 px-3 py-1.5 text-xs font-medium text-amber-700 ring-1 ring-amber-600/20 transition-colors hover:bg-amber-100 dark:bg-amber-950/50 dark:text-amber-400 dark:ring-amber-400/30 dark:hover:bg-amber-950"
                                         >
                                             <Pencil class="mr-1 h-3 w-3" />
-                                            Edit
                                         </Link>
                                         <button
                                             type="button"
@@ -208,7 +306,6 @@ const deleteMaterial = (material: LmsMaterial) => {
                                             class="inline-flex items-center rounded-md bg-red-50 px-3 py-1.5 text-xs font-medium text-red-700 ring-1 ring-red-600/20 transition-colors hover:bg-red-100 dark:bg-red-950/50 dark:text-red-400 dark:ring-red-400/30 dark:hover:bg-red-950"
                                         >
                                             <Trash2 class="mr-1 h-3 w-3" />
-                                            Hapus
                                         </button>
                                     </div>
                                 </td>
