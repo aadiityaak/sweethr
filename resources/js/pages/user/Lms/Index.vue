@@ -1,7 +1,7 @@
 <script setup lang="ts">
 import BottomNavigation from '@/components/BottomNavigation.vue';
 import { Head, Link } from '@inertiajs/vue3';
-import { ArrowLeft, BookOpen, ChevronDown, ClipboardList, FileText, HelpCircle } from 'lucide-vue-next';
+import { ArrowLeft, BarChart3, BookOpen, ChevronDown, ClipboardList, FileText, HelpCircle } from 'lucide-vue-next';
 import { onMounted, ref } from 'vue';
 
 interface CategoryRef {
@@ -53,6 +53,14 @@ interface LmsAssignment {
     score_percent?: number | null;
 }
 
+interface PerformanceAppraisal {
+    id: number;
+    evaluated_at: string;
+    evaluator?: { id: number; name: string } | null;
+    feedback?: string | null;
+    score_avg?: number | null;
+}
+
 interface Props {
     materials: {
         data: LmsMaterial[];
@@ -80,9 +88,10 @@ interface Props {
         quiz_passed_attempts: number;
         quiz_avg_percent: number | null;
     };
+    performanceAppraisals: PerformanceAppraisal[];
 }
 
-const { materials, quizzes, assignments, totals, progress } = defineProps<Props>();
+const { materials, quizzes, assignments, totals, progress, performanceAppraisals } = defineProps<Props>();
 
 const openPanel = ref<'materi' | 'kuis' | 'tugas'>('materi');
 
@@ -134,6 +143,36 @@ const formatDate = (dateString: string) => {
         month: 'short',
         year: 'numeric',
     });
+};
+
+const formatDateLongLower = (isoDate: string) => {
+    const parts = String(isoDate ?? '').split('T')[0].split('-');
+    if (parts.length !== 3) return isoDate;
+    const [y, m, d] = parts;
+    const month = (() => {
+        if (m === '01') return 'januari';
+        if (m === '02') return 'februari';
+        if (m === '03') return 'maret';
+        if (m === '04') return 'april';
+        if (m === '05') return 'mei';
+        if (m === '06') return 'juni';
+        if (m === '07') return 'juli';
+        if (m === '08') return 'agustus';
+        if (m === '09') return 'september';
+        if (m === '10') return 'oktober';
+        if (m === '11') return 'november';
+        if (m === '12') return 'desember';
+        return m;
+    })();
+    return `${d} ${month} ${y}`;
+};
+
+const scoreBadgeClass = (avg: number | null | undefined) => {
+    if (avg === null || avg === undefined) return 'border-black/10 bg-white text-[#7e7e7e]';
+    if (avg >= 4.25) return 'border-green-600/30 bg-green-50 text-green-700';
+    if (avg >= 3.5) return 'border-lime-600/30 bg-lime-50 text-lime-700';
+    if (avg >= 2.75) return 'border-amber-600/30 bg-amber-50 text-amber-700';
+    return 'border-red-600/30 bg-red-50 text-red-700';
 };
 
 const formatDateTime = (dateString: string) => {
@@ -226,6 +265,37 @@ const nextUrl = (paginator: any): string | null => {
                         <p class="text-[11px] font-semibold tracking-wide text-[#7e7e7e] uppercase">Tugas</p>
                         <p class="text-lg font-extrabold tracking-[-0.03em] text-[#25282b]">{{ totals.assignments }}</p>
                     </button>
+                </div>
+
+                <div class="mb-6 overflow-hidden rounded-[6px] border border-black/10 bg-white">
+                    <div class="flex items-center justify-between gap-3 border-b border-black/10 p-4">
+                        <div class="flex items-center gap-2">
+                            <BarChart3 class="h-4 w-4 text-[#25282b]" />
+                            <span class="text-base font-bold text-[#25282b]">Performance</span>
+                        </div>
+                        <span class="text-xs font-semibold text-[#7e7e7e]">{{ performanceAppraisals.length }} item</span>
+                    </div>
+
+                    <div v-if="performanceAppraisals.length === 0" class="p-4 text-xs text-[#7e7e7e]">Belum ada performance appraisal.</div>
+
+                    <div v-else class="divide-y">
+                        <div v-for="p in performanceAppraisals" :key="p.id" class="p-4">
+                            <div class="flex items-start justify-between gap-3">
+                                <div class="min-w-0">
+                                    <p class="text-sm font-extrabold tracking-[-0.02em] text-[#25282b]">{{ formatDateLongLower(p.evaluated_at) }}</p>
+                                    <p class="mt-0.5 text-[11px] font-semibold text-[#7e7e7e]">
+                                        Evaluator: {{ p.evaluator?.name ?? '-' }}
+                                    </p>
+                                </div>
+                                <span class="shrink-0 rounded-full border px-2.5 py-1 text-[11px] font-extrabold" :class="scoreBadgeClass(p.score_avg)">
+                                    Avg {{ p.score_avg ?? '-' }}
+                                </span>
+                            </div>
+                            <p v-if="stripHtml(p.feedback ?? '')" class="mt-2 text-xs leading-relaxed text-[#25282b]">
+                                {{ truncate(stripHtml(p.feedback ?? ''), 140) }}
+                            </p>
+                        </div>
+                    </div>
                 </div>
 
                 <div id="lms-accordion" class="overflow-hidden rounded-[6px] border border-black/10 bg-white">

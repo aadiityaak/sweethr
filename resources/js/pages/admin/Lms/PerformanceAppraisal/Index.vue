@@ -93,8 +93,23 @@ const formatDate = (isoDate: string) => {
     const parts = String(isoDate ?? '').split('T')[0].split('-');
     if (parts.length !== 3) return isoDate;
     const [y, m, d] = parts;
-    const yy = y.slice(-2);
-    return `${d} ${m} ${yy}`;
+    const month = (() => {
+        if (m === '01') return 'januari';
+        if (m === '02') return 'februari';
+        if (m === '03') return 'maret';
+        if (m === '04') return 'april';
+        if (m === '05') return 'mei';
+        if (m === '06') return 'juni';
+        if (m === '07') return 'juli';
+        if (m === '08') return 'agustus';
+        if (m === '09') return 'september';
+        if (m === '10') return 'oktober';
+        if (m === '11') return 'november';
+        if (m === '12') return 'desember';
+        return m;
+    })();
+
+    return `${d} ${month} ${y}`;
 };
 
 const selected = ref<Appraisal | null>(null);

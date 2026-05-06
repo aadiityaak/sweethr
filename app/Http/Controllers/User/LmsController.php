@@ -7,6 +7,7 @@ use App\Models\LmsAssignment;
 use App\Models\LmsAssignmentSubmission;
 use App\Models\LmsMaterial;
 use App\Models\LmsMaterialRead;
+use App\Models\LmsPerformanceAppraisal;
 use App\Models\LmsQuiz;
 use App\Models\LmsQuizAttempt;
 use Illuminate\Http\Request;
@@ -22,7 +23,7 @@ class LmsController extends Controller
 
         $materials = LmsMaterial::with(['category.parent'])
             ->where('is_active', true)
-            ->whereHas('category', fn ($q) => $q->where('is_active', true)->visibleForUser($user))
+            ->whereHas('category', fn($q) => $q->where('is_active', true)->visibleForUser($user))
             ->latest()
             ->paginate(5, ['*'], 'materials_page')
             ->withQueryString();
@@ -30,14 +31,14 @@ class LmsController extends Controller
         $quizzes = LmsQuiz::with(['category.parent'])
             ->withCount('questions')
             ->where('is_active', true)
-            ->whereHas('category', fn ($q) => $q->where('is_active', true)->visibleForUser($user))
+            ->whereHas('category', fn($q) => $q->where('is_active', true)->visibleForUser($user))
             ->latest()
             ->paginate(5, ['*'], 'quizzes_page')
             ->withQueryString();
 
         $assignments = LmsAssignment::with(['category.parent'])
             ->where('is_active', true)
-            ->whereHas('category', fn ($q) => $q->where('is_active', true)->visibleForUser($user))
+            ->whereHas('category', fn($q) => $q->where('is_active', true)->visibleForUser($user))
             ->latest()
             ->paginate(5, ['*'], 'assignments_page')
             ->withQueryString();
@@ -142,10 +143,47 @@ class LmsController extends Controller
             ->selectRaw('avg(case when max_score > 0 then (score / max_score) * 100 else null end) as avg_percent')
             ->value('avg_percent') ?? 0);
 
+        $performanceAppraisals = LmsPerformanceAppraisal::query()
+            ->where('user_id', $userId)
+            ->with(['evaluator:id,name'])
+            ->latest('evaluated_at')
+            ->latest('id')
+            ->limit(5)
+            ->get()
+            ->map(function (LmsPerformanceAppraisal $a) {
+                $fields = [
+                    $a->quality_work,
+                    $a->quantity_work,
+                    $a->task_knowledge,
+                    $a->discipline,
+                    $a->teamwork,
+                    $a->communication,
+                    $a->initiative,
+                    $a->target_realization,
+                    $a->time_management,
+                    $a->attitude,
+                    $a->adaptability,
+                    $a->leadership_delegation,
+                    $a->leadership_development,
+                ];
+
+                $values = array_values(array_filter($fields, fn($v) => $v !== null));
+                $count = count($values);
+                $total = array_sum($values);
+                $avg = $count > 0 ? round($total / $count, 2) : null;
+
+                $a->setAttribute('score_total', $total);
+                $a->setAttribute('score_count', $count);
+                $a->setAttribute('score_avg', $avg);
+
+                return $a;
+            });
+
         return Inertia::render('user/Lms/Index', [
             'materials' => $materials,
             'quizzes' => $quizzes,
             'assignments' => $assignments,
+            'performanceAppraisals' => $performanceAppraisals,
             'progress' => [
                 'quizzes_taken' => $quizTaken,
                 'quiz_submitted_attempts' => $quizSubmittedAttempts,
@@ -155,10 +193,10 @@ class LmsController extends Controller
             'totals' => [
                 'materials' => (int) ($materials->total() ?? 0),
                 'quizzes' => (int) LmsQuiz::where('is_active', true)
-                    ->whereHas('category', fn ($q) => $q->where('is_active', true)->visibleForUser($user))
+                    ->whereHas('category', fn($q) => $q->where('is_active', true)->visibleForUser($user))
                     ->count(),
                 'assignments' => (int) LmsAssignment::where('is_active', true)
-                    ->whereHas('category', fn ($q) => $q->where('is_active', true)->visibleForUser($user))
+                    ->whereHas('category', fn($q) => $q->where('is_active', true)->visibleForUser($user))
                     ->count(),
             ],
         ]);
