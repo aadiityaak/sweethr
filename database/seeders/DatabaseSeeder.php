@@ -48,6 +48,7 @@ class DatabaseSeeder extends Seeder
             LmsMaterialSeeder::class,
             LmsAssignmentSeeder::class,
             LmsQuizSeeder::class,
+            LmsPerformanceAppraisalSeeder::class,
 
             // Sample Data (optional for testing)
             LeaveRequestSeeder::class,

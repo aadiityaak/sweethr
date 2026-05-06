@@ -301,6 +301,12 @@ Route::middleware(['auth', 'verified', 'admin'])->group(function () {
         ->name('admin.lms-performance-appraisals.create');
     Route::post('admin/lms-performance-appraisals', [App\Http\Controllers\Admin\LmsPerformanceAppraisalController::class, 'store'])
         ->name('admin.lms-performance-appraisals.store');
+    Route::get('admin/lms-performance-appraisals/{lms_performance_appraisal}/edit', [App\Http\Controllers\Admin\LmsPerformanceAppraisalController::class, 'edit'])
+        ->name('admin.lms-performance-appraisals.edit');
+    Route::put('admin/lms-performance-appraisals/{lms_performance_appraisal}', [App\Http\Controllers\Admin\LmsPerformanceAppraisalController::class, 'update'])
+        ->name('admin.lms-performance-appraisals.update');
+    Route::delete('admin/lms-performance-appraisals/{lms_performance_appraisal}', [App\Http\Controllers\Admin\LmsPerformanceAppraisalController::class, 'destroy'])
+        ->name('admin.lms-performance-appraisals.destroy');
 
     // Admin Payroll Management
     Route::get('admin/salary-settings', [App\Http\Controllers\Admin\SalarySettingController::class, 'index'])

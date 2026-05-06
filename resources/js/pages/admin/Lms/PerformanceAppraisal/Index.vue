@@ -1,8 +1,14 @@
 <script setup lang="ts">
 import AppLayout from '@/layouts/AppLayout.vue';
+import { Dialog, DialogContent } from '@/components/ui/dialog';
 import { type BreadcrumbItem } from '@/types';
-import { Head, Link } from '@inertiajs/vue3';
-import { Plus } from 'lucide-vue-next';
+import { Head, Link, useForm } from '@inertiajs/vue3';
+import { ArcElement, Chart as ChartJS, Legend, Tooltip } from 'chart.js';
+import { Eye, Pencil, Plus, Trash2 } from 'lucide-vue-next';
+import { Doughnut } from 'vue-chartjs';
+import { computed, ref, watch } from 'vue';
+
+ChartJS.register(ArcElement, Tooltip, Legend);
 
 interface UserRef {
     id: number;
@@ -19,6 +25,19 @@ interface Appraisal {
     score_avg?: number | null;
     score_total?: number;
     score_count?: number;
+    quality_work: number;
+    quantity_work: number;
+    task_knowledge: number;
+    discipline: number;
+    teamwork: number;
+    communication: number;
+    initiative: number;
+    target_realization: number;
+    time_management: number;
+    attitude: number;
+    adaptability: number;
+    leadership_delegation?: number | null;
+    leadership_development?: number | null;
 }
 
 interface Props {
@@ -47,6 +66,95 @@ const feedbackPreview = (text: string | null | undefined) => {
     if (!raw) return '-';
     if (raw.length <= 90) return raw;
     return `${raw.slice(0, 90)}…`;
+};
+
+const formatDate = (isoDate: string) => {
+    const parts = String(isoDate ?? '').split('T')[0].split('-');
+    if (parts.length !== 3) return isoDate;
+    const [y, m, d] = parts;
+    const yy = y.slice(-2);
+    return `${d} ${m} ${yy}`;
+};
+
+const selected = ref<Appraisal | null>(null);
+const isDialogOpen = ref(false);
+
+const openView = (a: Appraisal) => {
+    selected.value = a;
+    isDialogOpen.value = true;
+};
+
+watch(isDialogOpen, (open) => {
+    if (!open) selected.value = null;
+});
+
+const chartData = computed(() => {
+    if (!selected.value) {
+        return {
+            labels: [],
+            datasets: [{ data: [], backgroundColor: [], borderWidth: 0 }],
+        };
+    }
+
+    const a = selected.value;
+
+    const items: Array<{ label: string; value: number }> = [
+        { label: 'Hard Skills', value: a.quality_work + a.quantity_work + a.task_knowledge },
+        { label: 'Soft Skills', value: a.discipline + a.teamwork + a.communication + a.initiative },
+        { label: 'KPI', value: a.target_realization + a.time_management },
+        { label: 'Sikap & Adaptabilitas', value: a.attitude + a.adaptability },
+    ];
+
+    const leadershipTotal = (a.leadership_delegation ?? 0) + (a.leadership_development ?? 0);
+    const leadershipExists = a.leadership_delegation !== null && a.leadership_delegation !== undefined && a.leadership_development !== null && a.leadership_development !== undefined;
+    if (leadershipExists) {
+        items.push({ label: 'Kepemimpinan', value: leadershipTotal });
+    }
+
+    const colors = ['#60a5fa', '#34d399', '#fbbf24', '#a78bfa', '#fb7185'];
+
+    return {
+        labels: items.map((x) => x.label),
+        datasets: [
+            {
+                data: items.map((x) => x.value),
+                backgroundColor: colors.slice(0, items.length),
+                borderWidth: 0,
+            },
+        ],
+    };
+});
+
+const chartOptions = computed(() => {
+    return {
+        responsive: true,
+        maintainAspectRatio: false,
+        cutout: '60%',
+        plugins: {
+            legend: {
+                position: 'bottom' as const,
+                labels: {
+                    boxWidth: 10,
+                    boxHeight: 10,
+                },
+            },
+            tooltip: {
+                callbacks: {
+                    label: function (ctx: any) {
+                        const label = ctx.label ?? '';
+                        const value = ctx.parsed ?? 0;
+                        return `${label}: ${value}`;
+                    },
+                },
+            },
+        },
+    };
+});
+
+const deleteForm = useForm({});
+const deleteAppraisal = (a: Appraisal) => {
+    if (!confirm('Yakin ingin menghapus appraisal ini?')) return;
+    deleteForm.delete(`/admin/lms-performance-appraisals/${a.id}`, { preserveScroll: true });
 };
 </script>
 
@@ -95,12 +203,15 @@ const feedbackPreview = (text: string | null | undefined) => {
                                 <th class="px-6 py-3 text-left text-xs font-semibold uppercase tracking-wider text-gray-600 dark:text-gray-300">
                                     Feedback
                                 </th>
+                                <th class="px-6 py-3 text-right text-xs font-semibold uppercase tracking-wider text-gray-600 dark:text-gray-300">
+                                    Aksi
+                                </th>
                             </tr>
                         </thead>
                         <tbody class="divide-y divide-gray-200 bg-white dark:divide-gray-800 dark:bg-gray-950">
                             <tr v-for="a in appraisals.data" :key="a.id">
                                 <td class="whitespace-nowrap px-6 py-4 text-sm text-gray-700 dark:text-gray-200">
-                                    {{ a.evaluated_at }}
+                                    {{ formatDate(a.evaluated_at) }}
                                 </td>
                                 <td class="px-6 py-4 text-sm font-medium text-gray-900 dark:text-white">
                                     {{ employeeLabel(a.user) }}
@@ -115,6 +226,31 @@ const feedbackPreview = (text: string | null | undefined) => {
                                 <td class="px-6 py-4 text-sm text-gray-600 dark:text-gray-300">
                                     {{ feedbackPreview(a.feedback) }}
                                 </td>
+                                <td class="whitespace-nowrap px-6 py-4 text-right text-sm">
+                                    <button
+                                        type="button"
+                                        class="inline-flex items-center rounded-md bg-sky-50 px-3 py-1.5 text-xs font-medium text-sky-700 ring-1 ring-sky-600/20 transition-colors hover:bg-sky-100 dark:bg-sky-950/50 dark:text-sky-300 dark:ring-sky-400/30 dark:hover:bg-sky-950"
+                                        @click="openView(a)"
+                                    >
+                                        <Eye class="mr-1 h-3 w-3" />
+                                        View
+                                    </button>
+                                    <Link
+                                        :href="`/admin/lms-performance-appraisals/${a.id}/edit`"
+                                        class="ml-2 inline-flex items-center rounded-md bg-amber-50 px-3 py-1.5 text-xs font-medium text-amber-700 ring-1 ring-amber-600/20 transition-colors hover:bg-amber-100 dark:bg-amber-950/50 dark:text-amber-300 dark:ring-amber-400/30 dark:hover:bg-amber-950"
+                                    >
+                                        <Pencil class="mr-1 h-3 w-3" />
+                                        Edit
+                                    </Link>
+                                    <button
+                                        type="button"
+                                        class="ml-2 inline-flex items-center rounded-md bg-red-50 px-3 py-1.5 text-xs font-medium text-red-700 ring-1 ring-red-600/20 transition-colors hover:bg-red-100 dark:bg-red-950/50 dark:text-red-300 dark:ring-red-400/30 dark:hover:bg-red-950"
+                                        @click="deleteAppraisal(a)"
+                                    >
+                                        <Trash2 class="mr-1 h-3 w-3" />
+                                        Hapus
+                                    </button>
+                                </td>
                             </tr>
                         </tbody>
                     </table>
@@ -122,5 +258,12 @@ const feedbackPreview = (text: string | null | undefined) => {
             </div>
         </div>
     </AppLayout>
-</template>
 
+    <Dialog v-model:open="isDialogOpen">
+        <DialogContent class="sm:max-w-lg">
+            <div class="h-80 w-full">
+                <Doughnut :data="chartData" :options="chartOptions" />
+            </div>
+        </DialogContent>
+    </Dialog>
+</template>

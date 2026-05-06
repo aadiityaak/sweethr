@@ -6,6 +6,7 @@ use App\Http\Controllers\Controller;
 use App\Models\LmsPerformanceAppraisal;
 use App\Models\User;
 use Illuminate\Http\Request;
+use Illuminate\Validation\ValidationException;
 use Inertia\Inertia;
 
 class LmsPerformanceAppraisalController extends Controller
@@ -73,6 +74,53 @@ class LmsPerformanceAppraisalController extends Controller
 
     public function store(Request $request)
     {
+        $validated = $this->validatedPayload($request);
+
+        $validated['evaluator_id'] = auth()->id();
+
+        LmsPerformanceAppraisal::create($validated);
+
+        return redirect()->route('admin.lms-performance-appraisals.index')
+            ->with('success', 'Performance appraisal berhasil disimpan.');
+    }
+
+    public function edit(LmsPerformanceAppraisal $lms_performance_appraisal)
+    {
+        $employees = User::query()
+            ->where('is_admin', false)
+            ->withCount('subordinates')
+            ->orderBy('name')
+            ->get(['id', 'name', 'employee_id']);
+
+        $lms_performance_appraisal->load(['user:id,name,employee_id']);
+
+        return Inertia::render('admin/Lms/PerformanceAppraisal/Edit', [
+            'employees' => $employees,
+            'appraisal' => $lms_performance_appraisal,
+        ]);
+    }
+
+    public function update(Request $request, LmsPerformanceAppraisal $lms_performance_appraisal)
+    {
+        $validated = $this->validatedPayload($request);
+        $validated['evaluator_id'] = auth()->id();
+
+        $lms_performance_appraisal->update($validated);
+
+        return redirect()->route('admin.lms-performance-appraisals.index')
+            ->with('success', 'Performance appraisal berhasil diperbarui.');
+    }
+
+    public function destroy(LmsPerformanceAppraisal $lms_performance_appraisal)
+    {
+        $lms_performance_appraisal->delete();
+
+        return redirect()->route('admin.lms-performance-appraisals.index')
+            ->with('success', 'Performance appraisal berhasil dihapus.');
+    }
+
+    private function validatedPayload(Request $request): array
+    {
         $validated = $request->validate([
             'user_id' => 'required|exists:users,id',
             'evaluated_at' => 'required|date',
@@ -97,19 +145,16 @@ class LmsPerformanceAppraisalController extends Controller
 
         if ($isManager) {
             if (! array_key_exists('leadership_delegation', $validated) || $validated['leadership_delegation'] === null) {
-                return back()->withErrors(['leadership_delegation' => 'Wajib diisi untuk level manajerial.'])->withInput();
+                throw ValidationException::withMessages(['leadership_delegation' => 'Wajib diisi untuk level manajerial.']);
             }
             if (! array_key_exists('leadership_development', $validated) || $validated['leadership_development'] === null) {
-                return back()->withErrors(['leadership_development' => 'Wajib diisi untuk level manajerial.'])->withInput();
+                throw ValidationException::withMessages(['leadership_development' => 'Wajib diisi untuk level manajerial.']);
             }
+        } else {
+            $validated['leadership_delegation'] = null;
+            $validated['leadership_development'] = null;
         }
 
-        $validated['evaluator_id'] = auth()->id();
-
-        LmsPerformanceAppraisal::create($validated);
-
-        return redirect()->route('admin.lms-performance-appraisals.index')
-            ->with('success', 'Performance appraisal berhasil disimpan.');
+        return $validated;
     }
 }
-
