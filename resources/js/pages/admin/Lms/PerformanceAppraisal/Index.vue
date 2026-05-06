@@ -61,8 +61,29 @@ const employeeLabel = (u: UserRef) => {
     return `${u.name}${empId}`;
 };
 
+const stripHtml = (html: string | null | undefined) => {
+    const raw = String(html ?? '');
+    if (!raw) return '';
+
+    try {
+        if (typeof window !== 'undefined' && 'DOMParser' in window) {
+            const doc = new DOMParser().parseFromString(raw, 'text/html');
+            return String(doc.body.textContent ?? '').trim();
+        }
+    } catch {
+        // ignore
+    }
+
+    return raw
+        .replace(/<script\b[^<]*(?:(?!<\/script>)<[^<]*)*<\/script>/gi, '')
+        .replace(/<style\b[^<]*(?:(?!<\/style>)<[^<]*)*<\/style>/gi, '')
+        .replace(/<[^>]+>/g, ' ')
+        .replace(/\s+/g, ' ')
+        .trim();
+};
+
 const feedbackPreview = (text: string | null | undefined) => {
-    const raw = String(text ?? '').trim();
+    const raw = stripHtml(text);
     if (!raw) return '-';
     if (raw.length <= 90) return raw;
     return `${raw.slice(0, 90)}…`;
@@ -156,6 +177,17 @@ const deleteAppraisal = (a: Appraisal) => {
     if (!confirm('Yakin ingin menghapus appraisal ini?')) return;
     deleteForm.delete(`/admin/lms-performance-appraisals/${a.id}`, { preserveScroll: true });
 };
+
+const scoreBadgeClass = (avg: number | null | undefined) => {
+    if (avg === null || avg === undefined) {
+        return 'bg-gray-100 text-gray-700 dark:bg-gray-800 dark:text-gray-200';
+    }
+
+    if (avg >= 4.25) return 'bg-green-100 text-green-700 dark:bg-green-900/30 dark:text-green-300';
+    if (avg >= 3.5) return 'bg-lime-100 text-lime-700 dark:bg-lime-900/30 dark:text-lime-300';
+    if (avg >= 2.75) return 'bg-amber-100 text-amber-700 dark:bg-amber-900/30 dark:text-amber-300';
+    return 'bg-red-100 text-red-700 dark:bg-red-900/30 dark:text-red-300';
+};
 </script>
 
 <template>
@@ -220,8 +252,13 @@ const deleteAppraisal = (a: Appraisal) => {
                                     {{ a.evaluator?.name ?? '-' }}
                                 </td>
                                 <td class="px-6 py-4 text-sm text-gray-700 dark:text-gray-200">
-                                    <span v-if="a.score_avg !== null && a.score_avg !== undefined">{{ a.score_avg }}</span>
-                                    <span v-else>-</span>
+                                    <span
+                                        class="inline-flex items-center rounded-full px-2.5 py-0.5 text-xs font-semibold"
+                                        :class="scoreBadgeClass(a.score_avg)"
+                                    >
+                                        <span v-if="a.score_avg !== null && a.score_avg !== undefined">{{ a.score_avg }}</span>
+                                        <span v-else>-</span>
+                                    </span>
                                 </td>
                                 <td class="px-6 py-4 text-sm text-gray-600 dark:text-gray-300">
                                     {{ feedbackPreview(a.feedback) }}
@@ -263,6 +300,12 @@ const deleteAppraisal = (a: Appraisal) => {
         <DialogContent class="sm:max-w-lg">
             <div class="h-80 w-full">
                 <Doughnut :data="chartData" :options="chartOptions" />
+            </div>
+            <div v-if="selected" class="mt-4">
+                <div class="text-sm font-semibold text-gray-900 dark:text-white">Feedback</div>
+                <div class="mt-1 max-h-40 overflow-y-auto rounded-lg border border-gray-200 bg-white p-3 text-sm text-gray-700 dark:border-gray-800 dark:bg-gray-950 dark:text-gray-200">
+                    {{ stripHtml(selected.feedback) || '-' }}
+                </div>
             </div>
         </DialogContent>
     </Dialog>
