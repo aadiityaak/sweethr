@@ -15,8 +15,11 @@ class LmsAssignmentController extends Controller
 {
     public function index(): Response
     {
+        $user = auth()->user();
+
         $assignments = LmsAssignment::with(['category.parent'])
             ->where('is_active', true)
+            ->whereHas('category', fn ($q) => $q->where('is_active', true)->visibleForUser($user))
             ->latest()
             ->paginate(10);
 
@@ -32,6 +35,12 @@ class LmsAssignmentController extends Controller
         }
 
         $lms_assignment->load(['category.parent']);
+        if (! $lms_assignment->category || ! $lms_assignment->category->is_active) {
+            abort(404);
+        }
+        if (! $lms_assignment->category->isVisibleToUser(auth()->user())) {
+            abort(404);
+        }
 
         $userId = (int) auth()->id();
 
@@ -64,6 +73,14 @@ class LmsAssignmentController extends Controller
     public function submit(Request $request, LmsAssignment $lms_assignment): RedirectResponse
     {
         if (! $lms_assignment->is_active) {
+            abort(404);
+        }
+
+        $lms_assignment->load(['category']);
+        if (! $lms_assignment->category || ! $lms_assignment->category->is_active) {
+            abort(404);
+        }
+        if (! $lms_assignment->category->isVisibleToUser(auth()->user())) {
             abort(404);
         }
 

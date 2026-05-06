@@ -15,9 +15,12 @@ class LmsQuizController extends Controller
 {
     public function index(): Response
     {
+        $user = auth()->user();
+
         $quizzes = LmsQuiz::with(['category.parent'])
             ->withCount(['questions' => fn ($q) => $q->where('is_active', true)])
             ->where('is_active', true)
+            ->whereHas('category', fn ($q) => $q->where('is_active', true)->visibleForUser($user))
             ->latest()
             ->paginate(10);
 
@@ -31,6 +34,8 @@ class LmsQuizController extends Controller
         if (! $lms_quiz->is_active) {
             abort(404);
         }
+
+        $this->ensureQuizVisible($lms_quiz);
 
         $userId = (int) auth()->id();
 
@@ -78,6 +83,8 @@ class LmsQuizController extends Controller
         if (! $lms_quiz->is_active) {
             abort(404);
         }
+
+        $this->ensureQuizVisible($lms_quiz);
 
         $userId = (int) auth()->id();
 
@@ -210,6 +217,21 @@ class LmsQuizController extends Controller
         }
 
         if (! $lms_quiz->is_active) {
+            abort(404);
+        }
+
+        $this->ensureQuizVisible($lms_quiz);
+    }
+
+    private function ensureQuizVisible(LmsQuiz $lms_quiz): void
+    {
+        $user = auth()->user();
+
+        $lms_quiz->loadMissing(['category']);
+        if (! $lms_quiz->category || ! $lms_quiz->category->is_active) {
+            abort(404);
+        }
+        if (! $lms_quiz->category->isVisibleToUser($user)) {
             abort(404);
         }
     }

@@ -22,10 +22,17 @@ const breadcrumbs: BreadcrumbItem[] = [
     { title: 'Tambah', href: '/admin/lms-categories/create' },
 ];
 
+const roleOptions = [
+    { value: 'employee', label: 'Karyawan' },
+    { value: 'manager', label: 'Manager' },
+    { value: 'admin', label: 'Admin' },
+];
+
 const form = useForm({
     name: '',
     parent_id: null as number | null,
     is_active: true,
+    visible_roles: [] as string[],
 });
 
 const submit = () => {
@@ -85,6 +92,20 @@ const submit = () => {
                     <div class="flex items-center gap-2">
                         <input v-model="form.is_active" type="checkbox" class="h-4 w-4 rounded border-gray-300 text-blue-600 focus:ring-blue-500" />
                         <label class="text-sm text-gray-700 dark:text-gray-300">Aktif</label>
+                    </div>
+
+                    <div>
+                        <label class="block text-sm font-medium text-gray-700 dark:text-gray-300">Visibility (Role)</label>
+                        <div class="mt-2 space-y-2">
+                            <label v-for="opt in roleOptions" :key="opt.value" class="flex items-center gap-2">
+                                <input v-model="form.visible_roles" type="checkbox" :value="opt.value" class="h-4 w-4 rounded border-gray-300 text-blue-600 focus:ring-blue-500" />
+                                <span class="text-sm text-gray-700 dark:text-gray-300">{{ opt.label }}</span>
+                            </label>
+                        </div>
+                        <p class="mt-2 text-xs text-gray-500 dark:text-gray-400">
+                            Jika tidak memilih role apa pun, kategori akan terlihat untuk semua role.
+                        </p>
+                        <p v-if="form.errors.visible_roles" class="mt-1 text-xs text-red-600">{{ form.errors.visible_roles }}</p>
                     </div>
 
                     <div class="flex items-center justify-end gap-3">

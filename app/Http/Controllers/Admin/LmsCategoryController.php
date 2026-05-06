@@ -46,7 +46,13 @@ class LmsCategoryController extends Controller
             'name' => 'required|string|max:255',
             'parent_id' => 'nullable|exists:lms_categories,id',
             'is_active' => 'boolean',
+            'visible_roles' => 'nullable|array',
+            'visible_roles.*' => 'distinct|in:'.implode(',', LmsCategory::allowedRoles()),
         ]);
+
+        if (array_key_exists('visible_roles', $validated) && is_array($validated['visible_roles']) && count($validated['visible_roles']) === 0) {
+            $validated['visible_roles'] = null;
+        }
 
         LmsCategory::create($validated);
 
@@ -73,7 +79,13 @@ class LmsCategoryController extends Controller
             'name' => 'required|string|max:255',
             'parent_id' => 'nullable|exists:lms_categories,id|not_in:'.$lms_category->id,
             'is_active' => 'boolean',
+            'visible_roles' => 'nullable|array',
+            'visible_roles.*' => 'distinct|in:'.implode(',', LmsCategory::allowedRoles()),
         ]);
+
+        if (array_key_exists('visible_roles', $validated) && is_array($validated['visible_roles']) && count($validated['visible_roles']) === 0) {
+            $validated['visible_roles'] = null;
+        }
 
         $lms_category->update($validated);
 

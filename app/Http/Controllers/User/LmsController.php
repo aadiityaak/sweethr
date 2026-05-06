@@ -17,10 +17,12 @@ class LmsController extends Controller
 {
     public function index(Request $request): Response
     {
+        $user = auth()->user();
         $userId = (int) auth()->id();
 
         $materials = LmsMaterial::with(['category.parent'])
             ->where('is_active', true)
+            ->whereHas('category', fn ($q) => $q->where('is_active', true)->visibleForUser($user))
             ->latest()
             ->paginate(5, ['*'], 'materials_page')
             ->withQueryString();
@@ -28,12 +30,14 @@ class LmsController extends Controller
         $quizzes = LmsQuiz::with(['category.parent'])
             ->withCount('questions')
             ->where('is_active', true)
+            ->whereHas('category', fn ($q) => $q->where('is_active', true)->visibleForUser($user))
             ->latest()
             ->paginate(5, ['*'], 'quizzes_page')
             ->withQueryString();
 
         $assignments = LmsAssignment::with(['category.parent'])
             ->where('is_active', true)
+            ->whereHas('category', fn ($q) => $q->where('is_active', true)->visibleForUser($user))
             ->latest()
             ->paginate(5, ['*'], 'assignments_page')
             ->withQueryString();
@@ -150,8 +154,12 @@ class LmsController extends Controller
             ],
             'totals' => [
                 'materials' => (int) ($materials->total() ?? 0),
-                'quizzes' => (int) LmsQuiz::where('is_active', true)->count(),
-                'assignments' => (int) LmsAssignment::where('is_active', true)->count(),
+                'quizzes' => (int) LmsQuiz::where('is_active', true)
+                    ->whereHas('category', fn ($q) => $q->where('is_active', true)->visibleForUser($user))
+                    ->count(),
+                'assignments' => (int) LmsAssignment::where('is_active', true)
+                    ->whereHas('category', fn ($q) => $q->where('is_active', true)->visibleForUser($user))
+                    ->count(),
             ],
         ]);
     }
@@ -162,9 +170,16 @@ class LmsController extends Controller
             abort(404);
         }
 
+        $user = auth()->user();
         $userId = (int) auth()->id();
 
         $lms_material->load(['category.parent']);
+        if (! $lms_material->category || ! $lms_material->category->is_active) {
+            abort(404);
+        }
+        if (! $lms_material->category->isVisibleToUser($user)) {
+            abort(404);
+        }
 
         LmsMaterialRead::query()->updateOrCreate(
             [
