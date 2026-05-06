@@ -295,6 +295,13 @@ Route::middleware(['auth', 'verified', 'admin'])->group(function () {
     Route::get('admin/lms-tracking', [App\Http\Controllers\Admin\LmsTrackingController::class, 'index'])
         ->name('admin.lms-tracking.index');
 
+    Route::get('admin/lms-performance-appraisals', [App\Http\Controllers\Admin\LmsPerformanceAppraisalController::class, 'index'])
+        ->name('admin.lms-performance-appraisals.index');
+    Route::get('admin/lms-performance-appraisals/create', [App\Http\Controllers\Admin\LmsPerformanceAppraisalController::class, 'create'])
+        ->name('admin.lms-performance-appraisals.create');
+    Route::post('admin/lms-performance-appraisals', [App\Http\Controllers\Admin\LmsPerformanceAppraisalController::class, 'store'])
+        ->name('admin.lms-performance-appraisals.store');
+
     // Admin Payroll Management
     Route::get('admin/salary-settings', [App\Http\Controllers\Admin\SalarySettingController::class, 'index'])
         ->name('admin.salary-settings.index');

@@ -10,6 +10,7 @@ interface LmsCategory {
     parent_id: number | null;
     name: string;
     is_active: boolean;
+    visible_roles?: string[] | null;
     materials_count?: number;
     children?: LmsCategory[];
 }
@@ -50,6 +51,19 @@ const totalMaterialsCount = (category: LmsCategory): number => {
     const children = category.children ?? [];
     if (!children.length) return own;
     return own + children.reduce((sum, child) => sum + totalMaterialsCount(child), 0);
+};
+
+const roleLabel = (role: string): string => {
+    if (role === 'employee') return 'Karyawan';
+    if (role === 'manager') return 'Manager';
+    if (role === 'admin') return 'Admin';
+    return role;
+};
+
+const visibilityRoles = (category: LmsCategory): string[] => {
+    const roles = category.visible_roles ?? [];
+    if (!Array.isArray(roles) || roles.length === 0) return ['Semua'];
+    return roles.map(roleLabel);
 };
 
 const deleteCategory = (category: LmsCategory) => {
@@ -108,6 +122,16 @@ const deleteCategory = (category: LmsCategory) => {
                                         "
                                     >
                                         {{ category.is_active ? 'Aktif' : 'Nonaktif' }}
+                                    </span>
+                                </div>
+                                <div class="mt-2 flex flex-wrap items-center gap-1.5">
+                                    <span class="text-xs text-gray-500 dark:text-gray-400">Visibility:</span>
+                                    <span
+                                        v-for="label in visibilityRoles(category)"
+                                        :key="`${category.id}-${label}`"
+                                        class="inline-flex items-center rounded-full bg-gray-100 px-2 py-0.5 text-xs font-medium text-gray-700 dark:bg-gray-800 dark:text-gray-200"
+                                    >
+                                        {{ label }}
                                     </span>
                                 </div>
                             </div>
@@ -173,6 +197,16 @@ const deleteCategory = (category: LmsCategory) => {
                                                     "
                                                 >
                                                     {{ row.category.is_active ? 'Aktif' : 'Nonaktif' }}
+                                                </span>
+                                            </div>
+                                            <div class="mt-2 flex flex-wrap items-center gap-1.5">
+                                                <span class="text-xs text-gray-500 dark:text-gray-400">Visibility:</span>
+                                                <span
+                                                    v-for="label in visibilityRoles(row.category)"
+                                                    :key="`${row.category.id}-${label}`"
+                                                    class="inline-flex items-center rounded-full bg-gray-100 px-2 py-0.5 text-xs font-medium text-gray-700 dark:bg-gray-800 dark:text-gray-200"
+                                                >
+                                                    {{ label }}
                                                 </span>
                                             </div>
                                         </div>
