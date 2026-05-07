@@ -314,11 +314,11 @@ Route::middleware(['auth', 'verified', 'admin'])->group(function () {
         ->name('admin.lms-performance-appraisal-parameters.create');
     Route::post('admin/lms-performance-appraisal-parameters', [App\Http\Controllers\Admin\LmsPerformanceAppraisalParameterController::class, 'store'])
         ->name('admin.lms-performance-appraisal-parameters.store');
-    Route::get('admin/lms-performance-appraisal-parameters/{lms_performance_appraisal_parameter}/edit', [App\Http\Controllers\Admin\LmsPerformanceAppraisalParameterController::class, 'edit'])
+    Route::get('admin/lms-performance-appraisal-parameters/{parameter}/edit', [App\Http\Controllers\Admin\LmsPerformanceAppraisalParameterController::class, 'edit'])
         ->name('admin.lms-performance-appraisal-parameters.edit');
-    Route::put('admin/lms-performance-appraisal-parameters/{lms_performance_appraisal_parameter}', [App\Http\Controllers\Admin\LmsPerformanceAppraisalParameterController::class, 'update'])
+    Route::put('admin/lms-performance-appraisal-parameters/{parameter}', [App\Http\Controllers\Admin\LmsPerformanceAppraisalParameterController::class, 'update'])
         ->name('admin.lms-performance-appraisal-parameters.update');
-    Route::delete('admin/lms-performance-appraisal-parameters/{lms_performance_appraisal_parameter}', [App\Http\Controllers\Admin\LmsPerformanceAppraisalParameterController::class, 'destroy'])
+    Route::delete('admin/lms-performance-appraisal-parameters/{parameter}', [App\Http\Controllers\Admin\LmsPerformanceAppraisalParameterController::class, 'destroy'])
         ->name('admin.lms-performance-appraisal-parameters.destroy');
 
     // Admin Payroll Management

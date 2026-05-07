@@ -13,7 +13,7 @@
                             :href="show.url(document.id)"
                             class="inline-flex items-center rounded-md bg-white px-3 py-2 text-sm font-semibold text-gray-900 shadow-sm ring-1 ring-gray-300 ring-inset hover:bg-gray-50 dark:bg-gray-800 dark:text-white dark:ring-gray-600 dark:hover:bg-gray-700"
                         >
-                            <ArrowLeft class="mr-2 h-4 w-4" />
+                            <ArrowLeft class="h-4 w-4" />
                             Kembali
                         </Link>
                     </div>

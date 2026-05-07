@@ -112,7 +112,7 @@ const getCategoryColor = (color: string) => {
                             href="/admin/announcements"
                             class="inline-flex items-center rounded-lg border border-gray-300 bg-white px-4 py-2 text-sm font-medium text-gray-700 shadow-sm transition-colors hover:bg-gray-50 focus:ring-2 focus:ring-blue-500 focus:ring-offset-2 focus:outline-none dark:border-gray-600 dark:bg-gray-800 dark:text-gray-300 dark:hover:bg-gray-700"
                         >
-                            <ArrowLeft class="mr-2 h-4 w-4" />
+                            <ArrowLeft class="h-4 w-4" />
                             Kembali
                         </Link>
                     </div>

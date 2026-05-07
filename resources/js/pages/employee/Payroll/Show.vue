@@ -13,7 +13,7 @@
                             :href="route('employee.payrolls.index')"
                             class="inline-flex items-center rounded-lg bg-gray-300 px-4 py-2 text-gray-700 transition-colors hover:bg-gray-400"
                         >
-                            <ArrowLeft class="mr-2 h-4 w-4" />
+                            <ArrowLeft class="h-4 w-4" />
                             Kembali
                         </Link>
                         <button

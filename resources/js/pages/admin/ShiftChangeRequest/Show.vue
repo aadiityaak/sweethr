@@ -166,7 +166,7 @@ const rejectRequest = () => {
                     <div class="flex gap-3">
                         <Link href="/admin/shift-change-requests">
                             <Button variant="outline">
-                                <ArrowLeft class="mr-2 h-4 w-4" />
+                                <ArrowLeft class="h-4 w-4" />
                                 Kembali
                             </Button>
                         </Link>

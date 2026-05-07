@@ -111,16 +111,16 @@ class LmsPerformanceAppraisalParameterController extends Controller
             ->with('success', 'Parameter penilaian berhasil ditambahkan.');
     }
 
-    public function edit(LmsPerformanceAppraisalParameter $lms_performance_appraisal_parameter)
+    public function edit(LmsPerformanceAppraisalParameter $parameter)
     {
         return Inertia::render('admin/Lms/PerformanceAppraisalParameter/Edit', [
-            'parameter' => $lms_performance_appraisal_parameter,
+            'parameter' => $parameter,
             'groups' => self::DEFAULT_GROUPS,
             'positions' => Position::query()->active()->orderBy('title')->get(['id', 'title']),
         ]);
     }
 
-    public function update(Request $request, LmsPerformanceAppraisalParameter $lms_performance_appraisal_parameter)
+    public function update(Request $request, LmsPerformanceAppraisalParameter $parameter)
     {
         $validated = $request->validate([
             'group' => ['required', 'string', 'max:255'],
@@ -136,15 +136,15 @@ class LmsPerformanceAppraisalParameterController extends Controller
             $validated['visible_position_ids'] = null;
         }
 
-        $lms_performance_appraisal_parameter->update($validated);
+        $parameter->update($validated);
 
         return redirect()->route('admin.lms-performance-appraisal-parameters.index')
             ->with('success', 'Parameter penilaian berhasil diperbarui.');
     }
 
-    public function destroy(LmsPerformanceAppraisalParameter $lms_performance_appraisal_parameter)
+    public function destroy(LmsPerformanceAppraisalParameter $parameter)
     {
-        $lms_performance_appraisal_parameter->delete();
+        $parameter->delete();
 
         return redirect()->route('admin.lms-performance-appraisal-parameters.index')
             ->with('success', 'Parameter penilaian berhasil dihapus.');
