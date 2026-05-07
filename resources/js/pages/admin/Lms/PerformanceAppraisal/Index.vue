@@ -44,9 +44,8 @@ interface Parameter {
     key: string;
     group: string;
     label: string;
-    sort_order: number;
     is_active: boolean;
-    managerial_only: boolean;
+    visible_position_ids?: number[] | null;
 }
 
 interface Props {

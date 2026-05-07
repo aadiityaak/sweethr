@@ -7,7 +7,6 @@ use App\Models\LmsPerformanceAppraisal;
 use App\Models\LmsPerformanceAppraisalParameter;
 use App\Models\User;
 use Illuminate\Http\Request;
-use Illuminate\Validation\ValidationException;
 use Inertia\Inertia;
 
 class LmsPerformanceAppraisalController extends Controller
@@ -78,9 +77,9 @@ class LmsPerformanceAppraisalController extends Controller
     {
         $employees = User::query()
             ->where('is_admin', false)
-            ->withCount('subordinates')
+            ->with(['position:id,title'])
             ->orderBy('name')
-            ->get(['id', 'name', 'employee_id']);
+            ->get(['id', 'name', 'employee_id', 'position_id']);
 
         return Inertia::render('admin/Lms/PerformanceAppraisal/Create', [
             'employees' => $employees,
@@ -104,11 +103,11 @@ class LmsPerformanceAppraisalController extends Controller
     {
         $employees = User::query()
             ->where('is_admin', false)
-            ->withCount('subordinates')
+            ->with(['position:id,title'])
             ->orderBy('name')
-            ->get(['id', 'name', 'employee_id']);
+            ->get(['id', 'name', 'employee_id', 'position_id']);
 
-        $lms_performance_appraisal->load(['user:id,name,employee_id']);
+        $lms_performance_appraisal->load(['user:id,name,employee_id,position_id', 'user.position:id,title']);
 
         return Inertia::render('admin/Lms/PerformanceAppraisal/Edit', [
             'employees' => $employees,
@@ -138,54 +137,42 @@ class LmsPerformanceAppraisalController extends Controller
 
     private function validatedPayload(Request $request): array
     {
-        $validated = $request->validate([
-            'user_id' => 'required|exists:users,id',
-            'evaluated_at' => 'required|date',
-            'leadership_delegation' => 'nullable|integer|min:1|max:5',
-            'leadership_development' => 'nullable|integer|min:1|max:5',
-            'feedback' => 'nullable|string',
-        ]);
+        $userId = (int) $request->input('user_id');
+        $employee = User::query()->whereKey($userId)->firstOrFail();
+        $positionId = $employee->position_id ? (int) $employee->position_id : null;
 
-        foreach (self::SCORE_KEYS as $key) {
-            if (in_array($key, ['leadership_delegation', 'leadership_development'], true)) {
-                continue;
-            }
-            $validated[$key] = $request->has($key) ? (int) $request->input($key) : null;
-            if ($validated[$key] !== null) {
-                $request->validate([$key => 'integer|min:1|max:5']);
-            }
-        }
-
-        $employee = User::query()->whereKey($validated['user_id'])->firstOrFail();
-        $isManager = $employee->subordinates()->exists();
-
-        $requiredKeys = collect($this->activeParameters())
-            ->filter(fn ($p) => (bool) ($p['is_active'] ?? true))
-            ->filter(function ($p) use ($isManager) {
-                $managerOnly = (bool) ($p['managerial_only'] ?? false);
-                return ! $managerOnly || $isManager;
+        $visibleKeys = collect($this->activeParameters())
+            ->filter(function ($p) use ($positionId) {
+                $ids = $p['visible_position_ids'] ?? [];
+                if (! is_array($ids) || count($ids) === 0) {
+                    return true;
+                }
+                if ($positionId === null) {
+                    return false;
+                }
+                return in_array($positionId, $ids, true);
             })
             ->pluck('key')
             ->values()
             ->all();
 
-        foreach ($requiredKeys as $key) {
-            if (! array_key_exists($key, $validated) || $validated[$key] === null) {
-                throw ValidationException::withMessages([$key => 'Wajib diisi.']);
-            }
-        }
-
-        if (! $isManager) {
-            $validated['leadership_delegation'] = null;
-            $validated['leadership_development'] = null;
-        }
+        $rules = [
+            'user_id' => 'required|exists:users,id',
+            'evaluated_at' => 'required|date',
+            'feedback' => 'nullable|string',
+        ];
 
         foreach (self::SCORE_KEYS as $key) {
-            if (in_array($key, ['leadership_delegation', 'leadership_development'], true)) {
-                continue;
-            }
-            if (! array_key_exists($key, $validated) || $validated[$key] === null) {
-                $validated[$key] = 3;
+            $rules[$key] = in_array($key, $visibleKeys, true)
+                ? 'required|integer|min:1|max:5'
+                : 'nullable|integer|min:1|max:5';
+        }
+
+        $validated = $request->validate($rules);
+
+        foreach (self::SCORE_KEYS as $key) {
+            if (! in_array($key, $visibleKeys, true)) {
+                $validated[$key] = null;
             }
         }
 
@@ -196,15 +183,16 @@ class LmsPerformanceAppraisalController extends Controller
     {
         $parameters = LmsPerformanceAppraisalParameter::query()
             ->where('is_active', true)
-            ->orderBy('sort_order')
-            ->get(['key', 'group', 'label', 'sort_order', 'is_active', 'managerial_only'])
+            ->orderBy('group')
+            ->orderBy('id')
+            ->get(['key', 'group', 'label', 'is_active', 'managerial_only', 'visible_position_ids'])
             ->map(fn (LmsPerformanceAppraisalParameter $p) => [
                 'key' => $p->key,
                 'group' => $p->group,
                 'label' => $p->label,
-                'sort_order' => (int) $p->sort_order,
                 'is_active' => (bool) $p->is_active,
                 'managerial_only' => (bool) $p->managerial_only,
+                'visible_position_ids' => is_array($p->visible_position_ids) ? array_values(array_map('intval', $p->visible_position_ids)) : [],
             ])
             ->values()
             ->all();
@@ -214,19 +202,19 @@ class LmsPerformanceAppraisalController extends Controller
         }
 
         return [
-            ['key' => 'quality_work', 'group' => 'Kompetensi Teknis (Hard Skills)', 'label' => 'Kualitas Kerja', 'sort_order' => 10, 'is_active' => true, 'managerial_only' => false],
-            ['key' => 'quantity_work', 'group' => 'Kompetensi Teknis (Hard Skills)', 'label' => 'Kuantitas Kerja', 'sort_order' => 20, 'is_active' => true, 'managerial_only' => false],
-            ['key' => 'task_knowledge', 'group' => 'Kompetensi Teknis (Hard Skills)', 'label' => 'Pengetahuan Tugas', 'sort_order' => 30, 'is_active' => true, 'managerial_only' => false],
-            ['key' => 'discipline', 'group' => 'Perilaku Kerja (Soft Skills)', 'label' => 'Kedisiplinan', 'sort_order' => 40, 'is_active' => true, 'managerial_only' => false],
-            ['key' => 'teamwork', 'group' => 'Perilaku Kerja (Soft Skills)', 'label' => 'Kerja Sama Tim', 'sort_order' => 50, 'is_active' => true, 'managerial_only' => false],
-            ['key' => 'communication', 'group' => 'Perilaku Kerja (Soft Skills)', 'label' => 'Komunikasi', 'sort_order' => 60, 'is_active' => true, 'managerial_only' => false],
-            ['key' => 'initiative', 'group' => 'Perilaku Kerja (Soft Skills)', 'label' => 'Inisiatif', 'sort_order' => 70, 'is_active' => true, 'managerial_only' => false],
-            ['key' => 'target_realization', 'group' => 'Pencapaian Target (KPI)', 'label' => 'Realisasi Target', 'sort_order' => 80, 'is_active' => true, 'managerial_only' => false],
-            ['key' => 'time_management', 'group' => 'Pencapaian Target (KPI)', 'label' => 'Manajemen Waktu', 'sort_order' => 90, 'is_active' => true, 'managerial_only' => false],
-            ['key' => 'attitude', 'group' => 'Sikap dan Adaptabilitas', 'label' => 'Sikap (Attitude)', 'sort_order' => 100, 'is_active' => true, 'managerial_only' => false],
-            ['key' => 'adaptability', 'group' => 'Sikap dan Adaptabilitas', 'label' => 'Adaptabilitas', 'sort_order' => 110, 'is_active' => true, 'managerial_only' => false],
-            ['key' => 'leadership_delegation', 'group' => 'Kepemimpinan (Khusus Level Manajerial)', 'label' => 'Delegasi', 'sort_order' => 120, 'is_active' => true, 'managerial_only' => true],
-            ['key' => 'leadership_development', 'group' => 'Kepemimpinan (Khusus Level Manajerial)', 'label' => 'Pengembangan Anggota', 'sort_order' => 130, 'is_active' => true, 'managerial_only' => true],
+            ['key' => 'quality_work', 'group' => 'Kompetensi Teknis (Hard Skills)', 'label' => 'Kualitas Kerja', 'is_active' => true, 'managerial_only' => false, 'visible_position_ids' => []],
+            ['key' => 'quantity_work', 'group' => 'Kompetensi Teknis (Hard Skills)', 'label' => 'Kuantitas Kerja', 'is_active' => true, 'managerial_only' => false, 'visible_position_ids' => []],
+            ['key' => 'task_knowledge', 'group' => 'Kompetensi Teknis (Hard Skills)', 'label' => 'Pengetahuan Tugas', 'is_active' => true, 'managerial_only' => false, 'visible_position_ids' => []],
+            ['key' => 'discipline', 'group' => 'Perilaku Kerja (Soft Skills)', 'label' => 'Kedisiplinan', 'is_active' => true, 'managerial_only' => false, 'visible_position_ids' => []],
+            ['key' => 'teamwork', 'group' => 'Perilaku Kerja (Soft Skills)', 'label' => 'Kerja Sama Tim', 'is_active' => true, 'managerial_only' => false, 'visible_position_ids' => []],
+            ['key' => 'communication', 'group' => 'Perilaku Kerja (Soft Skills)', 'label' => 'Komunikasi', 'is_active' => true, 'managerial_only' => false, 'visible_position_ids' => []],
+            ['key' => 'initiative', 'group' => 'Perilaku Kerja (Soft Skills)', 'label' => 'Inisiatif', 'is_active' => true, 'managerial_only' => false, 'visible_position_ids' => []],
+            ['key' => 'target_realization', 'group' => 'Pencapaian Target (KPI)', 'label' => 'Realisasi Target', 'is_active' => true, 'managerial_only' => false, 'visible_position_ids' => []],
+            ['key' => 'time_management', 'group' => 'Pencapaian Target (KPI)', 'label' => 'Manajemen Waktu', 'is_active' => true, 'managerial_only' => false, 'visible_position_ids' => []],
+            ['key' => 'attitude', 'group' => 'Sikap dan Adaptabilitas', 'label' => 'Sikap (Attitude)', 'is_active' => true, 'managerial_only' => false, 'visible_position_ids' => []],
+            ['key' => 'adaptability', 'group' => 'Sikap dan Adaptabilitas', 'label' => 'Adaptabilitas', 'is_active' => true, 'managerial_only' => false, 'visible_position_ids' => []],
+            ['key' => 'leadership_delegation', 'group' => 'Kepemimpinan (Khusus Level Manajerial)', 'label' => 'Delegasi', 'is_active' => true, 'managerial_only' => true, 'visible_position_ids' => []],
+            ['key' => 'leadership_development', 'group' => 'Kepemimpinan (Khusus Level Manajerial)', 'label' => 'Pengembangan Anggota', 'is_active' => true, 'managerial_only' => true, 'visible_position_ids' => []],
         ];
     }
 }

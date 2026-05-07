@@ -10,15 +10,14 @@ class LmsPerformanceAppraisalParameter extends Model
         'key',
         'group',
         'label',
-        'sort_order',
         'is_active',
         'managerial_only',
+        'visible_position_ids',
     ];
 
     protected $casts = [
         'is_active' => 'boolean',
         'managerial_only' => 'boolean',
-        'sort_order' => 'integer',
+        'visible_position_ids' => 'array',
     ];
 }
-

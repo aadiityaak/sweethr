@@ -8,13 +8,14 @@ import Underline from '@tiptap/extension-underline';
 import StarterKit from '@tiptap/starter-kit';
 import { EditorContent, useEditor } from '@tiptap/vue-3';
 import { ArrowLeft, Bold, Link2, List, ListOrdered, Save, Underline as UnderlineIcon, Unlink } from 'lucide-vue-next';
-import { computed, watch } from 'vue';
+import { computed } from 'vue';
 
 interface Employee {
     id: number;
     name: string;
     employee_id?: string | null;
-    subordinates_count: number;
+    position_id?: number | null;
+    position?: { id: number; title: string } | null;
 }
 
 interface Props {
@@ -23,9 +24,8 @@ interface Props {
         key: string;
         group: string;
         label: string;
-        sort_order: number;
         is_active: boolean;
-        managerial_only: boolean;
+        visible_position_ids?: number[] | null;
     }>;
 }
 
@@ -64,23 +64,16 @@ const selectedEmployee = computed(() => {
     return employees.find((e) => e.id === form.user_id) ?? null;
 });
 
-const isManager = computed(() => {
-    return (selectedEmployee.value?.subordinates_count ?? 0) > 0;
-});
-
-watch(isManager, (val) => {
-    if (!val) {
-        form.leadership_delegation = null;
-        form.leadership_development = null;
-    }
+const selectedPositionId = computed(() => {
+    return selectedEmployee.value?.position_id ?? null;
 });
 
 const scoreOptions = [1, 2, 3, 4, 5];
 
 const employeeLabel = (e: Employee) => {
     const empId = e.employee_id ? ` (${e.employee_id})` : '';
-    const marker = e.subordinates_count > 0 ? ' - Manajerial' : '';
-    return `${e.name}${empId}${marker}`;
+    const pos = e.position?.title ? ` - ${e.position.title}` : '';
+    return `${e.name}${empId}${pos}`;
 };
 
 const submit = () => {
@@ -88,12 +81,17 @@ const submit = () => {
 };
 
 const groupedParameters = computed(() => {
-    const sorted = [...parameters].sort((a, b) => (a.sort_order ?? 0) - (b.sort_order ?? 0));
-    const groups: Array<{ group: string; params: typeof sorted }> = [];
+    const groups: Array<{ group: string; params: typeof parameters }> = [];
     const idxByName = new Map<string, number>();
 
-    for (const p of sorted) {
-        if (p.managerial_only && !isManager.value) continue;
+    for (const p of parameters) {
+        const visibleIds = p.visible_position_ids ?? [];
+        if (form.user_id) {
+            if (Array.isArray(visibleIds) && visibleIds.length > 0) {
+                if (selectedPositionId.value === null) continue;
+                if (!visibleIds.includes(selectedPositionId.value)) continue;
+            }
+        }
         const name = p.group || 'Lainnya';
         const existingIdx = idxByName.get(name);
         if (existingIdx === undefined) {
@@ -106,10 +104,6 @@ const groupedParameters = computed(() => {
 
     return groups;
 });
-
-const isLeadershipGroup = (groupName: string) => {
-    return groupName.toLowerCase().includes('kepemimpinan');
-};
 
 const editor = useEditor({
     content: form.feedback || '',
@@ -203,13 +197,7 @@ const setLink = () => {
 
                     <div v-for="(g, idx) in groupedParameters" :key="g.group" class="rounded-xl border border-gray-200/60 p-5 dark:border-gray-800/60">
                         <h2 class="text-base font-semibold text-gray-900 dark:text-white">{{ idx + 1 }}. {{ g.group }}</h2>
-                        <p v-if="isLeadershipGroup(g.group)" class="mt-1 text-sm text-gray-600 dark:text-gray-400">Muncul otomatis jika karyawan bertipe manajerial.</p>
-
-                        <div v-if="isLeadershipGroup(g.group) && !isManager" class="mt-4 text-sm text-gray-500 dark:text-gray-400">
-                            Pilih karyawan manajerial untuk mengisi bagian ini.
-                        </div>
-
-                        <div v-else class="mt-4 grid grid-cols-1 gap-4 lg:grid-cols-4">
+                        <div class="mt-4 grid grid-cols-1 gap-4 lg:grid-cols-4">
                             <div v-for="p in g.params" :key="p.key">
                                 <label class="block text-sm font-medium text-gray-700 dark:text-gray-300">{{ p.label }}</label>
                                 <select
@@ -217,7 +205,6 @@ const setLink = () => {
                                     class="mt-1 block w-full rounded-lg border border-gray-300 bg-white px-3 py-2 text-sm dark:border-gray-600 dark:bg-gray-800 dark:text-gray-300"
                                     :class="{ 'border-red-500': (form.errors as any)[p.key] }"
                                 >
-                                    <option v-if="p.managerial_only" :value="null">Pilih</option>
                                     <option v-for="n in scoreOptions" :key="`${p.key}-${n}`" :value="n">{{ n }}</option>
                                 </select>
                                 <p v-if="(form.errors as any)[p.key]" class="mt-1 text-xs text-red-600">{{ (form.errors as any)[p.key] }}</p>

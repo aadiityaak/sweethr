@@ -4,6 +4,7 @@ namespace App\Http\Controllers\Admin;
 
 use App\Http\Controllers\Controller;
 use App\Models\LmsPerformanceAppraisalParameter;
+use App\Models\Position;
 use Illuminate\Http\Request;
 use Inertia\Inertia;
 
@@ -33,16 +34,40 @@ class LmsPerformanceAppraisalParameterController extends Controller
         'Kepemimpinan (Khusus Level Manajerial)',
     ];
 
-    public function index()
+    public function index(Request $request)
     {
-        $parameters = LmsPerformanceAppraisalParameter::query()
-            ->orderBy('sort_order')
+        $group = trim((string) $request->get('group', ''));
+
+        $groups = LmsPerformanceAppraisalParameter::query()
+            ->select('group')
+            ->distinct()
             ->orderBy('group')
-            ->orderBy('label')
+            ->pluck('group')
+            ->values();
+
+        $positions = Position::query()
+            ->active()
+            ->orderBy('title')
+            ->get(['id', 'title']);
+
+        $query = LmsPerformanceAppraisalParameter::query();
+
+        if ($group !== '') {
+            $query->where('group', $group);
+        }
+
+        $parameters = $query
+            ->orderBy('group')
+            ->orderBy('id')
             ->get();
 
         return Inertia::render('admin/Lms/PerformanceAppraisalParameter/Index', [
             'parameters' => $parameters,
+            'positions' => $positions,
+            'groups' => $groups,
+            'filters' => [
+                'group' => $group !== '' ? $group : null,
+            ],
         ]);
     }
 
@@ -51,9 +76,15 @@ class LmsPerformanceAppraisalParameterController extends Controller
         $existingKeys = LmsPerformanceAppraisalParameter::query()->pluck('key')->all();
         $availableKeys = array_values(array_filter(self::ALLOWED_KEYS, fn ($k) => ! in_array($k, $existingKeys, true)));
 
+        $positions = Position::query()
+            ->active()
+            ->orderBy('title')
+            ->get(['id', 'title']);
+
         return Inertia::render('admin/Lms/PerformanceAppraisalParameter/Create', [
             'availableKeys' => $availableKeys,
             'groups' => self::DEFAULT_GROUPS,
+            'positions' => $positions,
         ]);
     }
 
@@ -63,20 +94,16 @@ class LmsPerformanceAppraisalParameterController extends Controller
             'key' => ['required', 'string', 'in:'.implode(',', self::ALLOWED_KEYS), 'unique:lms_performance_appraisal_parameters,key'],
             'group' => ['required', 'string', 'max:255'],
             'label' => ['required', 'string', 'max:255'],
-            'sort_order' => ['nullable', 'integer', 'min:0', 'max:65535'],
             'is_active' => ['nullable', 'boolean'],
-            'managerial_only' => ['nullable', 'boolean'],
+            'visible_position_ids' => ['nullable', 'array'],
+            'visible_position_ids.*' => ['integer', 'exists:positions,id'],
         ]);
 
-        $key = (string) $validated['key'];
-        $isLeadership = in_array($key, ['leadership_delegation', 'leadership_development'], true);
-        if ($isLeadership) {
-            $validated['managerial_only'] = true;
-        }
-
-        $validated['sort_order'] = (int) ($validated['sort_order'] ?? 0);
         $validated['is_active'] = (bool) ($validated['is_active'] ?? false);
-        $validated['managerial_only'] = (bool) ($validated['managerial_only'] ?? false);
+        $validated['visible_position_ids'] = array_values(array_unique(array_map('intval', $validated['visible_position_ids'] ?? [])));
+        if (count($validated['visible_position_ids']) === 0) {
+            $validated['visible_position_ids'] = null;
+        }
 
         LmsPerformanceAppraisalParameter::create($validated);
 
@@ -89,6 +116,7 @@ class LmsPerformanceAppraisalParameterController extends Controller
         return Inertia::render('admin/Lms/PerformanceAppraisalParameter/Edit', [
             'parameter' => $lms_performance_appraisal_parameter,
             'groups' => self::DEFAULT_GROUPS,
+            'positions' => Position::query()->active()->orderBy('title')->get(['id', 'title']),
         ]);
     }
 
@@ -97,20 +125,16 @@ class LmsPerformanceAppraisalParameterController extends Controller
         $validated = $request->validate([
             'group' => ['required', 'string', 'max:255'],
             'label' => ['required', 'string', 'max:255'],
-            'sort_order' => ['nullable', 'integer', 'min:0', 'max:65535'],
             'is_active' => ['nullable', 'boolean'],
-            'managerial_only' => ['nullable', 'boolean'],
+            'visible_position_ids' => ['nullable', 'array'],
+            'visible_position_ids.*' => ['integer', 'exists:positions,id'],
         ]);
 
-        $key = (string) $lms_performance_appraisal_parameter->key;
-        $isLeadership = in_array($key, ['leadership_delegation', 'leadership_development'], true);
-        if ($isLeadership) {
-            $validated['managerial_only'] = true;
-        }
-
-        $validated['sort_order'] = (int) ($validated['sort_order'] ?? 0);
         $validated['is_active'] = (bool) ($validated['is_active'] ?? false);
-        $validated['managerial_only'] = (bool) ($validated['managerial_only'] ?? false);
+        $validated['visible_position_ids'] = array_values(array_unique(array_map('intval', $validated['visible_position_ids'] ?? [])));
+        if (count($validated['visible_position_ids']) === 0) {
+            $validated['visible_position_ids'] = null;
+        }
 
         $lms_performance_appraisal_parameter->update($validated);
 
@@ -126,4 +150,3 @@ class LmsPerformanceAppraisalParameterController extends Controller
             ->with('success', 'Parameter penilaian berhasil dihapus.');
     }
 }
-

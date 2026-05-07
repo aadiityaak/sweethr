@@ -1,7 +1,7 @@
 <script setup lang="ts">
 import AppLayout from '@/layouts/AppLayout.vue';
 import { type BreadcrumbItem } from '@/types';
-import { Head, Link, useForm } from '@inertiajs/vue3';
+import { Head, Link, router, useForm } from '@inertiajs/vue3';
 import { Pencil, Plus, Trash2 } from 'lucide-vue-next';
 
 interface Parameter {
@@ -9,16 +9,20 @@ interface Parameter {
     key: string;
     group: string;
     label: string;
-    sort_order: number;
     is_active: boolean;
-    managerial_only: boolean;
+    visible_position_ids?: number[] | null;
 }
 
 interface Props {
     parameters: Parameter[];
+    groups: string[];
+    positions: Array<{ id: number; title: string }>;
+    filters: {
+        group: string | null;
+    };
 }
 
-const { parameters } = defineProps<Props>();
+const { parameters, groups, positions, filters } = defineProps<Props>();
 
 const breadcrumbs: BreadcrumbItem[] = [
     { title: 'Dashboard', href: '/admin/dashboard' },
@@ -31,6 +35,31 @@ const deleteForm = useForm({});
 const destroy = (p: Parameter) => {
     if (!confirm('Yakin ingin menghapus parameter ini?')) return;
     deleteForm.delete(`/admin/lms-performance-appraisal-parameters/${p.id}`, { preserveScroll: true });
+};
+
+const filterForm = useForm({
+    group: filters.group ?? '',
+});
+
+const applyFilters = () => {
+    router.get(
+        '/admin/lms-performance-appraisal-parameters',
+        {
+            group: filterForm.group || null,
+        },
+        {
+            preserveScroll: true,
+            preserveState: true,
+            replace: true,
+        }
+    );
+};
+
+const positionTitleById = new Map<number, string>(positions.map((p) => [p.id, p.title]));
+const positionsLabel = (p: Parameter) => {
+    const ids = p.visible_position_ids ?? [];
+    if (!Array.isArray(ids) || ids.length === 0) return 'Semua';
+    return ids.map((id) => positionTitleById.get(id) ?? String(id)).join(', ');
 };
 </script>
 
@@ -56,6 +85,22 @@ const destroy = (p: Parameter) => {
             </div>
 
             <div class="overflow-hidden rounded-xl border border-gray-200/50 bg-white shadow-sm dark:border-gray-800/50 dark:bg-gray-950">
+                <div class="border-b border-gray-200/70 px-6 py-4 dark:border-gray-800/70">
+                    <div class="grid grid-cols-1 gap-4 sm:grid-cols-2 lg:grid-cols-3">
+                        <div>
+                            <label class="block text-xs font-semibold uppercase tracking-wider text-gray-600 dark:text-gray-300">Filter Group</label>
+                            <select
+                                v-model="filterForm.group"
+                                class="mt-1 block w-full rounded-lg border border-gray-300 bg-white px-3 py-2 text-sm focus:border-blue-500 focus:ring-1 focus:ring-blue-500 focus:outline-none dark:border-gray-600 dark:bg-gray-800 dark:text-gray-300"
+                                @change="applyFilters"
+                            >
+                                <option value="">Semua Group</option>
+                                <option v-for="g in groups" :key="g" :value="g">{{ g }}</option>
+                            </select>
+                        </div>
+                    </div>
+                </div>
+
                 <div v-if="parameters.length === 0" class="px-6 py-10 text-center text-sm text-gray-500 dark:text-gray-400">
                     Belum ada parameter. Tambahkan parameter untuk membuat form penilaian dinamis.
                 </div>
@@ -68,8 +113,7 @@ const destroy = (p: Parameter) => {
                                 <th class="px-6 py-3 text-left text-xs font-semibold uppercase tracking-wider text-gray-600 dark:text-gray-300">Label</th>
                                 <th class="px-6 py-3 text-left text-xs font-semibold uppercase tracking-wider text-gray-600 dark:text-gray-300">Key</th>
                                 <th class="px-6 py-3 text-left text-xs font-semibold uppercase tracking-wider text-gray-600 dark:text-gray-300">Status</th>
-                                <th class="px-6 py-3 text-left text-xs font-semibold uppercase tracking-wider text-gray-600 dark:text-gray-300">Manajerial</th>
-                                <th class="px-6 py-3 text-left text-xs font-semibold uppercase tracking-wider text-gray-600 dark:text-gray-300">Sort</th>
+                                <th class="px-6 py-3 text-left text-xs font-semibold uppercase tracking-wider text-gray-600 dark:text-gray-300">Jabatan</th>
                                 <th class="px-6 py-3 text-right text-xs font-semibold uppercase tracking-wider text-gray-600 dark:text-gray-300">Aksi</th>
                             </tr>
                         </thead>
@@ -87,9 +131,8 @@ const destroy = (p: Parameter) => {
                                     </span>
                                 </td>
                                 <td class="px-6 py-4 text-sm text-gray-700 dark:text-gray-200">
-                                    {{ p.managerial_only ? 'Ya' : '-' }}
+                                    {{ positionsLabel(p) }}
                                 </td>
-                                <td class="px-6 py-4 text-sm text-gray-700 dark:text-gray-200">{{ p.sort_order }}</td>
                                 <td class="whitespace-nowrap px-6 py-4 text-right text-sm">
                                     <Link
                                         :href="`/admin/lms-performance-appraisal-parameters/${p.id}/edit`"
@@ -115,4 +158,3 @@ const destroy = (p: Parameter) => {
         </div>
     </AppLayout>
 </template>
-
