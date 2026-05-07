@@ -8,7 +8,7 @@ import Underline from '@tiptap/extension-underline';
 import StarterKit from '@tiptap/starter-kit';
 import { EditorContent, useEditor } from '@tiptap/vue-3';
 import { ArrowLeft, Bold, Link2, List, ListOrdered, Save, Underline as UnderlineIcon, Unlink } from 'lucide-vue-next';
-import { computed } from 'vue';
+import { computed, watch } from 'vue';
 
 interface Employee {
     id: number;
@@ -40,9 +40,17 @@ interface Appraisal {
 interface Props {
     employees: Employee[];
     appraisal: Appraisal;
+    parameters: Array<{
+        key: string;
+        group: string;
+        label: string;
+        sort_order: number;
+        is_active: boolean;
+        managerial_only: boolean;
+    }>;
 }
 
-const { employees, appraisal } = defineProps<Props>();
+const { employees, appraisal, parameters } = defineProps<Props>();
 
 const breadcrumbs: BreadcrumbItem[] = [
     { title: 'Dashboard', href: '/admin/dashboard' },
@@ -77,6 +85,13 @@ const selectedEmployee = computed(() => {
 
 const isManager = computed(() => {
     return (selectedEmployee.value?.subordinates_count ?? 0) > 0;
+});
+
+watch(isManager, (val) => {
+    if (!val) {
+        form.leadership_delegation = null;
+        form.leadership_development = null;
+    }
 });
 
 const scoreOptions = [1, 2, 3, 4, 5];
@@ -114,6 +129,30 @@ const editor = useEditor({
         form.feedback = editor.getHTML();
     },
 });
+
+const groupedParameters = computed(() => {
+    const sorted = [...parameters].sort((a, b) => (a.sort_order ?? 0) - (b.sort_order ?? 0));
+    const groups: Array<{ group: string; params: typeof sorted }> = [];
+    const idxByName = new Map<string, number>();
+
+    for (const p of sorted) {
+        if (p.managerial_only && !isManager.value) continue;
+        const name = p.group || 'Lainnya';
+        const existingIdx = idxByName.get(name);
+        if (existingIdx === undefined) {
+            idxByName.set(name, groups.length);
+            groups.push({ group: name, params: [p] });
+        } else {
+            groups[existingIdx].params.push(p);
+        }
+    }
+
+    return groups;
+});
+
+const isLeadershipGroup = (groupName: string) => {
+    return groupName.toLowerCase().includes('kepemimpinan');
+};
 
 const setLink = () => {
     if (!editor.value) return;
@@ -181,145 +220,28 @@ const submit = () => {
                         </div>
                     </div>
 
-                    <div class="rounded-xl border border-gray-200/60 p-5 dark:border-gray-800/60">
-                        <h2 class="text-base font-semibold text-gray-900 dark:text-white">1. Kompetensi Teknis (Hard Skills)</h2>
-                        <div class="mt-4 grid grid-cols-1 gap-4 lg:grid-cols-3">
-                            <div>
-                                <label class="block text-sm font-medium text-gray-700 dark:text-gray-300">Kualitas Kerja</label>
-                                <select v-model="form.quality_work" class="mt-1 block w-full rounded-lg border border-gray-300 bg-white px-3 py-2 text-sm dark:border-gray-600 dark:bg-gray-800 dark:text-gray-300">
-                                    <option v-for="n in scoreOptions" :key="`quality-${n}`" :value="n">{{ n }}</option>
-                                </select>
-                                <p v-if="form.errors.quality_work" class="mt-1 text-xs text-red-600">{{ form.errors.quality_work }}</p>
-                            </div>
-                            <div>
-                                <label class="block text-sm font-medium text-gray-700 dark:text-gray-300">Kuantitas Kerja</label>
-                                <select v-model="form.quantity_work" class="mt-1 block w-full rounded-lg border border-gray-300 bg-white px-3 py-2 text-sm dark:border-gray-600 dark:bg-gray-800 dark:text-gray-300">
-                                    <option v-for="n in scoreOptions" :key="`quantity-${n}`" :value="n">{{ n }}</option>
-                                </select>
-                                <p v-if="form.errors.quantity_work" class="mt-1 text-xs text-red-600">{{ form.errors.quantity_work }}</p>
-                            </div>
-                            <div>
-                                <label class="block text-sm font-medium text-gray-700 dark:text-gray-300">Pengetahuan Tugas</label>
-                                <select v-model="form.task_knowledge" class="mt-1 block w-full rounded-lg border border-gray-300 bg-white px-3 py-2 text-sm dark:border-gray-600 dark:bg-gray-800 dark:text-gray-300">
-                                    <option v-for="n in scoreOptions" :key="`knowledge-${n}`" :value="n">{{ n }}</option>
-                                </select>
-                                <p v-if="form.errors.task_knowledge" class="mt-1 text-xs text-red-600">{{ form.errors.task_knowledge }}</p>
-                            </div>
-                        </div>
-                    </div>
+                    <div v-for="(g, idx) in groupedParameters" :key="g.group" class="rounded-xl border border-gray-200/60 p-5 dark:border-gray-800/60">
+                        <h2 class="text-base font-semibold text-gray-900 dark:text-white">{{ idx + 1 }}. {{ g.group }}</h2>
+                        <p v-if="isLeadershipGroup(g.group)" class="mt-1 text-sm text-gray-600 dark:text-gray-400">Muncul otomatis jika karyawan bertipe manajerial.</p>
 
-                    <div class="rounded-xl border border-gray-200/60 p-5 dark:border-gray-800/60">
-                        <h2 class="text-base font-semibold text-gray-900 dark:text-white">2. Perilaku Kerja (Soft Skills)</h2>
-                        <div class="mt-4 grid grid-cols-1 gap-4 lg:grid-cols-4">
-                            <div>
-                                <label class="block text-sm font-medium text-gray-700 dark:text-gray-300">Kedisiplinan</label>
-                                <select v-model="form.discipline" class="mt-1 block w-full rounded-lg border border-gray-300 bg-white px-3 py-2 text-sm dark:border-gray-600 dark:bg-gray-800 dark:text-gray-300">
-                                    <option v-for="n in scoreOptions" :key="`discipline-${n}`" :value="n">{{ n }}</option>
-                                </select>
-                                <p v-if="form.errors.discipline" class="mt-1 text-xs text-red-600">{{ form.errors.discipline }}</p>
-                            </div>
-                            <div>
-                                <label class="block text-sm font-medium text-gray-700 dark:text-gray-300">Kerja Sama Tim</label>
-                                <select v-model="form.teamwork" class="mt-1 block w-full rounded-lg border border-gray-300 bg-white px-3 py-2 text-sm dark:border-gray-600 dark:bg-gray-800 dark:text-gray-300">
-                                    <option v-for="n in scoreOptions" :key="`teamwork-${n}`" :value="n">{{ n }}</option>
-                                </select>
-                                <p v-if="form.errors.teamwork" class="mt-1 text-xs text-red-600">{{ form.errors.teamwork }}</p>
-                            </div>
-                            <div>
-                                <label class="block text-sm font-medium text-gray-700 dark:text-gray-300">Komunikasi</label>
-                                <select v-model="form.communication" class="mt-1 block w-full rounded-lg border border-gray-300 bg-white px-3 py-2 text-sm dark:border-gray-600 dark:bg-gray-800 dark:text-gray-300">
-                                    <option v-for="n in scoreOptions" :key="`communication-${n}`" :value="n">{{ n }}</option>
-                                </select>
-                                <p v-if="form.errors.communication" class="mt-1 text-xs text-red-600">{{ form.errors.communication }}</p>
-                            </div>
-                            <div>
-                                <label class="block text-sm font-medium text-gray-700 dark:text-gray-300">Inisiatif</label>
-                                <select v-model="form.initiative" class="mt-1 block w-full rounded-lg border border-gray-300 bg-white px-3 py-2 text-sm dark:border-gray-600 dark:bg-gray-800 dark:text-gray-300">
-                                    <option v-for="n in scoreOptions" :key="`initiative-${n}`" :value="n">{{ n }}</option>
-                                </select>
-                                <p v-if="form.errors.initiative" class="mt-1 text-xs text-red-600">{{ form.errors.initiative }}</p>
-                            </div>
+                        <div v-if="isLeadershipGroup(g.group) && !isManager" class="mt-4 text-sm text-gray-500 dark:text-gray-400">
+                            Pilih karyawan manajerial untuk mengisi bagian ini.
                         </div>
-                    </div>
 
-                    <div class="rounded-xl border border-gray-200/60 p-5 dark:border-gray-800/60">
-                        <h2 class="text-base font-semibold text-gray-900 dark:text-white">3. Pencapaian Target (KPI)</h2>
-                        <div class="mt-4 grid grid-cols-1 gap-4 lg:grid-cols-2">
-                            <div>
-                                <label class="block text-sm font-medium text-gray-700 dark:text-gray-300">Realisasi Target</label>
+                        <div v-else class="mt-4 grid grid-cols-1 gap-4 lg:grid-cols-4">
+                            <div v-for="p in g.params" :key="p.key">
+                                <label class="block text-sm font-medium text-gray-700 dark:text-gray-300">{{ p.label }}</label>
                                 <select
-                                    v-model="form.target_realization"
+                                    v-model="(form as any)[p.key]"
                                     class="mt-1 block w-full rounded-lg border border-gray-300 bg-white px-3 py-2 text-sm dark:border-gray-600 dark:bg-gray-800 dark:text-gray-300"
+                                    :class="{ 'border-red-500': (form.errors as any)[p.key] }"
                                 >
-                                    <option v-for="n in scoreOptions" :key="`target-${n}`" :value="n">{{ n }}</option>
+                                    <option v-if="p.managerial_only" :value="null">Pilih</option>
+                                    <option v-for="n in scoreOptions" :key="`${p.key}-${n}`" :value="n">{{ n }}</option>
                                 </select>
-                                <p v-if="form.errors.target_realization" class="mt-1 text-xs text-red-600">{{ form.errors.target_realization }}</p>
-                            </div>
-                            <div>
-                                <label class="block text-sm font-medium text-gray-700 dark:text-gray-300">Manajemen Waktu</label>
-                                <select
-                                    v-model="form.time_management"
-                                    class="mt-1 block w-full rounded-lg border border-gray-300 bg-white px-3 py-2 text-sm dark:border-gray-600 dark:bg-gray-800 dark:text-gray-300"
-                                >
-                                    <option v-for="n in scoreOptions" :key="`time-${n}`" :value="n">{{ n }}</option>
-                                </select>
-                                <p v-if="form.errors.time_management" class="mt-1 text-xs text-red-600">{{ form.errors.time_management }}</p>
+                                <p v-if="(form.errors as any)[p.key]" class="mt-1 text-xs text-red-600">{{ (form.errors as any)[p.key] }}</p>
                             </div>
                         </div>
-                    </div>
-
-                    <div class="rounded-xl border border-gray-200/60 p-5 dark:border-gray-800/60">
-                        <h2 class="text-base font-semibold text-gray-900 dark:text-white">4. Sikap dan Adaptabilitas</h2>
-                        <div class="mt-4 grid grid-cols-1 gap-4 lg:grid-cols-2">
-                            <div>
-                                <label class="block text-sm font-medium text-gray-700 dark:text-gray-300">Sikap (Attitude)</label>
-                                <select v-model="form.attitude" class="mt-1 block w-full rounded-lg border border-gray-300 bg-white px-3 py-2 text-sm dark:border-gray-600 dark:bg-gray-800 dark:text-gray-300">
-                                    <option v-for="n in scoreOptions" :key="`attitude-${n}`" :value="n">{{ n }}</option>
-                                </select>
-                                <p v-if="form.errors.attitude" class="mt-1 text-xs text-red-600">{{ form.errors.attitude }}</p>
-                            </div>
-                            <div>
-                                <label class="block text-sm font-medium text-gray-700 dark:text-gray-300">Adaptabilitas</label>
-                                <select v-model="form.adaptability" class="mt-1 block w-full rounded-lg border border-gray-300 bg-white px-3 py-2 text-sm dark:border-gray-600 dark:bg-gray-800 dark:text-gray-300">
-                                    <option v-for="n in scoreOptions" :key="`adaptability-${n}`" :value="n">{{ n }}</option>
-                                </select>
-                                <p v-if="form.errors.adaptability" class="mt-1 text-xs text-red-600">{{ form.errors.adaptability }}</p>
-                            </div>
-                        </div>
-                    </div>
-
-                    <div class="rounded-xl border border-gray-200/60 p-5 dark:border-gray-800/60">
-                        <h2 class="text-base font-semibold text-gray-900 dark:text-white">5. Kepemimpinan (Khusus Level Manajerial)</h2>
-                        <p class="mt-1 text-sm text-gray-600 dark:text-gray-400">Muncul otomatis jika karyawan bertipe manajerial.</p>
-
-                        <div v-if="isManager" class="mt-4 grid grid-cols-1 gap-4 lg:grid-cols-2">
-                            <div>
-                                <label class="block text-sm font-medium text-gray-700 dark:text-gray-300">Delegasi</label>
-                                <select
-                                    v-model="form.leadership_delegation"
-                                    class="mt-1 block w-full rounded-lg border border-gray-300 bg-white px-3 py-2 text-sm dark:border-gray-600 dark:bg-gray-800 dark:text-gray-300"
-                                    :class="{ 'border-red-500': form.errors.leadership_delegation }"
-                                >
-                                    <option :value="null">Pilih</option>
-                                    <option v-for="n in scoreOptions" :key="`delegation-${n}`" :value="n">{{ n }}</option>
-                                </select>
-                                <p v-if="form.errors.leadership_delegation" class="mt-1 text-xs text-red-600">{{ form.errors.leadership_delegation }}</p>
-                            </div>
-                            <div>
-                                <label class="block text-sm font-medium text-gray-700 dark:text-gray-300">Pengembangan Anggota</label>
-                                <select
-                                    v-model="form.leadership_development"
-                                    class="mt-1 block w-full rounded-lg border border-gray-300 bg-white px-3 py-2 text-sm dark:border-gray-600 dark:bg-gray-800 dark:text-gray-300"
-                                    :class="{ 'border-red-500': form.errors.leadership_development }"
-                                >
-                                    <option :value="null">Pilih</option>
-                                    <option v-for="n in scoreOptions" :key="`development-${n}`" :value="n">{{ n }}</option>
-                                </select>
-                                <p v-if="form.errors.leadership_development" class="mt-1 text-xs text-red-600">{{ form.errors.leadership_development }}</p>
-                            </div>
-                        </div>
-
-                        <div v-else class="mt-4 text-sm text-gray-500 dark:text-gray-400">Pilih karyawan manajerial untuk mengisi bagian ini.</div>
                     </div>
 
                     <div>
@@ -397,4 +319,3 @@ const submit = () => {
         </div>
     </AppLayout>
 </template>
-

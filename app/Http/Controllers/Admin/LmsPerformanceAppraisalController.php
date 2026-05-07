@@ -4,6 +4,7 @@ namespace App\Http\Controllers\Admin;
 
 use App\Http\Controllers\Controller;
 use App\Models\LmsPerformanceAppraisal;
+use App\Models\LmsPerformanceAppraisalParameter;
 use App\Models\User;
 use Illuminate\Http\Request;
 use Illuminate\Validation\ValidationException;
@@ -11,8 +12,26 @@ use Inertia\Inertia;
 
 class LmsPerformanceAppraisalController extends Controller
 {
+    private const SCORE_KEYS = [
+        'quality_work',
+        'quantity_work',
+        'task_knowledge',
+        'discipline',
+        'teamwork',
+        'communication',
+        'initiative',
+        'target_realization',
+        'time_management',
+        'attitude',
+        'adaptability',
+        'leadership_delegation',
+        'leadership_development',
+    ];
+
     public function index(Request $request)
     {
+        $parameters = $this->activeParameters();
+
         $appraisals = LmsPerformanceAppraisal::query()
             ->with([
                 'user:id,name,employee_id',
@@ -24,26 +43,21 @@ class LmsPerformanceAppraisalController extends Controller
             ->withQueryString();
 
         $appraisals->setCollection(
-            $appraisals->getCollection()->map(function (LmsPerformanceAppraisal $a) {
-                $fields = [
-                    $a->quality_work,
-                    $a->quantity_work,
-                    $a->task_knowledge,
-                    $a->discipline,
-                    $a->teamwork,
-                    $a->communication,
-                    $a->initiative,
-                    $a->target_realization,
-                    $a->time_management,
-                    $a->attitude,
-                    $a->adaptability,
-                    $a->leadership_delegation,
-                    $a->leadership_development,
-                ];
+            $appraisals->getCollection()->map(function (LmsPerformanceAppraisal $a) use ($parameters) {
+                $values = [];
+                $total = 0;
 
-                $values = array_values(array_filter($fields, fn ($v) => $v !== null));
+                foreach ($parameters as $p) {
+                    $key = (string) $p['key'];
+                    $val = $a->getAttribute($key);
+                    if ($val === null) {
+                        continue;
+                    }
+                    $values[] = (int) $val;
+                    $total += (int) $val;
+                }
+
                 $count = count($values);
-                $total = array_sum($values);
                 $avg = $count > 0 ? round($total / $count, 2) : null;
 
                 $a->setAttribute('score_total', $total);
@@ -56,6 +70,7 @@ class LmsPerformanceAppraisalController extends Controller
 
         return Inertia::render('admin/Lms/PerformanceAppraisal/Index', [
             'appraisals' => $appraisals,
+            'parameters' => $parameters,
         ]);
     }
 
@@ -69,6 +84,7 @@ class LmsPerformanceAppraisalController extends Controller
 
         return Inertia::render('admin/Lms/PerformanceAppraisal/Create', [
             'employees' => $employees,
+            'parameters' => $this->activeParameters(),
         ]);
     }
 
@@ -97,6 +113,7 @@ class LmsPerformanceAppraisalController extends Controller
         return Inertia::render('admin/Lms/PerformanceAppraisal/Edit', [
             'employees' => $employees,
             'appraisal' => $lms_performance_appraisal,
+            'parameters' => $this->activeParameters(),
         ]);
     }
 
@@ -124,37 +141,92 @@ class LmsPerformanceAppraisalController extends Controller
         $validated = $request->validate([
             'user_id' => 'required|exists:users,id',
             'evaluated_at' => 'required|date',
-            'quality_work' => 'required|integer|min:1|max:5',
-            'quantity_work' => 'required|integer|min:1|max:5',
-            'task_knowledge' => 'required|integer|min:1|max:5',
-            'discipline' => 'required|integer|min:1|max:5',
-            'teamwork' => 'required|integer|min:1|max:5',
-            'communication' => 'required|integer|min:1|max:5',
-            'initiative' => 'required|integer|min:1|max:5',
-            'target_realization' => 'required|integer|min:1|max:5',
-            'time_management' => 'required|integer|min:1|max:5',
-            'attitude' => 'required|integer|min:1|max:5',
-            'adaptability' => 'required|integer|min:1|max:5',
             'leadership_delegation' => 'nullable|integer|min:1|max:5',
             'leadership_development' => 'nullable|integer|min:1|max:5',
             'feedback' => 'nullable|string',
         ]);
 
+        foreach (self::SCORE_KEYS as $key) {
+            if (in_array($key, ['leadership_delegation', 'leadership_development'], true)) {
+                continue;
+            }
+            $validated[$key] = $request->has($key) ? (int) $request->input($key) : null;
+            if ($validated[$key] !== null) {
+                $request->validate([$key => 'integer|min:1|max:5']);
+            }
+        }
+
         $employee = User::query()->whereKey($validated['user_id'])->firstOrFail();
         $isManager = $employee->subordinates()->exists();
 
-        if ($isManager) {
-            if (! array_key_exists('leadership_delegation', $validated) || $validated['leadership_delegation'] === null) {
-                throw ValidationException::withMessages(['leadership_delegation' => 'Wajib diisi untuk level manajerial.']);
+        $requiredKeys = collect($this->activeParameters())
+            ->filter(fn ($p) => (bool) ($p['is_active'] ?? true))
+            ->filter(function ($p) use ($isManager) {
+                $managerOnly = (bool) ($p['managerial_only'] ?? false);
+                return ! $managerOnly || $isManager;
+            })
+            ->pluck('key')
+            ->values()
+            ->all();
+
+        foreach ($requiredKeys as $key) {
+            if (! array_key_exists($key, $validated) || $validated[$key] === null) {
+                throw ValidationException::withMessages([$key => 'Wajib diisi.']);
             }
-            if (! array_key_exists('leadership_development', $validated) || $validated['leadership_development'] === null) {
-                throw ValidationException::withMessages(['leadership_development' => 'Wajib diisi untuk level manajerial.']);
-            }
-        } else {
+        }
+
+        if (! $isManager) {
             $validated['leadership_delegation'] = null;
             $validated['leadership_development'] = null;
         }
 
+        foreach (self::SCORE_KEYS as $key) {
+            if (in_array($key, ['leadership_delegation', 'leadership_development'], true)) {
+                continue;
+            }
+            if (! array_key_exists($key, $validated) || $validated[$key] === null) {
+                $validated[$key] = 3;
+            }
+        }
+
         return $validated;
+    }
+
+    private function activeParameters(): array
+    {
+        $parameters = LmsPerformanceAppraisalParameter::query()
+            ->where('is_active', true)
+            ->orderBy('sort_order')
+            ->get(['key', 'group', 'label', 'sort_order', 'is_active', 'managerial_only'])
+            ->map(fn (LmsPerformanceAppraisalParameter $p) => [
+                'key' => $p->key,
+                'group' => $p->group,
+                'label' => $p->label,
+                'sort_order' => (int) $p->sort_order,
+                'is_active' => (bool) $p->is_active,
+                'managerial_only' => (bool) $p->managerial_only,
+            ])
+            ->values()
+            ->all();
+
+        if (count($parameters) > 0) {
+            return $parameters;
+        }
+
+        return [
+            ['key' => 'quality_work', 'group' => 'Kompetensi Teknis (Hard Skills)', 'label' => 'Kualitas Kerja', 'sort_order' => 10, 'is_active' => true, 'managerial_only' => false],
+            ['key' => 'quantity_work', 'group' => 'Kompetensi Teknis (Hard Skills)', 'label' => 'Kuantitas Kerja', 'sort_order' => 20, 'is_active' => true, 'managerial_only' => false],
+            ['key' => 'task_knowledge', 'group' => 'Kompetensi Teknis (Hard Skills)', 'label' => 'Pengetahuan Tugas', 'sort_order' => 30, 'is_active' => true, 'managerial_only' => false],
+            ['key' => 'discipline', 'group' => 'Perilaku Kerja (Soft Skills)', 'label' => 'Kedisiplinan', 'sort_order' => 40, 'is_active' => true, 'managerial_only' => false],
+            ['key' => 'teamwork', 'group' => 'Perilaku Kerja (Soft Skills)', 'label' => 'Kerja Sama Tim', 'sort_order' => 50, 'is_active' => true, 'managerial_only' => false],
+            ['key' => 'communication', 'group' => 'Perilaku Kerja (Soft Skills)', 'label' => 'Komunikasi', 'sort_order' => 60, 'is_active' => true, 'managerial_only' => false],
+            ['key' => 'initiative', 'group' => 'Perilaku Kerja (Soft Skills)', 'label' => 'Inisiatif', 'sort_order' => 70, 'is_active' => true, 'managerial_only' => false],
+            ['key' => 'target_realization', 'group' => 'Pencapaian Target (KPI)', 'label' => 'Realisasi Target', 'sort_order' => 80, 'is_active' => true, 'managerial_only' => false],
+            ['key' => 'time_management', 'group' => 'Pencapaian Target (KPI)', 'label' => 'Manajemen Waktu', 'sort_order' => 90, 'is_active' => true, 'managerial_only' => false],
+            ['key' => 'attitude', 'group' => 'Sikap dan Adaptabilitas', 'label' => 'Sikap (Attitude)', 'sort_order' => 100, 'is_active' => true, 'managerial_only' => false],
+            ['key' => 'adaptability', 'group' => 'Sikap dan Adaptabilitas', 'label' => 'Adaptabilitas', 'sort_order' => 110, 'is_active' => true, 'managerial_only' => false],
+            ['key' => 'leadership_delegation', 'group' => 'Kepemimpinan (Khusus Level Manajerial)', 'label' => 'Delegasi', 'sort_order' => 120, 'is_active' => true, 'managerial_only' => true],
+            ['key' => 'leadership_development', 'group' => 'Kepemimpinan (Khusus Level Manajerial)', 'label' => 'Pengembangan Anggota', 'sort_order' => 130, 'is_active' => true, 'managerial_only' => true],
+        ];
     }
 }

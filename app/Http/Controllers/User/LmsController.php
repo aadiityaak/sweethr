@@ -8,6 +8,7 @@ use App\Models\LmsAssignmentSubmission;
 use App\Models\LmsMaterial;
 use App\Models\LmsMaterialRead;
 use App\Models\LmsPerformanceAppraisal;
+use App\Models\LmsPerformanceAppraisalParameter;
 use App\Models\LmsQuiz;
 use App\Models\LmsQuizAttempt;
 use Illuminate\Http\Request;
@@ -143,6 +144,30 @@ class LmsController extends Controller
             ->selectRaw('avg(case when max_score > 0 then (score / max_score) * 100 else null end) as avg_percent')
             ->value('avg_percent') ?? 0);
 
+        $activeKeys = LmsPerformanceAppraisalParameter::query()
+            ->where('is_active', true)
+            ->orderBy('sort_order')
+            ->pluck('key')
+            ->all();
+
+        if (count($activeKeys) === 0) {
+            $activeKeys = [
+                'quality_work',
+                'quantity_work',
+                'task_knowledge',
+                'discipline',
+                'teamwork',
+                'communication',
+                'initiative',
+                'target_realization',
+                'time_management',
+                'attitude',
+                'adaptability',
+                'leadership_delegation',
+                'leadership_development',
+            ];
+        }
+
         $performanceAppraisals = LmsPerformanceAppraisal::query()
             ->where('user_id', $userId)
             ->with(['evaluator:id,name'])
@@ -150,26 +175,20 @@ class LmsController extends Controller
             ->latest('id')
             ->limit(5)
             ->get()
-            ->map(function (LmsPerformanceAppraisal $a) {
-                $fields = [
-                    $a->quality_work,
-                    $a->quantity_work,
-                    $a->task_knowledge,
-                    $a->discipline,
-                    $a->teamwork,
-                    $a->communication,
-                    $a->initiative,
-                    $a->target_realization,
-                    $a->time_management,
-                    $a->attitude,
-                    $a->adaptability,
-                    $a->leadership_delegation,
-                    $a->leadership_development,
-                ];
+            ->map(function (LmsPerformanceAppraisal $a) use ($activeKeys) {
+                $values = [];
+                $total = 0;
 
-                $values = array_values(array_filter($fields, fn($v) => $v !== null));
+                foreach ($activeKeys as $key) {
+                    $val = $a->getAttribute((string) $key);
+                    if ($val === null) {
+                        continue;
+                    }
+                    $values[] = (int) $val;
+                    $total += (int) $val;
+                }
+
                 $count = count($values);
-                $total = array_sum($values);
                 $avg = $count > 0 ? round($total / $count, 2) : null;
 
                 $a->setAttribute('score_total', $total);

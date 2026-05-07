@@ -4,7 +4,7 @@ import { Dialog, DialogContent } from '@/components/ui/dialog';
 import { type BreadcrumbItem } from '@/types';
 import { Head, Link, useForm } from '@inertiajs/vue3';
 import { ArcElement, Chart as ChartJS, Legend, Tooltip } from 'chart.js';
-import { Eye, Pencil, Plus, Trash2 } from 'lucide-vue-next';
+import { Eye, Pencil, Plus, SlidersHorizontal, Trash2 } from 'lucide-vue-next';
 import { Doughnut } from 'vue-chartjs';
 import { computed, ref, watch } from 'vue';
 
@@ -40,15 +40,25 @@ interface Appraisal {
     leadership_development?: number | null;
 }
 
+interface Parameter {
+    key: string;
+    group: string;
+    label: string;
+    sort_order: number;
+    is_active: boolean;
+    managerial_only: boolean;
+}
+
 interface Props {
     appraisals: {
         data: Appraisal[];
         links: any[];
         meta?: any;
     };
+    parameters: Parameter[];
 }
 
-const { appraisals } = defineProps<Props>();
+const { appraisals, parameters } = defineProps<Props>();
 
 const breadcrumbs: BreadcrumbItem[] = [
     { title: 'Dashboard', href: '/admin/dashboard' },
@@ -133,21 +143,19 @@ const chartData = computed(() => {
     }
 
     const a = selected.value;
+    const groupTotals = new Map<string, number>();
 
-    const items: Array<{ label: string; value: number }> = [
-        { label: 'Hard Skills', value: a.quality_work + a.quantity_work + a.task_knowledge },
-        { label: 'Soft Skills', value: a.discipline + a.teamwork + a.communication + a.initiative },
-        { label: 'KPI', value: a.target_realization + a.time_management },
-        { label: 'Sikap & Adaptabilitas', value: a.attitude + a.adaptability },
-    ];
-
-    const leadershipTotal = (a.leadership_delegation ?? 0) + (a.leadership_development ?? 0);
-    const leadershipExists = a.leadership_delegation !== null && a.leadership_delegation !== undefined && a.leadership_development !== null && a.leadership_development !== undefined;
-    if (leadershipExists) {
-        items.push({ label: 'Kepemimpinan', value: leadershipTotal });
+    for (const p of parameters) {
+        const key = p.key;
+        const val = (a as any)[key] as number | null | undefined;
+        if (val === null || val === undefined) continue;
+        const group = p.group || 'Lainnya';
+        groupTotals.set(group, (groupTotals.get(group) ?? 0) + val);
     }
 
-    const colors = ['#60a5fa', '#34d399', '#fbbf24', '#a78bfa', '#fb7185'];
+    const items = Array.from(groupTotals.entries()).map(([label, value]) => ({ label, value }));
+
+    const colors = ['#60a5fa', '#34d399', '#fbbf24', '#a78bfa', '#fb7185', '#22c55e', '#f97316', '#06b6d4'];
 
     return {
         labels: items.map((x) => x.label),
@@ -216,13 +224,22 @@ const scoreBadgeClass = (avg: number | null | undefined) => {
                         <h1 class="text-3xl font-bold text-gray-900 dark:text-white">Performance Appraisal</h1>
                         <p class="mt-1 text-gray-600 dark:text-gray-400">Penilaian kinerja karyawan</p>
                     </div>
-                    <Link
-                        href="/admin/lms-performance-appraisals/create"
-                        class="inline-flex items-center rounded-lg bg-blue-600 px-4 py-2 text-sm font-medium text-white shadow-sm transition-colors hover:bg-blue-700"
-                    >
-                        <Plus class="mr-2 h-4 w-4" />
-                        Buat Penilaian
-                    </Link>
+                    <div class="flex items-center gap-2">
+                        <Link
+                            href="/admin/lms-performance-appraisal-parameters"
+                            class="inline-flex items-center rounded-lg border border-gray-200 bg-white px-4 py-2 text-sm font-medium text-gray-700 shadow-sm transition-colors hover:bg-gray-50 dark:border-gray-800 dark:bg-gray-950 dark:text-gray-200 dark:hover:bg-gray-900"
+                        >
+                            <SlidersHorizontal class="mr-2 h-4 w-4" />
+                            Parameter Penilaian
+                        </Link>
+                        <Link
+                            href="/admin/lms-performance-appraisals/create"
+                            class="inline-flex items-center rounded-lg bg-blue-600 px-4 py-2 text-sm font-medium text-white shadow-sm transition-colors hover:bg-blue-700"
+                        >
+                            <Plus class="mr-2 h-4 w-4" />
+                            Buat Penilaian
+                        </Link>
+                    </div>
                 </div>
             </div>
 
