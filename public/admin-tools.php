@@ -303,6 +303,18 @@ $toolGroups = [
                 'variant' => 'success',
                 'commands' => ['php artisan db:seed --force'],
             ],
+            'seed_lms' => [
+                'label' => 'Run LMS Seeder',
+                'description' => 'Seed LMS module (Category, Material, Assignment, Quiz, Performance Appraisal)',
+                'variant' => 'success',
+                'commands' => [
+                    'php artisan db:seed --force --class=Database\\Seeders\\LmsCategorySeeder',
+                    'php artisan db:seed --force --class=Database\\Seeders\\LmsMaterialSeeder',
+                    'php artisan db:seed --force --class=Database\\Seeders\\LmsAssignmentSeeder',
+                    'php artisan db:seed --force --class=Database\\Seeders\\LmsQuizSeeder',
+                    'php artisan db:seed --force --class=Database\\Seeders\\LmsPerformanceAppraisalSeeder',
+                ],
+            ],
             'migrate_fresh' => [
                 'label' => 'Fresh Migration',
                 'description' => 'Drop all tables and re-migrate',
