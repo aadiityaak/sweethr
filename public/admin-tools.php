@@ -304,15 +304,15 @@ $toolGroups = [
                 'commands' => ['php artisan db:seed --force'],
             ],
             'seed_lms' => [
-                'label' => 'Run LMS Seeder',
-                'description' => 'Seed LMS module (Category, Material, Assignment, Quiz, Performance Appraisal)',
+                'label' => 'Seeder LMS',
+                'description' => 'Jalankan seeder LMS (Kategori, Materi, Tugas, Kuis, Penilaian Kinerja)',
                 'variant' => 'success',
                 'commands' => [
-                    'php artisan db:seed --force --class=Database\\Seeders\\LmsCategorySeeder',
-                    'php artisan db:seed --force --class=Database\\Seeders\\LmsMaterialSeeder',
-                    'php artisan db:seed --force --class=Database\\Seeders\\LmsAssignmentSeeder',
-                    'php artisan db:seed --force --class=Database\\Seeders\\LmsQuizSeeder',
-                    'php artisan db:seed --force --class=Database\\Seeders\\LmsPerformanceAppraisalSeeder',
+                    'php artisan db:seed --force --class="Database\\Seeders\\LmsCategorySeeder"',
+                    'php artisan db:seed --force --class="Database\\Seeders\\LmsMaterialSeeder"',
+                    'php artisan db:seed --force --class="Database\\Seeders\\LmsAssignmentSeeder"',
+                    'php artisan db:seed --force --class="Database\\Seeders\\LmsQuizSeeder"',
+                    'php artisan db:seed --force --class="Database\\Seeders\\LmsPerformanceAppraisalSeeder"',
                 ],
             ],
             'migrate_fresh' => [
