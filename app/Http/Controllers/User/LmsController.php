@@ -8,6 +8,7 @@ use App\Models\LmsAssignmentSubmission;
 use App\Models\LmsMaterial;
 use App\Models\LmsMaterialRead;
 use App\Models\LmsPerformanceAppraisal;
+use App\Models\LmsPerformanceAppraisalParameter;
 use App\Models\LmsQuiz;
 use App\Models\LmsQuizAttempt;
 use Illuminate\Http\Request;
@@ -179,11 +180,46 @@ class LmsController extends Controller
                 return $a;
             });
 
+        $performanceAppraisalParameters = LmsPerformanceAppraisalParameter::query()
+            ->where('is_active', true)
+            ->orderBy('group')
+            ->orderBy('id')
+            ->get(['key', 'group', 'label', 'is_active', 'managerial_only', 'visible_position_ids'])
+            ->map(fn (LmsPerformanceAppraisalParameter $p) => [
+                'key' => $p->key,
+                'group' => $p->group,
+                'label' => $p->label,
+                'is_active' => (bool) $p->is_active,
+                'managerial_only' => (bool) $p->managerial_only,
+                'visible_position_ids' => is_array($p->visible_position_ids) ? array_values(array_map('intval', $p->visible_position_ids)) : [],
+            ])
+            ->values()
+            ->all();
+
+        if (count($performanceAppraisalParameters) === 0) {
+            $performanceAppraisalParameters = [
+                ['key' => 'quality_work', 'group' => 'Kompetensi Teknis (Hard Skills)', 'label' => 'Kualitas Kerja', 'is_active' => true, 'managerial_only' => false, 'visible_position_ids' => []],
+                ['key' => 'quantity_work', 'group' => 'Kompetensi Teknis (Hard Skills)', 'label' => 'Kuantitas Kerja', 'is_active' => true, 'managerial_only' => false, 'visible_position_ids' => []],
+                ['key' => 'task_knowledge', 'group' => 'Kompetensi Teknis (Hard Skills)', 'label' => 'Pengetahuan Tugas', 'is_active' => true, 'managerial_only' => false, 'visible_position_ids' => []],
+                ['key' => 'discipline', 'group' => 'Perilaku Kerja (Soft Skills)', 'label' => 'Kedisiplinan', 'is_active' => true, 'managerial_only' => false, 'visible_position_ids' => []],
+                ['key' => 'teamwork', 'group' => 'Perilaku Kerja (Soft Skills)', 'label' => 'Kerja Sama Tim', 'is_active' => true, 'managerial_only' => false, 'visible_position_ids' => []],
+                ['key' => 'communication', 'group' => 'Perilaku Kerja (Soft Skills)', 'label' => 'Komunikasi', 'is_active' => true, 'managerial_only' => false, 'visible_position_ids' => []],
+                ['key' => 'initiative', 'group' => 'Perilaku Kerja (Soft Skills)', 'label' => 'Inisiatif', 'is_active' => true, 'managerial_only' => false, 'visible_position_ids' => []],
+                ['key' => 'target_realization', 'group' => 'Pencapaian Target (KPI)', 'label' => 'Realisasi Target', 'is_active' => true, 'managerial_only' => false, 'visible_position_ids' => []],
+                ['key' => 'time_management', 'group' => 'Pencapaian Target (KPI)', 'label' => 'Manajemen Waktu', 'is_active' => true, 'managerial_only' => false, 'visible_position_ids' => []],
+                ['key' => 'attitude', 'group' => 'Sikap dan Adaptabilitas', 'label' => 'Sikap (Attitude)', 'is_active' => true, 'managerial_only' => false, 'visible_position_ids' => []],
+                ['key' => 'adaptability', 'group' => 'Sikap dan Adaptabilitas', 'label' => 'Adaptabilitas', 'is_active' => true, 'managerial_only' => false, 'visible_position_ids' => []],
+                ['key' => 'leadership_delegation', 'group' => 'Kepemimpinan (Khusus Level Manajerial)', 'label' => 'Delegasi', 'is_active' => true, 'managerial_only' => true, 'visible_position_ids' => []],
+                ['key' => 'leadership_development', 'group' => 'Kepemimpinan (Khusus Level Manajerial)', 'label' => 'Pengembangan Anggota', 'is_active' => true, 'managerial_only' => true, 'visible_position_ids' => []],
+            ];
+        }
+
         return Inertia::render('user/Lms/Index', [
             'materials' => $materials,
             'quizzes' => $quizzes,
             'assignments' => $assignments,
             'performanceAppraisals' => $performanceAppraisals,
+            'performanceAppraisalParameters' => $performanceAppraisalParameters,
             'progress' => [
                 'quizzes_taken' => $quizTaken,
                 'quiz_submitted_attempts' => $quizSubmittedAttempts,

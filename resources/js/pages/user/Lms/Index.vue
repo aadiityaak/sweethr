@@ -1,8 +1,9 @@
 <script setup lang="ts">
 import BottomNavigation from '@/components/BottomNavigation.vue';
+import { Dialog, DialogContent, DialogDescription, DialogHeader, DialogTitle } from '@/components/ui/dialog';
 import { Head, Link } from '@inertiajs/vue3';
 import { ArrowLeft, BarChart3, BookOpen, ChevronDown, ClipboardList, FileText, HelpCircle } from 'lucide-vue-next';
-import { onMounted, ref } from 'vue';
+import { computed, onMounted, ref } from 'vue';
 
 interface CategoryRef {
     id: number;
@@ -58,7 +59,28 @@ interface PerformanceAppraisal {
     evaluated_at: string;
     evaluator?: { id: number; name: string } | null;
     feedback?: string | null;
+    quality_work?: number | null;
+    quantity_work?: number | null;
+    task_knowledge?: number | null;
+    discipline?: number | null;
+    teamwork?: number | null;
+    communication?: number | null;
+    initiative?: number | null;
+    target_realization?: number | null;
+    time_management?: number | null;
+    attitude?: number | null;
+    adaptability?: number | null;
+    leadership_delegation?: number | null;
+    leadership_development?: number | null;
+    score_total?: number | null;
+    score_count?: number | null;
     score_avg?: number | null;
+}
+
+interface PerformanceAppraisalParameter {
+    key: string;
+    group: string;
+    label: string;
 }
 
 interface Props {
@@ -89,15 +111,76 @@ interface Props {
         quiz_avg_percent: number | null;
     };
     performanceAppraisals: PerformanceAppraisal[];
+    performanceAppraisalParameters: PerformanceAppraisalParameter[];
 }
 
-const { materials, quizzes, assignments, totals, progress, performanceAppraisals } = defineProps<Props>();
+const { materials, quizzes, assignments, totals, progress, performanceAppraisals, performanceAppraisalParameters } = defineProps<Props>();
 
 const openPanel = ref<'materi' | 'kuis' | 'tugas'>('materi');
+
+const appraisalModalOpen = ref(false);
+const selectedAppraisal = ref<PerformanceAppraisal | null>(null);
 
 const togglePanel = (panel: 'materi' | 'kuis' | 'tugas') => {
     openPanel.value = panel;
 };
+
+const openAppraisal = (appraisal: PerformanceAppraisal) => {
+    selectedAppraisal.value = appraisal;
+    appraisalModalOpen.value = true;
+};
+
+const scoreForKey = (appraisal: PerformanceAppraisal, key: string): number | null => {
+    const v = (appraisal as any)?.[key];
+    if (v === null || v === undefined) return null;
+    const n = Number(v);
+    return Number.isFinite(n) ? n : null;
+};
+
+const groupedAppraisalParameters = computed(() => {
+    const appraisal = selectedAppraisal.value;
+    if (!appraisal) return [];
+
+    const groups: Array<{ group: string; items: Array<{ key: string; label: string; value: number | null }> }> = [];
+    const groupIndex = new Map<string, number>();
+
+    for (const p of performanceAppraisalParameters) {
+        const idx = groupIndex.get(p.group);
+        const item = { key: p.key, label: p.label, value: scoreForKey(appraisal, p.key) };
+
+        if (idx === undefined) {
+            groupIndex.set(p.group, groups.length);
+            groups.push({ group: p.group, items: [item] });
+            continue;
+        }
+
+        groups[idx].items.push(item);
+    }
+
+    return groups;
+});
+
+const computedTotals = computed(() => {
+    const appraisal = selectedAppraisal.value;
+    if (!appraisal) return { total: null as number | null, count: null as number | null, avg: null as number | null };
+
+    const values: number[] = [];
+    for (const g of groupedAppraisalParameters.value) {
+        for (const item of g.items) {
+            if (item.value !== null) values.push(item.value);
+        }
+    }
+
+    const total = values.length ? values.reduce((a, b) => a + b, 0) : null;
+    const count = values.length ? values.length : null;
+    const avg = values.length ? Math.round((values.reduce((a, b) => a + b, 0) / values.length) * 100) / 100 : null;
+
+    return {
+        total: (appraisal.score_total ?? total) as number | null,
+        count: (appraisal.score_count ?? count) as number | null,
+        avg: (appraisal.score_avg ?? avg) as number | null,
+    };
+});
 
 const openFromShortcut = (panel: 'materi' | 'kuis' | 'tugas') => {
     openPanel.value = panel;
@@ -279,7 +362,13 @@ const nextUrl = (paginator: any): string | null => {
                     <div v-if="performanceAppraisals.length === 0" class="p-4 text-xs text-[#7e7e7e]">Belum ada performance appraisal.</div>
 
                     <div v-else class="divide-y">
-                        <div v-for="p in performanceAppraisals" :key="p.id" class="p-4">
+                        <button
+                            v-for="p in performanceAppraisals"
+                            :key="p.id"
+                            type="button"
+                            class="w-full p-4 text-left transition-colors hover:bg-black/5"
+                            @click="openAppraisal(p)"
+                        >
                             <div class="flex items-start justify-between gap-3">
                                 <div class="min-w-0">
                                     <p class="text-sm font-extrabold tracking-[-0.02em] text-[#25282b]">{{ formatDateLongLower(p.evaluated_at) }}</p>
@@ -294,7 +383,7 @@ const nextUrl = (paginator: any): string | null => {
                             <p v-if="stripHtml(p.feedback ?? '')" class="mt-2 text-xs leading-relaxed text-[#25282b]">
                                 {{ truncate(stripHtml(p.feedback ?? ''), 140) }}
                             </p>
-                        </div>
+                        </button>
                     </div>
                 </div>
 
@@ -569,4 +658,55 @@ const nextUrl = (paginator: any): string | null => {
             <BottomNavigation current-route="/lms" />
         </div>
     </div>
+
+    <Dialog v-model:open="appraisalModalOpen">
+        <DialogContent class="sm:max-w-md max-h-[70vh] overflow-y-auto">
+            <DialogHeader>
+                <DialogTitle>Performance Appraisal</DialogTitle>
+                <DialogDescription>
+                    <span v-if="selectedAppraisal">
+                        {{ formatDateLongLower(selectedAppraisal.evaluated_at) }} • Evaluator: {{ selectedAppraisal.evaluator?.name ?? '-' }}
+                    </span>
+                </DialogDescription>
+            </DialogHeader>
+
+            <div class="text-sm leading-relaxed text-[#25282b]">
+                <div class="flex flex-wrap items-center gap-2">
+                    <span class="rounded-full border px-2.5 py-1 text-[11px] font-extrabold" :class="scoreBadgeClass(computedTotals.avg)">
+                        Avg {{ computedTotals.avg ?? '-' }}
+                    </span>
+                    <span class="rounded-full border border-black/10 bg-white px-2.5 py-1 text-[11px] font-semibold text-[#25282b]">
+                        Total {{ computedTotals.total ?? '-' }}
+                    </span>
+                    <span class="rounded-full border border-black/10 bg-white px-2.5 py-1 text-[11px] font-semibold text-[#25282b]">
+                        Kriteria {{ computedTotals.count ?? '-' }}
+                    </span>
+                </div>
+
+                <div class="mt-4 space-y-4">
+                    <div v-for="g in groupedAppraisalParameters" :key="g.group">
+                        <p class="text-xs font-extrabold tracking-wide text-[#25282b] uppercase">{{ g.group }}</p>
+                        <div class="mt-2 divide-y rounded-[6px] border border-black/10 bg-white">
+                            <div v-for="item in g.items" :key="item.key" class="flex items-center justify-between gap-3 p-3">
+                                <p class="min-w-0 text-xs font-semibold text-[#25282b]">{{ item.label }}</p>
+                                <span
+                                    class="shrink-0 rounded-full border border-black/10 bg-white px-2.5 py-1 text-[11px] font-extrabold text-[#25282b]"
+                                    :class="item.value === null ? 'opacity-60' : ''"
+                                >
+                                    {{ item.value ?? '-' }}
+                                </span>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+
+                <div class="mt-4">
+                    <p class="text-xs font-semibold tracking-wide text-[#7e7e7e] uppercase">Feedback</p>
+                    <p class="mt-2 whitespace-pre-line">
+                        {{ selectedAppraisal ? stripHtml(selectedAppraisal.feedback ?? '') || '-' : '-' }}
+                    </p>
+                </div>
+            </div>
+        </DialogContent>
+    </Dialog>
 </template>
