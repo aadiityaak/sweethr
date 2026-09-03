@@ -6,6 +6,7 @@ import { Sidebar, SidebarContent, SidebarFooter, SidebarHeader, SidebarMenu, Sid
 import { type NavItem } from '@/types';
 import { Link, usePage } from '@inertiajs/vue3';
 import {
+    Award,
     BarChart3,
     BookOpen,
     Building,
@@ -15,12 +16,16 @@ import {
     DollarSign,
     FileText,
     FolderOpen,
+    Gauge,
     LayoutGrid,
     MapPin,
     Megaphone,
     Minus,
     RefreshCw,
+    ScrollText,
     Settings,
+    ShieldAlert,
+    ShieldCheck,
     UserCheck,
     Users,
     UsersRound,
@@ -53,6 +58,21 @@ const userNavItems: NavItem[] = [
         title: 'Slip Gaji',
         href: '/payrolls',
         icon: FileText,
+    },
+    {
+        title: 'Kontrak Saya',
+        href: '/my/contract',
+        icon: ScrollText,
+    },
+    {
+        title: 'Catatan Disiplin',
+        href: '/my/disciplinary-record',
+        icon: ShieldAlert,
+    },
+    {
+        title: 'Raport Saya',
+        href: '/my/semester-report',
+        icon: Award,
     },
 ];
 
@@ -135,6 +155,52 @@ const adminNavItems: NavItem[] = [
         title: 'Pengumuman',
         href: '/admin/announcements',
         icon: Megaphone,
+    },
+    {
+        title: 'SDM & Raport',
+        icon: Gauge,
+        items: [
+            {
+                title: 'Executive Dashboard',
+                href: '/admin/lms-dashboard',
+                icon: Gauge,
+            },
+            {
+                title: 'Kontrak Kerja',
+                href: '/admin/contracts',
+                icon: ScrollText,
+            },
+            {
+                title: 'Alert Kontrak',
+                href: '/admin/contracts/alerts',
+                icon: Calendar,
+            },
+            {
+                title: 'Matriks Kurikulum',
+                href: '/admin/curriculum-matrix',
+                icon: BookOpen,
+            },
+            {
+                title: 'Master Pelanggaran',
+                href: '/admin/disciplinary-violations',
+                icon: ShieldCheck,
+            },
+            {
+                title: 'Catatan Pelanggaran',
+                href: '/admin/employee-violations',
+                icon: ShieldAlert,
+            },
+            {
+                title: 'SP & Tindakan',
+                href: '/admin/disciplinary-actions',
+                icon: FileText,
+            },
+            {
+                title: 'Raport Semester',
+                href: '/admin/semester-reports',
+                icon: Award,
+            },
+        ],
     },
     {
         title: 'LMS',

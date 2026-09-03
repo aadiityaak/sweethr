@@ -45,6 +45,7 @@ class DatabaseSeeder extends Seeder
 
             // LMS
             LmsCategorySeeder::class,
+            DisciplinaryViolationSeeder::class,
             LmsMaterialSeeder::class,
             LmsAssignmentSeeder::class,
             LmsQuizSeeder::class,

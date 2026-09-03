@@ -115,9 +115,99 @@ Route::middleware(['auth', 'verified'])->group(function () {
 
     Route::get('lms/{lms_material}', [App\Http\Controllers\User\LmsController::class, 'show'])
         ->name('user.lms.show');
+
+    // ===== Self-Service Karyawan: Kontrak, Disiplin, Raport Semester =====
+    Route::get('my/contract', [App\Http\Controllers\User\SelfServiceController::class, 'contract'])
+        ->name('user.my-contract');
+    Route::get('my/disciplinary-record', [App\Http\Controllers\User\SelfServiceController::class, 'disciplinaryRecord'])
+        ->name('user.my-disciplinary-record');
+    Route::get('my/semester-report', [App\Http\Controllers\User\SelfServiceController::class, 'semesterReport'])
+        ->name('user.my-semester-report');
 });
 
-// Admin-only routes
+// ===== ADMIN: LMS Dashboard, Kontrak Kerja, Disiplin & Raport Semester =====
+Route::middleware(['auth', 'verified', 'admin'])->group(function () {
+    // Executive LMS Dashboard (5 widget)
+    Route::get('admin/lms-dashboard', [App\Http\Controllers\Admin\LmsDashboardController::class, 'index'])
+        ->name('admin.lms-dashboard');
+
+    // Employment Contracts (PKWT/PKWTT) + alerts
+    Route::get('admin/contracts/alerts', [App\Http\Controllers\Admin\EmploymentContractController::class, 'alerts'])
+        ->name('admin.contracts.alerts');
+    Route::patch('admin/contracts/{contract}/renew', [App\Http\Controllers\Admin\EmploymentContractController::class, 'renew'])
+        ->name('admin.contracts.renew');
+    Route::patch('admin/contracts/{contract}/convert-pkwtt', [App\Http\Controllers\Admin\EmploymentContractController::class, 'convertToPkwtt'])
+        ->name('admin.contracts.convert-pkwtt');
+    Route::resource('admin/contracts', App\Http\Controllers\Admin\EmploymentContractController::class, [
+        'except' => ['show'],
+        'names' => [
+            'index' => 'admin.contracts.index',
+            'create' => 'admin.contracts.create',
+            'store' => 'admin.contracts.store',
+            'edit' => 'admin.contracts.edit',
+            'update' => 'admin.contracts.update',
+            'destroy' => 'admin.contracts.destroy',
+        ],
+    ]);
+
+    // Curriculum Matrix (matriks jabatan x modul LMS)
+    Route::resource('admin/curriculum-matrix', App\Http\Controllers\Admin\CurriculumMatrixController::class, [
+        'except' => ['show'],
+        'names' => [
+            'index' => 'admin.curriculum-matrix.index',
+            'create' => 'admin.curriculum-matrix.create',
+            'store' => 'admin.curriculum-matrix.store',
+            'edit' => 'admin.curriculum-matrix.edit',
+            'update' => 'admin.curriculum-matrix.update',
+            'destroy' => 'admin.curriculum-matrix.destroy',
+        ],
+    ]);
+
+    // Disciplinary Violations (master kategori)
+    Route::resource('admin/disciplinary-violations', App\Http\Controllers\Admin\DisciplinaryViolationController::class, [
+        'names' => [
+            'index' => 'admin.disciplinary-violations.index',
+            'store' => 'admin.disciplinary-violations.store',
+            'update' => 'admin.disciplinary-violations.update',
+            'destroy' => 'admin.disciplinary-violations.destroy',
+        ],
+    ])->only(['index', 'store', 'update', 'destroy']);
+
+    // Employee Violations (feed pelanggaran)
+    Route::resource('admin/employee-violations', App\Http\Controllers\Admin\EmployeeViolationController::class, [
+        'names' => [
+            'index' => 'admin.employee-violations.index',
+            'store' => 'admin.employee-violations.store',
+            'destroy' => 'admin.employee-violations.destroy',
+        ],
+    ])->only(['index', 'store', 'destroy']);
+
+    // Disciplinary Actions (SP)
+    Route::get('admin/disciplinary-actions', [App\Http\Controllers\Admin\EmployeeViolationController::class, 'actionsIndex'])
+        ->name('admin.disciplinary-actions.index');
+    Route::patch('admin/disciplinary-actions/{disciplinary_action}/confirm', [App\Http\Controllers\Admin\EmployeeViolationController::class, 'confirmAction'])
+        ->name('admin.disciplinary-actions.confirm');
+    Route::patch('admin/disciplinary-actions/{disciplinary_action}/resolve', [App\Http\Controllers\Admin\EmployeeViolationController::class, 'resolveAction'])
+        ->name('admin.disciplinary-actions.resolve');
+    Route::patch('admin/disciplinary-actions/{disciplinary_action}/revoke', [App\Http\Controllers\Admin\EmployeeViolationController::class, 'revokeAction'])
+        ->name('admin.disciplinary-actions.revoke');
+
+    // Semester Reports (raport kinerja)
+    Route::post('admin/semester-reports/generate', [App\Http\Controllers\Admin\SemesterReportController::class, 'generate'])
+        ->name('admin.semester-reports.generate');
+    Route::patch('admin/semester-reports/{semester_report}/publish', [App\Http\Controllers\Admin\SemesterReportController::class, 'publish'])
+        ->name('admin.semester-reports.publish');
+    Route::post('admin/semester-reports/bulk-publish', [App\Http\Controllers\Admin\SemesterReportController::class, 'bulkPublish'])
+        ->name('admin.semester-reports.bulk-publish');
+    Route::resource('admin/semester-reports', App\Http\Controllers\Admin\SemesterReportController::class, [
+        'names' => [
+            'index' => 'admin.semester-reports.index',
+            'show' => 'admin.semester-reports.show',
+        ],
+    ])->only(['index', 'show']);
+});
+
+// PWA routes
 Route::middleware(['auth', 'verified', 'admin'])->group(function () {
     Route::get('admin/dashboard', [App\Http\Controllers\DashboardController::class, 'index'])
         ->name('admin.dashboard');
