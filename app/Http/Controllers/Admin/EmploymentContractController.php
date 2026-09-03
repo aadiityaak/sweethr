@@ -119,6 +119,7 @@ class EmploymentContractController extends Controller
     {
         return Inertia::render('admin/Contracts/Alerts', [
             'alerts' => $this->alertService->getAlerts(),
+            'employeeAlerts' => $this->alertService->getUserContractAlerts(),
             'stats' => $this->alertService->getStats(),
         ]);
     }

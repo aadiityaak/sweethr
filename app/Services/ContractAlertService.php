@@ -57,14 +57,16 @@ class ContractAlertService
     }
 
     /**
-     * Alert PKWT dari data karyawan (users.contract_end_date) — untuk /employees.
+     * Alert PKWT dari data karyawan (users.contract_end_date) — untuk /employees & /admin/contracts/alerts.
      */
     public function getUserContractAlerts(): array
     {
         $users = User::query()
+            ->with(['position:id,title', 'department:id,name'])
             ->where('contract_type', 'pkwt')
             ->whereNotNull('contract_end_date')
             ->where('employment_status', 'active')
+            ->orderBy('contract_end_date')
             ->get();
 
         $alerts = ['warning' => [], 'critical' => [], 'expired' => []];
@@ -82,8 +84,10 @@ class ContractAlertService
     public function getExpiringUsers(int $days = self::WARNING_DAYS)
     {
         return User::query()
+            ->with(['position:id,title'])
             ->where('contract_type', 'pkwt')
             ->whereNotNull('contract_end_date')
+            ->where('employment_status', 'active')
             ->whereBetween('contract_end_date', [now()->toDateString(), now()->addDays($days)->toDateString()])
             ->orderBy('contract_end_date')
             ->get();
