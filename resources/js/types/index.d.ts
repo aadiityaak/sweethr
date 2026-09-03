@@ -43,6 +43,7 @@ export interface User {
     position_id?: number;
     manager_id?: number;
     employment_status?: string;
+    contract_type?: string;
     emergency_contact?: any;
     is_admin: boolean;
 }

@@ -34,6 +34,7 @@ class User extends Authenticatable
         'position_id',
         'manager_id',
         'employment_status',
+        'contract_type',
         'emergency_contact',
         'is_admin',
         'face_descriptors',

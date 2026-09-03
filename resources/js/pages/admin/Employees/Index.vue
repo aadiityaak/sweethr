@@ -39,6 +39,7 @@ interface Employee {
     phone?: string;
     hire_date: string;
     employment_status: string;
+    contract_type?: string;
     is_admin: boolean;
     department?: Department;
     position?: Position;
@@ -558,12 +559,18 @@ const formatDate = (dateString: string) => {
                                 </td>
                                 <td class="px-6 py-4">
                                     <div class="space-y-1">
-                                        <div class="flex items-center gap-2">
+                                        <div class="flex flex-wrap items-center gap-1.5">
                                             <div
                                                 class="h-3 w-3 rounded-full"
                                                 :class="getStatusCircle(employee.employment_status)"
                                                 :title="employee.employment_status === 'active' ? 'Aktif' : 'Tidak Aktif'"
                                             ></div>
+                                            <span
+                                                class="rounded-full px-2 py-0.5 text-[10px] font-bold"
+                                                :class="(employee.contract_type || 'pkwt') === 'pkwtt' ? 'bg-purple-100 text-purple-700 dark:bg-purple-900/30 dark:text-purple-300' : 'bg-blue-100 text-blue-700 dark:bg-blue-900/30 dark:text-blue-300'"
+                                            >
+                                                {{ (employee.contract_type || 'pkwt') === 'pkwtt' ? 'PKWTT' : 'PKWT' }}
+                                            </span>
                                             <div v-if="employee.is_admin" class="text-xs text-blue-600 dark:text-blue-400">Admin</div>
                                         </div>
                                     </div>

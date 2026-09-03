@@ -143,13 +143,15 @@ class EmployeeController extends Controller
             'password' => 'required|string|min:8|confirmed',
             'is_admin' => 'boolean',
             'allow_outside_radius' => 'boolean',
-            'employment_status' => 'in:active,inactive,terminated',
+            'employment_status' => 'nullable|in:active,inactive,terminated',
+            'contract_type' => 'nullable|in:pkwt,pkwtt',
         ]);
 
         $validated['password'] = bcrypt($validated['password']);
         $validated['is_admin'] = $request->boolean('is_admin');
         $validated['allow_outside_radius'] = $request->boolean('allow_outside_radius');
         $validated['employment_status'] = $validated['employment_status'] ?? 'active';
+        $validated['contract_type'] = $validated['contract_type'] ?? 'pkwt';
 
         User::create($validated);
 
@@ -189,7 +191,8 @@ class EmployeeController extends Controller
             'password' => 'nullable|string|min:8|confirmed',
             'is_admin' => 'boolean',
             'allow_outside_radius' => 'boolean',
-            'employment_status' => 'in:active,inactive,terminated',
+            'employment_status' => 'nullable|in:active,inactive,terminated',
+            'contract_type' => 'nullable|in:pkwt,pkwtt',
         ]);
 
         if ($request->filled('password')) {
@@ -201,6 +204,7 @@ class EmployeeController extends Controller
         $validated['is_admin'] = $request->boolean('is_admin');
         $validated['allow_outside_radius'] = $request->boolean('allow_outside_radius');
         $validated['employment_status'] = $validated['employment_status'] ?? $employee->employment_status;
+        $validated['contract_type'] = $validated['contract_type'] ?? $employee->contract_type ?? 'pkwt';
 
         $employee->update($validated);
 

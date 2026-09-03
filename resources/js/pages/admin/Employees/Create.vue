@@ -257,6 +257,37 @@
                                         </div>
                                     </div>
 
+                                    <div class="space-y-2">
+                                        <Label>Klasifikasi Legalitas Kerja</Label>
+                                        <div class="grid gap-3 sm:grid-cols-2">
+                                            <label
+                                                class="flex cursor-pointer items-start gap-3 rounded-lg border p-3"
+                                                :class="form.contract_type === 'pkwt' ? 'border-blue-500 bg-blue-50 dark:bg-blue-950/20' : 'border-input'"
+                                            >
+                                                <input type="radio" value="pkwt" v-model="form.contract_type" class="mt-1" />
+                                                <span>
+                                                    <span class="text-sm font-semibold">PKWT</span>
+                                                    <span class="ml-1 text-xs text-muted-foreground">Kontrak Waktu Tertentu</span>
+                                                    <p class="mt-0.5 text-xs text-muted-foreground">Kontrak berjangka (butuh end_date di Kontrak).</p>
+                                                </span>
+                                            </label>
+                                            <label
+                                                class="flex cursor-pointer items-start gap-3 rounded-lg border p-3"
+                                                :class="form.contract_type === 'pkwtt' ? 'border-purple-500 bg-purple-50 dark:bg-purple-950/20' : 'border-input'"
+                                            >
+                                                <input type="radio" value="pkwtt" v-model="form.contract_type" class="mt-1" />
+                                                <span>
+                                                    <span class="text-sm font-semibold">PKWTT</span>
+                                                    <span class="ml-1 text-xs text-muted-foreground">Karyawan Tetap</span>
+                                                    <p class="mt-0.5 text-xs text-muted-foreground">Tanpa batas waktu (end_date null).</p>
+                                                </span>
+                                            </label>
+                                        </div>
+                                        <p v-if="form.errors.contract_type" class="mt-1 text-sm text-red-600">
+                                            {{ form.errors.contract_type }}
+                                        </p>
+                                    </div>
+
                                     <div class="grid gap-6 md:grid-cols-2">
                                         <div class="space-y-2">
                                             <Label for="department_id">Departemen</Label>
@@ -417,6 +448,15 @@
                                     {{ form.employment_status === 'active' ? 'Aktif' : 'Tidak Aktif' }}
                                 </span>
                             </div>
+                            <div class="flex justify-between">
+                                <span class="text-muted-foreground">Klasifikasi:</span>
+                                <span
+                                    :class="form.contract_type === 'pkwtt' ? 'bg-purple-100 text-purple-700' : 'bg-blue-100 text-blue-700'"
+                                    class="rounded-full px-2 py-0.5 text-xs font-bold"
+                                >
+                                    {{ form.contract_type === 'pkwtt' ? 'PKWTT (Tetap)' : 'PKWT (Kontrak)' }}
+                                </span>
+                            </div>
                         </div>
                     </div>
 
@@ -501,6 +541,7 @@ const form = useForm({
     department_id: '',
     position_id: '',
     employment_status: 'active',
+    contract_type: 'pkwt',
     password: '',
     password_confirmation: '',
     emergency_contact: {
