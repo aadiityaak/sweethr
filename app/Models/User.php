@@ -35,6 +35,7 @@ class User extends Authenticatable
         'manager_id',
         'employment_status',
         'contract_type',
+        'contract_end_date',
         'emergency_contact',
         'is_admin',
         'face_descriptors',
@@ -61,6 +62,8 @@ class User extends Authenticatable
      *
      * @return array<string, string>
      */
+    protected $appends = ['contract_days_remaining', 'contract_alert_level'];
+
     protected function casts(): array
     {
         return [
@@ -68,6 +71,7 @@ class User extends Authenticatable
             'password' => 'hashed',
             'date_of_birth' => 'date',
             'hire_date' => 'date',
+            'contract_end_date' => 'date',
             'emergency_contact' => 'array',
             'is_admin' => 'boolean',
             'face_descriptors' => 'encrypted:array',
@@ -170,6 +174,32 @@ class User extends Authenticatable
     public function shiftSwapsAsTarget()
     {
         return $this->hasMany(ShiftSwap::class, 'target_user_id');
+    }
+
+    public function getContractDaysRemainingAttribute(): ?int
+    {
+        if ($this->contract_type !== 'pkwt' || ! $this->contract_end_date) {
+            return null;
+        }
+        return (int) now()->startOfDay()->diffInDays($this->contract_end_date->startOfDay(), false);
+    }
+
+    public function getContractAlertLevelAttribute(): ?string
+    {
+        $days = $this->contract_days_remaining;
+        if ($days === null) {
+            return null;
+        }
+        if ($days < 0) {
+            return 'expired';
+        }
+        if ($days <= 30) {
+            return 'critical';
+        }
+        if ($days <= 60) {
+            return 'warning';
+        }
+        return null;
     }
 
     public function scopeActive($query)

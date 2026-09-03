@@ -235,6 +235,15 @@
                                         </p>
                                     </div>
 
+                                    <div v-if="form.contract_type === 'pkwt'" class="space-y-2">
+                                        <Label for="contract_end_date">Masa Berakhir Kontrak (PKWT) *</Label>
+                                        <DatePicker v-model="form.contract_end_date" placeholder="Pilih tanggal akhir kontrak" />
+                                        <p v-if="form.errors.contract_end_date" class="mt-1 text-sm text-red-600">
+                                            {{ form.errors.contract_end_date }}
+                                        </p>
+                                        <p class="text-xs text-muted-foreground">Tanggal pasti pengakhiran PKWT. Sistem otomatis trigger alert H-60 (peringatan) & H-30 (kritis) untuk evaluasi perpanjangan/pengangkatan PKWTT.</p>
+                                    </div>
+
                                     <div class="grid gap-6 md:grid-cols-2">
                                         <div class="space-y-2">
                                             <Label for="department_id">Departemen</Label>
@@ -544,6 +553,9 @@ interface Employee {
     manager_id?: number;
     employment_status: string;
     contract_type?: string;
+    contract_end_date?: string | null;
+    contract_days_remaining?: number | null;
+    contract_alert_level?: string | null;
     emergency_contact?: {
         name?: string;
         phone?: string;
@@ -613,6 +625,7 @@ const form = useForm({
     manager_id: props.employee.manager_id || '',
     employment_status: props.employee.employment_status,
     contract_type: (props.employee.contract_type as string) || 'pkwt',
+    contract_end_date: (props.employee.contract_end_date as string) || '',
     password: '',
     password_confirmation: '',
     emergency_contact: {
@@ -688,6 +701,13 @@ const filteredPositions = computed(() => {
     if (!form.department_id) return props.positions;
     return props.positions.filter((pos) => pos.department_id === Number(form.department_id));
 });
+
+watch(
+    () => form.contract_type,
+    (val) => {
+        if (val === 'pkwtt') form.contract_end_date = '';
+    },
+);
 
 // Watch for department changes and reset position if it's no longer valid
 watch(

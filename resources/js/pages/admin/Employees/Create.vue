@@ -288,6 +288,15 @@
                                         </p>
                                     </div>
 
+                                    <div v-if="form.contract_type === 'pkwt'" class="space-y-2">
+                                        <Label for="contract_end_date">Masa Berakhir Kontrak (PKWT) *</Label>
+                                        <DatePicker v-model="form.contract_end_date" placeholder="Pilih tanggal akhir kontrak" />
+                                        <p v-if="form.errors.contract_end_date" class="mt-1 text-sm text-red-600">
+                                            {{ form.errors.contract_end_date }}
+                                        </p>
+                                        <p class="text-xs text-muted-foreground">Tanggal pasti pengakhiran PKWT. Sistem akan otomatis trigger alert H-60 (peringatan) & H-30 (kritis) untuk evaluasi perpanjangan/pengangkatan PKWTT.</p>
+                                    </div>
+
                                     <div class="grid gap-6 md:grid-cols-2">
                                         <div class="space-y-2">
                                             <Label for="department_id">Departemen</Label>
@@ -542,6 +551,7 @@ const form = useForm({
     position_id: '',
     employment_status: 'active',
     contract_type: 'pkwt',
+    contract_end_date: '',
     password: '',
     password_confirmation: '',
     emergency_contact: {
@@ -636,6 +646,14 @@ const filteredPositions = computed(() => {
     if (!form.department_id) return props.positions;
     return props.positions.filter((pos) => pos.department_id === Number(form.department_id));
 });
+
+// Clear end_date otomatis saat ganti ke PKWTT
+watch(
+    () => form.contract_type,
+    (val) => {
+        if (val === 'pkwtt') form.contract_end_date = '';
+    },
+);
 
 // Watch for department changes and reset position when department changes
 watch(

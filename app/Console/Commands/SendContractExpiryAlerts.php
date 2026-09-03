@@ -19,6 +19,7 @@ class SendContractExpiryAlerts extends Command
         }
 
         $alerts = $service->getAlerts();
+        $userAlerts = $service->getUserContractAlerts();
         $stats = $service->getStats();
 
         $this->table(

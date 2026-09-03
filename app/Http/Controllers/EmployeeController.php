@@ -62,6 +62,7 @@ class EmployeeController extends Controller
             'email' => 'email',
             'employee_id' => 'employee_id',
             'hire_date' => 'hire_date',
+            'contract_end_date' => 'contract_end_date',
             'department' => 'departments.name',
             'position' => 'positions.title',
             'status' => 'employment_status',
@@ -145,6 +146,7 @@ class EmployeeController extends Controller
             'allow_outside_radius' => 'boolean',
             'employment_status' => 'nullable|in:active,inactive,terminated',
             'contract_type' => 'nullable|in:pkwt,pkwtt',
+            'contract_end_date' => 'nullable|date|after:hire_date|required_if:contract_type,pkwt',
         ]);
 
         $validated['password'] = bcrypt($validated['password']);
@@ -152,6 +154,7 @@ class EmployeeController extends Controller
         $validated['allow_outside_radius'] = $request->boolean('allow_outside_radius');
         $validated['employment_status'] = $validated['employment_status'] ?? 'active';
         $validated['contract_type'] = $validated['contract_type'] ?? 'pkwt';
+        $validated['contract_end_date'] = $validated['contract_type'] === 'pkwtt' ? null : ($validated['contract_end_date'] ?? null);
 
         User::create($validated);
 
@@ -193,6 +196,7 @@ class EmployeeController extends Controller
             'allow_outside_radius' => 'boolean',
             'employment_status' => 'nullable|in:active,inactive,terminated',
             'contract_type' => 'nullable|in:pkwt,pkwtt',
+            'contract_end_date' => 'nullable|date|after:hire_date|required_if:contract_type,pkwt',
         ]);
 
         if ($request->filled('password')) {
@@ -205,6 +209,7 @@ class EmployeeController extends Controller
         $validated['allow_outside_radius'] = $request->boolean('allow_outside_radius');
         $validated['employment_status'] = $validated['employment_status'] ?? $employee->employment_status;
         $validated['contract_type'] = $validated['contract_type'] ?? $employee->contract_type ?? 'pkwt';
+        $validated['contract_end_date'] = $validated['contract_type'] === 'pkwtt' ? null : ($validated['contract_end_date'] ?? $employee->contract_end_date);
 
         $employee->update($validated);
 

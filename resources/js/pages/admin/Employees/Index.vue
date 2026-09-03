@@ -3,7 +3,7 @@ import { useToast } from '@/components/ui/toast/use-toast';
 import AppLayout from '@/layouts/AppLayout.vue';
 import { type BreadcrumbItem } from '@/types';
 import { Head, Link, router } from '@inertiajs/vue3';
-import { ArrowDown, ArrowUp, ArrowUpDown, Edit, Mail, Phone, Plus, Search, Trash2, UserCheck, Users } from 'lucide-vue-next';
+import { AlertTriangle, ArrowDown, ArrowUp, ArrowUpDown, CalendarClock, Edit, Mail, Phone, Plus, Search, Trash2, UserCheck, Users } from 'lucide-vue-next';
 import { computed, onMounted, ref } from 'vue';
 
 interface Department {
@@ -40,6 +40,9 @@ interface Employee {
     hire_date: string;
     employment_status: string;
     contract_type?: string;
+    contract_end_date?: string | null;
+    contract_days_remaining?: number | null;
+    contract_alert_level?: string | null;
     is_admin: boolean;
     department?: Department;
     position?: Position;
@@ -198,6 +201,32 @@ const getStatusCircle = (employmentStatus: string) => {
             return 'bg-gray-500';
     }
 };
+
+const contractBadge = (emp: Employee) => {
+    if ((emp.contract_type || 'pkwt') === 'pkwtt') {
+        return { label: 'PKWTT · Tetap', cls: 'bg-purple-100 text-purple-700 dark:bg-purple-900/30 dark:text-purple-300' };
+    }
+    if (!emp.contract_end_date) {
+        return { label: 'Belum diatur', cls: 'bg-gray-100 text-gray-500 dark:bg-gray-800 dark:text-gray-400' };
+    }
+    const d = emp.contract_days_remaining;
+    const lvl = emp.contract_alert_level;
+    if (lvl === 'expired') return { label: `Expired ${Math.abs(d ?? 0)} hari`, cls: 'bg-red-600 text-white' };
+    if (lvl === 'critical') return { label: `H-${d}`, cls: 'bg-red-100 text-red-700 dark:bg-red-900/30 dark:text-red-300' };
+    if (lvl === 'warning') return { label: `H-${d}`, cls: 'bg-amber-100 text-amber-700 dark:bg-amber-900/30 dark:text-amber-300' };
+    return { label: `H-${d}`, cls: 'bg-emerald-50 text-emerald-700 dark:bg-emerald-900/20 dark:text-emerald-300' };
+};
+
+const isContractAttention = (emp: Employee) => emp.contract_alert_level === 'warning' || emp.contract_alert_level === 'critical' || emp.contract_alert_level === 'expired';
+
+const contractAlerts = computed(() => {
+    const list = employees?.data || [];
+    return {
+        warning: list.filter((e) => e.contract_alert_level === 'warning'),
+        critical: list.filter((e) => e.contract_alert_level === 'critical'),
+        expired: list.filter((e) => e.contract_alert_level === 'expired'),
+    };
+});
 
 // Delete functions
 const confirmDelete = (employee: Employee) => {
@@ -401,6 +430,38 @@ const formatDate = (dateString: string) => {
                 </div>
             </div>
 
+            <!-- Count-Down Alert PKWT H-60 / H-30 (Automated) -->
+            <div
+                v-if="contractAlerts.expired.length || contractAlerts.critical.length || contractAlerts.warning.length"
+                class="mb-6 overflow-hidden rounded-2xl border shadow-sm"
+                :class="(contractAlerts.expired.length || contractAlerts.critical.length) ? 'border-red-200 bg-red-50 dark:border-red-900/50 dark:bg-red-950/20' : 'border-amber-200 bg-amber-50 dark:border-amber-900/50 dark:bg-amber-950/20'"
+            >
+                <div class="flex flex-wrap items-start justify-between gap-3 px-6 py-4">
+                    <div class="flex items-center gap-2">
+                        <AlertTriangle class="h-5 w-5" :class="(contractAlerts.expired.length || contractAlerts.critical.length) ? 'text-red-600' : 'text-amber-600'" />
+                        <h3 class="text-sm font-bold" :class="(contractAlerts.expired.length || contractAlerts.critical.length) ? 'text-red-800 dark:text-red-200' : 'text-amber-800 dark:text-amber-200'">
+                            Automated Count-Down Kontrak PKWT
+                        </h3>
+                        <span class="rounded-full bg-white px-2 py-0.5 text-xs font-semibold ring-1 ring-black/5">H-60 / H-30 · evaluasi perpanjangan / pengangkatan PKWTT</span>
+                    </div>
+                    <Link href="/admin/contracts/alerts" class="text-xs font-semibold text-blue-600 hover:underline">Lihat detail →</Link>
+                </div>
+                <div class="space-y-2 px-6 pb-4">
+                    <div v-if="contractAlerts.expired.length" class="flex flex-wrap gap-1.5">
+                        <span class="mr-1 text-xs font-semibold text-red-700 dark:text-red-300">Expired ({{ contractAlerts.expired.length }}):</span>
+                        <Link v-for="e in contractAlerts.expired.slice(0, 8)" :key="e.id" :href="`/employees/${e.id}/edit`" class="rounded-full bg-red-600 px-2.5 py-1 text-xs font-bold text-white hover:bg-red-700">{{ e.name }} — {{ Math.abs(e.contract_days_remaining ?? 0) }} hari lewat</Link>
+                    </div>
+                    <div v-if="contractAlerts.critical.length" class="flex flex-wrap gap-1.5">
+                        <span class="mr-1 text-xs font-semibold text-red-700 dark:text-red-300">Kritis H-30 ({{ contractAlerts.critical.length }}):</span>
+                        <Link v-for="e in contractAlerts.critical.slice(0, 8)" :key="e.id" :href="`/employees/${e.id}/edit`" class="rounded-full bg-red-100 px-2.5 py-1 text-xs font-bold text-red-700 ring-1 ring-red-200 hover:bg-red-200 dark:bg-red-900/30 dark:text-red-300">H-{{ e.contract_days_remaining }} · {{ e.name }}</Link>
+                    </div>
+                    <div v-if="contractAlerts.warning.length" class="flex flex-wrap gap-1.5">
+                        <span class="mr-1 text-xs font-semibold text-amber-700 dark:text-amber-300">Peringatan H-60 ({{ contractAlerts.warning.length }}):</span>
+                        <Link v-for="e in contractAlerts.warning.slice(0, 8)" :key="e.id" :href="`/employees/${e.id}/edit`" class="rounded-full bg-amber-100 px-2.5 py-1 text-xs font-bold text-amber-700 ring-1 ring-amber-200 hover:bg-amber-200 dark:bg-amber-900/30 dark:text-amber-300">H-{{ e.contract_days_remaining }} · {{ e.name }}</Link>
+                    </div>
+                </div>
+            </div>
+
             <!-- Employee List -->
             <div class="overflow-hidden rounded-2xl bg-white shadow-sm ring-1 ring-gray-900/5 dark:bg-gray-900 dark:ring-white/10">
                 <div class="border-b border-gray-200 px-6 py-4 dark:border-gray-700">
@@ -494,6 +555,22 @@ const formatDate = (dateString: string) => {
                                     class="px-6 py-3 text-left text-xs font-medium tracking-wider text-gray-500 uppercase dark:text-gray-400"
                                 >
                                     <button
+                                        @click="sortBy('contract_end_date')"
+                                        :class="[
+                                            'flex items-center gap-2 hover:text-gray-700 dark:hover:text-gray-200',
+                                            sortField === 'contract_end_date' ? 'text-blue-600 dark:text-blue-400' : '',
+                                        ]"
+                                    >
+                                        <CalendarClock class="h-3.5 w-3.5" />
+                                        Masa Berakhir
+                                        <component :is="getSortIcon('contract_end_date')" class="h-4 w-4" />
+                                    </button>
+                                </th>
+                                <th
+                                    scope="col"
+                                    class="px-6 py-3 text-left text-xs font-medium tracking-wider text-gray-500 uppercase dark:text-gray-400"
+                                >
+                                    <button
                                         @click="sortBy('status')"
                                         :class="[
                                             'flex items-center gap-2 hover:text-gray-700 dark:hover:text-gray-200',
@@ -556,6 +633,28 @@ const formatDate = (dateString: string) => {
                                 </td>
                                 <td class="px-6 py-4 text-sm text-gray-600 dark:text-gray-300">
                                     {{ formatDate(employee.hire_date) }}
+                                </td>
+                                <td class="px-6 py-4">
+                                    <div v-if="(employee.contract_type || 'pkwt') === 'pkwtt'" class="flex items-center gap-1.5">
+                                        <span class="rounded-full bg-purple-100 px-2 py-0.5 text-[10px] font-bold text-purple-700 dark:bg-purple-900/30 dark:text-purple-300">PKWTT · Tetap</span>
+                                        <span class="text-xs text-gray-400">—</span>
+                                    </div>
+                                    <div v-else-if="employee.contract_end_date" class="space-y-1">
+                                        <div class="text-sm text-gray-700 dark:text-gray-300">{{ formatDate(employee.contract_end_date) }}</div>
+                                        <span
+                                            class="inline-flex items-center gap-1 rounded-full px-2 py-0.5 text-[10px] font-bold"
+                                            :class="contractBadge(employee).cls"
+                                        >
+                                            <AlertTriangle v-if="isContractAttention(employee)" class="h-3 w-3" />
+                                            {{ contractBadge(employee).label }}
+                                        </span>
+                                    </div>
+                                    <div v-else class="space-y-1">
+                                        <span class="rounded-full bg-gray-100 px-2 py-0.5 text-[10px] font-bold text-gray-500 dark:bg-gray-800 dark:text-gray-400">Belum diatur</span>
+                                        <div>
+                                            <Link :href="`/employees/${employee.id}/edit`" class="text-xs text-blue-600 hover:underline">Atur tanggal</Link>
+                                        </div>
+                                    </div>
                                 </td>
                                 <td class="px-6 py-4">
                                     <div class="space-y-1">

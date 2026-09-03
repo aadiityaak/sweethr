@@ -23,7 +23,7 @@ class ContractAlertService
     }
 
     /**
-     * Alert terpisah per level (warning H-60, critical H-30, expired).
+     * Alert terpisah per level (warning H-60, critical H-30, expired) — modul Kontrak.
      */
     public function getAlerts(): array
     {
@@ -54,6 +54,39 @@ class ContractAlertService
             ->all();
 
         return $alerts;
+    }
+
+    /**
+     * Alert PKWT dari data karyawan (users.contract_end_date) — untuk /employees.
+     */
+    public function getUserContractAlerts(): array
+    {
+        $users = User::query()
+            ->where('contract_type', 'pkwt')
+            ->whereNotNull('contract_end_date')
+            ->where('employment_status', 'active')
+            ->get();
+
+        $alerts = ['warning' => [], 'critical' => [], 'expired' => []];
+        foreach ($users as $user) {
+            match ($user->contract_alert_level) {
+                'warning' => $alerts['warning'][] = $user,
+                'critical' => $alerts['critical'][] = $user,
+                'expired' => $alerts['expired'][] = $user,
+                default => null,
+            };
+        }
+        return $alerts;
+    }
+
+    public function getExpiringUsers(int $days = self::WARNING_DAYS)
+    {
+        return User::query()
+            ->where('contract_type', 'pkwt')
+            ->whereNotNull('contract_end_date')
+            ->whereBetween('contract_end_date', [now()->toDateString(), now()->addDays($days)->toDateString()])
+            ->orderBy('contract_end_date')
+            ->get();
     }
 
     public function getStats(): array
