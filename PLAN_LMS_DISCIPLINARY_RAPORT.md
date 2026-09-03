@@ -1,5 +1,16 @@
 # RENCANA IMPLEMENTASI — DASHBOARD LMS, DISCIPLINARY SYSTEM & RAPORT SDM
 
+> **UPDATE 2026-09-03 — /goal lanjutkan selain notifikasi whatsapp (tanpa WhatsApp): Sisa 4 todo dicatat, eksekusi ditunda sesuai instruksi.**
+>
+> | # | Todo | Status | Rencana eksekusi (detail file) |
+> |---|---|---|---|
+> | 1 | Master jabatan & outlet sesuai PDF (Cleaner/Pramusaji/Kasir/Koki/Ast SPV/SPV Outlet) + mapping LmsCurriculumMatrix | ✅ Selesai | Posisi level + `lms_curriculum_matrix`; cek `/admin/curriculum-matrix` |
+> | 2 | Auto-retake SOP 3 hari saat 15 poin (DisciplinaryPointService → buat LmsAssignment otomatis) | ✅ Selesai | `DisciplinaryPointService::ensureRetakeAssignment()` → `LmsAssignment` due +3 hari, kategori `Program Remedial — Retake SOP Teguran`, guard `where title like %[Action #id]%` |
+> | 3 | Freeze promosi di UI — blokir pengajuan promosi saat SP1 aktif | ⏳ Tertunda | BE `DisciplinaryAction::isPromotionFrozen()` + `RewardRecommendationService` sudah set `blocked_by_freeze`; FE disable tombol promosi di `admin/Employees/Edit.vue` + banner `Show.vue`/`MySemesterReport.vue`; guard server di endpoint promosi |
+> | 4 | PIP & Pre-Promotion Course sebagai modul LMS khusus | ⏳ Tertunda | Cabang `LmsCategory` `Program PIP` & `Pre-Promotion Course` + `LmsAssignment`/`LmsQuiz`; seeder `PipAndPrePromotionSeeder`; auto-assign saat raport D (PIP) / A-B (Pre-Promotion) |
+> | 5 | Export PDF raport semester (CEO/HR download) | ⏳ Tertunda | `composer require barryvdh/laravel-dompdf`, `SemesterReportController@downloadPdf` → `GET admin/semester-reports/{id}/pdf`, Blade `pdf/semester-report.blade.php`, tombol Download di `Index.vue`/`Show.vue` |
+> | 6 | Eksekusi rekomendasi gaji & PKWTT otomatis dari raport | ⏳ Tertunda | `SemesterReportService::executeRecommendation()` → buat/nonaktif `SalarySetting` + konversi `EmploymentContract` PKWT→PKWTT via `ContractAlertService::convertToPkwtt()`, hormati `blocked_by_freeze`; tombol Eksekusi di `Show.vue` |
+
 **Perusahaan:** PT Warung Mas Mbull
 **Scope:** Database Karyawan + Kontrak (PKWT/PKWTT), LMS Kurikulum per Jabatan, Sistem Poin Disiplin, Raport Semester, Reward Engine, Executive Dashboard
 **Target Pengguna:** CEO, HR Manager, Operational Head, Store/Outlet Managers

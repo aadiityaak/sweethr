@@ -56,6 +56,52 @@ class LmsMaterialSeeder extends Seeder
                 'description' => '<p>Standar rasa & tekstur, cara sampling, dan tindakan koreksi bila terjadi deviasi.</p>',
                 'file_ext' => 'pdf',
             ],
+            // Outlet Warung Mas Mbull
+            [
+                'title' => 'SOP Sanitasi & Kebersihan Outlet',
+                'description' => '<p>SOP lengkap sanitasi harian outlet, penggunaan bahan kimia, pengelolaan sampah & area makan sesuai standar outlet.</p>',
+                'file_ext' => 'pdf',
+            ],
+            [
+                'title' => 'Product Knowledge Menu Ayam Penyet & Paket Sambal',
+                'description' => '<p>Mengenal varian menu ayam penyet, paket & sambal, selling point dan alergen.</p>',
+                'file_ext' => 'pdf',
+            ],
+            [
+                'title' => 'SOP Kasir & Sistem POS',
+                'description' => '<p>Alur kasir POS, pembayaran tunai/QRIS/EDC/kas kecil, rekap harian & pencegahan selisih.</p>',
+                'file_ext' => 'pdf',
+            ],
+            [
+                'title' => 'Standard Recipe — Marinasi & Sambal Level 1-10',
+                'description' => '<p>Resep standar marinasi, sambal level 1-10, kematangan ayam & plating.</p>',
+                'file_ext' => 'pdf',
+            ],
+            [
+                'title' => 'Food Safety & Higienitas Outlet',
+                'description' => '<p>Prinsip food safety outlet, suhu simpan, higienitas & audit kebersihan.</p>',
+                'file_ext' => 'pdf',
+            ],
+            [
+                'title' => 'Manajemen Stok & Stock Opname Outlet',
+                'description' => '<p>Prosedur stok opname, pendampingan & rekonsiliasi stok outlet.</p>',
+                'file_ext' => 'pdf',
+            ],
+            [
+                'title' => 'Food Cost & Waste Control Outlet',
+                'description' => '<p>Menghitung food cost outlet & pengendalian waste untuk margin optimal.</p>',
+                'file_ext' => 'pdf',
+            ],
+            [
+                'title' => 'Pengawasan Operasional & Briefing Shift',
+                'description' => '<p>Checklist pengawasan harian, briefing shift & troubleshooting operasional outlet.</p>',
+                'file_ext' => 'pdf',
+            ],
+            [
+                'title' => 'Manajemen Outlet & Pencapaian Target (P&L)',
+                'description' => '<p>Manajemen outlet end-to-end: target penjualan, P&L, KPI & review kinerja outlet.</p>',
+                'file_ext' => 'pdf',
+            ],
         ];
 
         foreach ($items as $index => $item) {

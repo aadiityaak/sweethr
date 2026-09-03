@@ -1,0 +1,222 @@
+RANCANGAN DASHBOARD LMS, DISCIPLINARY SYSTEM 
+& CARAPORT SDM
+PT Warung Mas Mbull — Integrated Employee Database, Learning Management, Disciplinary Tracking, 
+& Reward System
+Dokumen Penyusunan Strategic HR & Integrated Dashboard Control | PT Warung Mas Mbull
+Target Pengguna: CEO, HR Manager, Operational Head, & Store Managers
+Scope: Database Karyawan, Masa Kontrak (PKWT/PKWTT), Raport Semester, KPI, LMS, Disiplin, & Rekomendasi 
+Reward
+1. Modul Database Karyawan & Status Legalitas (PKWT/PKWTT)
+Dashboard LMS terintegrasi penuh dengan database personalia untuk memantau status 
+ketenagakerjaan, masa berlaku kontrak, dan riwayat administratif staf secara real-time guna mencegah 
+keterlambatan perpanjangan kontrak.
+A. Indikator Profile & Administrasi Karyawan:
+•
+1. Data Identitas Karyawan: NIK Karyawan, Nama Lengkap, Jabatan, Outlet/Lokasi Kerja, dan 
+Tanggal Masuk (Join Date).
+•
+2. Status Ketenagakerjaan: Klasifikasi legalitas kerja — PKWT (Kontrak Waktu Tertentu) vs PKWTT 
+(Tetap).
+•
+3. Tracking Masa Akhir Kontrak: Tanggal pasti pengakhiran kontrak PKWT disertai fitur Automated 
+Count-Down Alert (Notifikasi H-60 dan H-30 hari sebelum kontrak berakhir untuk evaluasi 
+perpanjangan/pengangkatan).
+2. Matriks Kurikulum LMS Berdasarkan Jabatan
+Modul pelatihan dirancang secara kustom sesuai tuntutan kompetensi masing-masing peran operasional 
+outlet guna memastikan konsistensi standar rasa, kebersihan, pelayanan, dan akuntabilitas keuangan.
+Jabatan
+Modul Utama LMS
+Matriks Keterampilan / Ujian 
+Praktik
+Cleaner
+• SOP Sanitasi & Kebersihan Outlet
+• Penggunaan & Keamanan Bahan Kimia
+• Pengelolaan Sampah & Kebersihan Area Makan/Luar
+Check-list kebersihan area, kerapian 
+alat bersih
+Pramusaji
+• Customer Service Excellence & Greeting
+Kuis alur pelayanan, Simulasi Roleplay 
+
+• Product Knowledge (Menu Ayam Penyet, Paket, 
+Sambal)
+• Penanganan Keluhan Pelanggan (Complaint 
+Handling)
+• Teknik Upselling & Cross-selling
+Melayani Tamu
+Kasir
+• SOP Kasir & Sistem POS
+• Prosedur Pembayaran (Tunai, QRIS, EDC, Kas Kecil)
+• Rekapitulasi & Laporan Penutupan Kasir Harian
+• Pencegahan Selisih Kas & Fraud
+Ujian Teori POS, Audit Harian Laporan 
+Kasir
+Koki
+• Standard Recipe (Marinasi, Sambal, Kematangan 
+Ayam)
+• Food Safety, Higienitas & Metode FIFO (First In, First 
+Out)
+• Manajemen Dapur & Penanganan Bahan Baku
+• Efisiensi Food Cost & Pengendalian Waste
+Kuis Food Safety, Ujian Cooking Test 
+Standar Rasa & Visual
+Ast SPV
+• Pengawasan Operasional Harian & Briefing Shift
+• Manajemen Stok & Pendampingan Stock Opname
+• Supervisory Skill & Pembinaan Tim
+• Penanganan Operasional Troubleshooting
+Audit Check-list Shift, Evaluasi 
+Kepemimpinan Harian
+SPV Outlet
+• Manajemen Operasional & Pencapaian Target Outlet
+• Food Cost Analysis & Kontrol Waste Outlet
+• Manajemen SDM: Scheduling, Evaluasi KPI & PIP
+• Penanganan Keluhan Tingkat Lanjut & Hubungan 
+Kerja
+Laporan P&L Outlet, Presentasi 
+Kinerja & Audit Total
+3. Sistem Poin Pelanggaran & Tracking Disiplin
+Sistem pencatatan pelanggaran terintegrasi langsung dengan LMS untuk mengotomatisasi tindak lanjut 
+pembinaan, remedial SOP, pembekuan status promosi, hingga penyesuaian administratif Surat 
+Peringatan (SP).
+A. Kategorisasi & Bobot Poin Pelanggaran
+•
+• Pelanggaran Ringan (5 – 10 Poin): Datang terlambat (< 15 menit), Atribut seragam tidak 
+lengkap/rapi, Area kerja kurang bersih setelah closing.
+•
+• Pelanggaran Sedang (15 – 25 Poin): Terlambat > 30 menit tanpa konfirmasi, Salah mencatat 
+pesanan/transaksi yang merugikan, Tidak menjalankan prosedur FIFO (bahan baku 
+busuk/kadaluarsa), Pelanggaran standar Food Safety ringan.
+
+•
+• Pelanggaran Berat (35+ Poin): Tidak masuk kerja tanpa keterangan (Alpha), Selisih kasir berulang 
+atau kelalaian berat, Bersikap kasar/tidak sopan kepada pelanggan, Manipulasi data operasional / 
+stock opname.
+B. Tiering Konsekuensi & Ambang Batas Akumulasi Poin
+Akumulasi Poin
+Tindakan Disiplin & Administrasi
+Dampak pada LMS & Karir
+15 Poin
+Teguran Lisan
+Wajib mengulang (Retake) Modul SOP terkait di 
+LMS dalam waktu maksimal 3 hari.
+35 Poin
+Surat Peringatan I (SP 1)
+Pembekuan Hak Promosi (Freeze Promotion) 
+selama 3 Bulan secara otomatis di sistem.
+50 Poin
+Surat Peringatan II (SP 2)
+Wajib mengikuti Remedial & Retraining 
+Program di LMS + Evaluasi Khusus SPV/HR.
+70 Poin
+Surat Peringatan III (SP 3)
+Penangguhan Insentif/Bonus + Pertimbangan 
+Demosi Jabatan.
+85+ Poin
+Evaluasi PHK
+Proses Pemutusan Hubungan Kerja (PHK) 
+sesuai aturan ketenagakerjaan perusahaan.
+C. Mekanisme Pemutihan Poin (Reset / Reduction Period)
+•
+• Masa Berlaku Poin: Poin pelanggaran dihitung secara akumulatif dalam periode rolling 6 bulan.
+•
+• Fitur Clean Record Bonus: Karyawan yang tidak melakukan pelanggaran sama sekali selama 3 
+bulan berturut-turut akan mendapatkan pengurangan 10 poin dari akumulasi berjalan.
+4. Modul Raport Kinerja Semester & Evaluasi KPI
+Setiap semester (Semester I & II), dashboard LMS menerbitkan Raport Kinerja Komprehensif yang 
+memadukan pencapaian operasional (KPI), kelulusan pembelajaran (LMS), dan tingkat kedisiplinan kerja.
+A. Bobot Penilaian Raport Kinerja Semester (Skala Total 100%)
+•
+1. Nilai KPI Operasional (Bobot 50%): Evaluasi pencapaian target kerja harian/bulanan (penjualan, 
+food cost, kebersihan, kepatuhan SOP).
+•
+2. Nilai Pembelajaran LMS (Bobot 30%): Rata-rata nilai kuis teori, penyelesaian modul wajib tepat 
+waktu, dan ujian praktik operasional.
+•
+3. Nilai Kedisiplinan & Sikap Kerja (Bobot 20%): Tingkat kehadiran/absen serta akumulasi poin 
+pelanggaran selama 6 bulan.
+
+B. Kategori Predikat Raport Semester
+Skor Akhir
+Predikat Raport
+Deskripsi Kinerja & Kepatuhan
+90 – 100
+A (Outstanding)
+Kinerja operasional melampaui target, modul LMS selesai 
+100%, 0 poin pelanggaran.
+80 – 89
+B (Good / Exceeds)
+Mencapai target KPI dengan baik, lulus kuis LMS di atas rata-
+rata, poin pelanggaran < 15.
+70 – 79
+C (Meets Standard)
+Kinerja operasional standar, penyelesaian LMS tepat waktu, 
+akumulasi poin pelanggaran 15 – 34.
+60 – 69
+D (Needs Improvement)
+KPI di bawah target atau LMS terlambat, akumulasi poin 
+pelanggaran 35 – 50 (Terkena SP 1 / SP 2).
+< 60
+E (Unsatisfactory)
+Gagal mencapai target operasional, tidak lulus LMS, akumulasi 
+poin > 50 (Terkena SP 2 / SP 3).
+5. Matriks Rekomendasi Reward, Kenaikan Gaji, & Promosi Grade
+Berdasarkan hasil Raport Semester, sistem LMS secara otomatis memberikan Rekomendasi Karir & 
+Adjustments yang objektif bagi manajemen untuk mengesekusi reward insentif, penyesuaian gaji, 
+maupun promosi grade.
+Hasil Raport Semester
+Rekomendasi Reward & Insentif
+Rekomendasi Karir & Status Kerja
+Predikat A
+(2 Semester Beruntun)
+• Kenaikan Gaji Berkala (Penyesuaian 
+Skala Upah)
+• Bonus Insentif Outstanding 
+Performance
+Prioritas Utama Promosi Grade / Jabatan + Opsi 
+Pengangkatan PKWTT (Karyawan Tetap)
+Predikat A / B
+(1 Semester)
+• Bonus Insentif Kinerja Semesteran
+Rekomendasi Promosi Grade (Level Upskilling) + 
+Berhak mengikuti Pre-Promotion Course
+Predikat C
+(Standar)
+• Gaji Standar (Tanpa Kenaikan 
+Berkala)
+• Insentif Normal sesuai KPI
+Perpanjangan Kontrak PKWT Standar (Tanpa 
+Kenaikan Grade)
+Predikat D
+(Dibawah Standar)
+• Penangguhan Bonus Insentif
+Pembekuan Promosi (Freeze Promotion) + Masuk 
+Program PIP (Performance Improvement Plan)
+Predikat E
+(Tidak Memenuhi)
+• Tidak mendapat Bonus Insentif
+Evaluasi Non-Perpanjangan Kontrak PKWT / 
+Pertimbangan Demosi atau PHK
+
+6. Fitur Dashboard LMS & Executive Management View
+•
+1. Personnel Status Widget: Rekapitulasi rasio staf PKWT vs PKWTT beserta notifikasi kontrak 
+mendekati kadaluarsa (H-60 / H-30).
+•
+2. Outlet Training Progress: Visualisasi grafik perbandingan tingkat penyelesaian pelatihan antar-
+outlet secara real-time.
+•
+3. Disciplinary & Violation Feed: Monitoring akumulasi poin pelanggaran bulanan berjalan untuk 
+pencegahan masalah operasional.
+•
+4. Automated SP Generator: Saat poin mencapai 35 Poin, sistem LMS otomatis menerbitkan draf SP 
+1 dan mengunci fitur pengajuan promosi.
+•
+5. Semester Report Card & Reward Engine: Dashboard khusus bagi CEO & HR untuk mengunduh 
+Raport Semester karyawan dan melihat rekomendasi kenaikan gaji/grade berbasis data terintegrasi.
+Disiapkan Oleh:
+Nugra Pratama
+HR Manager PT Warung Mas Mbull
+Disetujui Oleh:
+Muhammad Febrianto
+Chief Executive Officer (CEO)

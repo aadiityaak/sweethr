@@ -84,10 +84,47 @@ class LmsCurriculumMatrixSeeder extends Seeder
             ['SLM001', 'assignment', 'Simulasi Handling Komplain Pelanggan', true, 7],
 
             // === Dapur spesifik — skill masak ===
-            // Mapping tambahan: Staff dapur diwakili OPS & HR di demo, tapi tambahkan ke OPM/HRS sebagai contoh
             ['OPM001', 'material', 'Teknik Dasar Memasak Ayam (Marinasi & Penggorengan)', true, 7],
             ['HRS001', 'material', 'Standar Kebersihan Dapur (Hygiene & Sanitasi)', true, 7],
             ['HRS001', 'quiz', 'Kuis Hygiene & Sanitasi', true, 14],
+
+            // === WARUNG MAS MBULL OUTLET (PDF Matriks Kurikulum) ===
+            // Cleaner — SOP Sanitasi & Checklist Kebersihan
+            ['CLN001', 'material', 'SOP Sanitasi & Kebersihan Outlet', true, 7],
+            ['CLN001', 'material', 'Standar Kebersihan Dapur (Hygiene & Sanitasi)', true, 7],
+            ['CLN001', 'assignment', 'Checklist Kebersihan Harian', true, 7],
+
+            // Pramusaji — Customer Service + Product Knowledge + Complaint Handling
+            ['PRM001', 'material', 'Service Excellence untuk Frontliner', true, 7],
+            ['PRM001', 'material', 'Product Knowledge Menu Ayam Penyet & Paket Sambal', true, 7],
+            ['PRM001', 'quiz', 'Kuis Alur Pelayanan & Greeting Pramusaji', true, 7],
+            ['PRM001', 'quiz', 'Kuis Service Excellence', true, 14],
+            ['PRM001', 'assignment', 'Simulasi Handling Komplain Pelanggan', true, 10],
+
+            // Kasir — SOP Kasir & POS + Audit Harian
+            ['KSR001', 'material', 'SOP Kasir & Sistem POS', true, 7],
+            ['KSR001', 'quiz', 'Ujian Teori POS Kasir', true, 7],
+            ['KSR001', 'assignment', 'Audit Kasir Harian — Rekap Selisih Kas', true, 7],
+
+            // Koki — Standard Recipe + Food Safety + Cooking Test
+            ['KOK001', 'material', 'Standard Recipe — Marinasi & Sambal Level 1-10', true, 7],
+            ['KOK001', 'material', 'Food Safety & Higienitas Outlet', true, 7],
+            ['KOK001', 'material', 'Teknik Dasar Memasak Ayam (Marinasi & Penggorengan)', true, 7],
+            ['KOK001', 'quiz', 'Kuis Food Safety & FIFO Koki', true, 7],
+            ['KOK001', 'quiz', 'Kuis Cooking Test Standar Rasa & Visual', true, 7],
+            ['KOK001', 'assignment', 'Cooking Test — Standar Rasa & Visual', true, 7],
+
+            // Ast SPV — Pengawasan & Stock Opname
+            ['ASP001', 'material', 'Pengawasan Operasional & Briefing Shift', true, 7],
+            ['ASP001', 'material', 'Manajemen Stok & Stock Opname Outlet', true, 7],
+            ['ASP001', 'material', 'Food Safety & Higienitas Outlet', false, 14],
+            ['ASP001', 'assignment', 'Audit Checklist Shift (Ast SPV)', true, 7],
+
+            // SPV Outlet — Manajemen P&L & Food Cost
+            ['SPV001', 'material', 'Manajemen Outlet & Pencapaian Target (P&L)', true, 14],
+            ['SPV001', 'material', 'Food Cost & Waste Control Outlet', true, 14],
+            ['SPV001', 'material', 'Pengawasan Operasional & Briefing Shift', true, 14],
+            ['SPV001', 'assignment', 'Laporan P&L Outlet (SPV)', true, 14],
         ];
 
         $created = 0;

@@ -46,6 +46,35 @@ class LmsAssignmentSeeder extends Seeder
                 'due_days' => 14,
                 'max_score' => 100,
             ],
+            // === Outlet praktikum (PDF Warung Mas Mbull) ===
+            [
+                'title' => 'Audit Kasir Harian — Rekap Selisih Kas',
+                'description' => 'Praktikum audit kas harian untuk posisi Kasir.',
+                'instructions' => '<p>Rekap transaksi POS 1 shift, hitung selisih kas, dan jelaskan tindak lanjut jika selisih &gt;0.</p>',
+                'due_days' => 7,
+                'max_score' => 100,
+            ],
+            [
+                'title' => 'Cooking Test — Standar Rasa & Visual',
+                'description' => 'Praktikum memasak ayam penyet sesuai standard recipe.',
+                'instructions' => '<p>Foto hasil masakan + checklist rasa, kematangan, dan plating. Dinilai SPV/Koki senior.</p>',
+                'due_days' => 7,
+                'max_score' => 100,
+            ],
+            [
+                'title' => 'Audit Checklist Shift (Ast SPV)',
+                'description' => 'Checklist pengawasan operasional 1 shift untuk Ast SPV.',
+                'instructions' => '<p>Susun checklist briefing, kebersihan, stok, dan closing. Upload laporan shift.</p>',
+                'due_days' => 7,
+                'max_score' => 100,
+            ],
+            [
+                'title' => 'Laporan P&L Outlet (SPV)',
+                'description' => 'Laporan pencapaian target & P&L mingguan outlet untuk SPV.',
+                'instructions' => '<p>Hitung food cost, waste, dan pencapaian target. Lampirkan file rekap.</p>',
+                'due_days' => 14,
+                'max_score' => 100,
+            ],
         ];
 
         foreach ($items as $index => $item) {

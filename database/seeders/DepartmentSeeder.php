@@ -46,6 +46,13 @@ class DepartmentSeeder extends Seeder
                 'description' => 'Manages customer relationships and revenue generation',
                 'is_active' => true,
             ],
+            // Operasional Outlet — PT Warung Mas Mbull (PDF)
+            [
+                'name' => 'Operasional Outlet',
+                'code' => 'OUTLET',
+                'description' => 'Operasional harian outlet Warung Mas Mbull — Cleaner, Pramusaji, Kasir, Koki, Ast SPV, SPV Outlet',
+                'is_active' => true,
+            ],
         ];
 
         foreach ($departments as $department) {

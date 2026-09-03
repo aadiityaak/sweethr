@@ -6,6 +6,8 @@ use App\Models\Attendance;
 use App\Models\DisciplinaryAction;
 use App\Models\DisciplinaryViolation;
 use App\Models\EmployeeViolation;
+use App\Models\LmsAssignment;
+use App\Models\LmsCategory;
 use App\Models\User;
 use Illuminate\Support\Facades\DB;
 use Illuminate\Validation\ValidationException;
@@ -141,6 +143,7 @@ class DisciplinaryPointService
 
     /**
      * Terbitkan aksi (draf — HR konfirmasi via confirm()).
+     * PDF p.3: 15 poin Teguran Lisan → wajib retake modul SOP dalam 3 hari.
      */
     public function issueAction(User $user, string $actionType, int $triggeredPoints, ?string $notes = null): DisciplinaryAction
     {
@@ -166,7 +169,44 @@ class DisciplinaryPointService
             $data['suspend_incentive'] = true;
         }
 
-        return DisciplinaryAction::create($data);
+        $action = DisciplinaryAction::create($data);
+
+        if ($actionType === DisciplinaryAction::TYPE_TEGURAN_LISAN) {
+            $this->ensureRetakeAssignment($user, $action);
+        }
+
+        return $action;
+    }
+
+    /**
+     * Auto-retake SOP 3 hari untuk Teguran Lisan 15 poin.
+     * Idempoten per action — cek title mengandung [Action #id].
+     */
+    private function ensureRetakeAssignment(User $user, DisciplinaryAction $action): void
+    {
+        $due = now()->addDays(3);
+        $tag = "[Action #{$action->id}]";
+
+        $exists = LmsAssignment::where('title', 'like', "%{$tag}%")->exists();
+        if ($exists) {
+            return;
+        }
+
+        $category = LmsCategory::firstOrCreate(
+            ['name' => 'Program Remedial — Retake SOP Teguran', 'parent_id' => null],
+            ['is_active' => true, 'visible_roles' => null]
+        );
+
+        LmsAssignment::create([
+            'lms_category_id' => $category->id,
+            'title' => "Retake SOP — Teguran Lisan (15 Poin) — {$user->name} {$tag}",
+            'description' => "Tugas remedial otomatis: akumulasi {$action->triggered_points} poin (Teguran Lisan) untuk {$user->name}. Wajib menyelesaikan retake modul SOP terkait paling lambat 3 hari.",
+            'instructions' => "Selesaikan retake modul SOP yang ditugaskan. Batas waktu: {$due->format('d M Y H:i')} (3 hari sejak {$action->issued_at->format('d M Y')}). Keterlambatan akan dicatat dan dapat memicu eskalasi SP. {$tag}",
+            'due_at' => $due,
+            'max_score' => 100,
+            'max_attempts' => 1,
+            'is_active' => true,
+        ]);
     }
 
     /**
