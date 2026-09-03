@@ -66,13 +66,15 @@ class EmploymentContractController extends Controller
         $sequence = EmploymentContract::where('user_id', $validated['user_id'])->count() + 1;
         $prefix = $validated['type'] === 'pkwtt' ? 'PKWTT' : 'PKWT';
 
-        EmploymentContract::create([
+        $contract = EmploymentContract::create([
             ...$validated,
             'end_date' => $validated['type'] === 'pkwtt' ? null : $validated['end_date'],
             'contract_number' => sprintf('%s/%s/%03d', $prefix, now()->format('Ym'), $sequence),
             'status' => EmploymentContract::STATUS_ACTIVE,
             'created_by' => auth()->id(),
         ]);
+
+        $this->syncContractToUser($contract);
 
         return redirect()->route('admin.contracts.index')
             ->with('success', 'Kontrak berhasil dibuat.');
@@ -102,6 +104,9 @@ class EmploymentContractController extends Controller
         $validated['end_date'] = $validated['type'] === 'pkwtt' ? null : ($validated['end_date'] ?? null);
 
         $contract->update($validated);
+        if ($contract->status === EmploymentContract::STATUS_ACTIVE) {
+            $this->syncContractToUser($contract->fresh());
+        }
 
         return redirect()->route('admin.contracts.index')
             ->with('success', 'Kontrak berhasil diperbarui.');
@@ -119,7 +124,6 @@ class EmploymentContractController extends Controller
     {
         return Inertia::render('admin/Contracts/Alerts', [
             'alerts' => $this->alertService->getAlerts(),
-            'employeeAlerts' => $this->alertService->getUserContractAlerts(),
             'stats' => $this->alertService->getStats(),
         ]);
     }
@@ -131,7 +135,8 @@ class EmploymentContractController extends Controller
             'salary_grade' => ['nullable', 'string', 'max:50'],
         ]);
 
-        $this->alertService->renewContract($contract, $validated['new_end_date'], $validated['salary_grade'] ?? null);
+        $newContract = $this->alertService->renewContract($contract, $validated['new_end_date'], $validated['salary_grade'] ?? null);
+        $this->syncContractToUser($newContract->fresh());
 
         return redirect()->route('admin.contracts.index')
             ->with('success', 'Kontrak berhasil diperpanjang.');
@@ -140,8 +145,37 @@ class EmploymentContractController extends Controller
     public function convertToPkwtt(EmploymentContract $contract)
     {
         $newContract = $this->alertService->convertToPkwtt($contract);
+        $this->syncContractToUser($newContract->fresh());
 
         return redirect()->route('admin.contracts.index')
             ->with('success', 'Karyawan diangkat menjadi PKWTT (' . $newContract->contract_number . ').');
+    }
+
+    /**
+     * Mirror employment_contracts → users agar /employees/{id}/edit & /employees sinkron
+     * dengan /admin/contracts (satu sumber — edit di mana saja saling update).
+     */
+    private function syncContractToUser(EmploymentContract $contract): void
+    {
+        $user = User::find($contract->user_id);
+        if (! $user) {
+            return;
+        }
+
+        // Hanya sinkronkan bila kontrak yang di-sync adalah yang aktif terbaru
+        $latestActive = EmploymentContract::query()
+            ->where('user_id', $contract->user_id)
+            ->where('status', EmploymentContract::STATUS_ACTIVE)
+            ->orderByDesc('id')
+            ->first();
+
+        if (! $latestActive || $latestActive->id !== $contract->id) {
+            return;
+        }
+
+        $user->update([
+            'contract_type' => $contract->type,
+            'contract_end_date' => $contract->type === EmploymentContract::TYPE_PKWTT ? null : $contract->end_date,
+        ]);
     }
 }

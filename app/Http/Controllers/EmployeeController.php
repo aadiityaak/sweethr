@@ -3,6 +3,7 @@
 namespace App\Http\Controllers;
 
 use App\Models\Department;
+use App\Models\EmploymentContract;
 use App\Models\Position;
 use App\Models\User;
 use Illuminate\Http\Request;
@@ -156,7 +157,9 @@ class EmployeeController extends Controller
         $validated['contract_type'] = $validated['contract_type'] ?? 'pkwt';
         $validated['contract_end_date'] = $validated['contract_type'] === 'pkwtt' ? null : ($validated['contract_end_date'] ?? null);
 
-        User::create($validated);
+        $user = User::create($validated);
+
+        $this->syncUserContract($user);
 
         return to_route('employees.index')
             ->with('success', 'Karyawan berhasil ditambahkan ke sistem.');
@@ -212,6 +215,8 @@ class EmployeeController extends Controller
         $validated['contract_end_date'] = $validated['contract_type'] === 'pkwtt' ? null : ($validated['contract_end_date'] ?? $employee->contract_end_date);
 
         $employee->update($validated);
+        $employee->refresh();
+        $this->syncUserContract($employee);
 
         return to_route('employees.index')
             ->with('success', 'Data karyawan berhasil diperbarui.');
@@ -320,5 +325,74 @@ class EmployeeController extends Controller
 
         return to_route('employees.index')
             ->with('success', 'Karyawan berhasil dihapus dari sistem.');
+    }
+
+    /**
+     * Mirror users.contract_type / contract_end_date ke tabel employment_contracts
+     * agar /admin/contracts & /admin/contracts/alerts jadi 1 sumber dengan /employees/{id}/edit.
+     */
+    private function syncUserContract(User $user): void
+    {
+        $active = EmploymentContract::query()
+            ->where('user_id', $user->id)
+            ->where('status', EmploymentContract::STATUS_ACTIVE)
+            ->orderByDesc('id')
+            ->first();
+
+        // PKWTT: tanpa tanggal akhir — akhiri kontrak aktif PKWT jika ada lalu buat PKWTT bila belum ada
+        if ($user->contract_type === 'pkwtt') {
+            if ($active && $active->type === EmploymentContract::TYPE_PKWT) {
+                // Jangan ubah end_date; tutup dengan renewed agar jejak tetap, lalu buat PKWTT
+                $active->update(['status' => EmploymentContract::STATUS_RENEWED]);
+                $active = null;
+            }
+            if (! $active || $active->type !== EmploymentContract::TYPE_PKWTT) {
+                $sequence = EmploymentContract::where('user_id', $user->id)->count() + 1;
+                EmploymentContract::create([
+                    'user_id' => $user->id,
+                    'contract_number' => sprintf('PKWTT/%s/%03d', now()->format('Ym'), $sequence),
+                    'type' => EmploymentContract::TYPE_PKWTT,
+                    'start_date' => $user->hire_date?->toDateString() ?? now()->toDateString(),
+                    'end_date' => null,
+                    'status' => EmploymentContract::STATUS_ACTIVE,
+                    'created_by' => auth()->id(),
+                    'notes' => 'Sinkron otomatis dari Data Karyawan (PKWTT)',
+                ]);
+            }
+            return;
+        }
+
+        // PKWT: harus ada tanggal akhir
+        if (! $user->contract_end_date) {
+            return;
+        }
+
+        $endDate = $user->contract_end_date->toDateString();
+        $startDate = $user->hire_date?->toDateString() ?? now()->toDateString();
+
+        if ($active && $active->type === EmploymentContract::TYPE_PKWT) {
+            $active->update([
+                'end_date' => $endDate,
+                'start_date' => $startDate,
+            ]);
+            return;
+        }
+
+        if ($active && $active->type === EmploymentContract::TYPE_PKWTT) {
+            // Ganti PKWTT → PKWT: tutup PKWTT lalu buat PKWT baru
+            $active->update(['status' => EmploymentContract::STATUS_RENEWED]);
+        }
+
+        $sequence = EmploymentContract::where('user_id', $user->id)->count() + 1;
+        EmploymentContract::create([
+            'user_id' => $user->id,
+            'contract_number' => sprintf('PKWT/%s/%03d', now()->format('Ym'), $sequence),
+            'type' => EmploymentContract::TYPE_PKWT,
+            'start_date' => $startDate,
+            'end_date' => $endDate,
+            'status' => EmploymentContract::STATUS_ACTIVE,
+            'created_by' => auth()->id(),
+            'notes' => 'Sinkron otomatis dari Data Karyawan (PKWT)',
+        ]);
     }
 }

@@ -23,7 +23,8 @@ class ContractAlertService
     }
 
     /**
-     * Alert terpisah per level (warning H-60, critical H-30, expired) — modul Kontrak.
+     * Alert terpadu — satu sumber: employment_contracts adalah truth untuk Masa Akhir PKWT.
+     * users.contract_end_date disinkronkan otomatis dari/k ke employment_contracts (2 arah).
      */
     public function getAlerts(): array
     {
@@ -57,7 +58,7 @@ class ContractAlertService
     }
 
     /**
-     * Alert PKWT dari data karyawan (users.contract_end_date) — untuk /employees & /admin/contracts/alerts.
+     * @deprecated Dipakai internal saja — getAlerts() sudah sinkron dengan users.
      */
     public function getUserContractAlerts(): array
     {
