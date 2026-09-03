@@ -2,6 +2,7 @@
 import AppLayout from '@/layouts/AppLayout.vue';
 import { Head, router, useForm } from '@inertiajs/vue3';
 import { computed, ref, watch } from 'vue';
+import Chart from '@/components/ui/Chart.vue';
 import { debounce } from 'lodash';
 import { BarChart3, Filter, Plus, Search, Trash2, X } from 'lucide-vue-next';
 import type { BreadcrumbItem } from '@/types';

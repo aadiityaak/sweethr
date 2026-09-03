@@ -60,6 +60,7 @@ class DatabaseSeeder extends Seeder
             EmployeeDocumentSeeder::class,
             ShiftSwapSeeder::class,
             PayrollSeeder::class,
+            EmployeeViolationSeeder::class,
         ]);
     }
 }
