@@ -6,6 +6,7 @@ use App\Http\Controllers\Controller;
 use App\Models\SemesterReport;
 use App\Models\User;
 use App\Services\SemesterReportService;
+use Barryvdh\DomPDF\Facade\Pdf;
 use Illuminate\Http\Request;
 use Inertia\Inertia;
 
@@ -102,5 +103,40 @@ class SemesterReportController extends Controller
             ]);
 
         return redirect()->back()->with('success', $count . ' raport diterbitkan sekaligus.');
+    }
+
+    public function downloadPdf(SemesterReport $semester_report)
+    {
+        $semester_report->load(['user.position', 'user.department', 'generator:id,name']);
+        $rec = $semester_report->recommendation ?? [];
+        $semesterLabel = $semester_report->semester === '1' ? 'Semester I (Jan–Jun)' : 'Semester II (Jul–Des)';
+        $gradeLabel = SemesterReport::gradeLabel($semester_report->grade);
+        $safeName = str_replace([' ', '/'], '-', $semester_report->user->name ?? 'raport');
+
+        return Pdf::loadView('pdf.semester-report', [
+            'report' => $semester_report,
+            'rec' => $rec,
+            'semesterLabel' => $semesterLabel,
+            'gradeLabel' => $gradeLabel,
+        ])->setPaper('a4', 'portrait')->download("Raport-{$safeName}-{$semester_report->year}-S{$semester_report->semester}.pdf");
+    }
+
+    public function execute(SemesterReport $semester_report)
+    {
+        $result = $this->reportService->executeRecommendation($semester_report, auth()->user());
+
+        if (! empty($result['already_executed'])) {
+            return redirect()->back()->with('success', $result['message']);
+        }
+
+        if (! empty($result['skipped']) && ! empty($result['blocked_by_freeze'])) {
+            return redirect()->back()->with('success', $result['message']);
+        }
+
+        if (! empty($result['skipped'])) {
+            return redirect()->back()->with('success', $result['message']);
+        }
+
+        return redirect()->back()->with('success', $result['message']);
     }
 }

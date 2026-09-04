@@ -2,9 +2,13 @@
 
 namespace App\Services;
 
+use App\Models\EmploymentContract;
 use App\Models\EmployeeViolation;
+use App\Models\LmsAssignment;
+use App\Models\LmsCategory;
 use App\Models\LmsPerformanceAppraisal;
 use App\Models\LmsQuizAttempt;
+use App\Models\SalarySetting;
 use App\Models\SemesterReport;
 use App\Models\User;
 
@@ -13,6 +17,7 @@ class SemesterReportService
     public function __construct(
         private RewardRecommendationService $rewardService,
         private DisciplinaryPointService $disciplinaryService,
+        private ContractAlertService $contractService,
     ) {}
 
     /**
@@ -60,6 +65,8 @@ class SemesterReportService
         $recommendation = $this->rewardService->buildRecommendation($user, $report, $year, $semester);
 
         $report->update(['recommendation' => $recommendation]);
+
+        $this->ensurePipOrPrePromotionAssignment($user, $report);
 
         return $report->fresh();
     }
@@ -245,6 +252,186 @@ class SemesterReportService
         }
 
         return (int) round(($presentDays / $scheduledDays) * 100);
+    }
+
+    /**
+     * Auto-assign modul PIP (grade D) atau Pre-Promotion (grade A/B).
+     * Idempoten per raport — cek title mengandung [Report #id].
+     */
+    private function ensurePipOrPrePromotionAssignment(User $user, SemesterReport $report): void
+    {
+        $tag = "[Report #{$report->id}]";
+
+        if ($report->grade === SemesterReport::GRADE_D) {
+            if (LmsAssignment::where('title', 'like', "%{$tag} PIP%")->exists()) {
+                return;
+            }
+            $category = LmsCategory::firstOrCreate(
+                ['name' => 'Program PIP', 'parent_id' => null],
+                ['is_active' => true, 'visible_roles' => null]
+            );
+            LmsAssignment::create([
+                'lms_category_id' => $category->id,
+                'title' => "Rencana PIP 30 Hari — {$user->name} {$tag} PIP",
+                'description' => "PIP otomatis: predikat D pada {$report->year} S{$report->semester} untuk {$user->name}. Wajib perbaikan 30 hari + coaching mingguan.",
+                'instructions' => "Selesaikan target mingguan bersama atasan. Batas 30 hari sejak raport diterbitkan. {$tag} PIP",
+                'due_at' => now()->addDays(30),
+                'max_score' => 100,
+                'max_attempts' => 3,
+                'is_active' => true,
+            ]);
+            return;
+        }
+
+        if (in_array($report->grade, [SemesterReport::GRADE_A, SemesterReport::GRADE_B], true)) {
+            // hormati freeze — tetap buat tugas tapi beri catatan diblokir di title/instruksi? skip bila dibekukan
+            $rec = $report->recommendation ?? [];
+            if (! empty($rec['blocked_by_freeze']) || ! empty($rec['promotion_frozen'])) {
+                return;
+            }
+            if (LmsAssignment::where('title', 'like', "%{$tag} PRE%")->exists()) {
+                return;
+            }
+            $category = LmsCategory::firstOrCreate(
+                ['name' => 'Pre-Promotion Course', 'parent_id' => null],
+                ['is_active' => true, 'visible_roles' => null]
+            );
+            LmsAssignment::create([
+                'lms_category_id' => $category->id,
+                'title' => "Pre-Promotion Course — {$user->name} {$tag} PRE",
+                'description' => "Pre-Promotion otomatis: predikat {$report->grade} pada {$report->year} S{$report->semester} untuk {$user->name}. Persiapan naik grade/jabatan.",
+                'instructions' => "Pelajari leadership & SOP level atas, selesaikan studi kasus outlet. Batas 21 hari. {$tag} PRE",
+                'due_at' => now()->addDays(21),
+                'max_score' => 100,
+                'max_attempts' => 2,
+                'is_active' => true,
+            ]);
+        }
+    }
+
+    /**
+     * Eksekusi rekomendasi gaji & PKWTT dari raport. Hormati freeze promotion (SP1 aktif).
+     * - salary_raise (A2, 2x A): +10% base_salary via SalarySetting baru efektif bulan depan
+     * - pkwtt_eligible (A2): konversi PKWT aktif → PKWTT via ContractAlertService
+     * Idempoten — cek recommendation.executed_at, skip bila sudah dieksekusi.
+     *
+     * @return array{skipped:bool, already_executed:bool, salary_raise_applied:bool, pkwtt_converted:bool, message:string, blocked_by_freeze:bool}
+     */
+    public function executeRecommendation(SemesterReport $report, ?User $executor = null): array
+    {
+        $report->loadMissing(['user.position', 'user.department']);
+        $user = $report->user;
+        $rec = $report->recommendation ?? [];
+
+        if (! empty($rec['executed_at'])) {
+            return [
+                'skipped' => true,
+                'already_executed' => true,
+                'salary_raise_applied' => false,
+                'pkwtt_converted' => false,
+                'blocked_by_freeze' => false,
+                'message' => 'Rekomendasi sudah dieksekusi pada ' . $rec['executed_at'] . '.',
+            ];
+        }
+
+        $isFrozen = ! empty($rec['blocked_by_freeze']) || ! empty($rec['promotion_frozen']);
+        // Double-check live freeze (SP1 bisa muncul setelah generate)
+        if (! $isFrozen && \App\Models\DisciplinaryAction::isPromotionFrozen($user->id)) {
+            $isFrozen = true;
+        }
+
+        $salaryRaise = ! empty($rec['salary_raise']) && ! $isFrozen;
+        $pkwttEligible = ! empty($rec['pkwtt_eligible']) && ! $isFrozen;
+
+        if (! $salaryRaise && ! $pkwttEligible) {
+            $reason = $isFrozen
+                ? 'Diblokir freeze promotion (SP 1 aktif) — tidak ada aksi gaji/PKWTT yang dieksekusi.'
+                : 'Tidak ada rekomendasi gaji/PKWTT untuk predikat ' . $report->grade . '.';
+            // tetap tandai executed agar tidak spam klik
+            $rec['executed_at'] = now()->toIsoString();
+            $rec['executed_by'] = $executor?->id ?? auth()->id();
+            $rec['execution_result'] = ['skipped' => true, 'reason' => $reason];
+            $report->update(['recommendation' => $rec]);
+
+            return [
+                'skipped' => true,
+                'already_executed' => false,
+                'salary_raise_applied' => false,
+                'pkwtt_converted' => false,
+                'blocked_by_freeze' => $isFrozen,
+                'message' => $reason,
+            ];
+        }
+
+        $salaryApplied = false;
+        $pkwttConverted = false;
+
+        \Illuminate\Support\Facades\DB::transaction(function () use ($user, $report, &$rec, $executor, $salaryRaise, $pkwttEligible, &$salaryApplied, &$pkwttConverted) {
+            if ($salaryRaise) {
+                $current = SalarySetting::forUser($user->id)->active()->first();
+                $base = $current ? (float) $current->base_salary : (float) ($user->position?->base_salary ?? 0);
+                if ($base <= 0) {
+                    $base = 5000000; // fallback bila belum ada setting & posisi tanpa base
+                }
+                $newBase = round($base * 1.10, 2); // +10%
+                $effectiveDate = now()->addMonth()->startOfMonth()->toDateString();
+
+                if ($current) {
+                    SalarySetting::where('user_id', $user->id)->where('is_active', true)->update(['is_active' => false]);
+                }
+
+                SalarySetting::create([
+                    'user_id' => $user->id,
+                    'base_salary' => $newBase,
+                    'allowances' => $current?->allowances ?? [],
+                    'overtime_rate' => $current?->overtime_rate ?? 1.5,
+                    'effective_date' => $effectiveDate,
+                    'is_active' => true,
+                ]);
+                $salaryApplied = true;
+            }
+
+            if ($pkwttEligible) {
+                $contract = EmploymentContract::query()
+                    ->where('user_id', $user->id)
+                    ->where('status', EmploymentContract::STATUS_ACTIVE)
+                    ->where('type', EmploymentContract::TYPE_PKWT)
+                    ->orderByDesc('id')
+                    ->first();
+
+                if ($contract) {
+                    $this->contractService->convertToPkwtt($contract, $executor ?? auth()->user());
+                    // sinkron users agar /employees/{id}/edit ikut berubah
+                    $user->update([
+                        'contract_type' => EmploymentContract::TYPE_PKWTT,
+                        'contract_end_date' => null,
+                    ]);
+                    $pkwttConverted = true;
+                }
+            }
+
+            $rec['executed_at'] = now()->toIsoString();
+            $rec['executed_by'] = $executor?->id ?? auth()->id();
+            $rec['execution_result'] = [
+                'salary_raise_applied' => $salaryApplied,
+                'pkwtt_converted' => $pkwttConverted,
+            ];
+            $report->update(['recommendation' => $rec]);
+        });
+
+        $parts = [];
+        if ($salaryApplied) $parts[] = 'Kenaikan gaji +10% (efektif bulan depan)';
+        if ($pkwttConverted) $parts[] = 'Konversi PKWT → PKWTT';
+        $msg = $parts ? implode(' + ', $parts) . ' berhasil dieksekusi.' : 'Tidak ada aksi yang dieksekusi.';
+
+        return [
+            'skipped' => false,
+            'already_executed' => false,
+            'salary_raise_applied' => $salaryApplied,
+            'pkwtt_converted' => $pkwttConverted,
+            'blocked_by_freeze' => $isFrozen,
+            'message' => $msg,
+        ];
     }
 
     /**

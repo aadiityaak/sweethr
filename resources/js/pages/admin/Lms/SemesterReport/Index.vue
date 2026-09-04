@@ -2,7 +2,7 @@
 import AppLayout from '@/layouts/AppLayout.vue';
 import { Head, router, useForm } from '@inertiajs/vue3';
 import { ref } from 'vue';
-import { Eye, FileSpreadsheet, Send, X } from 'lucide-vue-next';
+import { Download, Eye, FileSpreadsheet, Send, X } from 'lucide-vue-next';
 import type { BreadcrumbItem } from '@/types';
 
 interface Report {
@@ -162,6 +162,10 @@ const gradeSummary = ['A', 'B', 'C', 'D', 'E'].map(g => ({ grade: g, total: prop
                                         class="rounded p-1.5 text-blue-600 hover:bg-blue-50" title="Lihat detail">
                                         <Eye class="h-4 w-4" />
                                     </button>
+                                    <a :href="`/admin/semester-reports/${report.id}/pdf`"
+                                        class="rounded p-1.5 text-gray-600 hover:bg-gray-50 inline-flex" title="Download PDF">
+                                        <Download class="h-4 w-4" />
+                                    </a>
                                     <button v-if="report.status === 'draft'" @click="publish(report)"
                                         class="rounded p-1.5 text-green-600 hover:bg-green-50" title="Terbitkan">
                                         <Send class="h-4 w-4" />

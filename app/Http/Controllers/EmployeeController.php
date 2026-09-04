@@ -3,6 +3,7 @@
 namespace App\Http\Controllers;
 
 use App\Models\Department;
+use App\Models\DisciplinaryAction;
 use App\Models\EmploymentContract;
 use App\Models\Position;
 use App\Models\User;
@@ -177,10 +178,20 @@ class EmployeeController extends Controller
         $departments = Department::orderBy('name')->get(['id', 'name']);
         $positions = Position::orderBy('title')->get(['id', 'title', 'level', 'department_id']);
 
+        $frozenAction = DisciplinaryAction::forUser($freshEmployee->id)
+            ->active()
+            ->where('action_type', DisciplinaryAction::TYPE_SP1)
+            ->where('freeze_until', '>=', now()->toDateString())
+            ->orderByDesc('freeze_until')
+            ->first();
+
         return Inertia::render('admin/Employees/Edit', [
             'employee' => $freshEmployee,
             'departments' => $departments,
             'positions' => $positions,
+            'managers' => User::orderBy('name')->get(['id', 'name', 'employee_id']),
+            'isPromotionFrozen' => $frozenAction !== null,
+            'freezeUntil' => $frozenAction?->freeze_until?->toDateString(),
         ]);
     }
 
@@ -201,6 +212,12 @@ class EmployeeController extends Controller
             'contract_type' => 'nullable|in:pkwt,pkwtt',
             'contract_end_date' => 'nullable|date|after:hire_date|required_if:contract_type,pkwt',
         ]);
+
+        if ((int) ($validated['position_id'] ?? 0) !== (int) ($employee->position_id ?? 0)
+            && filled($validated['position_id'] ?? null)
+            && DisciplinaryAction::isPromotionFrozen($employee->id)) {
+            return back()->with('error', 'Promosi diblokir: pembekuan promosi aktif (SP 1) sampai ' . DisciplinaryAction::forUser($employee->id)->active()->where('action_type', DisciplinaryAction::TYPE_SP1)->value('freeze_until') . '.');
+        }
 
         if ($request->filled('password')) {
             $validated['password'] = bcrypt($validated['password']);

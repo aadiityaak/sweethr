@@ -244,13 +244,19 @@
                                         <p class="text-xs text-muted-foreground">Tanggal pasti pengakhiran PKWT. Sistem otomatis trigger alert H-60 (peringatan) & H-30 (kritis) untuk evaluasi perpanjangan/pengangkatan PKWTT.</p>
                                     </div>
 
+                                    <div v-if="isPromotionFrozen" class="flex items-center gap-2 rounded-md border border-red-200 bg-red-50 px-3 py-2 text-sm text-red-700 dark:border-red-900 dark:bg-red-950/30 dark:text-red-300">
+                                        <Ban class="h-4 w-4 shrink-0" />
+                                        <span>Rekomendasi promosi diblokir: pembekuan promosi aktif (SP 1) sampai {{ freezeUntil ? new Date(freezeUntil).toLocaleDateString('id-ID', { day: 'numeric', month: 'long', year: 'numeric' }) : '—' }}. Pergantian jabatan diblokir.</span>
+                                    </div>
+
                                     <div class="grid gap-6 md:grid-cols-2">
                                         <div class="space-y-2">
                                             <Label for="department_id">Departemen</Label>
                                             <select
                                                 id="department_id"
                                                 v-model="form.department_id"
-                                                class="w-full rounded-md border border-input bg-background px-3 py-2 text-sm"
+                                                class="w-full rounded-md border border-input bg-background px-3 py-2 text-sm disabled:cursor-not-allowed disabled:opacity-60"
+                                                :disabled="isPromotionFrozen"
                                             >
                                                 <option value="">Pilih departemen</option>
                                                 <option v-for="dept in departments" :key="dept.id" :value="dept.id">
@@ -266,7 +272,8 @@
                                             <select
                                                 id="position_id"
                                                 v-model="form.position_id"
-                                                class="w-full rounded-md border border-input bg-background px-3 py-2 text-sm"
+                                                class="w-full rounded-md border border-input bg-background px-3 py-2 text-sm disabled:cursor-not-allowed disabled:opacity-60"
+                                                :disabled="isPromotionFrozen"
                                             >
                                                 <option value="">Pilih posisi (opsional)</option>
                                                 <option v-for="pos in filteredPositions" :key="pos.id" :value="pos.id">
@@ -276,6 +283,7 @@
                                             <p v-if="form.errors.position_id" class="mt-1 text-sm text-red-600">
                                                 {{ form.errors.position_id }}
                                             </p>
+                                            <p v-if="isPromotionFrozen" class="text-xs text-red-600">Perubahan jabatan diblokir selama freeze SP 1.</p>
                                         </div>
                                     </div>
 
@@ -535,7 +543,7 @@ import AppLayout from '@/layouts/AppLayout.vue';
 import { type BreadcrumbItem } from '@/types';
 import { Head, Link, router, useForm } from '@inertiajs/vue3';
 import { useDebounceFn } from '@vueuse/core';
-import { ArrowLeft } from 'lucide-vue-next';
+import { ArrowLeft, Ban } from 'lucide-vue-next';
 import { computed, onMounted, ref, watch } from 'vue';
 
 interface Employee {
@@ -590,6 +598,8 @@ interface Props {
     departments: Department[];
     positions: Position[];
     managers: Manager[];
+    isPromotionFrozen?: boolean;
+    freezeUntil?: string | null;
 }
 
 const props = defineProps<Props>();
@@ -850,6 +860,16 @@ const submit = () => {
             description: 'Proses validasi ID karyawan masih berlangsung.',
             variant: 'warning',
             duration: 3000,
+        });
+        return;
+    }
+
+    if (props.isPromotionFrozen && String(form.position_id ?? '') !== String(props.employee.position_id ?? '')) {
+        toast({
+            title: 'Promosi Diblokir',
+            description: `Pembekuan promosi aktif (SP 1) sampai ${props.freezeUntil ? new Date(props.freezeUntil).toLocaleDateString('id-ID', { day: 'numeric', month: 'long', year: 'numeric' }) : '—'}. Pergantian jabatan diblokir.`,
+            variant: 'destructive',
+            duration: 5000,
         });
         return;
     }

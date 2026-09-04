@@ -199,6 +199,10 @@ Route::middleware(['auth', 'verified', 'admin'])->group(function () {
         ->name('admin.semester-reports.publish');
     Route::post('admin/semester-reports/bulk-publish', [App\Http\Controllers\Admin\SemesterReportController::class, 'bulkPublish'])
         ->name('admin.semester-reports.bulk-publish');
+    Route::get('admin/semester-reports/{semester_report}/pdf', [App\Http\Controllers\Admin\SemesterReportController::class, 'downloadPdf'])
+        ->name('admin.semester-reports.pdf');
+    Route::post('admin/semester-reports/{semester_report}/execute', [App\Http\Controllers\Admin\SemesterReportController::class, 'execute'])
+        ->name('admin.semester-reports.execute');
     Route::resource('admin/semester-reports', App\Http\Controllers\Admin\SemesterReportController::class, [
         'names' => [
             'index' => 'admin.semester-reports.index',

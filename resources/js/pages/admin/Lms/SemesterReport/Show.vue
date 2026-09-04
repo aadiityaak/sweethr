@@ -2,7 +2,7 @@
 import AppLayout from '@/layouts/AppLayout.vue';
 import { Head, Link, router } from '@inertiajs/vue3';
 import { computed } from 'vue';
-import { AlertTriangle, Award, Ban, BookOpen, CheckCircle2, ClipboardList, GraduationCap, Send, ShieldCheck, TrendingUp } from 'lucide-vue-next';
+import { AlertTriangle, Award, Ban, BookOpen, CheckCircle2, ClipboardList, Download, GraduationCap, Send, ShieldCheck, TrendingUp, Zap } from 'lucide-vue-next';
 import type { BreadcrumbItem } from '@/types';
 
 interface Recommendation {
@@ -20,6 +20,9 @@ interface Recommendation {
     consecutive_a?: boolean;
     promotion_frozen?: boolean;
     blocked_by_freeze?: boolean;
+    executed_at?: string | null;
+    executed_by?: number | null;
+    execution_result?: Record<string, unknown> | null;
 }
 
 interface Report {
@@ -96,6 +99,25 @@ const publish = () => {
 
 const formatDate = (d: string | null) =>
     d ? new Date(d).toLocaleDateString('id-ID', { day: 'numeric', month: 'long', year: 'numeric' }) : '-';
+
+const isExecuted = computed(() => !!props.report.recommendation?.executed_at);
+const canExecute = computed(() => {
+    const r = props.report.recommendation;
+    if (!r) return false;
+    if (r.executed_at) return false;
+    // tetap izinkan klik agar BE bisa kembalikan pesan blocked (freeze) yang friendly
+    return !!(r.salary_raise || r.pkwtt_eligible) || !!(r.blocked_by_freeze || r.promotion_frozen);
+});
+const executeRecommendation = () => {
+    if (!canExecute.value && !props.report.recommendation?.blocked_by_freeze) return;
+    const r = props.report.recommendation;
+    const label = r?.salary_raise && r?.pkwtt_eligible
+        ? 'kenaikan gaji +10% & konversi PKWT→PKWTT'
+        : r?.salary_raise ? 'kenaikan gaji +10%' : r?.pkwtt_eligible ? 'konversi PKWT→PKWTT' : 'rekomendasi (akan ditandai selesai)';
+    if (confirm(`Eksekusi ${label} untuk ${props.report.user?.name ?? 'karyawan ini'}? ${r?.blocked_by_freeze ? 'SP1 aktif — aksi gaji/PKWTT akan diblokir.' : ''}`.trim())) {
+        router.post(`/admin/semester-reports/${props.report.id}/execute`, {}, { preserveScroll: true });
+    }
+};
 </script>
 
 <template>
@@ -108,7 +130,7 @@ const formatDate = (d: string | null) =>
                     <h1 class="text-2xl font-bold text-gray-900">Raport Kinerja Semester</h1>
                     <p class="mt-1 text-sm text-gray-500">{{ periodLabel }}</p>
                 </div>
-                <div class="flex items-center gap-2">
+                <div class="flex items-center gap-2 flex-wrap">
                     <span v-if="report.status === 'published'"
                         class="inline-flex items-center gap-1 rounded-full bg-green-100 px-3 py-1 text-xs font-medium text-green-800">
                         <CheckCircle2 class="h-3.5 w-3.5" /> Terbit
@@ -116,6 +138,15 @@ const formatDate = (d: string | null) =>
                     <span v-else class="inline-flex items-center gap-1 rounded-full bg-gray-100 px-3 py-1 text-xs font-medium text-gray-600">
                         Draft
                     </span>
+                    <a :href="`/admin/semester-reports/${report.id}/pdf`"
+                        class="inline-flex items-center gap-2 rounded-md border border-gray-300 bg-white px-3 py-2 text-sm text-gray-700 hover:bg-gray-50">
+                        <Download class="h-4 w-4" /> PDF
+                    </a>
+                    <button @click="executeRecommendation" :disabled="!canExecute"
+                        :class="canExecute ? 'bg-amber-600 hover:bg-amber-700 text-white' : 'bg-gray-100 text-gray-400 cursor-not-allowed'"
+                        class="inline-flex items-center gap-2 rounded-md px-3 py-2 text-sm font-medium" :title="isExecuted ? 'Sudah dieksekusi' : canExecute ? 'Eksekusi gaji/PKWTT' : 'Tidak ada aksi gaji/PKWTT'">
+                        <Zap class="h-4 w-4" /> {{ isExecuted ? 'Sudah Dieksekusi' : 'Eksekusi' }}
+                    </button>
                     <button v-if="report.status === 'draft'" @click="publish"
                         class="inline-flex items-center gap-2 rounded-md bg-green-600 px-4 py-2 text-sm font-medium text-white hover:bg-green-700">
                         <Send class="h-4 w-4" /> Terbitkan
@@ -261,6 +292,9 @@ const formatDate = (d: string | null) =>
                         </p>
                         <p v-if="report.recommendation.blocked_by_freeze" class="flex items-center gap-1 font-medium text-red-700 sm:col-span-2">
                             <Ban class="h-3.5 w-3.5" /> {{ report.recommendation.warnings[0] ?? 'Promosi dibekukan (SP aktif).' }}
+                        </p>
+                        <p v-if="report.recommendation.executed_at" class="flex items-center gap-1 text-gray-500 sm:col-span-2">
+                            Dieksekusi: {{ new Date(report.recommendation.executed_at).toLocaleString('id-ID') }}
                         </p>
                     </div>
                 </template>
